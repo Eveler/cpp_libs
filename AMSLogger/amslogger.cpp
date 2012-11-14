@@ -4,13 +4,14 @@
 #include <QDir>
 
 bool AMSLogger::initialized=false;
+bool AMSLogger::installed=false;
 int AMSLogger::loglevel=AMSLogger::LevelCritical;
 QFile *AMSLogger::outFile=new QFile();
 QtMsgHandler AMSLogger::oldMsgHandler=NULL;
-int AMSLogger::rotateCount=7;
+int AMSLogger::rotateCount=14;
 
 void AMSLogger::messageOutput(QtMsgType type, const char *msg){
-//  if(!AMSLoggerInitialized) AMSLogger::initialyze();
+  AMSLogger::initialyze();
   int len=strlen(msg);
   char* message=new char[len+14];
   memset(message,0,len+12);
@@ -48,38 +49,22 @@ void AMSLogger::messageOutput(QtMsgType type, const char *msg){
 }
 
 void AMSLogger::install(){
-  QString completeBaseName=QFileInfo(
-        qApp->applicationFilePath()).completeBaseName();
-  QString prefix=qApp->applicationDirPath()+"/"+completeBaseName+
-      "_logger/"+completeBaseName;
-  QString logFile=prefix+".log";
+  initialyze();
+  oldMsgHandler=qInstallMsgHandler(messageOutput);
+  installed=true;
+}
+
+void AMSLogger::initialyze(){
+  if(initialized) return;
+  loglevel=LevelCritical;
+  QString logFile=prefix()+".log";
   outFile->setFileName(logFile);
   //"вращение" либо отправка по почте журнала//////////////////////////////////
 #warning Log email realization mis (отправка по почте не реализована)
-  if(outFile->exists()){
-    for(int i=rotateCount;i>0;i--){
-      QFile::rename(prefix+"_"+QString::number(i)+".log",
-                    prefix+"_"+QString::number(i+1)+".log");
-    }
-//    QFile::remove(prefix+"_"+QString::number(rotateCount+1)+".log");
-    QString pref=prefix;
-    pref.chop(completeBaseName.length());
-    QDir d=QDir(pref);
-    d.setNameFilters(QStringList()<<(completeBaseName+"_*.log"));
-    QStringList filesList=d.entryList(QDir::Files,QDir::Name);
-    foreach(QString file,filesList){
-      QString f=file;
-      if(f.remove(completeBaseName+"_").remove(".log").toInt()>rotateCount){
-        QFile::remove(d.absolutePath()+"/"+file);
-        qDebug()<<file<<"removed";
-      }
-    }
-    outFile->rename(prefix+"_1.log");
-    outFile->setFileName(prefix+".log");
-  }
+  rotate();
   qDebug()<<"AMSLogger: logfile name:"<<outFile->fileName();
   ////////////////////////////////////"вращение" либо отправка по почте журнала
-  initialyze();
+  initialized=true;
 }
 
 void AMSLogger::writeToFile(const char *msg){
@@ -91,27 +76,68 @@ void AMSLogger::writeToFile(const char *msg){
     outFile->close();
     return;
   }
-  QTextStream out(outFile);
-  out.setFieldAlignment(QTextStream::AlignLeft);
-#ifdef Q_OS_WIN
-  out.setCodec("Windows-1251");
-//#else
-//  out.setCodec("UTF-8");
-#endif
+//  QTextStream out(outFile);
+//  out.setFieldAlignment(QTextStream::AlignLeft);
+//#ifdef Q_OS_WIN
+//  out.setCodec("Windows-1251");
+////#else
+////  out.setCodec("UTF-8");
+//#endif
   QString strDateTime=
       QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss.zzz: ");
-//  outFile->write(qPrintable(strDateTime));
-  out<<strDateTime;
-//  outFile->write(msg);
-  out<<qSetFieldWidth(55)<<QString(msg);
-//  outFile->write("\n");
-  out<<qSetFieldWidth(0)<<endl;
-  out.flush();
+  outFile->write(qPrintable(strDateTime));
+//  out<<strDateTime;
+  outFile->write(msg);
+//  out<<qSetFieldWidth(55)<</*QString(*/msg/*)*/;
+  outFile->write("\n");
+//  out<<qSetFieldWidth(0)<<endl;
+//  out.flush();
   outFile->close();
 }
 
-void AMSLogger::initialyze(){
-  loglevel=LevelCritical;
-  oldMsgHandler=qInstallMsgHandler(messageOutput);
-  initialized=true;
+AMSLogger& AMSLogger::operator <<(const QVariant &msg){
+  QString str;
+  if(!msgFile.isEmpty()) str+=msgFile;
+  if(msgLine>0 && !str.isEmpty()) str+=" ("+QVariant(msgLine).toString()+")";
+  if(!str.isEmpty()) str+=": ";
+  str+=msg.toString();
+  messageOutput(msgType,qPrintable(str));
+  return *this;
+}
+
+void AMSLogger::rotate(){
+  if(outFile->fileName().isEmpty()) return;
+  QString completeBN=completeBaseName();
+  QString pfix=prefix();
+  if(outFile->exists()){
+    for(int i=rotateCount;i>0;i--){
+      QFile::rename(pfix+"_"+QString::number(i)+".log",
+                    pfix+"_"+QString::number(i+1)+".log");
+    }
+    QString pref=pfix;
+    pref.chop(completeBN.length());
+    QDir d=QDir(pref);
+    d.setNameFilters(QStringList()<<(completeBN+"_*.log"));
+    QStringList filesList=d.entryList(QDir::Files,QDir::Name);
+    foreach(QString file,filesList){
+      QString f=file;
+      if(f.remove(completeBN+"_").remove(".log").toInt()>rotateCount){
+        QFile::remove(d.absolutePath()+"/"+file);
+        qDebug()<<file<<"removed";
+      }
+    }
+    outFile->rename(pfix+"_1.log");
+    outFile->setFileName(pfix+".log");
+  }
+}
+
+QString AMSLogger::completeBaseName(){
+  return QFileInfo(
+        qApp->applicationFilePath()).completeBaseName();
+}
+
+QString AMSLogger::prefix(){
+  QString completeBN=completeBaseName();
+  return qApp->applicationDirPath()+"/"+completeBN+
+      "_logger/"+completeBN;
 }
