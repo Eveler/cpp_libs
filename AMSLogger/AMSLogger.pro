@@ -8,7 +8,8 @@ QT       -= gui
 QT     += network
 TARGET = AMSLogger
 TEMPLATE = lib
-CONFIG += staticlib release
+#CONFIG += staticlib release
+CONFIG += create_prl
 
 SOURCES += amslogger.cpp \
     smtp.cpp
