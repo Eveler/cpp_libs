@@ -2,6 +2,7 @@
 #include <QFileInfo>
 #include <QDateTime>
 #include <QDir>
+#include <QTextCodec>
 
 bool AMSLogger::initialized=false;
 bool AMSLogger::installed=false;
@@ -87,7 +88,8 @@ void AMSLogger::writeToFile(const char *msg){
       QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss.zzz: ");
   outFile->write(qPrintable(strDateTime));
 //  out<<strDateTime;
-  outFile->write(msg);
+  QString intenalMsg=QTextCodec::codecForCStrings()->toUnicode(msg);
+  outFile->write(QTextCodec::codecForLocale()->fromUnicode(intenalMsg));
 //  out<<qSetFieldWidth(55)<</*QString(*/msg/*)*/;
   outFile->write("\n");
 //  out<<qSetFieldWidth(0)<<endl;
