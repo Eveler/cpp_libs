@@ -11,11 +11,14 @@ TEMPLATE = lib
 #CONFIG += staticlib release
 CONFIG += create_prl
 
+INCLUDEPATH += ./ \
+    ../include/
+
 SOURCES += amslogger.cpp \
     smtp.cpp
 
-HEADERS += amslogger.h \
-    smtp.h
+HEADERS += ../include/amslogger.h \
+    ../include/smtp.h
 #unix:!symbian {
 #    maemo5 {
 #        target.path = /opt/usr/lib
