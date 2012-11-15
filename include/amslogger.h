@@ -17,10 +17,10 @@ public:
   /** Уровень журналирования. По умолчания LevelCritical - ошибки
 \see setLogLevel() \see logLevel()*/
   enum LogLevel {LevelDebug=0,LevelWarn,LevelCritical,LevelFatal};
-  AMSLogger():msgFile(),msgLine(0){
+  Q_CORE_EXPORT_INLINE AMSLogger():msgFile(),msgLine(0){
     initialyze();
   }
-  AMSLogger(QtMsgType type,QString file,int line){
+  Q_CORE_EXPORT_INLINE AMSLogger(QtMsgType type,QString file,int line){
     initialyze();
     msgType=type;
     msgFile=file;

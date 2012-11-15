@@ -91,7 +91,9 @@ void AMSLogger::writeToFile(const char *msg){
   QTextCodec *cfcs=QTextCodec::codecForCStrings();
   if(cfcs){
     QString intenalMsg=cfcs->toUnicode(msg);
-    outFile->write(QTextCodec::codecForLocale()->fromUnicode(intenalMsg));
+    QTextCodec *cfl=QTextCodec::codecForLocale();
+    if(cfl) outFile->write(cfl->fromUnicode(intenalMsg));
+    else outFile->write(msg);
   }else outFile->write(msg);
 //  out<<qSetFieldWidth(55)<</*QString(*/msg/*)*/;
   outFile->write("\n");
