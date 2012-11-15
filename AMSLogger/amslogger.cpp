@@ -57,7 +57,7 @@ void AMSLogger::install(){
 
 void AMSLogger::initialyze(){
   if(initialized) return;
-  loglevel=LevelCritical;
+//  loglevel=LevelCritical;
   QString logFile=prefix()+".log";
   outFile->setFileName(logFile);
   //"вращение" либо отправка по почте журнала//////////////////////////////////
@@ -85,11 +85,14 @@ void AMSLogger::writeToFile(const char *msg){
 ////  out.setCodec("UTF-8");
 //#endif
   QString strDateTime=
-      QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss.zzz: ");
+      QDateTime::currentDateTime().toString("[dd.MM.yyyy] [hh:mm:ss.zzz]: ");
   outFile->write(qPrintable(strDateTime));
 //  out<<strDateTime;
-  QString intenalMsg=QTextCodec::codecForCStrings()->toUnicode(msg);
-  outFile->write(QTextCodec::codecForLocale()->fromUnicode(intenalMsg));
+  QTextCodec *cfcs=QTextCodec::codecForCStrings();
+  if(cfcs){
+    QString intenalMsg=cfcs->toUnicode(msg);
+    outFile->write(QTextCodec::codecForLocale()->fromUnicode(intenalMsg));
+  }else outFile->write(msg);
 //  out<<qSetFieldWidth(55)<</*QString(*/msg/*)*/;
   outFile->write("\n");
 //  out<<qSetFieldWidth(0)<<endl;

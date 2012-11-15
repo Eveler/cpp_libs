@@ -11,19 +11,26 @@ TEMPLATE = lib
 #CONFIG += staticlib release
 CONFIG += create_prl
 
+INCLUDEPATH += ./ \
+    ../include/
+
 SOURCES += amslogger.cpp \
     smtp.cpp
 
-HEADERS += amslogger.h \
-    smtp.h
-#unix:!symbian {
-#    maemo5 {
-#        target.path = /opt/usr/lib
-#    } else {
-#        target.path = /usr/local/lib
-#    }
-#    INSTALLS += target
-#}
-DESTDIR = ../../lib
-OBJECTS_DIR = ../../temp/AMSLogger
-MOC_DIR = ../../temp/AMSLogger
+HEADERS += ../include/amslogger.h \
+    ../include/smtp.h
+
+DESTDIR = ../bin
+DLLDESTDIR = ../bin
+CONFIG(release, debug|release){
+  OBJECTS_DIR = ../temp/$$TARGET/release
+  MOC_DIR = ../temp/$$TARGET/release
+  RCC_DIR = ../temp/$$TARGET/release
+  UI_DIR = ../temp/$$TARGET/release
+}
+CONFIG(debug, debug|release){
+  OBJECTS_DIR = ../temp/$$TARGET/debug
+  MOC_DIR = ../temp/$$TARGET/debug
+  RCC_DIR = ../temp/$$TARGET/debug
+  UI_DIR = ../temp/$$TARGET/debug
+}
