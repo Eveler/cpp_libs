@@ -17,6 +17,8 @@ public:
   /** Уровень журналирования. По умолчания LevelCritical - ошибки
 \see setLogLevel() \see logLevel()*/
   enum LogLevel {LevelDebug=0,LevelWarn,LevelCritical,LevelFatal};
+  Q_DECLARE_FLAGS(LogLevels,LogLevel)
+  Q_FLAGS(LogLevels)
   Q_CORE_EXPORT_INLINE AMSLogger():msgFile(),msgLine(0){
     initialyze();
   }
@@ -46,7 +48,7 @@ public:
   /** Записывает сообщение msg в файл журнала*/
   Q_CORE_EXPORT_INLINE static void writeToFile(const char *msg);
   /** Устанавливает уровень журналирования в файл в \param level \see logLevel()*/
-  static void setLogLevel(LogLevel level){
+  static void setLogLevel(LogLevels level){
     loglevel=level;
   }
   /** Устанавливает количество хранимых файлов журнала при "вращении"*/
@@ -54,7 +56,7 @@ public:
     rotateCount=count;
   }
   /** Возвращает уровень журналирования в файл*/
-  static int logLevel(){
+  static LogLevels logLevel(){
     return loglevel;
   }
   /** Возвращает установлен ли AMSLogger в качестве обработчика QDebug*/
@@ -74,7 +76,7 @@ private:
 
   static bool initialized;
   static bool installed;
-  static int loglevel;
+  static LogLevels loglevel;
   static QFile *outFile;
   static QtMsgHandler oldMsgHandler;
 
@@ -84,6 +86,8 @@ private:
   QString msgFile;
   int msgLine;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(AMSLogger::LogLevels)
 
 Q_CORE_EXPORT_INLINE AMSLogger logDebug(QString file,int line) {
   return AMSLogger(QtDebugMsg,file,line);

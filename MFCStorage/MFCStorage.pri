@@ -6,11 +6,12 @@
 
 DEPENDPATH  += $${PWD}
 
-$${TARGET}.depends = MFCStorage
+mytarget.target = .buildfile
+mytarget.depends = MFCStorage
 MFCStorage_lib.target = MFCStorage
 
 
-QMAKE_EXTRA_TARGETS += $${TARGET} MFCStorage_lib
+QMAKE_EXTRA_TARGETS += mytarget MFCStorage_lib
 
 CONFIG += link_prl #recursive
 

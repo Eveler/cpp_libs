@@ -6,7 +6,7 @@
 
 bool AMSLogger::initialized=false;
 bool AMSLogger::installed=false;
-int AMSLogger::loglevel=AMSLogger::LevelCritical;
+AMSLogger::LogLevels AMSLogger::loglevel=AMSLogger::LevelCritical;
 QFile *AMSLogger::outFile=new QFile();
 QtMsgHandler AMSLogger::oldMsgHandler=NULL;
 int AMSLogger::rotateCount=14;
@@ -21,28 +21,28 @@ void AMSLogger::messageOutput(QtMsgType type, const char *msg){
     strncpy(message,"Debug: ",8);
     strncat(message,msg,len);
     fprintf(stderr, "%s\n", message);
-    if(AMSLogger::logLevel()<=AMSLogger::LevelDebug)
+    if(AMSLogger::logLevel().testFlag(AMSLogger::LevelDebug))
       if(outFile->fileName().length()>0) writeToFile(message);
     break;
   case QtWarningMsg:
     strncpy(message,"Warning: ",10);
     strncat(message,msg,len);
     fprintf(stderr, "%s\n", message);
-    if(AMSLogger::logLevel()<=AMSLogger::LevelWarn)
+    if(AMSLogger::logLevel().testFlag(AMSLogger::LevelWarn))
       if(outFile->fileName().length()>0) writeToFile(message);
     break;
   case QtCriticalMsg:
     strncpy(message,"Critical: ",11);
     strncat(message,msg,len);
     fprintf(stderr, "%s\n", message);
-    if(AMSLogger::logLevel()<=AMSLogger::LevelCritical)
+    if(AMSLogger::logLevel().testFlag(AMSLogger::LevelCritical))
       if(outFile->fileName().length()>0) writeToFile(message);
     break;
   case QtFatalMsg:
     strncpy(message,"Fatal: ",8);
     strncat(message,msg,len);
     fprintf(stderr, "%s\n", message);
-    if(AMSLogger::logLevel()<=AMSLogger::LevelFatal)
+    if(AMSLogger::logLevel().testFlag(AMSLogger::LevelFatal))
       if(outFile->fileName().length()>0) writeToFile(message);
     abort();
   }
