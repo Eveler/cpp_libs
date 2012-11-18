@@ -83,6 +83,8 @@ private:
 
   QString m_KeyField;
 
+  QHash<StorageItemModel *, QList<StorageItemModel *> > m__AutoClearedStorage;
+
   explicit StorageEditor();
   explicit StorageEditor( const QString &alias, QSqlDatabase &db,
                           PropertiesView *propertiesView, QString filter, SortParams *sort );
@@ -96,11 +98,12 @@ private:
   bool loadRecords( StorageItemModel *currentStorage, QString filter );
   bool nextVal( MFCRecord *rootRecord, PropertiesSqlWorker *psw );
 
+  void addAutoClearStorage( StorageItemModel *parentStorage, StorageItemModel *childStorage );
+
 private slots:
   void storageDestroyed();
   void recordAdded( MFCRecord *rootRecord );
   void propertyChanged( QString p_Name, QVariant oldValue, QVariant newValue );
 };
-
 
 #endif // STORAGEEDITOR_H

@@ -1,5 +1,4 @@
 #include "storageitemmodel.h"
-#include <QDebug>
 
 #include <QBitArray>
 #include <QBitmap>
@@ -12,6 +11,8 @@
 #include <QVector2D>
 #include <QListIterator>
 #include <QDateTime>
+
+#include <QDebug>
 #include <QApplication>
 
 const QList<QVariant::Type> StorageItemModel::indexedTypes =
@@ -287,7 +288,7 @@ bool SortParams::comparison( MFCRecord *record_1, MFCRecord *record_2 ) const
        m_PV->propertiesLink() != record_1->propertiesLink() ||
        record_1->propertiesLink() != record_2->propertiesLink() )
   {
-    qDebug() <<isNull() << ( record_1 == 0 ) << ( record_2 == 0 ) <<
+    qDebug() << isNull() << ( record_1 == 0 ) << ( record_2 == 0 ) <<
             ( m_PV->propertiesLink() != record_1->propertiesLink() ) <<
             ( record_1->propertiesLink() != record_2->propertiesLink() );
     return result;
@@ -451,7 +452,7 @@ StorageItemModel::StorageItemModel( PropertiesView *propertiesView, QObject *par
 
 StorageItemModel::~StorageItemModel()
 {
-//  qDebug() <<tr( "~StorageItemModel" ) << this;
+//  qDebug() << tr( "~StorageItemModel" ) << this;;
   m_RecordsUuid.clear();
   m_VisibleRecords.clear();
   m_NewRecords.clear();
@@ -504,22 +505,22 @@ bool StorageItemModel::addExternalStorage( StorageItemModel *storage, bool autoD
   bool hasLink = ( m_PropertiesView->findPropertiesLink( storage->getPropertiesView() ) != 0 );
   if ( isNull()  )
   {
-    qDebug() <<tr( "StorageItemModel is null!" );
+    qDebug() << tr( "StorageItemModel is null!" );;
     return false;
   }
   if ( rowCount() > 0 )
   {
-    qDebug() <<tr( "Row count > 0!" );
+    qDebug() << tr( "Row count > 0!" );;
     return false;
   }
   if ( m__ExternalStorages.contains( storage ) )
   {
-    qDebug() <<tr( "External starage already exists!" );
+    qDebug() << tr( "External starage already exists!" );;
     return false;
   }
   if ( !hasLink )
   {
-    qDebug() <<tr( "Link is not exists!" );
+    qDebug() << tr( "Link is not exists!" );;
     return false;
   }
   if ( m_PropertiesView->findPropertiesLink( storage->getPropertiesView() ) )
@@ -562,8 +563,8 @@ bool StorageItemModel::appendRecord( MFCRecord *rootRecord, bool markAsNew )
   if ( isNull() || m_PropertiesView != rootRecord->propertiesView() ||
        m_PropertiesView->root() != rootRecord->properties() )
   {
-    qDebug() <<isNull() << ( m_PropertiesView != rootRecord->propertiesView() ) <<
-            ( m_PropertiesView->root() != rootRecord->properties() );
+    qDebug() << isNull() << ( m_PropertiesView != rootRecord->propertiesView() ) <<
+            ( m_PropertiesView->root() != rootRecord->properties() );;
     return false;
   }
 
@@ -577,10 +578,10 @@ bool StorageItemModel::appendRecord( MFCRecord *rootRecord, bool markAsNew )
       StorageItemModel *storage = externalStorage( links[pairIdx].second->propertiesViewAlias() );
       if ( storage == 0 )
       {
-        qDebug() <<storage << links[pairIdx].second->propertiesViewAlias() <<
+        qDebug() << storage << links[pairIdx].second->propertiesViewAlias() <<
                 PropertiesView::getPropertiesView(
-                  links[pairIdx].second->propertiesViewAlias() )->alias() ;
-        qDebug() <<m__ExternalStorages.count();
+                  links[pairIdx].second->propertiesViewAlias() )->alias() ;;
+        qDebug() << m__ExternalStorages.count();;
       }
 //      ParamFilters filter;
 //      filter.setParam( storage->getPropertiesView(),
@@ -589,11 +590,11 @@ bool StorageItemModel::appendRecord( MFCRecord *rootRecord, bool markAsNew )
 //      QList<MFCRecord *> result = storage->findRecords( filter );
 //      if ( result.count() == 0 )
 //      {
-//        qDebug() <<tr( "storage->findRecords fail\t[%1:%2]" ).arg(
+//        qDebug() << tr( "storage->findRecords fail\t[%1:%2]" ).arg(
 //                  rootRecord->properties()->name(),
-//                  storage->getPropertiesView()->root()->name() );
-//        qDebug() <<tr( "\t\t>>>>>>> value:\t[%1]" ).arg(
-//                  rootRecord->currentProperty( links[pairIdx].first ).toString() );
+//                  storage->getPropertiesView()->root()->name() );;
+//        qDebug() << tr( "\t\t>>>>>>> value:\t[%1]" ).arg(
+//                  rootRecord->currentProperty( links[pairIdx].first ).toString() );;
 //        return false;
 //      }
 //      records << result.first();
@@ -601,29 +602,29 @@ bool StorageItemModel::appendRecord( MFCRecord *rootRecord, bool markAsNew )
                                                 rootRecord->currentProperty( links[pairIdx].first ) );
 //      if ( showLog )
 //      {
-//        qDebug() <<"parent_PName:" << links[pairIdx].first;
-//        qDebug() <<"child_PName:" << links[pairIdx].second->propertyName();
-//        qDebug() <<"key value:" << rootRecord->currentProperty( links[pairIdx].first );
-//        qDebug() <<"result record: " << result;
+//        qDebug() << "parent_PName:" << links[pairIdx].first;;
+//        qDebug() << "child_PName:" << links[pairIdx].second->propertyName();;
+//        qDebug() << "key value:" << rootRecord->currentProperty( links[pairIdx].first );;
+//        qDebug() << "result record: " << result;;
 //      }
       if ( showLog )
-        qDebug() <<"parent_PName:" << links[pairIdx].first <<
+        qDebug() << "parent_PName:" << links[pairIdx].first <<
                 "child_PName:" << links[pairIdx].second->propertyName() <<
                 "key value:" << rootRecord->currentProperty( links[pairIdx].first ) <<
-                "result record: " << result;
+                "result record: " << result;;
 //      if ( rootRecord->propertiesView()->alias().contains( tr( "docpaths" ) ) )
-//        qDebug() <<"propertyName" << links[pairIdx].first <<
+//        qDebug() << "propertyName" << links[pairIdx].first <<
 //                "value" << rootRecord->currentProperty( links[pairIdx].first ) <<
-//                "result" << result;
+//                "result" << result;;
       if ( result == 0 &&
            rootRecord->currentProperty( links[pairIdx].first ).isValid() &&
            rootRecord->currentProperty( links[pairIdx].first ).toInt() != 0 )
       {
-        qDebug() <<tr( "storage->findRecords fail\t[%1:%2]" ).arg(
+        qDebug() << tr( "storage->findRecords fail\t[%1:%2]" ).arg(
                   rootRecord->properties()->name(),
-                  storage->getPropertiesView()->root()->name() );
-        qDebug() <<tr( "\t\t>>>>>>> value:\t[%1]" ).arg(
-                  rootRecord->currentProperty( links[pairIdx].first ).toString() );
+                  storage->getPropertiesView()->root()->name() );;
+        qDebug() << tr( "\t\t>>>>>>> value:\t[%1]" ).arg(
+                  rootRecord->currentProperty( links[pairIdx].first ).toString() );;
         return false;
       }
       if ( result != 0 ) records << result;
@@ -631,9 +632,9 @@ bool StorageItemModel::appendRecord( MFCRecord *rootRecord, bool markAsNew )
     foreach ( MFCRecord *childRecord, records ){
       if ( !rootRecord->addChildRecord( childRecord ) )
       {
-        qDebug() <<"rootRecord->addChildRecord fail";
-        qDebug() <<tr( "parent [%1] : child [%2]" ).arg( rootRecord->properties()->name(),
-                                                      childRecord->properties()->name() );
+        qDebug() << "rootRecord->addChildRecord fail";;
+        qDebug() << tr( "parent [%1] : child [%2]" ).arg( rootRecord->properties()->name(),
+                                                      childRecord->properties()->name() );;
         return false;
       }
     }
@@ -1223,31 +1224,11 @@ MFCRecord * StorageItemModel::findByIndex( const QString &p_Name, QVariant val )
   return m_IndexedRecords.value( p_Name, QHash<QString, MFCRecord *>() ).value( val.toString(), NULL );
 }
 
-void StorageItemModel::deleteContent()
-{
-//  m_IndexedRecords.clear();
-//  m_RecordsUuid.clear();
-//  m_VisibleRecords.clear();
-//  m_NewRecords.clear();
-//  m_NotSorted.clear();
-
-//  DPRINT("HERE",qApp);
-  QList<MFCRecord *> records = m_AvailableRecords;
-//  DPRINT("HERE",qApp);
-//  m_AvailableRecords.clear();
-  while ( !records.isEmpty() )
-  {
-    MFCRecord *record = records.takeFirst();
-    removeRecord( record );
-    delete record;
-  }
-}
-
 bool StorageItemModel::resort()
 {
-//  qDebug() <<m_Sort;
+//  qDebug() << m_Sort;;
   if ( m_Sort == 0 ) return false;
-//  qDebug() <<( m_PropertiesView != m_Sort->propertiesView() );
+//  qDebug() << ( m_PropertiesView != m_Sort->propertiesView() );;
   if ( m_PropertiesView != m_Sort->propertiesView() )
   {
     delete m_Sort;
@@ -1255,7 +1236,7 @@ bool StorageItemModel::resort()
   }
 
   if ( m_AvailableRecords.count() == 1 ) m_NotSorted.clear();
-//  qDebug() <<m_NotSorted.count();
+//  qDebug() << m_NotSorted.count();;
   QList<MFCRecord *> old_VisibleRecords = m_VisibleRecords;
   QList<MFCRecord *> old_NewRecords =  m_NewRecords;
   if ( !m_NotSorted.isEmpty() )
@@ -1265,13 +1246,13 @@ bool StorageItemModel::resort()
   }
   else return false;
 
-//  qDebug() <<"m_AvailableRecords.count()" << m_AvailableRecords.count();
-//  qDebug() <<"m_VisibleRecords.count()" << m_VisibleRecords.count();
-//  qDebug() <<"m_NewRecords.count()" << m_NewRecords.count();
+//  qDebug() << "m_AvailableRecords.count()" << m_AvailableRecords.count();;
+//  qDebug() << "m_VisibleRecords.count()" << m_VisibleRecords.count();;
+//  qDebug() << "m_NewRecords.count()" << m_NewRecords.count();;
 
 //  QList<MFCRecord *> sortedRecords = QList<MFCRecord *>();
 
-//  qDebug() <<tr( "ֲûחמג quicksort [%1:%2]" ).arg( stackCall ).arg( maxCall );
+//  qDebug() << tr( "ֲûחמג quicksort [%1:%2]" ).arg( stackCall ).arg( maxCall );;
   if ( m_NotSorted.count() > 50 )
   {
     quicksort( 0, m_AvailableRecords.count()-1 );
@@ -1294,9 +1275,9 @@ bool StorageItemModel::resort()
       m_NewRecords << rootRecord;
   }
 
-//  qDebug() <<"m_AvailableRecords.count()" << m_AvailableRecords.count();
-//  qDebug() <<"m_VisibleRecords.count()" << m_VisibleRecords.count();
-//  qDebug() <<"m_NewRecords.count()" << m_NewRecords.count();
+//  qDebug() << "m_AvailableRecords.count()" << m_AvailableRecords.count();;
+//  qDebug() << "m_VisibleRecords.count()" << m_VisibleRecords.count();;
+//  qDebug() << "m_NewRecords.count()" << m_NewRecords.count();;
   return true;
 }
 
@@ -1304,6 +1285,28 @@ bool StorageItemModel::resortAll()
 {
   m_NotSorted = m_AvailableRecords;
   return resort();
+}
+
+void StorageItemModel::deleteContent()
+{
+//  m_IndexedRecords.clear();
+//  m_RecordsUuid.clear();
+//  m_VisibleRecords.clear();
+//  m_NewRecords.clear();
+//  m_NotSorted.clear();
+
+//  DPRINT("HERE",qApp);
+  QList<MFCRecord *> records = m_AvailableRecords;
+//  DPRINT("HERE",qApp);
+//  m_AvailableRecords.clear();
+  while ( !records.isEmpty() )
+  {
+    MFCRecord *record = records.takeFirst();
+    removeRecord( record );
+    delete record;
+  }
+
+  emit contentDeleted();
 }
 
 //==============================================================================
@@ -1695,7 +1698,7 @@ void StorageItemModel::smallsort()
   {
     MFCRecord *rootRecord = m_NotSorted.takeFirst();
     int index = m_AvailableRecords.indexOf( rootRecord );
-//    qDebug() <<"smallsort UP============";
+//    qDebug() << "smallsort UP============";;
     for ( int rIdx = index; rIdx > 0; rIdx-- )
     {
       int prevRecord = rIdx-1;
@@ -1713,7 +1716,7 @@ void StorageItemModel::smallsort()
       }
       else break;
     }
-//    qDebug() <<"smallsort DOWN==========";
+//    qDebug() << "smallsort DOWN==========";;
     for ( int rIdx = index; rIdx < m_AvailableRecords.count()-1; rIdx++ )
     {
       int nextRecord = rIdx+1;
