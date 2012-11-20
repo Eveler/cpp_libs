@@ -131,7 +131,6 @@ public:
   bool setChild( MFCRecord *rootRecord, QString p_Name, MFCRecord *child );
 
   MFCRecord * findByIndex( const QString &p_Name, QVariant val );
-  void deleteContent();
 
 signals:
   void searchStarted();
@@ -145,9 +144,12 @@ signals:
   void visibleRecordRemoved( int index );
   void recordMoved( MFCRecord *rootRecord, int oldIndex );
 
+  void contentDeleted();
+
 public slots:
   bool resort();
   bool resortAll();
+  void deleteContent();
 
 private:
   static const QList<QVariant::Type> indexedTypes;

@@ -1,4 +1,5 @@
 #include "storageeditor.h"
+
 #include <QDebug>
 #include <QApplication>
 
@@ -419,6 +420,9 @@ StorageEditor::~StorageEditor()
   emit destroyed( (*m_Alias) );
   delete m_Alias;
   m_Alias = 0;
+
+  m__AutoClearedStorage.clear();
+
   if ( m_Storage != 0 )
   {
     m_Storage->deleteContent();
@@ -734,7 +738,8 @@ bool StorageEditor::loadRecords( StorageItemModel *currentStorage, QString filte
 //      qDebug() << tr( "PropertiesView alias [%1]" ).arg( child->alias() );
       if ( child->isNull() ) return false;
       extStorage = new StorageItemModel( child );
-      /*bool res = */currentStorage->addExternalStorage( extStorage, true );
+      bool res = currentStorage->addExternalStorage( extStorage, true );
+      if ( res ) addAutoClearStorage( currentStorage, extStorage );
 //      qDebug() << "currentStorage->addExternalStorage" << res;
     }
     QStringList ids_plus = QStringList();
@@ -804,6 +809,18 @@ bool StorageEditor::nextVal( MFCRecord *rootRecord, PropertiesSqlWorker *psw )
   delete sql_result;
   sql_result = 0;
   return false;
+}
+
+void StorageEditor::addAutoClearStorage( StorageItemModel *parentStorage, StorageItemModel *childStorage )
+{
+  if ( !m__AutoClearedStorage.contains( parentStorage ) )
+    m__AutoClearedStorage[parentStorage] << QList<StorageItemModel *>();
+
+  if ( !m__AutoClearedStorage[parentStorage].contains( childStorage ) )
+  {
+    m__AutoClearedStorage[parentStorage].append( childStorage );
+    connect( parentStorage, SIGNAL(contentDeleted()), childStorage, SLOT(deleteContent()) );
+  }
 }
 
 void StorageEditor::storageDestroyed()
