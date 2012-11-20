@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QFile>
 #include <QCoreApplication>
+#include <QTextStream>
 #include "smtp.h"
 
 /** \brief Выводит сообщения, передаваемые при помощи qDebug(), qWarning() и т.д.
@@ -25,9 +26,11 @@ public:
   Q_CORE_EXPORT_INLINE AMSLogger(QtMsgType type,QString file,int line){
     initialyze();
     msgType=type;
+    oldMsgType=-1;
     msgFile=file;
     msgLine=line;
   }
+  ~AMSLogger(){messageOutput(msgType,"\n");}
   /** Выводит сообщение \param msg и записывает его в файл журнала в зависимости от
  установленного уровня на основании типа сообщения \param type.
 \see setLogLevel()*/
@@ -79,6 +82,8 @@ private:
   static LogLevels loglevel;
   static QFile *outFile;
   static QtMsgHandler oldMsgHandler;
+  static QTextStream stream;
+  static int oldMsgType;
 
   Smtp *smtp;
   static int rotateCount;

@@ -10,6 +10,8 @@ AMSLogger::LogLevels AMSLogger::loglevel=AMSLogger::LevelCritical;
 QFile *AMSLogger::outFile=new QFile();
 QtMsgHandler AMSLogger::oldMsgHandler=NULL;
 int AMSLogger::rotateCount=14;
+QTextStream AMSLogger::stream(stderr);
+int AMSLogger::oldMsgType=-1;
 
 void AMSLogger::messageOutput(QtMsgType type, const char *msg){
   AMSLogger::initialyze();
@@ -20,32 +22,53 @@ void AMSLogger::messageOutput(QtMsgType type, const char *msg){
   case QtDebugMsg:
     strncpy(message,"Debug: ",8);
     strncat(message,msg,len);
-    fprintf(stderr, "%s\n", message);
+//    fprintf(stderr, "%s\n", message);
+    if(oldMsgType!=type){
+      if(stream.device()->pos()>0) stream<<endl;
+      stream<<"Debug: ";
+    }
+    stream<<msg;
     if(AMSLogger::logLevel().testFlag(AMSLogger::LevelDebug))
       if(outFile->fileName().length()>0) writeToFile(message);
     break;
   case QtWarningMsg:
     strncpy(message,"Warning: ",10);
     strncat(message,msg,len);
-    fprintf(stderr, "%s\n", message);
+//    fprintf(stderr, "%s\n", message);
+    if(oldMsgType!=type){
+      if(stream.device()->pos()>0) stream<<endl;
+      stream<<"Warning: ";
+    }
+    stream<<msg;
     if(AMSLogger::logLevel().testFlag(AMSLogger::LevelWarn))
       if(outFile->fileName().length()>0) writeToFile(message);
     break;
   case QtCriticalMsg:
     strncpy(message,"Critical: ",11);
     strncat(message,msg,len);
-    fprintf(stderr, "%s\n", message);
+//    fprintf(stderr, "%s\n", message);
+    if(oldMsgType!=type){
+      if(stream.device()->pos()>0) stream<<endl;
+      stream<<"Critical: ";
+    }
+    stream<<msg;
     if(AMSLogger::logLevel().testFlag(AMSLogger::LevelCritical))
       if(outFile->fileName().length()>0) writeToFile(message);
     break;
   case QtFatalMsg:
     strncpy(message,"Fatal: ",8);
     strncat(message,msg,len);
-    fprintf(stderr, "%s\n", message);
+//    fprintf(stderr, "%s\n", message);
+    if(oldMsgType!=type){
+      if(stream.device()->pos()>0) stream<<endl;
+      stream<<"Fatal: ";
+    }
+    stream<<msg;
     if(AMSLogger::logLevel().testFlag(AMSLogger::LevelFatal))
       if(outFile->fileName().length()>0) writeToFile(message);
     abort();
   }
+  oldMsgType=type;
   delete[] message;
 }
 
@@ -96,7 +119,7 @@ void AMSLogger::writeToFile(const char *msg){
     else outFile->write(msg);
   }else outFile->write(msg);
 //  out<<qSetFieldWidth(55)<</*QString(*/msg/*)*/;
-  outFile->write("\n");
+//  outFile->write("\n");
 //  out<<qSetFieldWidth(0)<<endl;
 //  out.flush();
   outFile->close();
@@ -104,9 +127,11 @@ void AMSLogger::writeToFile(const char *msg){
 
 AMSLogger& AMSLogger::operator <<(const QVariant &msg){
   QString str;
-  if(!msgFile.isEmpty()) str+=msgFile;
-  if(msgLine>0 && !str.isEmpty()) str+=" ("+QVariant(msgLine).toString()+")";
-  if(!str.isEmpty()) str+=": ";
+  if(oldMsgType!=msgType){
+    if(!msgFile.isEmpty()) str+=msgFile;
+    if(msgLine>0 && !str.isEmpty()) str+=" ("+QVariant(msgLine).toString()+")";
+    if(!str.isEmpty()) str+=": ";
+  }
   str+=msg.toString();
   messageOutput(msgType,qPrintable(str));
   return *this;
