@@ -23,7 +23,7 @@ public:
   Q_CORE_EXPORT_INLINE AMSLogger():msgFile(),msgLine(0){
     initialyze();
   }
-  Q_CORE_EXPORT_INLINE AMSLogger(QtMsgType type,QString file,int line){
+  Q_CORE_EXPORT_INLINE AMSLogger(QtMsgType type,QString &file,int line){
     initialyze();
     msgType=type;
     oldMsgType=-1;
@@ -49,7 +49,7 @@ public:
 и "вращает" его*/
   static void initialyze();
   /** Записывает сообщение msg в файл журнала*/
-  Q_CORE_EXPORT_INLINE static void writeToFile(const char *msg);
+  Q_CORE_EXPORT_INLINE static void writeToFile(const QByteArray &msg);
   /** Устанавливает уровень журналирования в файл в \param level \see logLevel()*/
   static void setLogLevel(LogLevels level){
     loglevel=level;

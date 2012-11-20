@@ -15,61 +15,57 @@ int AMSLogger::oldMsgType=-1;
 
 void AMSLogger::messageOutput(QtMsgType type, const char *msg){
   AMSLogger::initialyze();
-  int len=strlen(msg);
-  char* message=new char[len+14];
-  memset(message,0,len+12);
+  QByteArray ba(msg);
+  QString strDateTime=
+      QDateTime::currentDateTime().toString("[dd.MM.yyyy] [hh:mm:ss.zzz]: ");
+
   switch (type){
   case QtDebugMsg:
-    strncpy(message,"Debug: ",8);
-    strncat(message,msg,len);
-//    fprintf(stderr, "%s\n", message);
     if(oldMsgType!=type){
       if(stream.device()->pos()>0) stream<<endl;
-      stream<<"Debug: ";
+      ba.prepend("Debug: ");
+      ba.prepend(qPrintable(strDateTime));
     }
-    stream<<msg;
+    stream<<ba;
     if(AMSLogger::logLevel().testFlag(AMSLogger::LevelDebug))
-      if(outFile->fileName().length()>0) writeToFile(message);
+      if(outFile->fileName().length()>0) writeToFile(ba);
     break;
+
   case QtWarningMsg:
-    strncpy(message,"Warning: ",10);
-    strncat(message,msg,len);
-//    fprintf(stderr, "%s\n", message);
     if(oldMsgType!=type){
       if(stream.device()->pos()>0) stream<<endl;
-      stream<<"Warning: ";
+      ba.prepend("Warning: ");
+      ba.prepend(qPrintable(strDateTime));
     }
     stream<<msg;
     if(AMSLogger::logLevel().testFlag(AMSLogger::LevelWarn))
-      if(outFile->fileName().length()>0) writeToFile(message);
+      if(outFile->fileName().length()>0) writeToFile(ba);
     break;
+
   case QtCriticalMsg:
-    strncpy(message,"Critical: ",11);
-    strncat(message,msg,len);
-//    fprintf(stderr, "%s\n", message);
     if(oldMsgType!=type){
       if(stream.device()->pos()>0) stream<<endl;
-      stream<<"Critical: ";
+      ba.prepend("Critical: ");
+      ba.prepend(qPrintable(strDateTime));
     }
     stream<<msg;
     if(AMSLogger::logLevel().testFlag(AMSLogger::LevelCritical))
-      if(outFile->fileName().length()>0) writeToFile(message);
+      if(outFile->fileName().length()>0) writeToFile(ba);
     break;
+
   case QtFatalMsg:
-    strncpy(message,"Fatal: ",8);
-    strncat(message,msg,len);
-//    fprintf(stderr, "%s\n", message);
     if(oldMsgType!=type){
       if(stream.device()->pos()>0) stream<<endl;
-      stream<<"Fatal: ";
+      ba.prepend("Fatal: ");
+      ba.prepend(qPrintable(strDateTime));
     }
     stream<<msg;
     if(AMSLogger::logLevel().testFlag(AMSLogger::LevelFatal))
-      if(outFile->fileName().length()>0) writeToFile(message);
-    abort();
+      if(outFile->fileName().length()>0) writeToFile(ba);
+//    abort();
+    break;
   }
   oldMsgType=type;
-  delete[] message;
 }
 
 void AMSLogger::install(){
@@ -91,7 +87,7 @@ void AMSLogger::initialyze(){
   initialized=true;
 }
 
-void AMSLogger::writeToFile(const char *msg){
+void AMSLogger::writeToFile(const QByteArray &msg){
   QDir d=QDir();
   d.mkpath(QFileInfo(*outFile).absolutePath());
   if(!outFile->open(QFile::Append | QFile::WriteOnly | QFile::Text)){
@@ -100,17 +96,7 @@ void AMSLogger::writeToFile(const char *msg){
     outFile->close();
     return;
   }
-//  QTextStream out(outFile);
-//  out.setFieldAlignment(QTextStream::AlignLeft);
-//#ifdef Q_OS_WIN
-//  out.setCodec("Windows-1251");
-////#else
-////  out.setCodec("UTF-8");
-//#endif
-  QString strDateTime=
-      QDateTime::currentDateTime().toString("[dd.MM.yyyy] [hh:mm:ss.zzz]: ");
-  outFile->write(qPrintable(strDateTime));
-//  out<<strDateTime;
+
   QTextCodec *cfcs=QTextCodec::codecForCStrings();
   if(cfcs){
     QString intenalMsg=cfcs->toUnicode(msg);
@@ -118,10 +104,7 @@ void AMSLogger::writeToFile(const char *msg){
     if(cfl) outFile->write(cfl->fromUnicode(intenalMsg));
     else outFile->write(msg);
   }else outFile->write(msg);
-//  out<<qSetFieldWidth(55)<</*QString(*/msg/*)*/;
-//  outFile->write("\n");
-//  out<<qSetFieldWidth(0)<<endl;
-//  out.flush();
+
   outFile->close();
 }
 
