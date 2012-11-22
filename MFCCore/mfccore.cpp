@@ -21,21 +21,3 @@ int MFCCore::findColumn( QAbstractItemModel *model, const QString &name )
 
   return -1;
 }
-
-//QList<QVariant> MFCCore::exists( QList<QVariant> list1, QList<QVariant> list2 )
-//{
-//  QList<QVariant> result = QList<QVariant>();
-//  foreach ( QVariant val, list2 )
-//    if ( list1.contains( val ) )
-//      result << val;
-
-//  return result;
-//}
-
-//QList<QVariant> MFCCore::notExists( QList<QVariant> list1, QList<QVariant> list2 )
-//{
-//  QList<QVariant> result = list1;
-//  foreach ( QVariant val, list2 ) result.removeOne( val );
-
-//  return result;
-//}

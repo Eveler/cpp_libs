@@ -6,8 +6,6 @@
 namespace MFCCore
 {
 static int findColumn( QAbstractItemModel *model, const QString &name );
-//  static QList<QVariant> exists( QList<QVariant> list1, QList<QVariant> list2 );
-//  static QList<QVariant> notExists( QList<QVariant> list1, QList<QVariant> list2 );
 template<class T>
 static QList<T> exists( QList<T> list1, QList<T> list2 )
 {
