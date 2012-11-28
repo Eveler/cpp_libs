@@ -5,9 +5,9 @@
 
 class Step : public QObject
 {
-    Q_OBJECT
+  Q_OBJECT
 public:
-    explicit Step(QObject *parent = 0);
+  explicit Step(QObject *parent = 0);
 
 signals:
 
