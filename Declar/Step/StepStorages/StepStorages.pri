@@ -3,6 +3,11 @@ INCLUDEPATH *= $$PWD/ \
     $$PWD/ProceduresStorage/ \
     $$PWD/../../../include/
 
+LIBS *= -L$$PWD/../../../bin/ \
+    -lMFCStorage \
+    -lAMSLogger \
+    -lMFCCore
+
 HEADERS *= \
     $$PWD/../../../include/proceduresstorage.h \
     $$PWD/../../../include/destinationsstorage.h
@@ -10,8 +15,6 @@ HEADERS *= \
 SOURCES *= \
     $$PWD/ProceduresStorage/proceduresstorage.cpp \
     $$PWD/DestinationsStorage/destinationsstorage.cpp
-
-
 
 
 
