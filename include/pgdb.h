@@ -71,8 +71,12 @@ typedef struct{
 
 /** Структура ограничения*/
 typedef struct{
+  enum ConstraintType { UndefinedType = 0, PrimaryKey, ForeignKey};
+  ConstraintType cType;
   QString cDef;
   QStringList cFields;
+  QString cTable;
+  QStringList cFieldsF;
 } PgConstraint;
 
 class PgTable : public QObject
@@ -90,7 +94,8 @@ public:
                 const bool isNotNULL=false);
   /** Добавить ограничение*/
   void addConstraint(const QString cName,const QString fldName,
-                     const QString cDef="");
+                     const QString cDef, PgConstraint::ConstraintType type,
+                     const QString cTable, const QStringList fldNamesF );
   /** Установить определение ограничения*/
   void setConstraintDefinition(const QString cName,const QString cDef);
   /** Добавить поле, на которое накладывается данное ограничение*/
@@ -107,7 +112,7 @@ public:
     if(!tgList.contains(tgName)) tgList.insert(tgName,tgDef);
   }
   /** Список полей таблицы*/
-  QStringList fields() {return fieldList.keys();}
+  QStringList fields() {return m__FieldNames;}
   /** Список полей в составе первичного ключа*/
   QStringList primaryKeyFields();
   /** Тип поля*/
@@ -124,6 +129,14 @@ public:
   }
   /** Список имён ограничений*/
   QStringList constraints() {return cList.keys();}
+  /** Тип ограничения*/
+  PgConstraint::ConstraintType constraintType( QString cName ) const;
+  /** Список полей ограничения*/
+  QStringList constraintFields( QString cName ) const;
+  /** Имя таблицы, на которое ссылается ограничение*/
+  QString constraintTable( QString cName ) const;
+  /** Список полей, на которое ссылается ограничение*/
+  QStringList constraintFieldsF( QString cName ) const;
   /** Ограничение, накладываемое на поле*/
   QStringList fieldConstraints(QString fldName);
   /** SQL определение ограничения*/
@@ -156,6 +169,7 @@ public:
 private:
   QString tableName;
   QString nameSpace;
+  QStringList m__FieldNames;
   QMap< QString,PgField > fieldList;
   QMap< QString,PgIndex > indexList;
   QMap< QString,PgConstraint > cList;
@@ -236,12 +250,17 @@ private slots:
 #define CONSTRAINT_QUERY \
   "SELECT n.nspname,"\
   "  c.relname,"\
+  "  (SELECT c2.relname FROM pg_class c2 WHERE co.confrelid=c2.oid) AS relname_f,"\
   "  co.conname,"\
   "  co.contype,"\
   "  array_to_string(array(SELECT a.attname"\
   "    FROM pg_attribute a"\
   "    WHERE c.oid = a.attrelid AND a.attnum=ANY(co.conkey)),';')"\
   "  AS fields,"\
+  "  array_to_string(array(SELECT a.attname"\
+  "    FROM pg_attribute a"\
+  "    WHERE c.oid = a.attrelid AND a.attnum=ANY(co.confkey)),';')"\
+  "  AS fields_f,"\
   "  pg_get_constraintdef(co.oid) AS condef "\
   "FROM pg_constraint co "\
   "JOIN pg_class c ON co.conrelid=c.oid "\
