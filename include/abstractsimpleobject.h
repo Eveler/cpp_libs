@@ -18,14 +18,12 @@ public:
   explicit AbstractSimpleObject(QObject *parent = 0);
 
   const QVariant & id() const;
-
   const QString & name() const;
 
 signals:
 
 public slots:
   void setId( QVariant value );
-
   void setName( QString value );
 
 private:
