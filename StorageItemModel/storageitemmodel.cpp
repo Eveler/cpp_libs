@@ -658,7 +658,7 @@ bool StorageItemModel::appendRecord( MFCRecord *rootRecord, bool markAsNew )
 
   reindexRecord( row );
 
-  emit recordAdded( m_AvailableRecords.last() );
+  emit recordAdded( rootRecord, m_AvailableRecords.indexOf( rootRecord ) );
   emit recordDisplayChanged( m_VisibleRecords.last(), m_VisibleRecords.count()-1 );
 
   return true;
@@ -746,6 +746,7 @@ bool StorageItemModel::removeRecord( MFCRecord *rootRecord )
   //  deleteRecord( rootRecord );
 //  delete rootRecord;
   if ( idx > -1 ) emit visibleRecordRemoved( idx );
+  emit recordRemoved( rootRecord, idx );
 
   return true;
 }
@@ -769,6 +770,7 @@ bool StorageItemModel::removeVisibleRecord( MFCRecord *rootRecord )
   //  deleteRecord( rootRecord );
 //  delete rootRecord;
   emit visibleRecordRemoved( idx );
+  emit recordRemoved( rootRecord, avIdx );
 
   return true;
 }
@@ -792,6 +794,7 @@ bool StorageItemModel::removeVisibleRecord( int row )
   //  deleteRecord( rootRecord );
 //  delete rootRecord;
   emit visibleRecordRemoved( row );
+  emit recordRemoved( rootRecord, avIdx );
 
   return true;
 }

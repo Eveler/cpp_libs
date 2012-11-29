@@ -1,4 +1,4 @@
-QT       -= gui
+QT       += gui
 
 TARGET = Declar
 CONFIG(debug, debug|release): TARGET = $${TARGET}d
@@ -7,8 +7,6 @@ CONFIG += create_prl
 TEMPLATE = lib
 
 DEFINES += Declar_LIBRARY
-
-include( ./Step/Step.pri )
 
 INCLUDEPATH += ./ \
     ../bin/ \
@@ -58,6 +56,6 @@ HEADERS += \
 SOURCES += \
     declar.cpp
 
-
-
+include( ./Service/Service.pri )
+include( ./Step/Step.pri )
 
