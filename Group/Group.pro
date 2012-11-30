@@ -1,23 +1,27 @@
 QT       += gui
 
-TARGET = Declar
+TARGET = Group
 CONFIG(debug, debug|release): TARGET = $${TARGET}d
 CONFIG += create_prl
 
 TEMPLATE = lib
 
-DEFINES += DECLAR_LIBRARY
+DEFINES += GROUP_LIBRARY
 
 INCLUDEPATH += ./ \
     ../bin/ \
-    ../include/
+    ../include/ \
+    ../Abstraction/AbstractSimpleObject/ \
+    ../Abstraction/AbstractSimpleStorage/ \
+    ./Group/ \
+    ./GroupsStorage/
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
     TARGET.UID3 = 0xE279790D
     TARGET.CAPABILITY =
     TARGET.EPOCALLOWDLLDATA = 1
-    addFiles.sources = Declar.dll
+    addFiles.sources = Group.dll
     addFiles.path = !:/sys/bin
     DEPLOYMENT += addFiles
 }
@@ -48,14 +52,25 @@ CONFIG(debug, debug|release){
 
 LIBS += -L../bin/ \
     -lAMSLogger \
-    -lMFCCore
+    -lMFCCore \
+    -lMFCStorage
 
 HEADERS += \
-    ../include/declar.h
+    ../include/group.h \
+    ../include/groupsstorage.h \
+    ../include/abstractsimplestorage.h \
+    ../include/abstractsimpleobject.h
 
 SOURCES += \
-    declar.cpp
+    ../Abstraction/AbstractSimpleObject/abstractsimpleobject.cpp \
+    ../Abstraction/AbstractSimpleStorage/abstractsimplestorage.cpp \
+    Group/group.cpp \
+    GroupsStorage/groupsstorage.cpp
 
-include( ./Service/Service.pri )
-include( ./Step/Step.pri )
+
+
+
+
+
+
 

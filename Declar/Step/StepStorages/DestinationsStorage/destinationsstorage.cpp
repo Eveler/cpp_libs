@@ -21,8 +21,8 @@ DestinationsStorage::DestinationsStorage(QObject *parent) :
 
 void DestinationsStorage::setObjectData( AbstractSimpleObject *obj, MFCRecord *record )
 {
-  obj->setId( record->currentProperty( m__ColName_Id ) );
-  obj->setName( record->currentProperty( m__ColName_Name ).toString() );
+  obj->setId( record->currentProperty( m__Cols.Id ) );
+  obj->setName( record->currentProperty( m__Cols.Name ).toString() );
 }
 
 void DestinationsStorage::recordAdded( MFCRecord *record, int index )
@@ -34,6 +34,7 @@ void DestinationsStorage::recordAdded( MFCRecord *record, int index )
 
 void DestinationsStorage::recordRemoved( MFCRecord */*record*/, int index )
 {
-  m__Destinations.removeAt( index );
+  AbstractSimpleObject *obj = m__Destinations.takeAt( index );
+  delete obj;
 }
 

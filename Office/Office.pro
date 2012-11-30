@@ -1,23 +1,27 @@
 QT       += gui
 
-TARGET = Declar
+TARGET = Office
 CONFIG(debug, debug|release): TARGET = $${TARGET}d
 CONFIG += create_prl
 
 TEMPLATE = lib
 
-DEFINES += DECLAR_LIBRARY
+DEFINES += OFFICE_LIBRARY
 
 INCLUDEPATH += ./ \
     ../bin/ \
-    ../include/
+    ../include/ \
+    ../Abstraction/AbstractSimpleObject/ \
+    ../Abstraction/AbstractSimpleStorage/ \
+    ./Office/ \
+    ./OfficesStorage/
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
     TARGET.UID3 = 0xE279790D
     TARGET.CAPABILITY =
     TARGET.EPOCALLOWDLLDATA = 1
-    addFiles.sources = Declar.dll
+    addFiles.sources = Office.dll
     addFiles.path = !:/sys/bin
     DEPLOYMENT += addFiles
 }
@@ -48,14 +52,25 @@ CONFIG(debug, debug|release){
 
 LIBS += -L../bin/ \
     -lAMSLogger \
-    -lMFCCore
+    -lMFCCore \
+    -lMFCStorage
 
 HEADERS += \
-    ../include/declar.h
+    ../include/abstractsimpleobject.h \
+    ../include/abstractsimplestorage.h \
+    ../include/office.h \
+    ../include/officesstorage.h
 
 SOURCES += \
-    declar.cpp
+    ../Abstraction/AbstractSimpleObject/abstractsimpleobject.cpp \
+    ../Abstraction/AbstractSimpleStorage/abstractsimplestorage.cpp \
+    Office/office.cpp \
+    OfficesStorage/officesstorage.cpp
 
-include( ./Service/Service.pri )
-include( ./Step/Step.pri )
+
+
+
+
+
+
 

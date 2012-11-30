@@ -3,6 +3,13 @@
 
 #include <QAbstractItemModel>
 
+typedef struct
+{
+  QString surname;
+  QString firstname;
+  QString lastname;
+} StructName;
+
 class MFCCore
 {
 public:

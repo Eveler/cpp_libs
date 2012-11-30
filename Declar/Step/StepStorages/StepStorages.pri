@@ -1,8 +1,8 @@
 INCLUDEPATH *= $$PWD/ \
-    $$PWD/AbstractSimpleObject/ \
+    $$PWD/../../../Abstraction/AbstractSimpleObject/ \
     $$PWD/Procedure/ \
     $$PWD/Destination/ \
-    $$PWD/AbstractSimpleStorage/ \
+    $$PWD/../../../Abstraction/AbstractSimpleStorage/ \
     $$PWD/ProceduresStorage/ \
     $$PWD/DestinationsStorage/ \
     $$PWD/../../../include/
@@ -21,10 +21,10 @@ HEADERS *= \
     $$PWD/../../../include/destinationsstorage.h
 
 SOURCES *= \
-    $$PWD/AbstractSimpleObject/abstractsimpleobject.cpp \
+    $$PWD/../../../Abstraction/AbstractSimpleObject/abstractsimpleobject.cpp \
     $$PWD/Procedure/procedure.cpp \
     $$PWD/Destination/destination.cpp \
-    $$PWD/AbstractSimpleStorage/abstractsimplestorage.cpp \
+    $$PWD/../../../Abstraction/AbstractSimpleStorage/abstractsimplestorage.cpp \
     $$PWD/ProceduresStorage/proceduresstorage.cpp \
     $$PWD/DestinationsStorage/destinationsstorage.cpp
 

@@ -1,23 +1,24 @@
 QT       += gui
 
-TARGET = Declar
+TARGET = User
 CONFIG(debug, debug|release): TARGET = $${TARGET}d
 CONFIG += create_prl
 
 TEMPLATE = lib
 
-DEFINES += DECLAR_LIBRARY
+DEFINES += USER_LIBRARY
 
 INCLUDEPATH += ./ \
     ../bin/ \
-    ../include/
+    ../include/ \
+    ./User/
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
     TARGET.UID3 = 0xE279790D
     TARGET.CAPABILITY =
     TARGET.EPOCALLOWDLLDATA = 1
-    addFiles.sources = Declar.dll
+    addFiles.sources = User.dll
     addFiles.path = !:/sys/bin
     DEPLOYMENT += addFiles
 }
@@ -47,15 +48,22 @@ CONFIG(debug, debug|release){
 }
 
 LIBS += -L../bin/ \
+    -lMFCStorage \
     -lAMSLogger \
-    -lMFCCore
+    -lMFCCore \
+    -lGroup \
+    -lOffice
 
 HEADERS += \
-    ../include/declar.h
+    ../include/user.h \
+    ../include/usersstorage.h
 
 SOURCES += \
-    declar.cpp
+    User/user.cpp \
+    UsersStorage/usersstorage.cpp
 
-include( ./Service/Service.pri )
-include( ./Step/Step.pri )
+include(./UserStorages/UserStorages.pri)
+
+
+
 

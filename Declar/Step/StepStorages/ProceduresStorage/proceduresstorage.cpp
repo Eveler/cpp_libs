@@ -21,8 +21,8 @@ ProceduresStorage::ProceduresStorage(QObject *parent) :
 
 void ProceduresStorage::setObjectData( AbstractSimpleObject *obj, MFCRecord *record )
 {
-  obj->setId( record->currentProperty( m__ColName_Id ) );
-  obj->setName( record->currentProperty( m__ColName_Name ).toString() );
+  obj->setId( record->currentProperty( m__Cols.Id ) );
+  obj->setName( record->currentProperty( m__Cols.Name ).toString() );
 }
 
 void ProceduresStorage::recordAdded( MFCRecord *record, int index )
@@ -34,5 +34,6 @@ void ProceduresStorage::recordAdded( MFCRecord *record, int index )
 
 void ProceduresStorage::recordRemoved( MFCRecord */*record*/, int index )
 {
-  m__Procedures.removeAt( index );
+  AbstractSimpleObject *obj = m__Procedures.takeAt( index );
+  delete obj;
 }

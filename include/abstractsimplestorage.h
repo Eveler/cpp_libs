@@ -4,6 +4,12 @@
 #include "storageitemmodel.h"
 #include "abstractsimpleobject.h"
 
+typedef struct
+{
+  QString Id;
+  QString Name;
+} StructASSCols;
+
 class AbstractSimpleStorage : public QObject
 {
   Q_OBJECT
@@ -11,10 +17,8 @@ public:
   explicit AbstractSimpleStorage(QObject *parent = 0);
   ~AbstractSimpleStorage();
 
-  bool setStorage( StorageItemModel *stor = NULL,
-                   QString colName_Id = QString(),
-                   QString colName_Name = QString() );
-  StorageItemModel * storage();
+  bool setStorage( StorageItemModel *stor, StructASSCols cols );
+  StorageItemModel * storage() const;
 
   virtual const QList<AbstractSimpleObject *> & objects() const = 0;
 
@@ -23,12 +27,12 @@ signals:
 public slots:
 
 protected:
-  QString m__ColName_Id;
-  QString m__ColName_Name;
+  StructASSCols m__Cols;
 
 private:
   StorageItemModel *m__Storage;
 
+  void reset();
   virtual void setObjectData( AbstractSimpleObject *obj, MFCRecord *record ) = 0;
 
 private slots:
