@@ -69,7 +69,7 @@ const QList<User *> & UsersStorage::objects() const
   return m__Users;
 }
 
-QList<User *> UsersStorage::findById( QVariant value, QList<User *> objs ) const
+QList<User *> UsersStorage::findById( QList<User *> objs, QVariant value ) const
 {
   QList<User *> result = QList<User *>();
 
@@ -79,7 +79,7 @@ QList<User *> UsersStorage::findById( QVariant value, QList<User *> objs ) const
   return result;
 }
 
-QList<User *> UsersStorage::findByName( StructName value, QList<User *> objs ) const
+QList<User *> UsersStorage::findByName( QList<User *> objs, StructName value ) const
 {
   QList<User *> result = QList<User *>();
 
@@ -92,7 +92,7 @@ QList<User *> UsersStorage::findByName( StructName value, QList<User *> objs ) c
   return result;
 }
 
-QList<User *> UsersStorage::findByPost( AbstractSimpleObject *value, QList<User *> objs ) const
+QList<User *> UsersStorage::findByPost( QList<User *> objs, AbstractSimpleObject *value ) const
 {
   QList<User *> result = QList<User *>();
 
@@ -102,7 +102,7 @@ QList<User *> UsersStorage::findByPost( AbstractSimpleObject *value, QList<User 
   return result;
 }
 
-QList<User *> UsersStorage::findByDepartment( AbstractSimpleObject *value, QList<User *> objs ) const
+QList<User *> UsersStorage::findByDepartment( QList<User *> objs, AbstractSimpleObject *value ) const
 {
   QList<User *> result = QList<User *>();
 
@@ -112,7 +112,7 @@ QList<User *> UsersStorage::findByDepartment( AbstractSimpleObject *value, QList
   return result;
 }
 
-QList<User *> UsersStorage::findByActive( bool value, QList<User *> objs ) const
+QList<User *> UsersStorage::findByActive( QList<User *> objs, bool value ) const
 {
   QList<User *> result = QList<User *>();
 
@@ -122,7 +122,7 @@ QList<User *> UsersStorage::findByActive( bool value, QList<User *> objs ) const
   return result;
 }
 
-QList<User *> UsersStorage::findByDismissed( bool value, QList<User *> objs ) const
+QList<User *> UsersStorage::findByDismissed( QList<User *> objs, bool value ) const
 {
   QList<User *> result = QList<User *>();
 
@@ -132,7 +132,7 @@ QList<User *> UsersStorage::findByDismissed( bool value, QList<User *> objs ) co
   return result;
 }
 
-QList<User *> UsersStorage::findByOffice( AbstractSimpleObject *value, QList<User *> objs ) const
+QList<User *> UsersStorage::findByOffice( QList<User *> objs, AbstractSimpleObject *value ) const
 {
   QList<User *> result = QList<User *>();
 
@@ -177,11 +177,13 @@ void UsersStorage::setObjectData( User *obj, MFCRecord *record )
   obj->setName( name );
 
   QList<AbstractSimpleObject *> posts = PostsStorage::instance()->find(
+        PostsStorage::instance()->objects(),
         record->currentProperty( m__Cols.PostId ) );
   if ( posts.count() > 0 ) obj->setPost( posts.first() );
   else obj->setPost( NULL );
 
   QList<AbstractSimpleObject *> departments = DepartmentsStorage::instance()->find(
+        DepartmentsStorage::instance()->objects(),
         record->currentProperty( m__Cols.DepartmentId ) );
   if ( departments.count() > 0 ) obj->setDepartment( departments.first() );
   else obj->setDepartment( NULL );
@@ -191,6 +193,7 @@ void UsersStorage::setObjectData( User *obj, MFCRecord *record )
   obj->setDismissed( record->currentProperty( m__Cols.Dismissed ).toBool() );
 
   QList<AbstractSimpleObject *> offices = OfficesStorage::instance()->find(
+        OfficesStorage::instance()->objects(),
         record->currentProperty( m__Cols.OfficeId ) );
   if ( offices.count() > 0 ) obj->setOffice( offices.first() );
   else obj->setOffice( NULL );

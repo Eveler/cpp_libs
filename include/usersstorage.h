@@ -28,13 +28,13 @@ public:
 
   const QList<User *> & objects() const;
 
-  QList<User *> findById( QVariant value, QList<User *> objs ) const;
-  QList<User *> findByName( StructName value, QList<User *> objs ) const;
-  QList<User *> findByPost( AbstractSimpleObject *value, QList<User *> objs ) const;
-  QList<User *> findByDepartment( AbstractSimpleObject *value, QList<User *> objs ) const;
-  QList<User *> findByActive( bool value, QList<User *> objs ) const;
-  QList<User *> findByDismissed( bool value, QList<User *> objs ) const;
-  QList<User *> findByOffice( AbstractSimpleObject *value, QList<User *> objs ) const;
+  QList<User *> findById( QList<User *> objs, QVariant value ) const;
+  QList<User *> findByName( QList<User *> objs, StructName value ) const;
+  QList<User *> findByPost( QList<User *> objs, AbstractSimpleObject *value ) const;
+  QList<User *> findByDepartment( QList<User *> objs, AbstractSimpleObject *value ) const;
+  QList<User *> findByActive( QList<User *> objs, bool value ) const;
+  QList<User *> findByDismissed( QList<User *> objs, bool value ) const;
+  QList<User *> findByOffice( QList<User *> objs, AbstractSimpleObject *value ) const;
 
 signals:
 

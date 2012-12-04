@@ -22,12 +22,11 @@ public:
 
   const QList<AbstractSimpleObject *> & objects() const;
 
-  QList<AbstractSimpleObject *> find( QVariant id ) const;
   QList<AbstractSimpleObject *> find(
-      QString name, Qt::MatchFlag flag = Qt::MatchFixedString,
-      Qt::CaseSensitivity cs = Qt::CaseSensitive ) const;
+      QList<AbstractSimpleObject *> objs, QVariant id ) const;
   QList<AbstractSimpleObject *> find(
-      QVariant id, QString name, Qt::MatchFlag flag = Qt::MatchFixedString,
+      QList<AbstractSimpleObject *> objs, QString name,
+      Qt::MatchFlag flag = Qt::MatchFixedString,
       Qt::CaseSensitivity cs = Qt::CaseSensitive ) const;
 
 signals:
@@ -44,11 +43,6 @@ private:
 
   void reset();
   void setObjectData( AbstractSimpleObject *obj, MFCRecord *record );
-
-  QList<AbstractSimpleObject *> pFind(
-      QVariant id, QList<AbstractSimpleObject *> objs ) const;
-  QList<AbstractSimpleObject *> pFind(
-      QString name, Qt::MatchFlag flag, Qt::CaseSensitivity cs, QList<AbstractSimpleObject *> objs ) const;
 
 private slots:
   void storageDestroyed();

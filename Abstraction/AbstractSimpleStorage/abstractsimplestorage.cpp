@@ -60,21 +60,45 @@ const QList<AbstractSimpleObject *> & AbstractSimpleStorage::objects() const
   return m__Objects;
 }
 
-QList<AbstractSimpleObject *> AbstractSimpleStorage::find( QVariant id ) const
+QList<AbstractSimpleObject *> AbstractSimpleStorage::find(
+    QList<AbstractSimpleObject *> objs, QVariant id ) const
 {
-  return pFind( id, objects() );
+  QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
+
+  foreach ( AbstractSimpleObject *obj, objs )
+    if ( obj->id() == id ) result << obj;
+
+  return result;
 }
 
 QList<AbstractSimpleObject *> AbstractSimpleStorage::find(
-    QString name, Qt::MatchFlag flag, Qt::CaseSensitivity cs ) const
+    QList<AbstractSimpleObject *> objs, QString name,
+    Qt::MatchFlag flag, Qt::CaseSensitivity cs) const
 {
-  return pFind( name, flag, cs, objects() );
-}
+  QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
 
-QList<AbstractSimpleObject *> AbstractSimpleStorage::find(
-    QVariant id, QString name, Qt::MatchFlag flag, Qt::CaseSensitivity cs ) const
-{
-  return pFind( name, flag, cs, pFind( id, objects() ) );
+  if ( flag == Qt::MatchStartsWith )
+  {
+    foreach ( AbstractSimpleObject *obj, objs )
+      if ( obj->name().startsWith( name, cs ) ) result << obj;
+  }
+  else if ( flag == Qt::MatchFixedString && cs == Qt::CaseSensitive )
+  {
+    foreach ( AbstractSimpleObject *obj, objs )
+      if ( obj->name() == name ) result << obj;
+  }
+  else if ( flag == Qt::MatchFixedString && cs == Qt::CaseInsensitive )
+  {
+    foreach ( AbstractSimpleObject *obj, objs )
+      if ( obj->name().toUpper() == name.toUpper() ) result << obj;
+  }
+  else if ( flag == Qt::MatchEndsWith )
+  {
+    foreach ( AbstractSimpleObject *obj, objs )
+      if ( obj->name().endsWith( name, cs ) ) result << obj;
+  }
+
+  return result;
 }
 
 void AbstractSimpleStorage::reset()
@@ -88,46 +112,6 @@ void AbstractSimpleStorage::setObjectData( AbstractSimpleObject *obj, MFCRecord 
 {
   obj->setId( record->currentProperty( m__Cols.Id ) );
   obj->setName( record->currentProperty( m__Cols.Name ).toString() );
-}
-
-QList<AbstractSimpleObject *> AbstractSimpleStorage::pFind(
-    QVariant id, QList<AbstractSimpleObject *> objs ) const
-{
-  QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
-
-  foreach ( AbstractSimpleObject *obj, objs )
-    if ( obj->id() == id ) result << obj;
-
-  return result;
-}
-
-QList<AbstractSimpleObject *> AbstractSimpleStorage::pFind(
-    QString name, Qt::MatchFlag flag, Qt::CaseSensitivity cs, QList<AbstractSimpleObject *> objs ) const
-{
-  QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
-
-  if ( flag == Qt::MatchStartsWith )
-  {
-    foreach ( AbstractSimpleObject *obj, objs )
-      if ( obj->name().startsWith( name, cs ) ) result << obj;
-  }
-  else if ( flag == Qt::MatchFixedString && cs == Qt::CaseSensitive )
-  {
-    foreach ( AbstractSimpleObject *obj, objects() )
-      if ( obj->name() == name ) result << obj;
-  }
-  else if ( flag == Qt::MatchFixedString && cs == Qt::CaseInsensitive )
-  {
-    foreach ( AbstractSimpleObject *obj, objects() )
-      if ( obj->name().toUpper() == name.toUpper() ) result << obj;
-  }
-  else if ( flag == Qt::MatchEndsWith )
-  {
-    foreach ( AbstractSimpleObject *obj, objects() )
-      if ( obj->name().endsWith( name, cs ) ) result << obj;
-  }
-
-  return result;
 }
 
 void AbstractSimpleStorage::storageDestroyed()
