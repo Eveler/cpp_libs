@@ -1,10 +1,10 @@
 INCLUDEPATH *= $$PWD/ \
     $$PWD/../../../Abstraction/AbstractSimpleObject/ \
-    $$PWD/Procedure/ \
-    $$PWD/Destination/ \
     $$PWD/../../../Abstraction/AbstractSimpleStorage/ \
     $$PWD/ProceduresStorage/ \
     $$PWD/DestinationsStorage/ \
+    $$PWD/CallsStorage/ \
+    $$PWD/SmsStorage/ \
     $$PWD/../../../include/
 
 LIBS *= -L$$PWD/../../../bin/ \
@@ -14,19 +14,19 @@ LIBS *= -L$$PWD/../../../bin/ \
 
 HEADERS *= \
     $$PWD/../../../include/abstractsimpleobject.h \
-    $$PWD/../../../include/procedure.h \
-    $$PWD/../../../include/destination.h \
     $$PWD/../../../include/abstractsimplestorage.h \
     $$PWD/../../../include/proceduresstorage.h \
-    $$PWD/../../../include/destinationsstorage.h
+    $$PWD/../../../include/destinationsstorage.h \
+    $$PWD/../../../include/callsstorage.h \
+    $$PWD/../../../include/smsstorage.h
 
 SOURCES *= \
     $$PWD/../../../Abstraction/AbstractSimpleObject/abstractsimpleobject.cpp \
-    $$PWD/Procedure/procedure.cpp \
-    $$PWD/Destination/destination.cpp \
     $$PWD/../../../Abstraction/AbstractSimpleStorage/abstractsimplestorage.cpp \
     $$PWD/ProceduresStorage/proceduresstorage.cpp \
-    $$PWD/DestinationsStorage/destinationsstorage.cpp
+    $$PWD/DestinationsStorage/destinationsstorage.cpp \
+    $$PWD/CallsStorage/callsstorage.cpp \
+    $$PWD/SmsStorage/smsstorage.cpp
 
 
 

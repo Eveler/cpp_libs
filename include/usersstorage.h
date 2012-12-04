@@ -1,46 +1,59 @@
-#ifndef SERVICESSTORAGE_H
-#define SERVICESSTORAGE_H
+#ifndef USERSSTORAGE_H
+#define USERSSTORAGE_H
 
 #include "storageitemmodel.h"
-#include "service.h"
+#include "user.h"
 
 typedef struct
 {
   QString Id;
-  QString Name;
-  QString Deadline;
+  QString Surname;
+  QString Firstname;
+  QString Lastname;
+  QString PostId;
+  QString DepartmentId;
   QString Active;
-} StructServiceCols;
+  QString Dismissed;
+  QString OfficeId;
+} StructUserCols;
 
-class ServicesStorage : public QObject
+class UsersStorage : public QObject
 {
     Q_OBJECT
 public:
-  static ServicesStorage * instance();
+  static UsersStorage * instance();
 
-  bool setStorage( StorageItemModel *stor, StructServiceCols cols );
+  bool setStorage( StorageItemModel *stor, StructUserCols cols );
   StorageItemModel * storage() const;
 
-  const QList<Service *> & objects() const;
+  const QList<User *> & objects() const;
+
+  QList<User *> findById( QVariant value, QList<User *> objs ) const;
+  QList<User *> findByName( StructName value, QList<User *> objs ) const;
+  QList<User *> findByPost( AbstractSimpleObject *value, QList<User *> objs ) const;
+  QList<User *> findByDepartment( AbstractSimpleObject *value, QList<User *> objs ) const;
+  QList<User *> findByActive( bool value, QList<User *> objs ) const;
+  QList<User *> findByDismissed( bool value, QList<User *> objs ) const;
+  QList<User *> findByOffice( AbstractSimpleObject *value, QList<User *> objs ) const;
 
 signals:
 
 public slots:
 
 private:
-  static ServicesStorage *m__Instance;
+  static UsersStorage *m__Instance;
 
   StorageItemModel *m__Storage;
 
-  StructServiceCols m__Cols;
+  StructUserCols m__Cols;
 
-  QList<Service *> m__Services;
+  QList<User *> m__Users;
 
-  explicit ServicesStorage(QObject *parent = 0);
-  ~ServicesStorage();
+  explicit UsersStorage(QObject *parent = 0);
+  ~UsersStorage();
 
   void reset();
-  void setObjectData( Service *obj, MFCRecord *record );
+  void setObjectData( User *obj, MFCRecord *record );
 
 private slots:
   void storageDestroyed();
@@ -50,4 +63,4 @@ private slots:
   void propertyChanged( QString column );
 };
 
-#endif // SERVICESSTORAGE_H
+#endif // USERSSTORAGE_H

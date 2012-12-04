@@ -4,9 +4,7 @@
 #include <QObject>
 
 #include "mfccore.h"
-#include "post.h"
-#include "department.h"
-#include "office.h"
+#include "abstractsimpleobject.h"
 
 class User : public QObject
 {
@@ -14,11 +12,11 @@ class User : public QObject
   {
     QVariant m__Id;
     StructName m__Name;
-    Post *m__Post;
-    Department *m__Department;
+    AbstractSimpleObject *m__Post;
+    AbstractSimpleObject *m__Department;
     bool m__Active;
     bool m__Dismissed;
-    Office *m__Office;
+    AbstractSimpleObject *m__Office;
   } StructUser;
   Q_OBJECT
 public:
@@ -27,11 +25,11 @@ public:
 
   const QVariant & id() const;
   const StructName & name() const;
-  const Post * post() const;
-  const Department * department() const;
+  const AbstractSimpleObject * post() const;
+  const AbstractSimpleObject * department() const;
   const bool active() const;
   const bool dismissed() const;
-  const Office * office() const;
+  const AbstractSimpleObject * office() const;
 
 signals:
 
@@ -40,14 +38,14 @@ public slots:
 
   void setId( QVariant value );
   void setName( StructName value );
-  void setPost( Post *value );
-  void setDepartment( Department *value );
+  void setPost( AbstractSimpleObject *value );
+  void setDepartment( AbstractSimpleObject *value );
   void setActive( bool value );
   void setDismissed( bool value );
-  void setOffice( Office *value );
+  void setOffice( AbstractSimpleObject *value );
 
 private:
-  StructUser m__User;
+  StructUser m__Value;
 };
 
 #endif // USER_H

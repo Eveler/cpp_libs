@@ -1,26 +1,24 @@
 QT       += gui
 
-TARGET = Office
+TARGET = Notification
 CONFIG(debug, debug|release): TARGET = $${TARGET}d
 CONFIG += create_prl
 
 TEMPLATE = lib
 
-DEFINES += OFFICE_LIBRARY
+DEFINES += NOTIFICATION_LIBRARY
 
 INCLUDEPATH += ./ \
     ../bin/ \
     ../include/ \
-    ../Abstraction/AbstractSimpleObject/ \
-    ../Abstraction/AbstractSimpleStorage/ \
-    ./OfficesStorage/
+    ./Notification/
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
     TARGET.UID3 = 0xE279790D
     TARGET.CAPABILITY =
     TARGET.EPOCALLOWDLLDATA = 1
-    addFiles.sources = Office.dll
+    addFiles.sources = Notification.dll
     addFiles.path = !:/sys/bin
     DEPLOYMENT += addFiles
 }
@@ -50,21 +48,18 @@ CONFIG(debug, debug|release){
 }
 
 LIBS += -L../bin/ \
+    -lMFCStorage \
     -lAMSLogger \
     -lMFCCore \
-    -lMFCStorage
+    -lUser
 
 HEADERS += \
-    ../include/abstractsimpleobject.h \
-    ../include/abstractsimplestorage.h \
-    ../include/officesstorage.h
+    ../include/notification.h \
+    ../include/notificationsstorage.h
 
 SOURCES += \
-    ../Abstraction/AbstractSimpleObject/abstractsimpleobject.cpp \
-    ../Abstraction/AbstractSimpleStorage/abstractsimplestorage.cpp \
-    OfficesStorage/officesstorage.cpp
-
-
+    Notification/notification.cpp \
+    NotificationsStorage/notificationsstorage.cpp
 
 
 

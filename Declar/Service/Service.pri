@@ -1,4 +1,5 @@
-INCLUDEPATH *= $$PWD/
+INCLUDEPATH *= $$PWD/ \
+    $$PWD/../../include/
 
 HEADERS *= \
     $$PWD/../../include/service.h \

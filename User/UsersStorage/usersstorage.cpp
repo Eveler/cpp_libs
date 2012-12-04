@@ -1,15 +1,19 @@
-#include "servicesstorage.h"
+#include "usersstorage.h"
 
-ServicesStorage *ServicesStorage::m__Instance = NULL;
+#include "postsstorage.h"
+#include "departmentsstorage.h"
+#include "officesstorage.h"
 
-ServicesStorage * ServicesStorage::instance()
+UsersStorage *UsersStorage::m__Instance = NULL;
+
+UsersStorage * UsersStorage::instance()
 {
-  if ( m__Instance == NULL ) m__Instance = new ServicesStorage;
+  if ( m__Instance == NULL ) m__Instance = new UsersStorage;
 
   return m__Instance;
 }
 
-bool ServicesStorage::setStorage( StorageItemModel *stor, StructServiceCols cols )
+bool UsersStorage::setStorage( StorageItemModel *stor, StructUserCols cols )
 {
   if ( m__Storage != NULL )
     storageDestroyed();
@@ -22,9 +26,14 @@ bool ServicesStorage::setStorage( StorageItemModel *stor, StructServiceCols cols
   }
 
   if ( stor->findColumnByRealName( stor->getPropertiesView(), cols.Id ) == -1 ||
-       stor->findColumnByRealName( stor->getPropertiesView(), cols.Name ) == -1 ||
-       stor->findColumnByRealName( stor->getPropertiesView(), cols.Deadline ) == -1 ||
-       stor->findColumnByRealName( stor->getPropertiesView(), cols.Active ) == -1 )
+       stor->findColumnByRealName( stor->getPropertiesView(), cols.Surname ) == -1 ||
+       stor->findColumnByRealName( stor->getPropertiesView(), cols.Firstname ) == -1 ||
+       stor->findColumnByRealName( stor->getPropertiesView(), cols.Lastname ) == -1 ||
+       stor->findColumnByRealName( stor->getPropertiesView(), cols.PostId ) == -1 ||
+       stor->findColumnByRealName( stor->getPropertiesView(), cols.DepartmentId ) == -1 ||
+       stor->findColumnByRealName( stor->getPropertiesView(), cols.Active ) == -1 ||
+       stor->findColumnByRealName( stor->getPropertiesView(), cols.Dismissed ) == -1 ||
+       stor->findColumnByRealName( stor->getPropertiesView(), cols.OfficeId ) == -1 )
     return false;
 
   m__Storage = stor;
@@ -50,45 +59,144 @@ bool ServicesStorage::setStorage( StorageItemModel *stor, StructServiceCols cols
   return true;
 }
 
-StorageItemModel * ServicesStorage::storage() const
+StorageItemModel * UsersStorage::storage() const
 {
   return m__Storage;
 }
 
-const QList<Service *> & ServicesStorage::objects() const
+const QList<User *> & UsersStorage::objects() const
 {
-  return m__Services;
+  return m__Users;
 }
 
-ServicesStorage::ServicesStorage(QObject *parent) :
+QList<User *> UsersStorage::findById( QVariant value, QList<User *> objs ) const
+{
+  QList<User *> result = QList<User *>();
+
+  foreach ( User *user, objs )
+    if ( user->id() == value ) result << user;
+
+  return result;
+}
+
+QList<User *> UsersStorage::findByName( StructName value, QList<User *> objs ) const
+{
+  QList<User *> result = QList<User *>();
+
+  foreach ( User *user, objs )
+    if ( user->name().surname == value.surname &&
+         user->name().firstname == value.firstname &&
+         user->name().lastname == value.lastname )
+      result << user;
+
+  return result;
+}
+
+QList<User *> UsersStorage::findByPost( AbstractSimpleObject *value, QList<User *> objs ) const
+{
+  QList<User *> result = QList<User *>();
+
+  foreach ( User *user, objs )
+    if ( user->post() == value ) result << user;
+
+  return result;
+}
+
+QList<User *> UsersStorage::findByDepartment( AbstractSimpleObject *value, QList<User *> objs ) const
+{
+  QList<User *> result = QList<User *>();
+
+  foreach ( User *user, objs )
+    if ( user->department() == value ) result << user;
+
+  return result;
+}
+
+QList<User *> UsersStorage::findByActive( bool value, QList<User *> objs ) const
+{
+  QList<User *> result = QList<User *>();
+
+  foreach ( User *user, objs )
+    if ( user->active() == value ) result << user;
+
+  return result;
+}
+
+QList<User *> UsersStorage::findByDismissed( bool value, QList<User *> objs ) const
+{
+  QList<User *> result = QList<User *>();
+
+  foreach ( User *user, objs )
+    if ( user->dismissed() == value ) result << user;
+
+  return result;
+}
+
+QList<User *> UsersStorage::findByOffice( AbstractSimpleObject *value, QList<User *> objs ) const
+{
+  QList<User *> result = QList<User *>();
+
+  foreach ( User *user, objs )
+    if ( user->office() == value ) result << user;
+
+  return result;
+}
+
+UsersStorage::UsersStorage(QObject *parent) :
     QObject(parent)
 {
   reset();
 }
 
-ServicesStorage::~ServicesStorage()
+UsersStorage::~UsersStorage()
 {
   reset();
 }
 
-void ServicesStorage::reset()
+void UsersStorage::reset()
 {
   m__Storage = NULL;
   m__Cols.Id.clear();
-  m__Cols.Name.clear();
-  m__Cols.Deadline.clear();
+  m__Cols.Surname.clear();
+  m__Cols.Firstname.clear();
+  m__Cols.Lastname.clear();
+  m__Cols.PostId.clear();
+  m__Cols.DepartmentId.clear();
   m__Cols.Active.clear();
+  m__Cols.Dismissed.clear();
+  m__Cols.OfficeId.clear();
 }
 
-void ServicesStorage::setObjectData( Service *obj, MFCRecord *record )
+void UsersStorage::setObjectData( User *obj, MFCRecord *record )
 {
   obj->setId( record->currentProperty( m__Cols.Id ) );
-  obj->setName( record->currentProperty( m__Cols.Name ).toString() );
-  obj->setDeadline( record->currentProperty( m__Cols.Deadline ).toInt() );
+
+  StructName name = {record->currentProperty( m__Cols.Surname ).toString(),
+                     record->currentProperty( m__Cols.Firstname ).toString(),
+                     record->currentProperty( m__Cols.Lastname ).toString()};
+  obj->setName( name );
+
+  QList<AbstractSimpleObject *> posts = PostsStorage::instance()->find(
+        record->currentProperty( m__Cols.PostId ) );
+  if ( posts.count() > 0 ) obj->setPost( posts.first() );
+  else obj->setPost( NULL );
+
+  QList<AbstractSimpleObject *> departments = DepartmentsStorage::instance()->find(
+        record->currentProperty( m__Cols.DepartmentId ) );
+  if ( departments.count() > 0 ) obj->setDepartment( departments.first() );
+  else obj->setDepartment( NULL );
+
   obj->setActive( record->currentProperty( m__Cols.Active ).toBool() );
+
+  obj->setDismissed( record->currentProperty( m__Cols.Dismissed ).toBool() );
+
+  QList<AbstractSimpleObject *> offices = OfficesStorage::instance()->find(
+        record->currentProperty( m__Cols.OfficeId ) );
+  if ( offices.count() > 0 ) obj->setOffice( offices.first() );
+  else obj->setOffice( NULL );
 }
 
-void ServicesStorage::storageDestroyed()
+void UsersStorage::storageDestroyed()
 {
   disconnect( this, SLOT(storageDestroyed()) );
   disconnect( this, SLOT(recordAdded(MFCRecord*,int)) );
@@ -96,32 +204,35 @@ void ServicesStorage::storageDestroyed()
   disconnect( this, SLOT(propertyChanged(QString,QVariant)) );
 }
 
-void ServicesStorage::recordAdded( MFCRecord *record, int index )
+void UsersStorage::recordAdded( MFCRecord *record, int index )
 {
-  Service *service = new Service( this );
-  setObjectData( service, record );
-  m__Services.insert( index, service );
+  User *user = new User( this );
+  setObjectData( user, record );
+  m__Users.insert( index, user );
 }
 
-void ServicesStorage::recordRemoved( MFCRecord */*record*/, int index )
+void UsersStorage::recordRemoved( MFCRecord */*record*/, int index )
 {
-  m__Services.removeAt( index );
+  m__Users.removeAt( index );
 }
 
-void ServicesStorage::disconnectRecord( MFCRecord *record, int )
+void UsersStorage::disconnectRecord( MFCRecord *record, int )
 {
   disconnect( record, SIGNAL(propertyChanged(QString)),
               this, SLOT(propertyChanged(QString)) );
 }
 
-void ServicesStorage::propertyChanged( QString column )
+void UsersStorage::propertyChanged( QString column )
 {
-  if ( column != m__Cols.Id && column != m__Cols.Name &&
-       column != m__Cols.Deadline && column != m__Cols.Active )
+  if ( column != m__Cols.Id && column != m__Cols.Surname &&
+       column != m__Cols.Firstname && column != m__Cols.Lastname &&
+       column != m__Cols.PostId && column != m__Cols.DepartmentId &&
+       column != m__Cols.Active && column != m__Cols.Dismissed &&
+       column != m__Cols.OfficeId )
     return;
 
   MFCRecord *record = qobject_cast<MFCRecord *>( sender() );
   int index = m__Storage->availableRecords().indexOf( record );
-  Service *obj = objects()[index];
+  User *obj = objects()[index];
   setObjectData( obj, record );
 }

@@ -20,7 +20,15 @@ public:
   bool setStorage( StorageItemModel *stor, StructASSCols cols );
   StorageItemModel * storage() const;
 
-  virtual const QList<AbstractSimpleObject *> & objects() const = 0;
+  const QList<AbstractSimpleObject *> & objects() const;
+
+  QList<AbstractSimpleObject *> find( QVariant id ) const;
+  QList<AbstractSimpleObject *> find(
+      QString name, Qt::MatchFlag flag = Qt::MatchFixedString,
+      Qt::CaseSensitivity cs = Qt::CaseSensitive ) const;
+  QList<AbstractSimpleObject *> find(
+      QVariant id, QString name, Qt::MatchFlag flag = Qt::MatchFixedString,
+      Qt::CaseSensitivity cs = Qt::CaseSensitive ) const;
 
 signals:
 
@@ -32,13 +40,20 @@ protected:
 private:
   StorageItemModel *m__Storage;
 
+  QList<AbstractSimpleObject *> m__Objects;
+
   void reset();
-  virtual void setObjectData( AbstractSimpleObject *obj, MFCRecord *record ) = 0;
+  void setObjectData( AbstractSimpleObject *obj, MFCRecord *record );
+
+  QList<AbstractSimpleObject *> pFind(
+      QVariant id, QList<AbstractSimpleObject *> objs ) const;
+  QList<AbstractSimpleObject *> pFind(
+      QString name, Qt::MatchFlag flag, Qt::CaseSensitivity cs, QList<AbstractSimpleObject *> objs ) const;
 
 private slots:
   void storageDestroyed();
-  virtual void recordAdded( MFCRecord *record, int index ) = 0;
-  virtual void recordRemoved( MFCRecord *record, int index ) = 0;
+  void recordAdded( MFCRecord *record, int index );
+  void recordRemoved( MFCRecord *record, int index );
   void disconnectRecord( MFCRecord *record, int );
   void propertyChanged( QString column );
 };

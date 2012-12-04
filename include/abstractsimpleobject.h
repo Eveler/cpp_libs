@@ -16,6 +16,7 @@ class AbstractSimpleObject : public QObject
   Q_OBJECT
 public:
   explicit AbstractSimpleObject(QObject *parent = 0);
+  ~AbstractSimpleObject();
 
   const QVariant & id() const;
   const QString & name() const;
@@ -23,11 +24,13 @@ public:
 signals:
 
 public slots:
+  void clear();
+
   void setId( QVariant value );
   void setName( QString value );
 
 private:
-  StructAbstractSimpleObject m__StructAbstractSimpleObject;
+  StructAbstractSimpleObject m__Value;
 };
 
 #endif // ABSTRACTSIMPLEOBJECT_H

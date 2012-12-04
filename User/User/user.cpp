@@ -13,83 +13,83 @@ User::~User()
 
 const QVariant & User::id() const
 {
-  return m__User.m__Id;
+  return m__Value.m__Id;
 }
 
 const StructName & User::name() const
 {
-  return m__User.m__Name;
+  return m__Value.m__Name;
 }
 
-const Post * User::post() const
+const AbstractSimpleObject * User::post() const
 {
-  return m__User.m__Post;
+  return m__Value.m__Post;
 }
 
-const Department * User::department() const
+const AbstractSimpleObject * User::department() const
 {
-  return m__User.m__Department;
+  return m__Value.m__Department;
 }
 
 const bool User::active() const
 {
-  return m__User.m__Active;
+  return m__Value.m__Active;
 }
 
 const bool User::dismissed() const
 {
-  return m__User.m__Dismissed;
+  return m__Value.m__Dismissed;
 }
 
-const Office * User::office() const
+const AbstractSimpleObject * User::office() const
 {
-  return m__User.m__Office;
+  return m__Value.m__Office;
 }
 
 void User::clear()
 {
   StructName sName = {QString(), QString(), QString()};
-  m__User.m__Id = QVariant();
-  m__User.m__Name = sName;
-  m__User.m__Post = NULL;
-  m__User.m__Department = NULL;
-  m__User.m__Active = false;
-  m__User.m__Dismissed = false;
-  m__User.m__Office = NULL;
+  setId( QVariant() );
+  setName( sName );
+  setPost( NULL );
+  setDepartment( NULL );
+  setActive( false );
+  setDismissed( false );
+  setOffice( NULL );
 }
 
 void User::setId( QVariant value )
 {
-  m__User.m__Id = value;
+  m__Value.m__Id = value;
 }
 
 void User::setName( StructName value )
 {
-  m__User.m__Name = value;
+  m__Value.m__Name = value;
 }
 
-void User::setPost( Post *value )
+void User::setPost( AbstractSimpleObject *value )
 {
-  m__User.m__Post = value;
+  m__Value.m__Post = value;
 }
 
-void User::setDepartment( Department *value )
+void User::setDepartment( AbstractSimpleObject *value )
 {
-  m__User.m__Department = value;
+  m__Value.m__Department = value;
 }
 
 void User::setActive( bool value )
 {
-  m__User.m__Active = value;
+  m__Value.m__Active = value;
 }
 
 void User::setDismissed( bool value )
 {
-  m__User.m__Dismissed = value;
+  m__Value.m__Dismissed = value;
 }
 
-void User::setOffice( Office *value )
+void User::setOffice( AbstractSimpleObject *value )
 {
-  m__User.m__Office = value;
+  m__Value.m__Office = value;
 }
 

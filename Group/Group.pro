@@ -13,7 +13,6 @@ INCLUDEPATH += ./ \
     ../include/ \
     ../Abstraction/AbstractSimpleObject/ \
     ../Abstraction/AbstractSimpleStorage/ \
-    ./Group/ \
     ./GroupsStorage/
 
 symbian {
@@ -56,7 +55,6 @@ LIBS += -L../bin/ \
     -lMFCStorage
 
 HEADERS += \
-    ../include/group.h \
     ../include/groupsstorage.h \
     ../include/abstractsimplestorage.h \
     ../include/abstractsimpleobject.h
@@ -64,8 +62,9 @@ HEADERS += \
 SOURCES += \
     ../Abstraction/AbstractSimpleObject/abstractsimpleobject.cpp \
     ../Abstraction/AbstractSimpleStorage/abstractsimplestorage.cpp \
-    Group/group.cpp \
     GroupsStorage/groupsstorage.cpp
+
+
 
 
 
