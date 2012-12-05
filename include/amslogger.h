@@ -17,7 +17,7 @@ class AMSLogger/*:QObject*/ {
 public:
   /** Уровень журналирования. По умолчания LevelCritical - ошибки
 \see setLogLevel() \see logLevel()*/
-  enum LogLevel {LevelDebug=0,LevelWarn,LevelCritical,LevelFatal};
+  enum LogLevel {LevelDebug=1,LevelWarn=2,LevelCritical=4,LevelFatal=8};
   Q_DECLARE_FLAGS(LogLevels,LogLevel)
   Q_FLAGS(LogLevels)
   Q_CORE_EXPORT_INLINE AMSLogger():msgFile(),msgLine(0){
