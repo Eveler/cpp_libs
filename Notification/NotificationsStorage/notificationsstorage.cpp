@@ -63,21 +63,37 @@ const QList<Notification *> & NotificationsStorage::objects() const
   return m__Objects;
 }
 
-QList<Notification *> NotificationsStorage::find( QVariant id ) const
+QList<Notification *> NotificationsStorage::findById(
+    QList<Notification *> objs, QVariant id ) const
 {
-  return pFind( id, objects() );
+  QList<Notification *> result = QList<Notification *>();
+
+  foreach ( Notification *obj, objs )
+    if ( obj->id() == id ) result << obj;
+
+  return result;
 }
 
-QList<Notification *> NotificationsStorage::find(
-    QString name, Qt::MatchFlag flag, Qt::CaseSensitivity cs ) const
+QList<Notification *> NotificationsStorage::findByCreated(
+    QList<Notification *> objs, QDateTime created ) const
 {
-  return pFind( name, flag, cs, objects() );
+  QList<Notification *> result = QList<Notification *>();
+
+  foreach ( Notification *obj, objs )
+    if ( obj->created() == created ) result << obj;
+
+  return result;
 }
 
-QList<Notification *> NotificationsStorage::find(
-    QVariant id, QString name, Qt::MatchFlag flag, Qt::CaseSensitivity cs ) const
+QList<Notification *> NotificationsStorage::findByCreator(
+    QList<Notification *> objs, User *user ) const
 {
-  return pFind( name, flag, cs, pFind( id, objects() ) );
+  QList<Notification *> result = QList<Notification *>();
+
+  foreach ( Notification *obj, objs )
+    if ( obj->creator() == user ) result << obj;
+
+  return result;
 }
 
 void NotificationsStorage::reset()
@@ -94,49 +110,9 @@ void NotificationsStorage::setObjectData( Notification *obj, MFCRecord *record )
   obj->setCreated( record->currentProperty( m__Cols.Created ).toDateTime() );
 
   QList<User *> users = UsersStorage::instance()->findById(
-        record->currentProperty( m__Cols.CreatorId ), objects() );
+        UsersStorage::instance()->objects(), record->currentProperty( m__Cols.CreatorId ) );
   if ( users.count() > 0 ) obj->setCreator( users.first() );
   else obj->setCreator( NULL );
-}
-
-QList<Notification *> NotificationsStorage::pFind(
-    QVariant id, QList<Notification *> objs ) const
-{
-  QList<Notification *> result = QList<Notification *>();
-
-  foreach ( Notification *obj, objs )
-    if ( obj->id() == id ) result << obj;
-
-  return result;
-}
-
-QList<Notification *> NotificationsStorage::pFind(
-    QString name, Qt::MatchFlag flag, Qt::CaseSensitivity cs, QList<Notification *> objs ) const
-{
-  QList<Notification *> result = QList<Notification *>();
-
-  if ( flag == Qt::MatchStartsWith )
-  {
-    foreach ( Notification *obj, objs )
-      if ( obj->name().startsWith( name, cs ) ) result << obj;
-  }
-  else if ( flag == Qt::MatchFixedString && cs == Qt::CaseSensitive )
-  {
-    foreach ( Notification *obj, objects() )
-      if ( obj->name() == name ) result << obj;
-  }
-  else if ( flag == Qt::MatchFixedString && cs == Qt::CaseInsensitive )
-  {
-    foreach ( Notification *obj, objects() )
-      if ( obj->name().toUpper() == name.toUpper() ) result << obj;
-  }
-  else if ( flag == Qt::MatchEndsWith )
-  {
-    foreach ( Notification *obj, objects() )
-      if ( obj->name().endsWith( name, cs ) ) result << obj;
-  }
-
-  return result;
 }
 
 void NotificationsStorage::storageDestroyed()
@@ -169,7 +145,7 @@ void NotificationsStorage::disconnectRecord( MFCRecord *record, int /*index*/ )
 
 void NotificationsStorage::propertyChanged( QString column )
 {
-  if ( column != m__Cols.Id && column != m__Cols.Name ) return;
+  if ( column != m__Cols.Id && column != m__Cols.Created && column != m__Cols.CreatorId ) return;
 
   MFCRecord *record = qobject_cast<MFCRecord *>( sender() );
   int index = m__Storage->availableRecords().indexOf( record );

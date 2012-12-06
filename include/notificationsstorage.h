@@ -23,13 +23,9 @@ public:
 
   const QList<Notification *> & objects() const;
 
-  QList<Notification *> find( QVariant id ) const;
-  QList<Notification *> find(
-      QString name, Qt::MatchFlag flag = Qt::MatchFixedString,
-      Qt::CaseSensitivity cs = Qt::CaseSensitive ) const;
-  QList<Notification *> find(
-      QVariant id, QString name, Qt::MatchFlag flag = Qt::MatchFixedString,
-      Qt::CaseSensitivity cs = Qt::CaseSensitive ) const;
+  QList<Notification *> findById( QList<Notification *> objs, QVariant id ) const;
+  QList<Notification *> findByCreated(QList<Notification *> objs, QDateTime created ) const;
+  QList<Notification *> findByCreator( QList<Notification *> objs, User *user ) const;
 
 signals:
 
@@ -45,11 +41,6 @@ private:
 
   void reset();
   void setObjectData( Notification *obj, MFCRecord *record );
-
-  QList<Notification *> pFind(
-      QVariant id, QList<Notification *> objs ) const;
-  QList<Notification *> pFind(
-      QString name, Qt::MatchFlag flag, Qt::CaseSensitivity cs, QList<Notification *> objs ) const;
 
 private slots:
   void storageDestroyed();
