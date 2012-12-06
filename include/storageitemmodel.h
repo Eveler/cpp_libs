@@ -139,10 +139,11 @@ signals:
   void availableRecords_Changed();
   void visibleRecords_Changed();
   void newRecords_Changed();
-  void recordAdded( MFCRecord *rootRecord );
+  void recordAdded( MFCRecord *rootRecord, int index );
   void recordDisplayChanged( MFCRecord *rootRecord, int index );
   void visibleRecordRemoved( int index );
   void recordMoved( MFCRecord *rootRecord, int oldIndex );
+  void recordRemoved( MFCRecord *rootRecord, int index );
 
   void contentDeleted();
 

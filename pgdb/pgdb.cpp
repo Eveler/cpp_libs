@@ -127,12 +127,21 @@ bool PgDB::collect(){
     if(pgTables.contains(tblName))
       if(pgTables.value(tblName)->tableNameSpace()==
           qry.record().field("nspname").value().toString()){
+        QString tblName_f = qry.record().field( tr( "relname_f" ) ).value().toString();
         QString cName=qry.record().field("conname").value().toString();
         QStringList fields=
             qry.record().field("fields").value().toString().split(";");
+        QStringList fields_f =
+            qry.record().field( tr( "fields_f" ) ).value().toString().split(";");
+        PgConstraint::ConstraintType cType = PgConstraint::UndefinedType;
+        if ( qry.record().field( tr( "contype" ) ).value().toString().toLower() == tr( "p" ) )
+          cType = PgConstraint::PrimaryKey;
+        else if ( qry.record().field( tr( "contype" ) ).value().toString().toLower() == tr( "f" ) )
+          cType = PgConstraint::ForeignKey;
         pgTables.value(tblName)->addConstraint(
               cName,fields.value(0),
-              qry.record().field("condef").value().toString());
+              qry.record().field("condef").value().toString(),
+              cType, tblName_f, fields_f );
         for(int idx=1;idx<fields.count();idx++)
           pgTables.value(tblName)->appendConstraintField(cName,fields.at(idx));
       }
@@ -198,6 +207,7 @@ void PgTable::addField(const QString fldName, const QString fldType,
     fld.fieldType=fldType;
     fld.isNotNULL=isNotNULL;
     fld.isPrimary=isPrimary;
+    m__FieldNames << fldName;
     fieldList.insert(fldName,fld);
   }
 }
@@ -208,6 +218,7 @@ void PgTable::addIndex(const QString idxName, const QString fldName,
     PgIndex idx;
     idx.indexDef=idxDef;
     idx.indexFields<<fldName;
+    indexList[idxName] = idx;
   }else{
     indexList[idxName].indexDef=idxDef;
     if(!indexList.value(idxName).indexFields.contains(fldName))
@@ -216,11 +227,16 @@ void PgTable::addIndex(const QString idxName, const QString fldName,
 }
 
 void PgTable::addConstraint(const QString cName, const QString fldName,
-                            const QString cDef){
+                            const QString cDef, PgConstraint::ConstraintType type,
+                            QString cTable, QStringList fldNamesF ){
   if(!cList.contains(cName)){
     PgConstraint c;
+    c.cType = type;
     c.cDef=cDef;
-    if(!c.cFields.contains(fldName)) c.cFields<<fldName;
+    c.cFields<<fldName;
+    c.cTable = cTable;
+    c.cFieldsF = fldNamesF;
+    cList[cName] = c;
   }
 }
 
@@ -268,6 +284,34 @@ QStringList PgTable::primaryKeyFields(){
     if(mi.value().isPrimary) lst<<mi.key();
   }
   return lst;
+}
+
+PgConstraint::ConstraintType PgTable::constraintType( QString cName ) const
+{
+  if ( !cList.contains( cName ) ) return PgConstraint::UndefinedType;
+
+  return cList[cName].cType;
+}
+
+QStringList PgTable::constraintFields( QString cName ) const
+{
+  if ( !cList.contains( cName ) ) return QStringList();
+
+  return cList[cName].cFields;
+}
+
+QString PgTable::constraintTable( QString cName ) const
+{
+  if ( !cList.contains( cName ) ) return QString();
+
+  return cList[cName].cTable;
+}
+
+QStringList PgTable::constraintFieldsF( QString cName ) const
+{
+  if ( !cList.contains( cName ) ) return QStringList();
+
+  return cList[cName].cFieldsF;
 }
 
 QStringList PgTable::fieldConstraints(QString fldName){
