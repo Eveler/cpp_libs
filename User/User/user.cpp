@@ -31,12 +31,12 @@ const AbstractSimpleObject * User::department() const
   return m__Value.m__Department;
 }
 
-const bool User::active() const
+bool User::active() const
 {
   return m__Value.m__Active;
 }
 
-const bool User::dismissed() const
+bool User::dismissed() const
 {
   return m__Value.m__Dismissed;
 }
