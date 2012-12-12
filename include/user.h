@@ -27,8 +27,8 @@ public:
   const StructName & name() const;
   const AbstractSimpleObject * post() const;
   const AbstractSimpleObject * department() const;
-  const bool active() const;
-  const bool dismissed() const;
+  bool active() const;
+  bool dismissed() const;
   const AbstractSimpleObject * office() const;
 
 signals:
