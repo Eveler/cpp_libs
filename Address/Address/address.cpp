@@ -1,51 +1,128 @@
-#include "service.h"
+#include "address.h"
 
-Service::Service(QObject *parent) :
+Address::Address(QObject *parent) :
     QObject(parent)
 {
-  m__StructService.m__Id = QVariant();
-  m__StructService.m__Name = QString();
-  m__StructService.m__Deadline = 0;
-  m__StructService.m__Active = false;
+  m__StructAddress.m__Id = QVariant();
 }
 
-const QVariant & Service::id() const
+const QVariant & Address::id() const
 {
-  return m__StructService.m__Id;
+  return m__StructAddress.m__Id;
 }
 
-const QString & Service::name() const
+AbstractSimpleObject * Address::country() const
 {
-  return m__StructService.m__Name;
+  return m__StructAddress.m__Country;
 }
 
-const int & Service::deadline() const
+Subject * Address::subject() const
 {
-  return m__StructService.m__Deadline;
+  return m__StructAddress.m__Subject;
 }
 
-bool Service::active() const
+Region * Address::region() const
 {
-  return m__StructService.m__Active;
+  return m__StructAddress.m__Region;
 }
 
-void Service::setId( QVariant value )
+Area * Address::area() const
 {
-  m__StructService.m__Id = value;
+  return m__StructAddress.m__Area;
 }
 
-void Service::setName( QString value )
+City * Address::city() const
 {
-  m__StructService.m__Name = value;
+  return m__StructAddress.m__City;
 }
 
-void Service::setDeadline( int value )
+InnerCity * Address::innerCity() const
 {
-  m__StructService.m__Deadline = value;
+  return m__StructAddress.m__InnerCity;
 }
 
-void Service::setActive( bool value )
+Township * Address::township() const
 {
-  m__StructService.m__Active = value;
+  return m__StructAddress.m__Township;
+}
+
+Street * Address::street() const
+{
+  return m__StructAddress.m__Street;
+}
+
+Subaddress * Address::subaddress() const
+{
+  return m__StructAddress.m__Subaddress;
+}
+
+AbstractSimpleObject * Address::slaveaddress() const
+{
+  return m__StructAddress.m__Slaveaddress;
+}
+
+AbstractSimpleObject * Address::postalcode() const
+{
+  return m__StructAddress.m__Postalcode;
+}
+
+void Address::setId( QVariant value )
+{
+  m__StructAddress.m__Id = value;
+}
+
+void Address::setCountry( AbstractSimpleObject *value )
+{
+  m__StructAddress.m__Country = value;
+}
+
+void Address::setSubject( Subject *value )
+{
+  m__StructAddress.m__Subject = value;
+}
+
+void Address::setRegion( Region *value )
+{
+  m__StructAddress.m__Region = value;
+}
+
+void Address::setArea( Area *value )
+{
+  m__StructAddress.m__Area = value;
+}
+
+void Address::setCity( City *value )
+{
+  m__StructAddress.m__City = value;
+}
+
+void Address::setInnerCity( InnerCity *value )
+{
+  m__StructAddress.m__InnerCity = value;
+}
+
+void Address::setTownship( Township *value )
+{
+  m__StructAddress.m__Township = value;
+}
+
+void Address::setStreet( Street *value )
+{
+  m__StructAddress.m__Street = value;
+}
+
+void Address::setSubaddress( Subaddress *value )
+{
+  m__StructAddress.m__Subaddress = value;
+}
+
+void Address::setSlaveAddress( AbstractSimpleObject *value )
+{
+  m__StructAddress.m__Slaveaddress = value;
+}
+
+void Address::setPostalcode( AbstractSimpleObject *value )
+{
+  m__StructAddress.m__Postalcode = value;
 }
 

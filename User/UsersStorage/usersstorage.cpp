@@ -25,7 +25,7 @@ bool UsersStorage::setStorage( StorageItemModel *stor, StructUserCols cols )
     return true;
   }
 
-  if ( stor->findColumnByRealName( stor->getPropertiesView(), cols.Id ) == -1 ||
+  if ( stor->findColumnByRealName( stor->getPropertiesView(), cols.cId ) == -1 ||
        stor->findColumnByRealName( stor->getPropertiesView(), cols.Surname ) == -1 ||
        stor->findColumnByRealName( stor->getPropertiesView(), cols.Firstname ) == -1 ||
        stor->findColumnByRealName( stor->getPropertiesView(), cols.Lastname ) == -1 ||
@@ -156,7 +156,7 @@ UsersStorage::~UsersStorage()
 void UsersStorage::reset()
 {
   m__Storage = NULL;
-  m__Cols.Id.clear();
+  m__Cols.cId.clear();
   m__Cols.Surname.clear();
   m__Cols.Firstname.clear();
   m__Cols.Lastname.clear();
@@ -169,7 +169,7 @@ void UsersStorage::reset()
 
 void UsersStorage::setObjectData( User *obj, MFCRecord *record )
 {
-  obj->setId( record->currentProperty( m__Cols.Id ) );
+  obj->setId( record->currentProperty( m__Cols.cId ) );
 
   StructName name = {record->currentProperty( m__Cols.Surname ).toString(),
                      record->currentProperty( m__Cols.Firstname ).toString(),
@@ -227,7 +227,7 @@ void UsersStorage::disconnectRecord( MFCRecord *record, int )
 
 void UsersStorage::propertyChanged( QString column )
 {
-  if ( column != m__Cols.Id && column != m__Cols.Surname &&
+  if ( column != m__Cols.cId && column != m__Cols.Surname &&
        column != m__Cols.Firstname && column != m__Cols.Lastname &&
        column != m__Cols.PostId && column != m__Cols.DepartmentId &&
        column != m__Cols.Active && column != m__Cols.Dismissed &&

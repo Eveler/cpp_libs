@@ -23,8 +23,8 @@ bool AbstractSimpleStorage::setStorage( StorageItemModel *stor, StructASSCols co
     return true;
   }
 
-  if ( stor->findColumnByRealName( stor->getPropertiesView(), cols.Id ) == -1 ||
-       stor->findColumnByRealName( stor->getPropertiesView(), cols.Name ) == -1 )
+  if ( stor->findColumnByRealName( stor->getPropertiesView(), cols.cId ) == -1 ||
+       stor->findColumnByRealName( stor->getPropertiesView(), cols.cName ) == -1 )
     return false;
 
   m__Storage = stor;
@@ -104,14 +104,14 @@ QList<AbstractSimpleObject *> AbstractSimpleStorage::find(
 void AbstractSimpleStorage::reset()
 {
   m__Storage = NULL;
-  m__Cols.Id.clear();
-  m__Cols.Name.clear();
+  m__Cols.cId.clear();
+  m__Cols.cName.clear();
 }
 
 void AbstractSimpleStorage::setObjectData( AbstractSimpleObject *obj, MFCRecord *record )
 {
-  obj->setId( record->currentProperty( m__Cols.Id ) );
-  obj->setName( record->currentProperty( m__Cols.Name ).toString() );
+  obj->setId( record->currentProperty( m__Cols.cId ) );
+  obj->setName( record->currentProperty( m__Cols.cName ).toString() );
 }
 
 void AbstractSimpleStorage::storageDestroyed()
@@ -128,6 +128,7 @@ void AbstractSimpleStorage::recordAdded( MFCRecord *record, int index )
   AbstractSimpleObject *obj = new AbstractSimpleObject( this );
   setObjectData( obj, record );
   m__Objects.insert( index, obj );
+  connect( obj, SIGNAL(changedName(QString)), this, SLOT(changedName(QString)) );
 }
 
 void AbstractSimpleStorage::recordRemoved( MFCRecord */*record*/, int index )
@@ -144,10 +145,18 @@ void AbstractSimpleStorage::disconnectRecord( MFCRecord *record, int /*index*/ )
 
 void AbstractSimpleStorage::propertyChanged( QString column )
 {
-  if ( column != m__Cols.Id && column != m__Cols.Name ) return;
+  if ( column != m__Cols.cId && column != m__Cols.cName ) return;
 
   MFCRecord *record = qobject_cast<MFCRecord *>( sender() );
   int index = m__Storage->availableRecords().indexOf( record );
   AbstractSimpleObject *obj = objects()[index];
   setObjectData( obj, record );
+}
+
+void AbstractSimpleStorage::changedName( QString value )
+{
+  AbstractSimpleObject *obj = qobject_cast<AbstractSimpleObject *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cName, value );
 }

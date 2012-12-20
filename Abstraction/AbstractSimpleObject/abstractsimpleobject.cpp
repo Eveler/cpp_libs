@@ -34,5 +34,8 @@ void AbstractSimpleObject::setId( QVariant value )
 
 void AbstractSimpleObject::setName( QString value )
 {
+  if ( m__Value.m__Name == value ) return;
+
   m__Value.m__Name = value;
+  emit changedName( value );
 }

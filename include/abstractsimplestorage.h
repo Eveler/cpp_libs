@@ -6,8 +6,8 @@
 
 typedef struct
 {
-  QString Id;
-  QString Name;
+  QString cId;
+  QString cName;
 } StructASSCols;
 
 class AbstractSimpleStorage : public QObject
@@ -50,6 +50,7 @@ private slots:
   void recordRemoved( MFCRecord *record, int index );
   void disconnectRecord( MFCRecord *record, int );
   void propertyChanged( QString column );
+  void changedName( QString value );
 };
 
 #endif // ABSTRACTSIMPLESTORAGE_H

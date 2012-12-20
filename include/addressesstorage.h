@@ -1,46 +1,54 @@
-#ifndef SERVICESSTORAGE_H
-#define SERVICESSTORAGE_H
+#ifndef ADDRESESSTORAGE_H
+#define ADDRESESSTORAGE_H
 
 #include "storageitemmodel.h"
-#include "service.h"
+#include "address.h"
 
 typedef struct
 {
-  QString Id;
-  QString Name;
-  QString Deadline;
-  QString Active;
-} StructServiceCols;
+  QString cId;
+  QString cCountry;
+  QString cSubject;
+  QString cRegion;
+  QString cArea;
+  QString cCity;
+  QString cInnerCity;
+  QString cTownship;
+  QString cStreet;
+  QString cSubaddress;
+  QString cSlaveAddress;
+  QString cPostcode;
+} StructAddressCols;
 
-class ServicesStorage : public QObject
+class AddressesStorage : public QObject
 {
     Q_OBJECT
 public:
-  static ServicesStorage * instance();
+  static AddressesStorage * instance();
 
-  bool setStorage( StorageItemModel *stor, StructServiceCols cols );
+  bool setStorage( StorageItemModel *stor, StructAddressCols cols );
   StorageItemModel * storage() const;
 
-  const QList<Service *> & objects() const;
+  const QList<Address *> & objects() const;
 
 signals:
 
 public slots:
 
 private:
-  static ServicesStorage *m__Instance;
+  static AddressesStorage *m__Instance;
 
   StorageItemModel *m__Storage;
 
-  StructServiceCols m__Cols;
+  StructAddressCols m__Cols;
 
-  QList<Service *> m__Services;
+  QList<Address *> m__Addresses;
 
-  explicit ServicesStorage(QObject *parent = 0);
-  ~ServicesStorage();
+  explicit AddressesStorage(QObject *parent = 0);
+  ~AddressesStorage();
 
   void reset();
-  void setObjectData( Service *obj, MFCRecord *record );
+  void setObjectData( Address *obj, MFCRecord *record );
 
 private slots:
   void storageDestroyed();
@@ -50,4 +58,4 @@ private slots:
   void propertyChanged( QString column );
 };
 
-#endif // SERVICESSTORAGE_H
+#endif // ADDRESESSTORAGE_H

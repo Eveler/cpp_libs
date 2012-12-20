@@ -22,6 +22,7 @@ public:
   const QString & name() const;
 
 signals:
+  void changedName( QString value );
 
 public slots:
   void clear();
