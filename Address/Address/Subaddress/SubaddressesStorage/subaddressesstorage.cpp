@@ -126,6 +126,16 @@ void SubaddressesStorage::recordAdded( MFCRecord *record, int index )
   Subaddress *subaddress = new Subaddress( this );
   setObjectData( subaddress, record );
   m__Subaddresses.insert( index, subaddress );
+  connect( subaddress, SIGNAL(changedPostcode(AbstractSimpleObject*)),
+           this, SLOT(changedPostcode(AbstractSimpleObject*)) );
+  connect( subaddress, SIGNAL(changedHouseNumber(QString)),
+           this, SLOT(changedHouseNumber(QString)) );
+  connect( subaddress, SIGNAL(changedBuildNumber(QString)),
+           this, SLOT(changedBuildNumber(QString)) );
+  connect( subaddress, SIGNAL(changedStructNumber(QString)),
+           this, SLOT(changedStructNumber(QString)) );
+  connect( subaddress, SIGNAL(changedStructureStatus(StructureStatus*)),
+           this, SLOT(changedStructureStatus(StructureStatus*)) );
 }
 
 void SubaddressesStorage::recordRemoved( MFCRecord */*record*/, int index )
@@ -151,3 +161,44 @@ void SubaddressesStorage::propertyChanged( QString column )
   Subaddress *obj = objects()[index];
   setObjectData( obj, record );
 }
+
+void SubaddressesStorage::changedPostcode( AbstractSimpleObject *value )
+{
+  Subaddress *obj = qobject_cast<Subaddress *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cPostcode, value->id() );
+}
+
+void SubaddressesStorage::changedHouseNumber( QString value )
+{
+  Subaddress *obj = qobject_cast<Subaddress *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cHouseNumber, value );
+}
+
+void SubaddressesStorage::changedBuildNumber( QString value )
+{
+  Subaddress *obj = qobject_cast<Subaddress *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cBuildNumber, value );
+}
+
+void SubaddressesStorage::changedStructNumber( QString value )
+{
+  Subaddress *obj = qobject_cast<Subaddress *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cStructNumber, value );
+}
+
+void SubaddressesStorage::changedStructureStatus( StructureStatus * value )
+{
+  Subaddress *obj = qobject_cast<Subaddress *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cStructureStatus, value->id() );
+}
+

@@ -52,6 +52,11 @@ private slots:
   void recordRemoved( MFCRecord *, int index );
   void disconnectRecord( MFCRecord *record, int );
   void propertyChanged( QString column );
+  void changedPostcode( AbstractSimpleObject *value );
+  void changedHouseNumber( QString value );
+  void changedBuildNumber( QString value );
+  void changedStructNumber( QString value );
+  void changedStructureStatus( StructureStatus * value );
 };
 
 #endif // SubaddressESSTORAGE_H

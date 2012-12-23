@@ -30,11 +30,17 @@ void Township::setId( QVariant value )
 
 void Township::setAbbreviation( Abbreviation *value )
 {
+  if ( m__StructTownship.m__Abbreviation == value ) return;
+
   m__StructTownship.m__Abbreviation = value;
+  emit changedAbbreviation( value );
 }
 
 void Township::setName( QString value )
 {
+  if ( m__StructTownship.m__Name == value ) return;
+
   m__StructTownship.m__Name = value;
+  emit changedName( value );
 }
 

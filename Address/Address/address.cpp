@@ -63,7 +63,7 @@ AbstractSimpleObject * Address::slaveaddress() const
 
 AbstractSimpleObject * Address::postalcode() const
 {
-  return m__StructAddress.m__Postalcode;
+  return m__StructAddress.m__Postcode;
 }
 
 void Address::setId( QVariant value )
@@ -73,56 +73,89 @@ void Address::setId( QVariant value )
 
 void Address::setCountry( AbstractSimpleObject *value )
 {
+  if ( m__StructAddress.m__Country == value ) return;
+
   m__StructAddress.m__Country = value;
+  emit changedCountry( value );
 }
 
 void Address::setSubject( Subject *value )
 {
+  if ( m__StructAddress.m__Subject == value ) return;
+
   m__StructAddress.m__Subject = value;
+  emit changedSubject( value );
 }
 
 void Address::setRegion( Region *value )
 {
+  if ( m__StructAddress.m__Region == value ) return;
+
   m__StructAddress.m__Region = value;
+  emit changedRegion( value );
 }
 
 void Address::setArea( Area *value )
 {
+  if ( m__StructAddress.m__Area == value ) return;
+
   m__StructAddress.m__Area = value;
+  emit changedArea( value );
 }
 
 void Address::setCity( City *value )
 {
+  if ( m__StructAddress.m__City == value ) return;
+
   m__StructAddress.m__City = value;
+  emit changedCity( value );
 }
 
 void Address::setInnerCity( InnerCity *value )
 {
+  if ( m__StructAddress.m__InnerCity == value ) return;
+
   m__StructAddress.m__InnerCity = value;
+  emit changedInnerCity( value );
 }
 
 void Address::setTownship( Township *value )
 {
+  if ( m__StructAddress.m__Township == value ) return;
+
   m__StructAddress.m__Township = value;
+  emit changedTownship( value );
 }
 
 void Address::setStreet( Street *value )
 {
+  if ( m__StructAddress.m__Street == value ) return;
+
   m__StructAddress.m__Street = value;
+  emit changedStreet( value );
 }
 
 void Address::setSubaddress( Subaddress *value )
 {
+  if ( m__StructAddress.m__Subaddress == value ) return;
+
   m__StructAddress.m__Subaddress = value;
+  emit changedSubaddress( value );
 }
 
-void Address::setSlaveAddress( AbstractSimpleObject *value )
+void Address::setSlaveaddress( AbstractSimpleObject *value )
 {
+  if ( m__StructAddress.m__Slaveaddress == value ) return;
+
   m__StructAddress.m__Slaveaddress = value;
+  emit changedSlaveaddress( value );
 }
 
-void Address::setPostalcode( AbstractSimpleObject *value )
+void Address::setPostcode( AbstractSimpleObject *value )
 {
-  m__StructAddress.m__Postalcode = value;
+  if ( m__StructAddress.m__Postcode == value ) return;
+
+  m__StructAddress.m__Postcode = value;
+  emit changedPostcode( value );
 }
 

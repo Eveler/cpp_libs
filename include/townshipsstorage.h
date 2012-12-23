@@ -49,6 +49,8 @@ private slots:
   void recordRemoved( MFCRecord *, int index );
   void disconnectRecord( MFCRecord *record, int );
   void propertyChanged( QString column );
+  void changedAbbreviation( Abbreviation *value );
+  void changedName( QString value );
 };
 
 #endif // TOWNSHIPSSTORAGE_H

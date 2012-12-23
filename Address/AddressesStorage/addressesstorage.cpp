@@ -43,7 +43,7 @@ bool AddressesStorage::setStorage( StorageItemModel *stor, StructAddressCols col
        stor->findColumnByRealName( stor->getPropertiesView(), cols.cTownship ) == -1 ||
        stor->findColumnByRealName( stor->getPropertiesView(), cols.cStreet ) == -1 ||
        stor->findColumnByRealName( stor->getPropertiesView(), cols.cSubaddress ) == -1 ||
-       stor->findColumnByRealName( stor->getPropertiesView(), cols.cSlaveAddress ) == -1 ||
+       stor->findColumnByRealName( stor->getPropertiesView(), cols.cSlaveaddress ) == -1 ||
        stor->findColumnByRealName( stor->getPropertiesView(), cols.cPostcode ) == -1 )
     return false;
 
@@ -104,7 +104,7 @@ void AddressesStorage::reset()
   m__Cols.cTownship.clear();
   m__Cols.cStreet.clear();
   m__Cols.cSubaddress.clear();
-  m__Cols.cSlaveAddress.clear();
+  m__Cols.cSlaveaddress.clear();
   m__Cols.cPostcode.clear();
 }
 
@@ -159,13 +159,13 @@ void AddressesStorage::setObjectData( Address *obj, MFCRecord *record )
 
   SlaveAddressesStorage *slaveAddressesStorage = SlaveAddressesStorage::instance();
   QList<AbstractSimpleObject *> slaveAddresses = slaveAddressesStorage->find(
-        slaveAddressesStorage->objects(), record->currentProperty( m__Cols.cSlaveAddress ) );
-  if ( !slaveAddresses.isEmpty() ) obj->setSlaveAddress( slaveAddresses.first() );
+        slaveAddressesStorage->objects(), record->currentProperty( m__Cols.cSlaveaddress ) );
+  if ( !slaveAddresses.isEmpty() ) obj->setSlaveaddress( slaveAddresses.first() );
 
   PostcodesStorage *postcodesStorage = PostcodesStorage::instance();
   QList<AbstractSimpleObject *> postcodes = postcodesStorage->find(
         postcodesStorage->objects(), record->currentProperty( m__Cols.cPostcode ) );
-  if ( !postcodes.isEmpty() ) obj->setPostalcode( postcodes.first() );
+  if ( !postcodes.isEmpty() ) obj->setPostcode( postcodes.first() );
 }
 
 void AddressesStorage::storageDestroyed()
@@ -181,6 +181,8 @@ void AddressesStorage::recordAdded( MFCRecord *record, int index )
   Address *address = new Address( this );
   setObjectData( address, record );
   m__Addresses.insert( index, address );
+  connect( address, SIGNAL(changed),
+           this, SLOT(changed) );
 }
 
 void AddressesStorage::recordRemoved( MFCRecord */*record*/, int index )
@@ -201,7 +203,7 @@ void AddressesStorage::propertyChanged( QString column )
        column != m__Cols.cArea && column != m__Cols.cCity &&
        column != m__Cols.cInnerCity && column != m__Cols.cTownship &&
        column != m__Cols.cStreet && column != m__Cols.cSubaddress &&
-       column != m__Cols.cSlaveAddress && column != m__Cols.cPostcode )
+       column != m__Cols.cSlaveaddress && column != m__Cols.cPostcode )
     return;
 
   MFCRecord *record = qobject_cast<MFCRecord *>( sender() );
@@ -209,3 +211,92 @@ void AddressesStorage::propertyChanged( QString column )
   Address *obj = objects()[index];
   setObjectData( obj, record );
 }
+
+void AddressesStorage::changedCountry( AbstractSimpleObject *value )
+{
+  Address *obj = qobject_cast<Address *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cCountry, value->id() );
+}
+
+void AddressesStorage::changedSubject( Subject *value )
+{
+  Address *obj = qobject_cast<Address *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cSubject, value->id() );
+}
+
+void AddressesStorage::changedRegion( Region *value )
+{
+  Address *obj = qobject_cast<Address *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cRegion, value->id() );
+}
+
+void AddressesStorage::changedArea( Area *value )
+{
+  Address *obj = qobject_cast<Address *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cArea, value->id() );
+}
+
+void AddressesStorage::changedCity( City *value )
+{
+  Address *obj = qobject_cast<Address *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cCity, value->id() );
+}
+
+void AddressesStorage::changedInnerCity( InnerCity *value )
+{
+  Address *obj = qobject_cast<Address *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cInnerCity, value->id() );
+}
+
+void AddressesStorage::changedTownship( Township *value )
+{
+  Address *obj = qobject_cast<Address *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cTownship, value->id() );
+}
+
+void AddressesStorage::changedStreet( Street *value )
+{
+  Address *obj = qobject_cast<Address *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cStreet, value->id() );
+}
+
+void AddressesStorage::changedSubaddress( Subaddress *value )
+{
+  Address *obj = qobject_cast<Address *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cSubaddress, value->id() );
+}
+
+void AddressesStorage::changedSlaveaddress( AbstractSimpleObject *value )
+{
+  Address *obj = qobject_cast<Address *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cSlaveaddress, value->id() );
+}
+
+void AddressesStorage::changedPostcode( AbstractSimpleObject *value )
+{
+  Address *obj = qobject_cast<Address *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cPostcode, value->id() );
+}
+

@@ -16,7 +16,7 @@ typedef struct
   QString cTownship;
   QString cStreet;
   QString cSubaddress;
-  QString cSlaveAddress;
+  QString cSlaveaddress;
   QString cPostcode;
 } StructAddressCols;
 
@@ -56,6 +56,17 @@ private slots:
   void recordRemoved( MFCRecord *, int index );
   void disconnectRecord( MFCRecord *record, int );
   void propertyChanged( QString column );
+  void changedCountry( AbstractSimpleObject *value );
+  void changedSubject( Subject *value );
+  void changedRegion( Region *value );
+  void changedArea( Area *value );
+  void changedCity( City *value );
+  void changedInnerCity( InnerCity *value );
+  void changedTownship( Township *value );
+  void changedStreet( Street *value );
+  void changedSubaddress( Subaddress *value );
+  void changedSlaveaddress( AbstractSimpleObject *value );
+  void changedPostcode( AbstractSimpleObject *value );
 };
 
 #endif // ADDRESESSTORAGE_H

@@ -21,9 +21,9 @@ bool StructureStatusesStorage::setStorage( StorageItemModel *stor, StructStructu
     return true;
   }
 
-  if ( stor->findColumnByRealName( stor->getPropertiesView(), cols.Id ) == -1 ||
-       stor->findColumnByRealName( stor->getPropertiesView(), cols.ShortName ) == -1 ||
-       stor->findColumnByRealName( stor->getPropertiesView(), cols.FullName ) )
+  if ( stor->findColumnByRealName( stor->getPropertiesView(), cols.cId ) == -1 ||
+       stor->findColumnByRealName( stor->getPropertiesView(), cols.cShortName ) == -1 ||
+       stor->findColumnByRealName( stor->getPropertiesView(), cols.cFullName ) )
     return false;
 
   m__Storage = stor;
@@ -84,16 +84,16 @@ StructureStatusesStorage::~StructureStatusesStorage()
 void StructureStatusesStorage::reset()
 {
   m__Storage = NULL;
-  m__Cols.Id.clear();
-  m__Cols.ShortName.clear();
-  m__Cols.FullName.clear();
+  m__Cols.cId.clear();
+  m__Cols.cShortName.clear();
+  m__Cols.cFullName.clear();
 }
 
 void StructureStatusesStorage::setObjectData( StructureStatus *obj, MFCRecord *record )
 {
-  obj->setId( record->currentProperty( m__Cols.Id ) );
-  obj->setShortName( record->currentProperty( m__Cols.ShortName ).toString() );
-  obj->setFullName( record->currentProperty( m__Cols.FullName ).toString() );
+  obj->setId( record->currentProperty( m__Cols.cId ) );
+  obj->setShortName( record->currentProperty( m__Cols.cShortName ).toString() );
+  obj->setFullName( record->currentProperty( m__Cols.cFullName ).toString() );
 }
 
 void StructureStatusesStorage::storageDestroyed()
@@ -109,6 +109,10 @@ void StructureStatusesStorage::recordAdded( MFCRecord *record, int index )
   StructureStatus *structureStatus = new StructureStatus( this );
   setObjectData( structureStatus, record );
   m__StructureStatuses.insert( index, structureStatus );
+  connect( structureStatus, SIGNAL(changedShortName(QString)),
+           this, SLOT(changedShortName(QString)) );
+  connect( structureStatus, SIGNAL(changedFullName(QString)),
+           this, SLOT(changedFullName(QString)) );
 }
 
 void StructureStatusesStorage::recordRemoved( MFCRecord */*record*/, int index )
@@ -124,8 +128,8 @@ void StructureStatusesStorage::disconnectRecord( MFCRecord *record, int )
 
 void StructureStatusesStorage::propertyChanged( QString column )
 {
-  if ( column != m__Cols.Id && column != m__Cols.ShortName &&
-       column != m__Cols.FullName )
+  if ( column != m__Cols.cId && column != m__Cols.cShortName &&
+       column != m__Cols.cFullName )
     return;
 
   MFCRecord *record = qobject_cast<MFCRecord *>( sender() );
@@ -133,3 +137,20 @@ void StructureStatusesStorage::propertyChanged( QString column )
   StructureStatus *obj = objects()[index];
   setObjectData( obj, record );
 }
+
+void StructureStatusesStorage::changedShortName( QString value )
+{
+  StructureStatus *obj = qobject_cast<StructureStatus *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cShortName, value );
+}
+
+void StructureStatusesStorage::changedFullName( QString value )
+{
+  StructureStatus *obj = qobject_cast<StructureStatus *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cFullName, value );
+}
+

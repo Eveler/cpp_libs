@@ -6,9 +6,9 @@
 
 typedef struct
 {
-  QString Id;
-  QString ShortName;
-  QString FullName;
+  QString cId;
+  QString cShortName;
+  QString cFullName;
 } StructStructureStatusCols;
 
 class StructureStatusesStorage : public QObject
@@ -49,6 +49,8 @@ private slots:
   void recordRemoved( MFCRecord *, int index );
   void disconnectRecord( MFCRecord *record, int );
   void propertyChanged( QString column );
+  void changedShortName( QString value );
+  void changedFullName( QString value );
 };
 
 #endif // STRUCTURESTATUSESSTORAGE_H

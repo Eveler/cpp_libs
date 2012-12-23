@@ -24,6 +24,8 @@ public:
   const QString & name() const;
 
 signals:
+  void changedAbbreviation( Abbreviation *value );
+  void changedName( QString value );
 
 public slots:
   void setId( QVariant value );

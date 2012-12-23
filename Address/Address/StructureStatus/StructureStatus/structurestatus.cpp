@@ -30,11 +30,17 @@ void StructureStatus::setId( QVariant value )
 
 void StructureStatus::setShortName( QString value )
 {
+  if ( m__StructStructureStatus.m__ShortName == value ) return;
+
   m__StructStructureStatus.m__ShortName = value;
+  emit changedShortName( value );
 }
 
 void StructureStatus::setFullName( QString value )
 {
+  if ( m__StructStructureStatus.m__FullName == value ) return;
+
   m__StructStructureStatus.m__FullName = value;
+  emit changedFullName( value );
 }
 

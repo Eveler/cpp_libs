@@ -113,6 +113,9 @@ void TownshipsStorage::recordAdded( MFCRecord *record, int index )
   Township *township = new Township( this );
   setObjectData( township, record );
   m__Townships.insert( index, township );
+  connect( township, SIGNAL(changedAbbreviation(Abbreviation*)),
+           this, SLOT(changedAbbreviation(Abbreviation*)) );
+  connect( township, SIGNAL(changedName(QString)), this, SLOT(changedName(QString)) );
 }
 
 void TownshipsStorage::recordRemoved( MFCRecord */*record*/, int index )
@@ -136,4 +139,20 @@ void TownshipsStorage::propertyChanged( QString column )
   int index = m__Storage->availableRecords().indexOf( record );
   Township *obj = objects()[index];
   setObjectData( obj, record );
+}
+
+void TownshipsStorage::changedAbbreviation( Abbreviation *value )
+{
+  Township *obj = qobject_cast<Township *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cAbbreviation, value->id() );
+}
+
+void TownshipsStorage::changedName( QString value )
+{
+  Township *obj = qobject_cast<Township *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cName, value );
 }

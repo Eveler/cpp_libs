@@ -22,6 +22,8 @@ public:
   const QString & fullName() const;
 
 signals:
+  void changedShortName( QString value );
+  void changedFullName( QString value );
 
 public slots:
   void setId( QVariant value );

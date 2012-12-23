@@ -31,6 +31,11 @@ public:
   StructureStatus * structureStatus() const;
 
 signals:
+  void changedPostcode( AbstractSimpleObject *value );
+  void changedHouseNumber( QString value );
+  void changedBuildNumber( QString value );
+  void changedStructNumber( QString value );
+  void changedStructureStatus( StructureStatus * value );
 
 public slots:
   void setId( QVariant value );

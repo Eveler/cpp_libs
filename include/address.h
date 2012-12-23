@@ -29,7 +29,7 @@ class Address : public QObject
     Street *m__Street;
     Subaddress *m__Subaddress;
     AbstractSimpleObject *m__Slaveaddress;
-    AbstractSimpleObject *m__Postalcode;
+    AbstractSimpleObject *m__Postcode;
   } StructAddress;
 
   Q_OBJECT
@@ -50,6 +50,17 @@ public:
   AbstractSimpleObject * postalcode() const;
 
 signals:
+  void changedCountry( AbstractSimpleObject *value );
+  void changedSubject( Subject *value );
+  void changedRegion( Region *value );
+  void changedArea( Area *value );
+  void changedCity( City *value );
+  void changedInnerCity( InnerCity *value );
+  void changedTownship( Township *value );
+  void changedStreet( Street *value );
+  void changedSubaddress( Subaddress *value );
+  void changedSlaveaddress( AbstractSimpleObject *value );
+  void changedPostcode( AbstractSimpleObject *value );
 
 public slots:
   void setId( QVariant value );
@@ -62,8 +73,8 @@ public slots:
   void setTownship( Township *value );
   void setStreet( Street *value );
   void setSubaddress( Subaddress *value );
-  void setSlaveAddress( AbstractSimpleObject *value );
-  void setPostalcode( AbstractSimpleObject *value );
+  void setSlaveaddress( AbstractSimpleObject *value );
+  void setPostcode( AbstractSimpleObject *value );
 
 private:
   StructAddress m__StructAddress;

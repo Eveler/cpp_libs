@@ -48,26 +48,41 @@ void Subaddress::setId( QVariant value )
 
 void Subaddress::setPostcode( AbstractSimpleObject *value )
 {
+  if ( m__StructSubaddress.m__Postcode == value ) return;
+
   m__StructSubaddress.m__Postcode = value;
+  emit changedPostcode( value );
 }
 
 void Subaddress::setHouseNumber( QString value )
 {
+  if ( m__StructSubaddress.m__HouseNumber == value ) return;
+
   m__StructSubaddress.m__HouseNumber = value;
+  emit changedHouseNumber( value );
 }
 
 void Subaddress::setBuildNumber( QString value )
 {
+  if ( m__StructSubaddress.m__BuildNumber == value ) return;
+
   m__StructSubaddress.m__BuildNumber = value;
+  emit changedBuildNumber( value );
 }
 
 void Subaddress::setStructNumber( QString value )
 {
+  if ( m__StructSubaddress.m__StructNumber == value ) return;
+
   m__StructSubaddress.m__StructNumber = value;
+  emit changedStructNumber( value );
 }
 
 void Subaddress::setStructureStatus( StructureStatus *value )
 {
+  if ( m__StructSubaddress.m__StructureStatus == value ) return;
+
   m__StructSubaddress.m__StructureStatus = value;
+  emit changedStructureStatus( value );
 }
 
