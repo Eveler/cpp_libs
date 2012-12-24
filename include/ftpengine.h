@@ -23,31 +23,46 @@ public:
 //  void setAuthenticator( QAuthenticator *authenticator );
 //  QAuthenticator * authenticator() const;
 
+  void connectToHost( const QUrl &url = QUrl() , int port = 21 );
+  void disconnectFromHost();
+  bool isConnected() const;
+
   void setAuthentication( QString user, QString password );
-  void connectTo( const QUrl &url = QUrl() , int port = 21 );
+  bool isAuthenticated() const;
 
 signals:
   void authenticationRequired();
+  void authenticationCompleted( bool );
 
 public slots:
 
 private:
+  QUrl m__Url;
+  int m__Port;
   QTcpSocket *m__Socket;
+  bool m__Connected;
 
   QString m__User;
   QString m__Password;
+  bool m__Authenticated;
 
   QNetworkAccessManager *m__AccessManager;
   QNetworkReply *m__Reply;
+
+  void setDefaultConnect();
+
+  int ftpAnswerCode( const QByteArray &answer );
+  bool checkCode( const QByteArray &answer, int code );
 
   void authenticationStart();
 
 private slots:
   void socketStateChanged( QAbstractSocket::SocketState socketState );
-  void socketConnected();
 
+  void socketConnected();
   void socketAuthUserReply();
   void socketAuthPassReply();
+
 
   void finished();
   void downloadProgress( qint64 current,qint64 max );

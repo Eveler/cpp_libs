@@ -5,35 +5,31 @@
 FTPEngine::FTPEngine( QObject *parent ) :
   QObject(parent)
 {
+  m__Url = QUrl();
+  m__Port = -1;
   m__Socket = new QTcpSocket( this );
+  m__Connected = false;
 
   m__User = QString();
   m__Password = QString();
+  m__Authenticated = false;
 
   m__AccessManager = new QNetworkAccessManager( this );
 }
 
-void FTPEngine::setAuthentication( QString user, QString password )
+void FTPEngine::connectToHost( const QUrl &url, int port )
 {
-  m__User = user;
-  m__Password = password;
+  m__Url = url;
+  m__Port = port;
 
-  qDebug() << user << password;
-  if ( m__Socket->state() == QAbstractSocket::ConnectedState ) authenticationStart();
-}
+  if ( m__Url.isEmpty() || m__Port == -1 ) return;
 
-void FTPEngine::connectTo( const QUrl &url, int port )
-{
-  if ( m__Socket->state() != QAbstractSocket::UnconnectedState )
-    m__Socket->disconnectFromHost();
+  if ( m__Socket->state() != QAbstractSocket::UnconnectedState ) return;
 
-  m__Socket->disconnect();
-
-  connect( m__Socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
-           this, SLOT(socketStateChanged(QAbstractSocket::SocketState)) );
+  setDefaultConnect();
   connect( m__Socket, SIGNAL(readyRead()), this, SLOT(socketConnected()) );
 
-  m__Socket->connectToHost( url.host(), port );
+  m__Socket->connectToHost( m__Url.host(), m__Port );
 //  qDebug() << "connectTo" << url;
 //  m__Reply = m__AccessManager->get( QNetworkRequest( url ) );
 //  connect( m__Reply, SIGNAL(finished()), this, SLOT(finished()) );
@@ -53,41 +49,102 @@ void FTPEngine::connectTo( const QUrl &url, int port )
 //  }
 }
 
+void FTPEngine::disconnectFromHost()
+{
+  if ( m__Socket->state() != QAbstractSocket::UnconnectedState )
+    m__Socket->disconnectFromHost();
+
+  m__Socket->disconnect();
+}
+
+bool FTPEngine::isConnected() const
+{
+  return m__Connected;
+}
+
+void FTPEngine::setAuthentication( QString user, QString password )
+{
+  m__User = user;
+  m__Password = password;
+  m__Authenticated = false;
+
+  if ( isConnected() ) authenticationStart();
+  else connectToHost( m__Url, m__Port );
+}
+
+bool FTPEngine::isAuthenticated() const
+{
+  return m__Authenticated;
+}
+
+void FTPEngine::setDefaultConnect()
+{
+  connect( m__Socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
+           this, SLOT(socketStateChanged(QAbstractSocket::SocketState)) );
+}
+
+int FTPEngine::ftpAnswerCode( const QByteArray &answer )
+{
+  return answer.split( ' ' ).first().toInt();
+}
+
+bool FTPEngine::checkCode( const QByteArray &answer, int code )
+{
+  int ansCode = ftpAnswerCode( answer );
+  if ( ansCode != code )
+  {
+    qDebug() << "Unknown FTP-answer code:" << code;
+    return false;
+  }
+
+  return true;
+}
+
 void FTPEngine::authenticationStart()
 {
   if ( m__User.isEmpty() )
   {
-    qDebug() << "authenticationRequired";
     emit authenticationRequired();
     return;
   }
 
   m__Socket->disconnect();
 
+  setDefaultConnect();
   connect( m__Socket, SIGNAL(readyRead()), this, SLOT(socketAuthUserReply()) );
 
   m__Socket->write( tr( "user %1\n" ).arg( m__User ).toLocal8Bit() );
 }
 
 void FTPEngine::socketStateChanged( QAbstractSocket::SocketState socketState )
-
 {
   qDebug() << "socketStateChanged" << socketState;
+
+  m__Connected = ( socketState == QAbstractSocket::ConnectedState );
+
+  if ( !m__Connected ) m__Authenticated = false;
 }
 
 void FTPEngine::socketConnected()
 {
-  qDebug() << "FTP answer" << m__Socket->readAll();
+  QByteArray answer = m__Socket->readAll().replace( "\n", "" );
+  qDebug() << "FTP-answer" << answer;
+
+  if ( !checkCode( answer, 220 ) ) return;
 
   authenticationStart();
 }
 
 void FTPEngine::socketAuthUserReply()
 {
-  qDebug() << "FTP answer" << m__Socket->readAll();
+  QByteArray answer = m__Socket->readAll().replace( "\n", "" );
+  qDebug() << "FTP-answer" << answer;
+
+  if ( !checkCode( answer, 331 ) ) return;
 
   m__Socket->disconnect();
 
+  setDefaultConnect();
   connect( m__Socket, SIGNAL(readyRead()), this, SLOT(socketAuthPassReply()) );
 
   m__Socket->write( tr( "pass %1\n" ).arg( m__Password ).toLocal8Bit() );
@@ -95,9 +152,21 @@ void FTPEngine::socketAuthUserReply()
 
 void FTPEngine::socketAuthPassReply()
 {
-  qDebug() << "FTP answer" << m__Socket->readAll();
+  QByteArray answer = m__Socket->readAll().replace( "\n", "" );
+  qDebug() << "FTP-answer" << answer;
+
+  if ( !checkCode( answer, 230 ) )
+  {
+    emit authenticationCompleted( m__Authenticated );
+    return;
+  }
 
   m__Socket->disconnect();
+
+  setDefaultConnect();
+
+  m__Authenticated = true;
+  emit authenticationCompleted( m__Authenticated );
 }
 
 void FTPEngine::finished()
