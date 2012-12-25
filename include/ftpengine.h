@@ -30,9 +30,12 @@ public:
   void setAuthentication( QString user, QString password );
   bool isAuthenticated() const;
 
+  bool sendCommand( QString text );
+
 signals:
   void authenticationRequired();
   void authenticationCompleted( bool );
+  void ftpAnswer( QString text );
 
 public slots:
 
@@ -62,7 +65,7 @@ private slots:
   void socketConnected();
   void socketAuthUserReply();
   void socketAuthPassReply();
-
+  void socketAllReply();
 
   void finished();
   void downloadProgress( qint64 current,qint64 max );

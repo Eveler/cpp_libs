@@ -22,6 +22,8 @@ void FTPEngine::connectToHost( const QUrl &url, int port )
   m__Url = url;
   m__Port = port;
 
+  m__Socket->disconnect();
+
   if ( m__Url.isEmpty() || m__Port == -1 ) return;
 
   if ( m__Socket->state() != QAbstractSocket::UnconnectedState ) return;
@@ -77,6 +79,21 @@ bool FTPEngine::isAuthenticated() const
   return m__Authenticated;
 }
 
+bool FTPEngine::sendCommand( QString text )
+{
+  m__Socket->disconnect();
+
+  if ( !isConnected() ) return false;
+
+  setDefaultConnect();
+  connect( m__Socket, SIGNAL(readyRead()),
+           this, SLOT(socketAllReply()) );
+
+  m__Socket->write( tr( "%1\n" ).arg( text ).toLocal8Bit() );
+
+  return true;
+}
+
 void FTPEngine::setDefaultConnect()
 {
   connect( m__Socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
@@ -128,7 +145,10 @@ void FTPEngine::socketStateChanged( QAbstractSocket::SocketState socketState )
 void FTPEngine::socketConnected()
 {
   QByteArray answer = m__Socket->readAll().replace( "\n", "" );
-  qDebug() << "FTP-answer" << answer;
+//  qDebug() << "FTP-answer" << answer;
+  m__Socket->disconnect();
+
+  emit ftpAnswer( QVariant( answer ).toString() );
 
   if ( !checkCode( answer, 220 ) ) return;
 
@@ -138,11 +158,12 @@ void FTPEngine::socketConnected()
 void FTPEngine::socketAuthUserReply()
 {
   QByteArray answer = m__Socket->readAll().replace( "\n", "" );
-  qDebug() << "FTP-answer" << answer;
+//  qDebug() << "FTP-answer" << answer;
+  m__Socket->disconnect();
+
+  emit ftpAnswer( QVariant( answer ).toString() );
 
   if ( !checkCode( answer, 331 ) ) return;
-
-  m__Socket->disconnect();
 
   setDefaultConnect();
   connect( m__Socket, SIGNAL(readyRead()), this, SLOT(socketAuthPassReply()) );
@@ -153,7 +174,10 @@ void FTPEngine::socketAuthUserReply()
 void FTPEngine::socketAuthPassReply()
 {
   QByteArray answer = m__Socket->readAll().replace( "\n", "" );
-  qDebug() << "FTP-answer" << answer;
+//  qDebug() << "FTP-answer" << answer;
+  m__Socket->disconnect();
+
+  emit ftpAnswer( QVariant( answer ).toString() );
 
   if ( !checkCode( answer, 230 ) )
   {
@@ -161,12 +185,19 @@ void FTPEngine::socketAuthPassReply()
     return;
   }
 
-  m__Socket->disconnect();
-
   setDefaultConnect();
 
   m__Authenticated = true;
   emit authenticationCompleted( m__Authenticated );
+}
+
+void FTPEngine::socketAllReply()
+{
+  QByteArray answer = m__Socket->readAll().replace( "\n", "" );
+//  qDebug() << "FTP-answer" << answer;
+  m__Socket->disconnect();
+
+  emit ftpAnswer( QVariant( answer ).toString() );
 }
 
 void FTPEngine::finished()
