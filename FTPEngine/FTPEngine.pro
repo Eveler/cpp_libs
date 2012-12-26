@@ -1,4 +1,4 @@
-QT       += network
+QT       += network core-private
 
 TARGET = FTPEngine
 CONFIG(debug, debug|release): TARGET = $${TARGET}d
@@ -11,7 +11,8 @@ DEFINES += FTPENGINE_LIBRARY
 INCLUDEPATH += ./ \
     ../bin/ \
     ../include/ \
-    ./FTPEngine/
+    ./FTPEngine/ \
+    ./FileInfo/
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
@@ -50,10 +51,14 @@ CONFIG(debug, debug|release){
 #LIBS += -L../bin/ \
 
 SOURCES += \
-    FTPEngine/ftpengine.cpp
+    FTPEngine/ftpengine.cpp \
+#    FTPEngine/qftp.cpp \
+    FileInfo/fileinfo.cpp
 
 HEADERS += \
-    ../include/ftpengine.h
+    ../include/ftpengine.h \
+#    ../include/qftp.h \
+    ../include/fileinfo.h
 
 
 

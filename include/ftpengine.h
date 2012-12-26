@@ -35,6 +35,7 @@ public:
 signals:
   void authenticationRequired();
   void authenticationCompleted( bool );
+  void executedCommand( QString text );
   void ftpAnswer( QString text );
 
 public slots:
@@ -53,6 +54,8 @@ private:
   QNetworkReply *m__Reply;
 
   void setDefaultConnect();
+
+  void executeCommand( QString text );
 
   int ftpAnswerCode( const QByteArray &answer );
   bool checkCode( const QByteArray &answer, int code );

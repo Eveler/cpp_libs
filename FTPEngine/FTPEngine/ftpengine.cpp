@@ -1,6 +1,7 @@
 #include "ftpengine.h"
 
 #include <QDebug>
+#include <QHostAddress>
 
 FTPEngine::FTPEngine( QObject *parent ) :
   QObject(parent)
@@ -85,11 +86,9 @@ bool FTPEngine::sendCommand( QString text )
 
   if ( !isConnected() ) return false;
 
-  setDefaultConnect();
-  connect( m__Socket, SIGNAL(readyRead()),
-           this, SLOT(socketAllReply()) );
+  connect( m__Socket, SIGNAL(readyRead()), this, SLOT(socketAllReply()) );
 
-  m__Socket->write( tr( "%1\n" ).arg( text ).toLocal8Bit() );
+  executeCommand( tr( "%1\n" ).arg( text ) );
 
   return true;
 }
@@ -98,6 +97,15 @@ void FTPEngine::setDefaultConnect()
 {
   connect( m__Socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
            this, SLOT(socketStateChanged(QAbstractSocket::SocketState)) );
+}
+
+void FTPEngine::executeCommand( QString text )
+{
+  setDefaultConnect();
+  QString command = text;
+  text = text.replace( "\r", "" ).replace( "\n", "" );
+  emit executedCommand( text );
+  m__Socket->write( command.toLatin1() );
 }
 
 int FTPEngine::ftpAnswerCode( const QByteArray &answer )
@@ -127,10 +135,9 @@ void FTPEngine::authenticationStart()
 
   m__Socket->disconnect();
 
-  setDefaultConnect();
   connect( m__Socket, SIGNAL(readyRead()), this, SLOT(socketAuthUserReply()) );
 
-  m__Socket->write( tr( "user %1\n" ).arg( m__User ).toLocal8Bit() );
+  executeCommand( tr( "user %1\n" ).arg( m__User ) );
 }
 
 void FTPEngine::socketStateChanged( QAbstractSocket::SocketState socketState )
@@ -165,10 +172,9 @@ void FTPEngine::socketAuthUserReply()
 
   if ( !checkCode( answer, 331 ) ) return;
 
-  setDefaultConnect();
   connect( m__Socket, SIGNAL(readyRead()), this, SLOT(socketAuthPassReply()) );
 
-  m__Socket->write( tr( "pass %1\n" ).arg( m__Password ).toLocal8Bit() );
+  executeCommand( tr( "pass %1\n" ).arg( m__Password ) );
 }
 
 void FTPEngine::socketAuthPassReply()
@@ -193,7 +199,10 @@ void FTPEngine::socketAuthPassReply()
 
 void FTPEngine::socketAllReply()
 {
-  QByteArray answer = m__Socket->readAll().replace( "\n", "" );
+  QByteArray answer = QByteArray();
+  while ( m__Socket->canReadLine() )
+    answer += m__Socket->readAll();
+  answer = answer.replace( "\n", "" );
 //  qDebug() << "FTP-answer" << answer;
   m__Socket->disconnect();
 
