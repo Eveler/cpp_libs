@@ -11,9 +11,12 @@
 
 #include "ftpfile.h"
 
+#include <QDir>
+#include <QCoreApplication>
 #include <QTcpSocket>
 #include <QUrl>
 
+class FTPCommand;
 class FTPTransfer;
 
 class FTPENGINE_EXPORT FTPEngine : public QObject
@@ -23,8 +26,7 @@ public:
   explicit FTPEngine( QObject *parent = 0 );
   ~FTPEngine();
 
-//  void setAuthenticator( QAuthenticator *authenticator );
-//  QAuthenticator * authenticator() const;
+  bool setTempDirectory( const QDir &dir = QDir( QCoreApplication::applicationDirPath()+tr( "/Temp" ) ) );
 
   void connectToHost( const QUrl &url = QUrl() , int port = 21 );
   void disconnectFromHost();
@@ -35,6 +37,7 @@ public:
 
   bool sendCommand( QString text );
 
+  bool hasDowloadedFiles() const;
   FTPFile * nextDowloadedFile();
 
 signals:
@@ -43,11 +46,14 @@ signals:
   void executedCommand( QString text );
   void ftpAnswer( QString text );
 
-  void downloadProgress( qint64 current,qint64 max );
+  void downloadProgress( QString fileName, qint64 current,qint64 max );
+  void downloadFinished();
 
 public slots:
 
 private:
+  QDir m__TempDirectory;
+
   QUrl m__Url;
   int m__Port;
   QTcpSocket *m__Socket;
@@ -58,7 +64,7 @@ private:
   bool m__Authenticated;
 
   FTPTransfer *m__Transfer;
-  QList<FTPFile> m__DownloadedFiles;
+  QList<FTPFile *> m__DownloadedFiles;
 
   void setDefaultConnect();
 

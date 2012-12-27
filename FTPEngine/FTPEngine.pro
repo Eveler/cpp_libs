@@ -12,6 +12,7 @@ INCLUDEPATH += ./ \
     ../bin/ \
     ../include/ \
     ./FTPEngine/ \
+    ./FTPEngine/FTPCommand/ \
     ./FTPFile/FileInfo/ \
     ./FTPFile/ \
     ./FTPEngine/FTPTransfer/
@@ -52,12 +53,14 @@ CONFIG(debug, debug|release){
 
 SOURCES += \
     FTPEngine/ftpengine.cpp \
+    FTPEngine/FTPCommand/ftpcommand.cpp \
     FTPFile/FileInfo/fileinfo.cpp \
     FTPFile/ftpfile.cpp \
     FTPEngine/FTPTransfer/ftptransfer.cpp
 
 HEADERS += \
     ../include/ftpengine.h \
+    FTPEngine/FTPCommand/ftpcommand.h \
     ../include/fileinfo.h \
     ../include/ftpfile.h \
     FTPEngine/FTPTransfer/ftptransfer.h

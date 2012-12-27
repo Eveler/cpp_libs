@@ -1,5 +1,6 @@
 #include "ftpengine.h"
 
+#include "ftpcommand.h"
 #include "ftptransfer.h"
 
 #include <QDebug>
@@ -8,7 +9,7 @@
 FTPEngine::FTPEngine( QObject *parent ) :
   QObject(parent),
   m__Socket(new QTcpSocket),
-  m__Transfer(new FTPTransfer)
+  m__Transfer(new FTPTransfer( m__Socket->localAddress() ))
 {
   m__Url = QUrl();
   m__Port = -1;
@@ -23,6 +24,14 @@ FTPEngine::~FTPEngine()
 {
   delete m__Socket;
   delete m__Transfer;
+}
+
+bool FTPEngine::setTempDirectory( const QDir &dir )
+{
+  if ( !m__TempDirectory.entryList().isEmpty() ||
+       !dir.exists() && !dir.mkpath( dir.absolutePath() ) ) return false;
+
+  m__TempDirectory.setPath( dir.absolutePath() );
 }
 
 void FTPEngine::connectToHost( const QUrl &url, int port )
@@ -40,23 +49,6 @@ void FTPEngine::connectToHost( const QUrl &url, int port )
   connect( m__Socket, SIGNAL(readyRead()), this, SLOT(socketConnected()) );
 
   m__Socket->connectToHost( m__Url.host(), m__Port );
-//  qDebug() << "connectTo" << url;
-//  m__Reply = m__AccessManager->get( QNetworkRequest( url ) );
-//  connect( m__Reply, SIGNAL(finished()), this, SLOT(finished()) );
-//  connect( m__Reply, SIGNAL(downloadProgress(qint64,qint64)),
-//           this, SLOT(downloadProgress(qint64,qint64)) );
-//  connect( m__Reply, SIGNAL(readyRead()),
-//           this, SLOT(readyRead()) );
-//  if ( m__Reply->error() != QNetworkReply::NoError )
-//  {
-//    qDebug() << "connectTo" << m__Reply->errorString();
-//    return false;
-//  }
-//  else
-//  {
-//    qDebug() << "connectTo" << "Successfully opened!";
-////    qDebug() << reply->write( "" )
-//  }
 }
 
 void FTPEngine::disconnectFromHost()
@@ -98,6 +90,18 @@ bool FTPEngine::sendCommand( QString text )
   executeCommand( tr( "%1\n" ).arg( text ) );
 
   return true;
+}
+
+bool FTPEngine::hasDowloadedFiles() const
+{
+  return !m__DownloadedFiles.isEmpty();
+}
+
+FTPFile * FTPEngine::nextDowloadedFile()
+{
+  FTPFile *result = m__DownloadedFiles.takeFirst();
+  result->setParent( NULL );
+  return result;
 }
 
 void FTPEngine::setDefaultConnect()
