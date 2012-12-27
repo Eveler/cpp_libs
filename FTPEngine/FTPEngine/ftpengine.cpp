@@ -119,6 +119,14 @@ void FTPEngine::executeCommand( QString text )
   m__Socket->write( command.toLatin1() );
 }
 
+void FTPEngine::nextCommand()
+{
+  if ( m__PendingCommands.isEmpty() ) return;
+
+  FTPCommand command = m__PendingCommands.takeFirst();
+  executeCommand( QString( "%1 %2\n" ).arg( command.name().toUpper(), command.argument() ) );
+}
+
 int FTPEngine::ftpAnswerCode( const QByteArray &answer )
 {
   return answer.split( ' ' ).first().toInt();

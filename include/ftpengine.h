@@ -10,6 +10,7 @@
 #endif
 
 #include "ftpfile.h"
+#include "fileinfo.h"
 
 #include <QDir>
 #include <QCoreApplication>
@@ -37,8 +38,18 @@ public:
 
   bool sendCommand( QString text );
 
+  void path();
+  void dir();
+  void cd( QString path );
+  void mkDir( QString name );
+  void rmDir( QString name );
+  void putFile( QString name );
+  void rmFile( QString name );
+  void getFile( QString name );
+
   bool hasDowloadedFiles() const;
   FTPFile * nextDowloadedFile();
+  QList<FileInfo> dirResult();
 
 signals:
   void authenticationRequired();
@@ -46,8 +57,8 @@ signals:
   void executedCommand( QString text );
   void ftpAnswer( QString text );
 
-  void downloadProgress( QString fileName, qint64 current,qint64 max );
-  void downloadFinished();
+  void ftpAnswer( QString command, bool result );
+  void loadProgress( QString fileName, qint64 current,qint64 max );
 
 public slots:
 
@@ -59,6 +70,8 @@ private:
   QTcpSocket *m__Socket;
   bool m__Connected;
 
+  QList<FTPCommand> m__PendingCommands;
+
   QString m__User;
   QString m__Password;
   bool m__Authenticated;
@@ -69,6 +82,7 @@ private:
   void setDefaultConnect();
 
   void executeCommand( QString text );
+  void nextCommand();
 
   int ftpAnswerCode( const QByteArray &answer );
   bool checkCode( const QByteArray &answer, int code );
