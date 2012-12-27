@@ -9,16 +9,19 @@
 #define FTPENGINE_EXPORT Q_DECL_IMPORT
 #endif
 
+#include "ftpfile.h"
+
 #include <QTcpSocket>
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
-#include <QAuthenticator>
+#include <QUrl>
+
+class FTPTransfer;
 
 class FTPENGINE_EXPORT FTPEngine : public QObject
 {
   Q_OBJECT
 public:
   explicit FTPEngine( QObject *parent = 0 );
+  ~FTPEngine();
 
 //  void setAuthenticator( QAuthenticator *authenticator );
 //  QAuthenticator * authenticator() const;
@@ -32,11 +35,15 @@ public:
 
   bool sendCommand( QString text );
 
+  FTPFile * nextDowloadedFile();
+
 signals:
   void authenticationRequired();
   void authenticationCompleted( bool );
   void executedCommand( QString text );
   void ftpAnswer( QString text );
+
+  void downloadProgress( qint64 current,qint64 max );
 
 public slots:
 
@@ -50,8 +57,8 @@ private:
   QString m__Password;
   bool m__Authenticated;
 
-  QNetworkAccessManager *m__AccessManager;
-  QNetworkReply *m__Reply;
+  FTPTransfer *m__Transfer;
+  QList<FTPFile> m__DownloadedFiles;
 
   void setDefaultConnect();
 
@@ -69,12 +76,6 @@ private slots:
   void socketAuthUserReply();
   void socketAuthPassReply();
   void socketAllReply();
-
-  void finished();
-  void downloadProgress( qint64 current,qint64 max );
-
-
-  void readyRead();
 };
 
 #endif // FTPENGINE_H

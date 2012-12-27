@@ -1,21 +1,28 @@
 #include "ftpengine.h"
 
+#include "ftptransfer.h"
+
 #include <QDebug>
 #include <QHostAddress>
 
 FTPEngine::FTPEngine( QObject *parent ) :
-  QObject(parent)
+  QObject(parent),
+  m__Socket(new QTcpSocket),
+  m__Transfer(new FTPTransfer)
 {
   m__Url = QUrl();
   m__Port = -1;
-  m__Socket = new QTcpSocket( this );
   m__Connected = false;
 
   m__User = QString();
   m__Password = QString();
   m__Authenticated = false;
+}
 
-  m__AccessManager = new QNetworkAccessManager( this );
+FTPEngine::~FTPEngine()
+{
+  delete m__Socket;
+  delete m__Transfer;
 }
 
 void FTPEngine::connectToHost( const QUrl &url, int port )
@@ -207,21 +214,4 @@ void FTPEngine::socketAllReply()
   m__Socket->disconnect();
 
   emit ftpAnswer( QVariant( answer ).toString() );
-}
-
-void FTPEngine::finished()
-{
-//  qDebug() << "finished" << m__Reply->readAll();
-  qDebug() << "finished" << m__Reply->error();
-  qDebug() << "finished" << m__Reply->errorString();
-}
-
-void FTPEngine::downloadProgress( qint64 current, qint64 max )
-{
-  qDebug() << "downloadProgress" << current << max;
-}
-
-void FTPEngine::readyRead()
-{
-  qDebug() << "readyRead" << m__Reply->readAll();
 }

@@ -12,7 +12,9 @@ INCLUDEPATH += ./ \
     ../bin/ \
     ../include/ \
     ./FTPEngine/ \
-    ./FileInfo/
+    ./FTPFile/FileInfo/ \
+    ./FTPFile/ \
+    ./FTPEngine/FTPTransfer/
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
@@ -48,17 +50,17 @@ CONFIG(debug, debug|release){
   UI_DIR = ../temp/$$TARGET/debug
 }
 
-#LIBS += -L../bin/ \
-
 SOURCES += \
     FTPEngine/ftpengine.cpp \
-#    FTPEngine/qftp.cpp \
-    FileInfo/fileinfo.cpp
+    FTPFile/FileInfo/fileinfo.cpp \
+    FTPFile/ftpfile.cpp \
+    FTPEngine/FTPTransfer/ftptransfer.cpp
 
 HEADERS += \
     ../include/ftpengine.h \
-#    ../include/qftp.h \
-    ../include/fileinfo.h
+    ../include/fileinfo.h \
+    ../include/ftpfile.h \
+    FTPEngine/FTPTransfer/ftptransfer.h
 
 
 
