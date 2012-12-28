@@ -63,7 +63,8 @@ HEADERS += \
     FTPEngine/FTPCommand/ftpcommand.h \
     ../include/fileinfo.h \
     ../include/ftpfile.h \
-    FTPEngine/FTPTransfer/ftptransfer.h
+    FTPEngine/FTPTransfer/ftptransfer.h \
+    ../include/ftpengine_export.h
 
 
 

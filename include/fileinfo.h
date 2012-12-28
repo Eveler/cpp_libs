@@ -1,10 +1,12 @@
 #ifndef FILEINFO_H
 #define FILEINFO_H
 
+#include "ftpengine_export.h"
+
 #include <QString>
 #include <QDateTime>
 
-class FileInfo
+class FTPENGINE_EXPORT FileInfo
 {
 public:
   FileInfo();

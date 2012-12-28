@@ -6,6 +6,8 @@ QString FTPCommand::name( Type type )
 {
   switch ( type )
   {
+  case Type_Noop:
+    return QString( "noop" );
   case Type_User:
     return QString( "user" );
   case Type_Pass:
@@ -64,10 +66,11 @@ bool FTPCommand::canAdd( Type type, const QString &arg1 )
   return false;
 }
 
-FTPCommand::FTPCommand( Type type, const QString &arg1 ) :
+FTPCommand::FTPCommand( Type type, const QString &arg1 , bool automatically ) :
   m__Type(type),
   m__Name(name(m__Type)),
-  m__Argument(arg1)
+  m__Argument(arg1),
+  m__Automatically(automatically)
 {
 }
 
@@ -86,3 +89,7 @@ const QString & FTPCommand::argument() const
   return m__Argument;
 }
 
+bool FTPCommand::isAutomatically() const
+{
+  return m__Automatically;
+}

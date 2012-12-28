@@ -9,7 +9,13 @@
 FTPEngine::FTPEngine( QObject *parent ) :
   QObject(parent),
   m__Socket(new QTcpSocket),
-  m__Transfer(new FTPTransfer( m__Socket->localAddress() ))
+  m__ActualCommand(NULL),
+  m__CurrentCommand(NULL),
+  m__Transfer(new FTPTransfer),
+  m__DownloadedFiles(QList<FTPFile *>()),
+  m__DirData(QByteArray()),
+  m__DirInfo(QList<FileInfo *>()),
+  m__Timer(new QTimer)
 {
   m__Url = QUrl();
   m__Port = -1;
@@ -18,12 +24,26 @@ FTPEngine::FTPEngine( QObject *parent ) :
   m__User = QString();
   m__Password = QString();
   m__Authenticated = false;
+
+  connect( m__Transfer, SIGNAL(downloadedData(QByteArray)), SLOT(transferData(QByteArray)) );
+  connect( m__Transfer, SIGNAL(readChannelFinished()), SLOT(transferDataFinished()) );
 }
 
 FTPEngine::~FTPEngine()
 {
   delete m__Socket;
+  m__Socket = NULL;
   delete m__Transfer;
+  m__Transfer = NULL;
+
+  clearPendingCommands();
+  if ( m__ActualCommand != NULL ) delete m__ActualCommand;
+  m__ActualCommand = NULL;
+  if ( m__CurrentCommand != NULL ) delete m__CurrentCommand;
+  m__CurrentCommand = NULL;
+
+  delete m__Timer;
+  m__Timer = NULL;
 }
 
 bool FTPEngine::setTempDirectory( const QDir &dir )
@@ -32,6 +52,7 @@ bool FTPEngine::setTempDirectory( const QDir &dir )
        !dir.exists() && !dir.mkpath( dir.absolutePath() ) ) return false;
 
   m__TempDirectory.setPath( dir.absolutePath() );
+  return true;
 }
 
 void FTPEngine::connectToHost( const QUrl &url, int port )
@@ -92,6 +113,66 @@ bool FTPEngine::sendCommand( QString text )
   return true;
 }
 
+void FTPEngine::path()
+{
+  m__PendingCommands << new FTPCommand( FTPCommand::Type_Pwd );
+
+  nextCommand();
+}
+
+void FTPEngine::list()
+{
+  m__PendingCommands << new FTPCommand( FTPCommand::Type_Type, tr( "a" ), true );
+  QString argument = m__Transfer->address().toString().replace( ".", "," );
+  argument += ","+QString::number((m__Transfer->port() & 0xff00) >> 8);
+  argument += ","+QString::number(m__Transfer->port() & 0xff);
+  m__PendingCommands << new FTPCommand( FTPCommand::Type_Port, argument, true );
+  m__PendingCommands << new FTPCommand( FTPCommand::Type_List );
+  m__PendingCommands << new FTPCommand( FTPCommand::Type_Noop, QString(), true );
+
+  nextCommand();
+}
+
+void FTPEngine::cd( QString path )
+{
+
+}
+
+void FTPEngine::mkDir( QString name )
+{
+
+}
+
+void FTPEngine::rmDir( QString name )
+{
+
+}
+
+void FTPEngine::putFile( QString name )
+{
+
+}
+
+void FTPEngine::rmFile( QString name )
+{
+
+}
+
+void FTPEngine::getFile( QString name )
+{
+
+}
+
+QString FTPEngine::lastError() const
+{
+  return m__LastError;
+}
+
+QString FTPEngine::lastText() const
+{
+  return m__LastText;
+}
+
 bool FTPEngine::hasDowloadedFiles() const
 {
   return !m__DownloadedFiles.isEmpty();
@@ -104,6 +185,13 @@ FTPFile * FTPEngine::nextDowloadedFile()
   return result;
 }
 
+QList<FileInfo *> FTPEngine::listResult()
+{
+  QList<FileInfo *> result = m__DirInfo;
+  m__DirInfo.clear();
+  return result;
+}
+
 void FTPEngine::setDefaultConnect()
 {
   connect( m__Socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
@@ -112,6 +200,7 @@ void FTPEngine::setDefaultConnect()
 
 void FTPEngine::executeCommand( QString text )
 {
+
   setDefaultConnect();
   QString command = text;
   text = text.replace( "\r", "" ).replace( "\n", "" );
@@ -119,17 +208,25 @@ void FTPEngine::executeCommand( QString text )
   m__Socket->write( command.toLatin1() );
 }
 
-void FTPEngine::nextCommand()
+void FTPEngine::clearPendingCommands()
 {
-  if ( m__PendingCommands.isEmpty() ) return;
-
-  FTPCommand command = m__PendingCommands.takeFirst();
-  executeCommand( QString( "%1 %2\n" ).arg( command.name().toUpper(), command.argument() ) );
+  while ( !m__PendingCommands.isEmpty() )
+  {
+    FTPCommand *command = m__PendingCommands.takeFirst();
+    delete command;
+  }
 }
 
 int FTPEngine::ftpAnswerCode( const QByteArray &answer )
 {
   return answer.split( ' ' ).first().toInt();
+}
+
+QString FTPEngine::ftpAnswerText( const QByteArray &answer )
+{
+  QStringList result = QVariant( answer ).toString().split( " " );
+  result.removeFirst();
+  return result.join( " " ).trimmed();
 }
 
 bool FTPEngine::checkCode( const QByteArray &answer, int code )
@@ -159,6 +256,243 @@ void FTPEngine::authenticationStart()
   executeCommand( tr( "user %1\n" ).arg( m__User ) );
 }
 
+static void _q_fixupDateTime(QDateTime *dateTime, bool leapYear = false)
+{
+    // Adjust for future tolerance.
+    const int futureTolerance = 86400;
+    if (dateTime->secsTo(QDateTime::currentDateTime()) < -futureTolerance) {
+        QDate d = dateTime->date();
+        if (leapYear) {
+            int prevLeapYear = d.year() - 1;
+
+            while (!QDate::isLeapYear(prevLeapYear))
+               prevLeapYear--;
+
+            d.setDate(prevLeapYear, d.month(), d.day());
+        } else {
+            d.setDate(d.year() - 1, d.month(), d.day());
+        }
+        dateTime->setDate(d);
+    }
+}
+
+static void _q_parseUnixDir(const QStringList &tokens, const QString &userName, FileInfo *info)
+{
+    // Unix style, 7 + 1 entries
+    // -rw-r--r--    1 ftp      ftp      17358091 Aug 10  2004 qt-x11-free-3.3.3.tar.gz
+    // drwxr-xr-x    3 ftp      ftp          4096 Apr 14  2000 compiled-examples
+    // lrwxrwxrwx    1 ftp      ftp             9 Oct 29  2005 qtscape -> qtmozilla
+    if (tokens.size() != 8)
+        return;
+
+    char first = tokens.at(1).at(0).toLatin1();
+    if (first == 'd') {
+        info->setIsFile(false);
+        info->setIsSymLink(false);
+    } else if (first == '-') {
+        info->setIsFile(true);
+        info->setIsSymLink(false);
+    } else if (first == 'l') {
+        info->setIsFile(false);
+        info->setIsSymLink(true);
+    }
+
+    // Resolve filename
+    QString name = tokens.at(7);
+    if (info->isSymLink()) {
+        int linkPos = name.indexOf(QLatin1String(" ->"));
+        if (linkPos != -1)
+            name.resize(linkPos);
+    }
+    info->setFileName(name);
+
+    // Resolve owner & group
+    info->setOwner(tokens.at(3));
+    info->setGroup(tokens.at(4));
+
+    // Resolve size
+    info->setSize(tokens.at(5).toLongLong());
+
+    QStringList formats;
+    formats << QLatin1String("MMM dd  yyyy") << QLatin1String("MMM dd hh:mm") <<
+               QLatin1String("MMM  d  yyyy") << QLatin1String("MMM  d hh:mm") <<
+               QLatin1String("MMM  d yyyy") << QLatin1String("MMM dd yyyy");
+
+    QString dateString = tokens.at(6);
+    dateString[0] = dateString[0].toUpper();
+
+    // Resolve the modification date by parsing all possible formats
+    QDateTime dateTime;
+    int n = 0;
+#ifndef QT_NO_DATESTRING
+    do {
+        dateTime = QLocale::c().toDateTime(dateString, formats.at(n++));
+    }  while (n < formats.size() && (!dateTime.isValid()));
+#endif
+
+    if (n == 2 || n == 4) {
+        // Guess the year.
+        dateTime.setDate(QDate(QDate::currentDate().year(),
+                               dateTime.date().month(),
+                               dateTime.date().day()));
+        _q_fixupDateTime(&dateTime);
+    }
+    if (dateTime.isValid())
+        info->setLastModified(dateTime);
+    else if (dateString.startsWith(QLatin1String("Feb 29"))) {
+
+       // When the current year on the FTP server is a leap year and a
+       // file's last modified date is Feb 29th, and the current day on
+       // the FTP server is also Feb 29th, then the date can be in
+       // formats n==2 or n==4. toDateTime in that case defaults to 1900
+       // for the missing year. Feb 29 1900 is an invalid date and so
+       // wont be parsed. This adds an exception that handles it.
+
+       int recentLeapYear;
+       QString timeString = dateString.mid(7);
+
+       dateTime = QLocale::c().toDateTime(timeString, QLatin1String("hh:mm"));
+
+       recentLeapYear = QDate::currentDate().year();
+
+       while (!QDate::isLeapYear(recentLeapYear))
+           recentLeapYear--;
+
+       dateTime.setDate(QDate(recentLeapYear, 2, 29));
+
+       _q_fixupDateTime(&dateTime, true);
+       info->setLastModified(dateTime);
+    }
+
+    // Resolve permissions
+    int permissions = 0;
+    QString p = tokens.at(2);
+    permissions |= (p[0] == QLatin1Char('r') ? QFileDevice::ReadOwner : 0);
+    permissions |= (p[1] == QLatin1Char('w') ? QFileDevice::WriteOwner : 0);
+    permissions |= (p[2] == QLatin1Char('x') ? QFileDevice::ExeOwner : 0);
+    permissions |= (p[3] == QLatin1Char('r') ? QFileDevice::ReadGroup : 0);
+    permissions |= (p[4] == QLatin1Char('w') ? QFileDevice::WriteGroup : 0);
+    permissions |= (p[5] == QLatin1Char('x') ? QFileDevice::ExeGroup : 0);
+    permissions |= (p[6] == QLatin1Char('r') ? QFileDevice::ReadOther : 0);
+    permissions |= (p[7] == QLatin1Char('w') ? QFileDevice::WriteOther : 0);
+    permissions |= (p[8] == QLatin1Char('x') ? QFileDevice::ExeOther : 0);
+    info->setPermissions(permissions);
+
+    bool isOwner = info->owner() == userName;
+    info->setReadable((permissions & QFileDevice::ReadOther) ||
+                      ((permissions & QFileDevice::ReadOwner) && isOwner));
+    info->setWritable((permissions & QFileDevice::WriteOther) ||
+                      ((permissions & QFileDevice::WriteOwner) && isOwner));
+}
+
+static void _q_parseDosDir(const QStringList &tokens, const QString &userName, FileInfo *info)
+{
+    // DOS style, 3 + 1 entries
+    // 01-16-02  11:14AM       <DIR>          epsgroup
+    // 06-05-03  03:19PM                 1973 readme.txt
+    if (tokens.size() != 4)
+        return;
+
+    Q_UNUSED(userName);
+
+    QString name = tokens.at(3);
+    info->setFileName(name);
+    info->setIsSymLink(name.toLower().endsWith(QLatin1String(".lnk")));
+
+    if (tokens.at(2) == QLatin1String("<DIR>")) {
+        info->setIsFile(false);
+    } else {
+        info->setIsFile(true);
+        info->setSize(tokens.at(2).toLongLong());
+    }
+
+    // Note: We cannot use QFileInfo; permissions are for the server-side
+    // machine, and QFileInfo's behavior depends on the local platform.
+    int permissions = QFileDevice::ReadOwner | QFileDevice::WriteOwner
+                      | QFileDevice::ReadGroup | QFileDevice::WriteGroup
+                      | QFileDevice::ReadOther | QFileDevice::WriteOther;
+    QString ext;
+    int extIndex = name.lastIndexOf(QLatin1Char('.'));
+    if (extIndex != -1)
+        ext = name.mid(extIndex + 1);
+    if (ext == QLatin1String("exe") || ext == QLatin1String("bat") || ext == QLatin1String("com"))
+        permissions |= QFileDevice::ExeOwner | QFileDevice::ExeGroup | QFileDevice::ExeOther;
+    info->setPermissions(permissions);
+
+    info->setReadable(true);
+    info->setWritable(info->isFile());
+
+    QDateTime dateTime;
+#ifndef QT_NO_DATESTRING
+    dateTime = QLocale::c().toDateTime(tokens.at(1), QLatin1String("MM-dd-yy  hh:mmAP"));
+    if (dateTime.date().year() < 1971) {
+        dateTime.setDate(QDate(dateTime.date().year() + 100,
+                               dateTime.date().month(),
+                               dateTime.date().day()));
+    }
+#endif
+
+    info->setLastModified(dateTime);
+
+}
+
+bool FTPEngine::parseDir( const QByteArray &buffer, const QString &userName, FileInfo *info )
+{
+    if (buffer.isEmpty())
+        return false;
+
+    QString bufferStr = QString::fromLatin1(buffer).trimmed();
+
+    // Unix style FTP servers
+    QRegExp unixPattern(QLatin1String("^([\\-dl])([a-zA-Z\\-]{9,9})\\s+\\d+\\s+(\\S*)\\s+"
+                                      "(\\S*)\\s+(\\d+)\\s+(\\S+\\s+\\S+\\s+\\S+)\\s+(\\S.*)"));
+    if (unixPattern.indexIn(bufferStr) == 0) {
+        _q_parseUnixDir(unixPattern.capturedTexts(), userName, info);
+        return true;
+    }
+
+    // DOS style FTP servers
+    QRegExp dosPattern(QLatin1String("^(\\d\\d-\\d\\d-\\d\\d\\ \\ \\d\\d:\\d\\d[AP]M)\\s+"
+                                     "(<DIR>|\\d+)\\s+(\\S.*)$"));
+    if (dosPattern.indexIn(bufferStr) == 0) {
+        _q_parseDosDir(dosPattern.capturedTexts(), userName, info);
+        return true;
+    }
+
+    // Unsupported
+    return false;
+}
+
+FTPEngine::Command FTPEngine::getCommand() const
+{
+  if ( m__CurrentCommand == NULL ) return Command_None;
+  switch ( m__CurrentCommand->type() )
+  {
+  case FTPCommand::Type_User:
+    return Command_User;
+  case FTPCommand::Type_Pass:
+    return Command_Password;
+  case FTPCommand::Type_Pwd:
+    return Command_Path;
+  case FTPCommand::Type_Cwd:
+    return Command_Cd;
+  case FTPCommand::Type_List:
+    return Command_List;
+  case FTPCommand::Type_Mkd:
+    return Command_Mkdir;
+  case FTPCommand::Type_Rmd:
+    return Command_Rmdir;
+  case FTPCommand::Type_Retr:
+    return Command_Get;
+  case FTPCommand::Type_Stor:
+    return Command_Put;
+  case FTPCommand::Type_Quit:
+    return Command_Quit;
+  }
+
+  return Command_None;
+}
+
 void FTPEngine::socketStateChanged( QAbstractSocket::SocketState socketState )
 {
   qDebug() << "socketStateChanged" << socketState;
@@ -170,9 +504,11 @@ void FTPEngine::socketStateChanged( QAbstractSocket::SocketState socketState )
 
 void FTPEngine::socketConnected()
 {
-  QByteArray answer = m__Socket->readAll().replace( "\n", "" );
+  QByteArray answer = m__Socket->readAll().trimmed();
 //  qDebug() << "FTP-answer" << answer;
   m__Socket->disconnect();
+
+  m__Transfer->listen( m__Socket->localAddress() );
 
   emit ftpAnswer( QVariant( answer ).toString() );
 
@@ -183,7 +519,7 @@ void FTPEngine::socketConnected()
 
 void FTPEngine::socketAuthUserReply()
 {
-  QByteArray answer = m__Socket->readAll().replace( "\n", "" );
+  QByteArray answer = m__Socket->readAll().trimmed();
 //  qDebug() << "FTP-answer" << answer;
   m__Socket->disconnect();
 
@@ -198,7 +534,7 @@ void FTPEngine::socketAuthUserReply()
 
 void FTPEngine::socketAuthPassReply()
 {
-  QByteArray answer = m__Socket->readAll().replace( "\n", "" );
+  QByteArray answer = m__Socket->readAll().trimmed();
 //  qDebug() << "FTP-answer" << answer;
   m__Socket->disconnect();
 
@@ -221,9 +557,192 @@ void FTPEngine::socketAllReply()
   QByteArray answer = QByteArray();
   while ( m__Socket->canReadLine() )
     answer += m__Socket->readAll();
-  answer = answer.replace( "\n", "" );
+  answer = answer.trimmed();
 //  qDebug() << "FTP-answer" << answer;
   m__Socket->disconnect();
 
-  emit ftpAnswer( QVariant( answer ).toString() );
+  int code = ftpAnswerCode( answer );
+  QString text = ftpAnswerText( answer );
+  bool sendAnswer = false;
+  bool result = false;
+  bool sendNextCommand = true;
+
+  switch ( m__ActualCommand->type() )
+  {
+  case FTPCommand::Type_Noop:
+    result = ( code == 200 || code == 226 );
+    if ( !result ) m__LastError = text;
+    else
+    {
+      m__LastText = text;
+      if ( code == 226 ) m__LastText = m__LastText.mid( 0, m__LastText.indexOf( "200" )-1 ).trimmed();
+    }
+    sendAnswer = ( m__ActualCommand == m__CurrentCommand ||
+                   m__CurrentCommand->type() == FTPCommand::Type_List || !result );
+    sendNextCommand = !sendAnswer;
+    break;
+  case FTPCommand::Type_User:
+    result = ( code == 331 );
+    if ( !result ) m__LastError = text;
+    else m__LastText = text;
+    sendAnswer = ( m__ActualCommand == m__CurrentCommand || !result );
+    sendNextCommand = !sendAnswer;
+    break;
+  case FTPCommand::Type_Pass:
+    result = ( code == 230 );
+    if ( !result ) m__LastError = text;
+    else m__LastText = text;
+    sendAnswer = ( m__ActualCommand == m__CurrentCommand || !result );
+    sendNextCommand = !sendAnswer;
+    break;
+  case FTPCommand::Type_Type:
+    result = ( code == 200 );
+    if ( !result ) m__LastError = text;
+    else m__LastText = text;
+//    qDebug() << ( m__ActualCommand == m__CurrentCommand ) << result;
+    sendAnswer = ( m__ActualCommand == m__CurrentCommand || !result );
+    sendNextCommand = !sendAnswer;
+    break;
+  case FTPCommand::Type_Pwd:
+    result = ( code == 257 );
+    if ( !result ) m__LastError = text;
+    else m__LastText = text.split( "\"" ).at( 1 );
+    sendAnswer = ( m__ActualCommand == m__CurrentCommand || !result );
+    sendNextCommand = !sendAnswer;
+    break;
+  case FTPCommand::Type_Cdup:
+    result = ( code == 250 );
+    if ( !result ) m__LastError = text;
+    else m__LastText = text;
+    sendAnswer = ( m__ActualCommand == m__CurrentCommand || !result );
+    sendNextCommand = !sendAnswer;
+    break;
+  case FTPCommand::Type_Cwd:
+    result = ( code == 250 );
+    if ( !result ) m__LastError = text;
+    else m__LastText = text;
+    sendAnswer = ( m__ActualCommand == m__CurrentCommand || !result );
+    sendNextCommand = !sendAnswer;
+    break;
+  case FTPCommand::Type_List:
+    result = ( code == 150 );
+    if ( !result ) m__LastError = text;
+    else m__LastText = text;
+    sendAnswer = ( m__ActualCommand == m__CurrentCommand &&
+                   m__PendingCommands.isEmpty() || !result );
+    sendNextCommand = sendAnswer;
+    break;
+  case FTPCommand::Type_Mkd:
+    result = ( code == 200 );
+    if ( !result ) m__LastError = text;
+    else m__LastText = text;
+    sendAnswer = ( m__ActualCommand == m__CurrentCommand || !result );
+    sendNextCommand = !sendAnswer;
+    break;
+  case FTPCommand::Type_Rmd:
+    result = ( code == 200 );
+    if ( !result ) m__LastError = text;
+    else m__LastText = text;
+    sendAnswer = ( m__ActualCommand == m__CurrentCommand || !result );
+    sendNextCommand = !sendAnswer;
+    break;
+  case FTPCommand::Type_Retr:
+    result = ( code == 200 );
+    if ( !result ) m__LastError = text;
+    else m__LastText = text;
+    sendAnswer = ( m__ActualCommand == m__CurrentCommand || !result );
+    sendNextCommand = !sendAnswer;
+    break;
+  case FTPCommand::Type_Stor:
+    result = ( code == 200 );
+    if ( !result ) m__LastError = text;
+    else m__LastText = text;
+    sendAnswer = ( m__ActualCommand == m__CurrentCommand || !result );
+    sendNextCommand = !sendAnswer;
+    break;
+  case FTPCommand::Type_Port:
+    result = ( code == 200 );
+    if ( !result ) m__LastError = text;
+    else m__LastText = text;
+//    qDebug() << ( m__ActualCommand == m__CurrentCommand ) << result;
+    sendAnswer = ( m__ActualCommand == m__CurrentCommand || !result );
+    sendNextCommand = !sendAnswer;
+    break;
+  case FTPCommand::Type_Quit:
+    result = ( code == 200 );
+    if ( !result ) m__LastError = text;
+    else m__LastText = text;
+    sendAnswer = ( m__ActualCommand == m__CurrentCommand || !result );
+    sendNextCommand = !sendAnswer;
+    break;
+  }
+
+  emit ftpAnswer( tr( "%1 %2" ).arg( code ).arg( m__LastText ) );
+
+  if ( !result ) clearPendingCommands();
+  if ( sendAnswer )
+  {
+    Command currentCommand = getCommand();
+    delete m__ActualCommand;
+    m__ActualCommand = NULL;
+    delete m__CurrentCommand;
+    m__CurrentCommand = NULL;
+    emit ftpAnswer( currentCommand, result );
+  }
+  if ( sendNextCommand )
+  {
+    delete m__ActualCommand;
+    m__ActualCommand = NULL;
+    nextCommand();
+  }
+}
+
+void FTPEngine::nextCommand()
+{
+  if ( m__PendingCommands.isEmpty() || m__ActualCommand != NULL ) return;
+
+  m__ActualCommand = m__PendingCommands.takeFirst();
+  if ( !m__ActualCommand->isAutomatically() ) m__CurrentCommand = m__ActualCommand;
+  int idx = 0;
+  while ( m__CurrentCommand == NULL && idx < m__PendingCommands.count() )
+  {
+    if ( !m__PendingCommands.at( idx )->isAutomatically() )
+      m__CurrentCommand = m__PendingCommands.at( idx );
+    idx++;
+  }
+
+  m__LastError = QString();
+  m__LastText = QString();
+  connect( m__Socket, SIGNAL(readyRead()), this, SLOT(socketAllReply()) );
+  executeCommand( QString( "%1 %2\n" ).arg(
+                    m__ActualCommand->name().toUpper(), m__ActualCommand->argument() ) );
+}
+
+void FTPEngine::transferData( QByteArray data )
+{
+  if ( m__ActualCommand->type() == FTPCommand::Type_List ) m__DirData.append( data );
+  if ( m__ActualCommand->type() == FTPCommand::Type_Retr )
+  {
+    m__DownloadedFiles.last()->file()->write( data );
+    emit loadProgress( m__DownloadedFiles.last()->file()->fileName(),
+                       m__DownloadedFiles.last()->file()->size(), m__DownloadedFiles.last()->maxSize() );
+  }
+}
+
+void FTPEngine::transferDataFinished()
+{
+  if ( m__ActualCommand->type() == FTPCommand::Type_List )
+  {
+    m__DirData = m__DirData.trimmed();
+    foreach ( QByteArray line, m__DirData.split( '\n' ) )
+    {
+      line = line.replace( "\r", "" );
+      m__DirInfo << new FileInfo();
+      parseDir( line, m__User, m__DirInfo.last() );
+    }
+    m__DirData.clear();
+  }
+
+  m__ActualCommand = NULL;
+  m__Timer->singleShot( 1, this, SLOT(nextCommand()) );
 }

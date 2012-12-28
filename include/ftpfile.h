@@ -3,17 +3,20 @@
 
 #include <QObject>
 
+#include "ftpengine_export.h"
+
 #include <QTemporaryFile>
 
-class FTPFile : public QObject
+class FTPENGINE_EXPORT FTPFile : public QObject
 {
   Q_OBJECT
 public:
-  explicit FTPFile( QObject *parent = 0 );
+  explicit FTPFile( QString fileName, quint64 maxSize, QObject *parent = 0 );
   explicit FTPFile( QTemporaryFile *otherFile, QObject *parent = 0 );
   ~FTPFile();
 
   QTemporaryFile * file() const;
+  quint64 maxSize() const;
 
 signals:
 
@@ -21,6 +24,8 @@ public slots:
 
 private:
   QTemporaryFile *m__File;
+  bool byDef;
+  quint64 m__MaxSize;
 };
 
 #endif // FTPFILE_H

@@ -12,13 +12,17 @@ class FTPTransfer : public QObject
   Q_OBJECT
 public:
   enum State { State_None = 0, State_Communication };
-  explicit FTPTransfer(QHostAddress localAddress, QObject *parent = 0);
+  explicit FTPTransfer( QObject *parent = 0);
   ~FTPTransfer();
 
+  bool listen( QHostAddress localAddress );
+
+  QHostAddress address() const;
   quint16 port() const;
 
 signals:
   void downloadedData( QByteArray data );
+  void readChannelFinished();
   void connectionTerminated();
 
 public slots:
@@ -32,6 +36,7 @@ private:
 private slots:
   void incomingConnection();
   void receivedData();
+  void disconnectClient();
   void connectionClosed();
 };
 
