@@ -26,10 +26,14 @@ QString FTPCommand::name( Type type )
     return QString( "mkd" );
   case Type_Rmd:
     return QString( "rmd" );
+  case Type_Size:
+    return QString( "size" );
   case Type_Retr:
     return QString( "retr" );
   case Type_Stor:
     return QString( "stor" );
+  case Type_Dele:
+    return QString( "dele" );
   case Type_Port:
     return QString( "port" );
   case Type_Quit:
@@ -55,9 +59,13 @@ bool FTPCommand::canAdd( Type type, const QString &arg1 )
     return !arg1.isEmpty();
   case Type_Rmd:
     return !arg1.isEmpty();
+  case Type_Size:
+    return !arg1.isEmpty();
   case Type_Retr:
     return !arg1.isEmpty();
   case Type_Stor:
+    return !arg1.isEmpty();
+  case Type_Dele:
     return !arg1.isEmpty();
   case Type_Port:
     return !arg1.isEmpty();

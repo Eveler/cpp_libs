@@ -7,8 +7,8 @@ class FTPCommand
 {
 public:
   enum Type {Type_Noop = 0, Type_User, Type_Pass, Type_Type,
-             Type_Pwd, Type_Cdup, Type_Cwd, Type_List, Type_Mkd,
-             Type_Rmd, Type_Retr, Type_Stor, Type_Port, Type_Quit};
+             Type_Pwd, Type_Cdup, Type_Cwd, Type_List, Type_Mkd, Type_Rmd,
+             Type_Size, Type_Retr, Type_Stor, Type_Dele, Type_Port, Type_Quit};
 
   static QString name( Type type );
 

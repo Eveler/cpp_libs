@@ -32,6 +32,15 @@ quint16 FTPTransfer::port() const
   return m__Server->serverPort();
 }
 
+bool FTPTransfer::uploadData( const QByteArray &data )
+{
+  if ( m__Client == NULL ) return false;
+
+  qint64 res = m__Client->write( data ) != -1;
+  m__Client->waitForBytesWritten();
+  return ( res != -1 );
+}
+
 void FTPTransfer::incomingConnection()
 {
   if ( !m__Server->hasPendingConnections() ) return;

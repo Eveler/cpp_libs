@@ -12,6 +12,7 @@
 #include <QTcpSocket>
 #include <QUrl>
 #include <QTimer>
+#include <QIODevice>
 
 class FTPCommand;
 class FTPTransfer;
@@ -21,13 +22,11 @@ class FTPENGINE_EXPORT FTPEngine : public QObject
   Q_OBJECT
 public:
   enum Command {Command_None =	0, Command_User, Command_Password, Command_Path,
-                Command_Quit, Command_List, Command_Cd, Command_Get,
-                Command_Put, Command_Mkdir, Command_Rmdir};
+                Command_Quit, Command_List, Command_Cd, Command_SizeOf,
+                Command_PutFile, Command_RmFile, Command_GetFile, Command_MkDir, Command_RmDir};
 
   explicit FTPEngine( QObject *parent = 0 );
   ~FTPEngine();
-
-  bool setTempDirectory( const QDir &dir = QDir( QCoreApplication::applicationDirPath()+tr( "/Temp" ) ) );
 
   void connectToHost( const QUrl &url = QUrl() , int port = 21 );
   void disconnectFromHost();
@@ -36,22 +35,23 @@ public:
   void setAuthentication( QString user, QString password );
   bool isAuthenticated() const;
 
+  void setBuffer( QIODevice *buffer );
+  QIODevice * buffer() const;
   bool sendCommand( QString text );
 
-  void path();
-  void list();
-  void cd( QString path );
-  void mkDir( QString name );
-  void rmDir( QString name );
-  void putFile( QString name );
-  void rmFile( QString name );
-  void getFile( QString name );
+  bool path();
+  bool list();
+  bool cd( QString path );
+  bool mkDir( QString name );
+  bool rmDir( QString name );
+  bool sizeOf( QString name );
+  bool putFile( QString name, QIODevice *buffer );
+  bool rmFile( QString name );
+  bool getFile( QString name, QIODevice *buffer );
 
   QString lastError() const;
   QString lastText() const;
 
-  bool hasDowloadedFiles() const;
-  FTPFile * nextDowloadedFile();
   QList<FileInfo *> listResult();
 
 signals:
@@ -66,8 +66,6 @@ signals:
 public slots:
 
 private:
-  QDir m__TempDirectory;
-
   QUrl m__Url;
   int m__Port;
   QTcpSocket *m__Socket;
@@ -84,7 +82,8 @@ private:
   bool m__Authenticated;
 
   FTPTransfer *m__Transfer;
-  QList<FTPFile *> m__DownloadedFiles;
+  QIODevice *m__Buffer;
+  QHash<FTPCommand *, QPair<FileInfo *, QIODevice *> > m__CommandIODevice;
   QByteArray m__DirData;
   QList<FileInfo *> m__DirInfo;
 

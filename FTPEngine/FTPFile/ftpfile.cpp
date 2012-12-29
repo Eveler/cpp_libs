@@ -1,6 +1,6 @@
 #include "ftpfile.h"
 
-FTPFile::FTPFile( QString fileName, quint64 maxSize, QObject *parent ) :
+FTPFile::FTPFile( QString fileName, qint64 maxSize, QObject *parent ) :
   QObject(parent),
   m__File(new QTemporaryFile( fileName )),
   byDef(false),
@@ -27,7 +27,7 @@ QTemporaryFile * FTPFile::file() const
   return m__File;
 }
 
-quint64 FTPFile::maxSize() const
+qint64 FTPFile::maxSize() const
 {
   if ( byDef ) return m__File->size();
   else return m__MaxSize;

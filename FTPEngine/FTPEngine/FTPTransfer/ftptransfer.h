@@ -20,6 +20,8 @@ public:
   QHostAddress address() const;
   quint16 port() const;
 
+  bool uploadData( const QByteArray &data );
+
 signals:
   void downloadedData( QByteArray data );
   void readChannelFinished();

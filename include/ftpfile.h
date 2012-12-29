@@ -11,12 +11,12 @@ class FTPENGINE_EXPORT FTPFile : public QObject
 {
   Q_OBJECT
 public:
-  explicit FTPFile( QString fileName, quint64 maxSize, QObject *parent = 0 );
+  explicit FTPFile( QString fileName, qint64 maxSize, QObject *parent = 0 );
   explicit FTPFile( QTemporaryFile *otherFile, QObject *parent = 0 );
   ~FTPFile();
 
   QTemporaryFile * file() const;
-  quint64 maxSize() const;
+  qint64 maxSize() const;
 
 signals:
 
@@ -25,7 +25,7 @@ public slots:
 private:
   QTemporaryFile *m__File;
   bool byDef;
-  quint64 m__MaxSize;
+  qint64 m__MaxSize;
 };
 
 #endif // FTPFILE_H
