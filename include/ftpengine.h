@@ -104,6 +104,8 @@ private:
 
   Command getCommand() const;
 
+  void sendAnswerResult( bool result );
+
 private slots:
   void socketStateChanged( QAbstractSocket::SocketState socketState );
 
@@ -114,7 +116,7 @@ private slots:
 
   void nextCommand();
 
-  void transferData( QByteArray data );
+  void transferDataProgress( qint64 currentSize, qint64 overallSize );
   void transferDataFinished();
 };
 

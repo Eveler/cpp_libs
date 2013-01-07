@@ -8,6 +8,8 @@ QString FTPCommand::name( Type type )
   {
   case Type_Noop:
     return QString( "noop" );
+  case Type_Help:
+    return QString( "help" );
   case Type_User:
     return QString( "user" );
   case Type_Pass:
@@ -26,6 +28,8 @@ QString FTPCommand::name( Type type )
     return QString( "mkd" );
   case Type_Rmd:
     return QString( "rmd" );
+  case Type_Allo:
+    return QString( "allo" );
   case Type_Size:
     return QString( "size" );
   case Type_Retr:
@@ -58,6 +62,8 @@ bool FTPCommand::canAdd( Type type, const QString &arg1 )
   case Type_Mkd:
     return !arg1.isEmpty();
   case Type_Rmd:
+    return !arg1.isEmpty();
+  case Type_Allo:
     return !arg1.isEmpty();
   case Type_Size:
     return !arg1.isEmpty();

@@ -20,11 +20,12 @@ public:
   QHostAddress address() const;
   quint16 port() const;
 
-  bool uploadData( const QByteArray &data );
+  void setBuffer( QIODevice *buffer );
+  bool startUploading();
 
 signals:
-  void downloadedData( QByteArray data );
-  void readChannelFinished();
+  void dataCommunicationProgress( qint64 currentSize, qint64 overallSize );
+  void dataCommunicationFinished();
   void connectionTerminated();
 
 public slots:
@@ -35,9 +36,15 @@ private:
 
   State m__State;
 
+  QIODevice *m__Buffer;
+  qint64 m__BytesDone;
+
+  bool uploadNext();
+
 private slots:
   void incomingConnection();
   void receivedData();
+  void bytesWritten( qint64 size );
   void disconnectClient();
   void connectionClosed();
 };
