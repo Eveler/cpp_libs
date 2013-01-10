@@ -2,6 +2,7 @@
 #define MFCCORE_H
 
 #include <QAbstractItemModel>
+#include <QDateTime>
 
 typedef struct
 {
@@ -34,6 +35,9 @@ public:
 
     return result;
   }
+
+  static QDate addDays( const QDate &date, const int &days, bool isOverall = true,
+                        QList<int> weekend = QList<int>() << 6 << 7 );
 
 };
 

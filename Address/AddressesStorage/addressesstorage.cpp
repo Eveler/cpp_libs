@@ -1,15 +1,27 @@
-#include "servicesstorage.h"
+#include "addressesstorage.h"
 
-ServicesStorage *ServicesStorage::m__Instance = NULL;
+#include "countriesstorage.h"
+#include "subjectsstorage.h"
+#include "regionsstorage.h"
+#include "areasstorage.h"
+#include "citiesstorage.h"
+#include "innercitiesstorage.h"
+#include "townshipsstorage.h"
+#include "streetsstorage.h"
+#include "subaddressesstorage.h"
+#include "slaveaddressesstorage.h"
+#include "postcodesstorage.h"
 
-ServicesStorage * ServicesStorage::instance()
+AddressesStorage *AddressesStorage::m__Instance = NULL;
+
+AddressesStorage * AddressesStorage::instance()
 {
-  if ( m__Instance == NULL ) m__Instance = new ServicesStorage;
+  if ( m__Instance == NULL ) m__Instance = new AddressesStorage;
 
   return m__Instance;
 }
 
-bool ServicesStorage::setStorage( StorageItemModel *stor, StructServiceCols cols )
+bool AddressesStorage::setStorage( StorageItemModel *stor, StructAddressCols cols )
 {
   if ( m__Storage != NULL )
     storageDestroyed();
@@ -21,10 +33,18 @@ bool ServicesStorage::setStorage( StorageItemModel *stor, StructServiceCols cols
     return true;
   }
 
-  if ( stor->findColumnByRealName( stor->getPropertiesView(), cols.Id ) == -1 ||
-       stor->findColumnByRealName( stor->getPropertiesView(), cols.Name ) == -1 ||
-       stor->findColumnByRealName( stor->getPropertiesView(), cols.Deadline ) == -1 ||
-       stor->findColumnByRealName( stor->getPropertiesView(), cols.Active ) == -1 )
+  if ( stor->findColumnByRealName( stor->getPropertiesView(), cols.cId ) == -1 ||
+       stor->findColumnByRealName( stor->getPropertiesView(), cols.cCountry ) == -1 ||
+       stor->findColumnByRealName( stor->getPropertiesView(), cols.cSubject ) == -1 ||
+       stor->findColumnByRealName( stor->getPropertiesView(), cols.cRegion ) == -1 ||
+       stor->findColumnByRealName( stor->getPropertiesView(), cols.cArea ) == -1 ||
+       stor->findColumnByRealName( stor->getPropertiesView(), cols.cCity ) == -1 ||
+       stor->findColumnByRealName( stor->getPropertiesView(), cols.cInnerCity ) == -1 ||
+       stor->findColumnByRealName( stor->getPropertiesView(), cols.cTownship ) == -1 ||
+       stor->findColumnByRealName( stor->getPropertiesView(), cols.cStreet ) == -1 ||
+       stor->findColumnByRealName( stor->getPropertiesView(), cols.cSubaddress ) == -1 ||
+       stor->findColumnByRealName( stor->getPropertiesView(), cols.cSlaveaddress ) == -1 ||
+       stor->findColumnByRealName( stor->getPropertiesView(), cols.cPostcode ) == -1 )
     return false;
 
   m__Storage = stor;
@@ -50,45 +70,105 @@ bool ServicesStorage::setStorage( StorageItemModel *stor, StructServiceCols cols
   return true;
 }
 
-StorageItemModel * ServicesStorage::storage() const
+StorageItemModel * AddressesStorage::storage() const
 {
   return m__Storage;
 }
 
-const QList<Service *> & ServicesStorage::objects() const
+const QList<Address *> & AddressesStorage::objects() const
 {
-  return m__Services;
+  return m__Addresses;
 }
 
-ServicesStorage::ServicesStorage(QObject *parent) :
+AddressesStorage::AddressesStorage(QObject *parent) :
     QObject(parent)
 {
   reset();
 }
 
-ServicesStorage::~ServicesStorage()
+AddressesStorage::~AddressesStorage()
 {
   reset();
 }
 
-void ServicesStorage::reset()
+void AddressesStorage::reset()
 {
   m__Storage = NULL;
-  m__Cols.Id.clear();
-  m__Cols.Name.clear();
-  m__Cols.Deadline.clear();
-  m__Cols.Active.clear();
+  m__Cols.cId.clear();
+  m__Cols.cCountry.clear();
+  m__Cols.cSubject.clear();
+  m__Cols.cRegion.clear();
+  m__Cols.cArea.clear();
+  m__Cols.cCity.clear();
+  m__Cols.cInnerCity.clear();
+  m__Cols.cTownship.clear();
+  m__Cols.cStreet.clear();
+  m__Cols.cSubaddress.clear();
+  m__Cols.cSlaveaddress.clear();
+  m__Cols.cPostcode.clear();
 }
 
-void ServicesStorage::setObjectData( Service *obj, MFCRecord *record )
+void AddressesStorage::setObjectData( Address *obj, MFCRecord *record )
 {
-  obj->setId( record->currentProperty( m__Cols.Id ) );
-  obj->setName( record->currentProperty( m__Cols.Name ).toString() );
-  obj->setDeadline( record->currentProperty( m__Cols.Deadline ).toInt() );
-  obj->setActive( record->currentProperty( m__Cols.Active ).toBool() );
+  obj->setId( record->currentProperty( m__Cols.cId ) );
+
+  CountriesStorage *countriesStorage = CountriesStorage::instance();
+  QList<AbstractSimpleObject *> countries = countriesStorage->find(
+        countriesStorage->objects(), record->currentProperty( m__Cols.cCountry ) );
+  if ( !countries.isEmpty() ) obj->setCountry( countries.first() );
+
+  SubjectsStorage *subjectsStorage = SubjectsStorage::instance();
+  QList<Subject *> subjects = subjectsStorage->findById(
+        subjectsStorage->objects(), record->currentProperty( m__Cols.cSubject ) );
+  if ( !subjects.isEmpty() ) obj->setSubject( subjects.first() );
+
+  RegionsStorage *regionsStorage = RegionsStorage::instance();
+  QList<Region *> regions = regionsStorage->findById(
+        regionsStorage->objects(), record->currentProperty( m__Cols.cRegion ) );
+  if ( !regions.isEmpty() ) obj->setRegion( regions.first() );
+
+  AreasStorage *areasStorage = AreasStorage::instance();
+  QList<Area *> areas = areasStorage->findById(
+        areasStorage->objects(), record->currentProperty( m__Cols.cArea ) );
+  if ( !areas.isEmpty() ) obj->setArea( areas.first() );
+
+  CitiesStorage *citiesStorage = CitiesStorage::instance();
+  QList<City *> cities = citiesStorage->findById(
+        citiesStorage->objects(), record->currentProperty( m__Cols.cCity ) );
+  if ( !cities.isEmpty() ) obj->setCity( cities.first() );
+
+  InnerCitiesStorage *innerCitiesStorage = InnerCitiesStorage::instance();
+  QList<InnerCity *> innerCities = innerCitiesStorage->findById(
+        innerCitiesStorage->objects(), record->currentProperty( m__Cols.cInnerCity ) );
+  if ( !innerCities.isEmpty() ) obj->setInnerCity( innerCities.first() );
+
+  TownshipsStorage *townshipsStorage = TownshipsStorage::instance();
+  QList<Township *> townships = townshipsStorage->findById(
+        townshipsStorage->objects(), record->currentProperty( m__Cols.cTownship ) );
+  if ( !townships.isEmpty() ) obj->setTownship( townships.first() );
+
+  StreetsStorage *streetsStorage = StreetsStorage::instance();
+  QList<Street *> streets = streetsStorage->findById(
+        streetsStorage->objects(), record->currentProperty( m__Cols.cStreet ) );
+  if ( !streets.isEmpty() ) obj->setStreet( streets.first() );
+
+  SubaddressesStorage *subaddressesStorage = SubaddressesStorage::instance();
+  QList<Subaddress *> subaddresses = subaddressesStorage->findById(
+        subaddressesStorage->objects(), record->currentProperty( m__Cols.cSubaddress ) );
+  if ( !subaddresses.isEmpty() ) obj->setSubaddress( subaddresses.first() );
+
+  SlaveAddressesStorage *slaveAddressesStorage = SlaveAddressesStorage::instance();
+  QList<AbstractSimpleObject *> slaveAddresses = slaveAddressesStorage->find(
+        slaveAddressesStorage->objects(), record->currentProperty( m__Cols.cSlaveaddress ) );
+  if ( !slaveAddresses.isEmpty() ) obj->setSlaveaddress( slaveAddresses.first() );
+
+  PostcodesStorage *postcodesStorage = PostcodesStorage::instance();
+  QList<AbstractSimpleObject *> postcodes = postcodesStorage->find(
+        postcodesStorage->objects(), record->currentProperty( m__Cols.cPostcode ) );
+  if ( !postcodes.isEmpty() ) obj->setPostcode( postcodes.first() );
 }
 
-void ServicesStorage::storageDestroyed()
+void AddressesStorage::storageDestroyed()
 {
   disconnect( this, SLOT(storageDestroyed()) );
   disconnect( this, SLOT(recordAdded(MFCRecord*,int)) );
@@ -96,32 +176,127 @@ void ServicesStorage::storageDestroyed()
   disconnect( this, SLOT(propertyChanged(QString,QVariant)) );
 }
 
-void ServicesStorage::recordAdded( MFCRecord *record, int index )
+void AddressesStorage::recordAdded( MFCRecord *record, int index )
 {
-  Service *service = new Service( this );
-  setObjectData( service, record );
-  m__Services.insert( index, service );
+  Address *address = new Address( this );
+  setObjectData( address, record );
+  m__Addresses.insert( index, address );
+  connect( address, SIGNAL(changed),
+           this, SLOT(changed) );
 }
 
-void ServicesStorage::recordRemoved( MFCRecord */*record*/, int index )
+void AddressesStorage::recordRemoved( MFCRecord */*record*/, int index )
 {
-  m__Services.removeAt( index );
+  m__Addresses.removeAt( index );
 }
 
-void ServicesStorage::disconnectRecord( MFCRecord *record, int )
+void AddressesStorage::disconnectRecord( MFCRecord *record, int )
 {
   disconnect( record, SIGNAL(propertyChanged(QString)),
               this, SLOT(propertyChanged(QString)) );
 }
 
-void ServicesStorage::propertyChanged( QString column )
+void AddressesStorage::propertyChanged( QString column )
 {
-  if ( column != m__Cols.Id && column != m__Cols.Name &&
-       column != m__Cols.Deadline && column != m__Cols.Active )
+  if ( column != m__Cols.cId && column != m__Cols.cCountry &&
+       column != m__Cols.cSubject && column != m__Cols.cRegion &&
+       column != m__Cols.cArea && column != m__Cols.cCity &&
+       column != m__Cols.cInnerCity && column != m__Cols.cTownship &&
+       column != m__Cols.cStreet && column != m__Cols.cSubaddress &&
+       column != m__Cols.cSlaveaddress && column != m__Cols.cPostcode )
     return;
 
   MFCRecord *record = qobject_cast<MFCRecord *>( sender() );
   int index = m__Storage->availableRecords().indexOf( record );
-  Service *obj = objects()[index];
+  Address *obj = objects()[index];
   setObjectData( obj, record );
 }
+
+void AddressesStorage::changedCountry( AbstractSimpleObject *value )
+{
+  Address *obj = qobject_cast<Address *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cCountry, value->id() );
+}
+
+void AddressesStorage::changedSubject( Subject *value )
+{
+  Address *obj = qobject_cast<Address *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cSubject, value->id() );
+}
+
+void AddressesStorage::changedRegion( Region *value )
+{
+  Address *obj = qobject_cast<Address *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cRegion, value->id() );
+}
+
+void AddressesStorage::changedArea( Area *value )
+{
+  Address *obj = qobject_cast<Address *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cArea, value->id() );
+}
+
+void AddressesStorage::changedCity( City *value )
+{
+  Address *obj = qobject_cast<Address *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cCity, value->id() );
+}
+
+void AddressesStorage::changedInnerCity( InnerCity *value )
+{
+  Address *obj = qobject_cast<Address *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cInnerCity, value->id() );
+}
+
+void AddressesStorage::changedTownship( Township *value )
+{
+  Address *obj = qobject_cast<Address *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cTownship, value->id() );
+}
+
+void AddressesStorage::changedStreet( Street *value )
+{
+  Address *obj = qobject_cast<Address *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cStreet, value->id() );
+}
+
+void AddressesStorage::changedSubaddress( Subaddress *value )
+{
+  Address *obj = qobject_cast<Address *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cSubaddress, value->id() );
+}
+
+void AddressesStorage::changedSlaveaddress( AbstractSimpleObject *value )
+{
+  Address *obj = qobject_cast<Address *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cSlaveaddress, value->id() );
+}
+
+void AddressesStorage::changedPostcode( AbstractSimpleObject *value )
+{
+  Address *obj = qobject_cast<Address *>( sender() );
+
+  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
+        m__Cols.cPostcode, value->id() );
+}
+
