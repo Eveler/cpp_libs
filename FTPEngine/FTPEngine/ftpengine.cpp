@@ -1,32 +1,32 @@
 #include "ftpengine.h"
 
-#include "ftpcommand.h"
+#include "amslogger5.h"
+#include "ftpcommandspool.h"
 #include "ftptransfer.h"
 
 #include <QHostAddress>
 #include <QBuffer>
 
-#include <QDebug>
-
 FTPEngine::FTPEngine( QObject *parent ) :
   QObject(parent),
+  m__Url(QUrl()),
+  m__Port(-1),
   m__Socket(new QTcpSocket),
-  m__ActualCommand(NULL),
+  m__Connected(false),
+  m__Commands(QList<FTPCommandsPool *>()),
   m__CurrentCommand(NULL),
+  m__LastError(QString()),
+  m__LastText(QString()),
+  m__User(QString()),
+  m__Password(QString()),
+  m__Authenticated(false),
   m__Transfer(new FTPTransfer),
   m__Buffer(NULL),
+  m__CommandIODevice(QHash<FTPCommand *, QPair<FileInfo *, QIODevice *> >()),
   m__DirData(QByteArray()),
   m__DirInfo(QList<FileInfo *>()),
   m__Timer(new QTimer)
 {
-  m__Url = QUrl();
-  m__Port = -1;
-  m__Connected = false;
-
-  m__User = QString();
-  m__Password = QString();
-  m__Authenticated = false;
-
   connect( m__Transfer, SIGNAL(dataCommunicationProgress(qint64,qint64)),
            SLOT(transferDataProgress(qint64,qint64)) );
   connect( m__Transfer, SIGNAL(dataCommunicationFinished()),
@@ -41,10 +41,14 @@ FTPEngine::~FTPEngine()
   m__Transfer = NULL;
   m__Buffer = NULL;
 
-  clearPendingCommands();
-  m__ActualCommand = NULL;
-  if ( m__CurrentCommand != NULL ) delete m__CurrentCommand;
+  clearCommands();
   m__CurrentCommand = NULL;
+
+  while ( !m__DirInfo.isEmpty() )
+  {
+    FileInfo *fi = m__DirInfo.takeFirst();
+    delete fi;
+  }
 
   delete m__Timer;
   m__Timer = NULL;
@@ -111,8 +115,10 @@ bool FTPEngine::sendCommand( QString text )
 
   if ( !isConnected() )
   {
-      qDebug() << "Not connected!";
-      return false;
+#ifdef FTPENGINE_DEBUG
+    LogDebug() << "Not connected!";
+    return false;
+#endif
   }
 
   QStringList cmd = text.split( " " );
@@ -122,32 +128,51 @@ bool FTPEngine::sendCommand( QString text )
 
   connect( m__Socket, SIGNAL(readyRead()), this, SLOT(socketAllReply()) );
 
-  if ( cmdText == FTPCommand::name( FTPCommand::Type_Pwd ) ) path();
-  else if ( cmdText == FTPCommand::name( FTPCommand::Type_List ) ) list();
-  else if ( cmdText == FTPCommand::name( FTPCommand::Type_Cwd ) ) cd( cmdArg );
-  else if ( cmdText == FTPCommand::name( FTPCommand::Type_Mkd ) ) mkDir( cmdArg );
-  else if ( cmdText == FTPCommand::name( FTPCommand::Type_Rmd ) ) rmDir( cmdArg );
-  else if ( cmdText == FTPCommand::name( FTPCommand::Type_Size ) ) sizeOf( cmdArg );
+  if ( cmdText == FTPCommand::name( FTPCommand::Type_Pwd ) )
+  {
+    if ( !path() ) return false;
+  }
+  else if ( cmdText == FTPCommand::name( FTPCommand::Type_List ) )
+  {
+    if ( !list() ) return false;
+  }
+  else if ( cmdText == FTPCommand::name( FTPCommand::Type_Cwd ) )
+  {
+    if ( !cd( cmdArg ) ) return false;
+  }
+  else if ( cmdText == FTPCommand::name( FTPCommand::Type_Mkd ) )
+  {
+    if ( !mkDir( cmdArg ) ) return false;
+  }
+  else if ( cmdText == FTPCommand::name( FTPCommand::Type_Rmd ) )
+  {
+    if ( !rmDir( cmdArg ) ) return false;
+  }
+  else if ( cmdText == FTPCommand::name( FTPCommand::Type_Size ) )
+  {
+    if ( !sizeOf( cmdArg ) ) return false;
+  }
   else if ( cmdText == FTPCommand::name( FTPCommand::Type_Stor ) )
   {
-    if ( m__Buffer == NULL || !m__Buffer->isOpen() ) return false;
-    putFile( cmdArg, m__Buffer );
+    if ( !putFile( cmdArg, m__Buffer ) ) return false;
   }
-  else if ( cmdText == FTPCommand::name( FTPCommand::Type_Dele ) ) rmFile( cmdArg );
+  else if ( cmdText == FTPCommand::name( FTPCommand::Type_Dele ) )
+  {
+    if ( !rmFile( cmdArg ) ) return false;
+  }
   else if ( cmdText == FTPCommand::name( FTPCommand::Type_Retr ) )
   {
-    if ( m__Buffer == NULL || !m__Buffer->isOpen() ) return false;
-    getFile( cmdArg, m__Buffer );
+    if ( !getFile( cmdArg, m__Buffer ) ) return false;
   }
   else if ( cmdText == FTPCommand::name( FTPCommand::Type_Cdup ) )
   {
-    m__PendingCommands << new FTPCommand( FTPCommand::Type_Cdup );
+    m__Commands << new FTPCommandsPool( new FTPCommand( FTPCommand::Type_Cdup ) );
 
     nextCommand();
   }
   else if ( cmdText == FTPCommand::name( FTPCommand::Type_Type ) )
   {
-    m__PendingCommands << new FTPCommand( FTPCommand::Type_Type, cmdArg );
+    m__Commands << new FTPCommandsPool( new FTPCommand( FTPCommand::Type_Type, cmdArg ) );
 
     nextCommand();
   }
@@ -156,13 +181,13 @@ bool FTPEngine::sendCommand( QString text )
     QString argument = m__Transfer->address().toString().replace( ".", "," );
     argument += ","+QString::number((m__Transfer->port() & 0xff00) >> 8);
     argument += ","+QString::number(m__Transfer->port() & 0xff);
-    m__PendingCommands << new FTPCommand( FTPCommand::Type_Port, argument );
+    m__Commands << new FTPCommandsPool( new FTPCommand( FTPCommand::Type_Port, argument ) );
 
     nextCommand();
   }
   else if ( cmdText == FTPCommand::name( FTPCommand::Type_Quit ) )
   {
-    m__PendingCommands << new FTPCommand( FTPCommand::Type_Quit );
+    m__Commands << new FTPCommandsPool( new FTPCommand( FTPCommand::Type_Quit ) );
 
     nextCommand();
   }
@@ -175,7 +200,7 @@ bool FTPEngine::path()
 {
   if ( !isConnected() ) return false;
 
-  m__PendingCommands << new FTPCommand( FTPCommand::Type_Pwd );
+  m__Commands << new FTPCommandsPool( new FTPCommand( FTPCommand::Type_Pwd ) );
 
   nextCommand();
 
@@ -186,19 +211,20 @@ bool FTPEngine::list()
 {
   if ( !isConnected() ) return false;
 
-  m__PendingCommands << new FTPCommand( FTPCommand::Type_Type, tr( "a" ), true );
+  FTPCommandsPool *commandsPool = new FTPCommandsPool( new FTPCommand( FTPCommand::Type_List ) );
+  m__Commands << commandsPool;
+
+  commandsPool->appendBefore( new FTPCommand( FTPCommand::Type_Type, tr( "a" ) ) );
   QString argument = m__Transfer->address().toString().replace( ".", "," );
   argument += ","+QString::number((m__Transfer->port() & 0xff00) >> 8);
   argument += ","+QString::number(m__Transfer->port() & 0xff);
-  m__PendingCommands << new FTPCommand( FTPCommand::Type_Port, argument, true );
-  FTPCommand *mainCommand = new FTPCommand( FTPCommand::Type_List );
-  m__PendingCommands << mainCommand;
-  m__PendingCommands << new FTPCommand( FTPCommand::Type_Noop, QString(), true );
+  commandsPool->appendBefore( new FTPCommand( FTPCommand::Type_Port, argument ) );
+  commandsPool->appendAfter( new FTPCommand( FTPCommand::Type_Noop ) );
 
   FileInfo *fi = NULL;
   QIODevice *buffer = new QBuffer( &m__DirData, this );
   buffer->open( QIODevice::WriteOnly );
-  m__CommandIODevice.insert( mainCommand, qMakePair( fi, buffer ) );
+  m__CommandIODevice.insert( commandsPool->mainCommand(), qMakePair( fi, buffer ) );
 
   nextCommand();
 
@@ -208,8 +234,9 @@ bool FTPEngine::list()
 bool FTPEngine::cd( QString path )
 {
   if ( !isConnected() ) return false;
+  if ( !FTPCommand::canAdd( FTPCommand::Type_Cwd, path ) ) return false;
 
-  m__PendingCommands << new FTPCommand( FTPCommand::Type_Cwd, path );
+  m__Commands << new FTPCommandsPool( new FTPCommand( FTPCommand::Type_Cwd, path ) );
 
   nextCommand();
 
@@ -219,8 +246,9 @@ bool FTPEngine::cd( QString path )
 bool FTPEngine::mkDir( QString name )
 {
   if ( !isConnected() ) return false;
+  if ( !FTPCommand::canAdd( FTPCommand::Type_Mkd, name ) ) return false;
 
-  m__PendingCommands << new FTPCommand( FTPCommand::Type_Mkd, name );
+  m__Commands << new FTPCommandsPool( new FTPCommand( FTPCommand::Type_Mkd, name ) );
 
   nextCommand();
 
@@ -230,8 +258,9 @@ bool FTPEngine::mkDir( QString name )
 bool FTPEngine::rmDir( QString name )
 {
   if ( !isConnected() ) return false;
+  if ( !FTPCommand::canAdd( FTPCommand::Type_Rmd, name ) ) return false;
 
-  m__PendingCommands << new FTPCommand( FTPCommand::Type_Rmd, name );
+  m__Commands << new FTPCommandsPool( new FTPCommand( FTPCommand::Type_Rmd, name ) );
 
   nextCommand();
 
@@ -241,9 +270,12 @@ bool FTPEngine::rmDir( QString name )
 bool FTPEngine::sizeOf( QString name )
 {
   if ( !isConnected() ) return false;
+  if ( !FTPCommand::canAdd( FTPCommand::Type_Size, name ) ) return false;
 
-  m__PendingCommands << new FTPCommand( FTPCommand::Type_Type, tr( "i" ), true );
-  m__PendingCommands << new FTPCommand( FTPCommand::Type_Size, name );
+  FTPCommandsPool *commandsPool = new FTPCommandsPool( new FTPCommand( FTPCommand::Type_Size, name ) );
+  m__Commands << commandsPool;
+
+  commandsPool->appendBefore( new FTPCommand( FTPCommand::Type_Type, tr( "i" ) ) );
 
   nextCommand();
 
@@ -252,25 +284,36 @@ bool FTPEngine::sizeOf( QString name )
 
 bool FTPEngine::putFile( QString name , QIODevice *buffer )
 {
-  if ( !isConnected() ) return false;
+  if ( putFile_P( name, buffer ) == NULL ) return false;
 
-  m__PendingCommands << new FTPCommand( FTPCommand::Type_Type, tr( "i" ), true );
-  QString argument = m__Transfer->address().toString().replace( ".", "," );
-  argument += ","+QString::number((m__Transfer->port() & 0xff00) >> 8);
-  argument += ","+QString::number(m__Transfer->port() & 0xff);
-  m__PendingCommands << new FTPCommand( FTPCommand::Type_Port, argument, true );
-  m__PendingCommands << new FTPCommand( FTPCommand::Type_Allo, QString::number( buffer->size() ), true );
-  FTPCommand *mainCommand = new FTPCommand( FTPCommand::Type_Stor, name );
-  m__PendingCommands << mainCommand;
-  m__PendingCommands << new FTPCommand( FTPCommand::Type_Noop, QString(), true );
+  nextCommand();
 
-  FileInfo *fi = new FileInfo;
-  QString fileName = mainCommand->argument();
-  fileName = fileName.replace( "\"", "" );
-  qint64 fileSize = buffer->size();
-  fi->setFileName( fileName );
-  fi->setSize( fileSize );
-  m__CommandIODevice.insert( mainCommand, qMakePair( fi, buffer ) );
+  return true;
+}
+
+bool FTPEngine::putFiles( QStringList names, QList<QIODevice *> buffers )
+{
+  if ( names.isEmpty() || names.count() != buffers.count() ||
+       buffers.contains( NULL ) )
+    return false;
+
+  QList<FTPCommandsPool *> pools = QList<FTPCommandsPool *>();
+  for ( int idx = 0; idx < names.count(); idx++ )
+  {
+    FTPCommandsPool *commands = putFile_P( names[idx], buffers[idx] );
+    if ( commands == NULL )
+    {
+      while ( !pools.isEmpty() )
+      {
+        FTPCommandsPool *commands = pools.takeFirst();
+        m__Commands.removeOne( commands );
+        m__CommandIODevice.remove( commands->mainCommand() );
+        delete commands;
+      }
+      return false;
+    }
+    pools << commands;
+  }
 
   nextCommand();
 
@@ -280,8 +323,9 @@ bool FTPEngine::putFile( QString name , QIODevice *buffer )
 bool FTPEngine::rmFile( QString name )
 {
   if ( !isConnected() ) return false;
+  if ( !FTPCommand::canAdd( FTPCommand::Type_Dele, name ) ) return false;
 
-  m__PendingCommands << new FTPCommand( FTPCommand::Type_Dele, name, true );
+  m__Commands << new FTPCommandsPool( new FTPCommand( FTPCommand::Type_Dele, name ) );
 
   nextCommand();
 
@@ -290,21 +334,36 @@ bool FTPEngine::rmFile( QString name )
 
 bool FTPEngine::getFile( QString name, QIODevice *buffer )
 {
-  if ( !isConnected() ) return false;
-  if ( buffer == NULL || !buffer->isOpen() ) return false;
+  if ( !getFile_P( name, buffer ) ) return false;
 
-  m__PendingCommands << new FTPCommand( FTPCommand::Type_Type, tr( "i" ), true );
-  m__PendingCommands << new FTPCommand( FTPCommand::Type_Size, name, true );
-  QString argument = m__Transfer->address().toString().replace( ".", "," );
-  argument += ","+QString::number((m__Transfer->port() & 0xff00) >> 8);
-  argument += ","+QString::number(m__Transfer->port() & 0xff);
-  m__PendingCommands << new FTPCommand( FTPCommand::Type_Port, argument, true );
-  FTPCommand *mainCommand = new FTPCommand( FTPCommand::Type_Retr, name );
-  m__PendingCommands << mainCommand;
-  m__PendingCommands << new FTPCommand( FTPCommand::Type_Noop, QString(), true );
+  nextCommand();
 
-  FileInfo *fi = new FileInfo;
-  m__CommandIODevice.insert( mainCommand, qMakePair( fi, buffer ) );
+  return true;
+}
+
+bool FTPEngine::getFiles( QStringList names, QList<QIODevice *> buffers )
+{
+  if ( names.isEmpty() || names.count() != buffers.count() ||
+       buffers.contains( NULL ) )
+    return false;
+
+  QList<FTPCommandsPool *> pools = QList<FTPCommandsPool *>();
+  for ( int idx = 0; idx < names.count(); idx++ )
+  {
+    FTPCommandsPool *commands = getFile_P( names[idx], buffers[idx] );
+    if ( commands == NULL )
+    {
+      while ( !pools.isEmpty() )
+      {
+        FTPCommandsPool *commands = pools.takeFirst();
+        m__Commands.removeOne( commands );
+        m__CommandIODevice.remove( commands->mainCommand() );
+        delete commands;
+      }
+      return false;
+    }
+    pools << commands;
+  }
 
   nextCommand();
 
@@ -339,18 +398,73 @@ void FTPEngine::executeCommand( QString text )
   setDefaultConnect();
   QString command = text;
   text = text.replace( "\r", "" ).replace( "\n", "" );
-  qDebug() << "------>" << text;
+#ifdef FTPENGINE_DEBUG
+  LogDebug() << "------>" << text;
+#endif
   emit executedCommand( text );
   m__Socket->write( command.toLatin1() );
 }
 
-void FTPEngine::clearPendingCommands()
+void FTPEngine::clearCommands()
 {
-  while ( !m__PendingCommands.isEmpty() )
+  while ( !m__Commands.isEmpty() )
   {
-    FTPCommand *command = m__PendingCommands.takeFirst();
-    delete command;
+    FTPCommandsPool *commandsPool = m__Commands.takeFirst();
+    m__CommandIODevice.remove( commandsPool->mainCommand() );
+    delete commandsPool;
   }
+}
+
+FTPCommandsPool * FTPEngine::putFile_P( QString name , QIODevice *buffer )
+{
+  if ( !isConnected() ) return NULL;
+  if ( !FTPCommand::canAdd( FTPCommand::Type_Stor, name ) ||
+       buffer == NULL || !buffer->isOpen() ) return NULL;
+
+  FTPCommandsPool *commandsPool = new FTPCommandsPool( new FTPCommand( FTPCommand::Type_Stor, name ) );
+  m__Commands << commandsPool;
+
+  commandsPool->appendBefore( new FTPCommand( FTPCommand::Type_Type, tr( "i" ) ) );
+  QString argument = m__Transfer->address().toString().replace( ".", "," );
+  argument += ","+QString::number((m__Transfer->port() & 0xff00) >> 8);
+  argument += ","+QString::number(m__Transfer->port() & 0xff);
+  commandsPool->appendBefore( new FTPCommand( FTPCommand::Type_Port, argument ) );
+  commandsPool->appendBefore( new FTPCommand( FTPCommand::Type_Allo,
+                                              QString::number( buffer->size() ) ) );
+  commandsPool->appendAfter( new FTPCommand( FTPCommand::Type_Noop, QString() ) );
+
+  FileInfo *fi = new FileInfo;
+  QString fileName = commandsPool->mainCommand()->argument();
+  fileName = fileName.replace( "\"", "" );
+  qint64 fileSize = buffer->size();
+  fi->setFileName( fileName );
+  fi->setSize( fileSize );
+  m__CommandIODevice.insert( commandsPool->mainCommand(), qMakePair( fi, buffer ) );
+
+  return commandsPool;
+}
+
+FTPCommandsPool * FTPEngine::getFile_P( QString name, QIODevice *buffer )
+{
+  if ( !isConnected() ) return NULL;
+  if ( !FTPCommand::canAdd( FTPCommand::Type_Retr, name ) ||
+       buffer == NULL || !buffer->isOpen() ) return NULL;
+
+  FTPCommandsPool *commandsPool = new FTPCommandsPool( new FTPCommand( FTPCommand::Type_Retr, name ) );
+  m__Commands << commandsPool;
+
+  commandsPool->appendBefore( new FTPCommand( FTPCommand::Type_Type, tr( "i" ) ) );
+  commandsPool->appendBefore( new FTPCommand( FTPCommand::Type_Size, name ) );
+  QString argument = m__Transfer->address().toString().replace( ".", "," );
+  argument += ","+QString::number((m__Transfer->port() & 0xff00) >> 8);
+  argument += ","+QString::number(m__Transfer->port() & 0xff);
+  commandsPool->appendBefore( new FTPCommand( FTPCommand::Type_Port, argument ) );
+  commandsPool->appendAfter( new FTPCommand( FTPCommand::Type_Noop, QString() ) );
+
+  FileInfo *fi = new FileInfo;
+  m__CommandIODevice.insert( commandsPool->mainCommand(), qMakePair( fi, buffer ) );
+
+  return commandsPool;
 }
 
 int FTPEngine::ftpAnswerCode( const QByteArray &answer )
@@ -368,7 +482,9 @@ bool FTPEngine::checkCode( const QByteArray &answer, int code )
   int ansCode = ftpAnswerCode( answer );
   if ( ansCode != code )
   {
-    qDebug() << "Unknown FTP-answer code:" << code;
+#ifdef FTPENGINE_DEBUG
+    LogDebug() << "Unknown FTP-answer code:" << code;
+#endif
     return false;
   }
 
@@ -600,7 +716,7 @@ bool FTPEngine::parseDir( const QByteArray &buffer, const QString &userName, Fil
 FTPEngine::Command FTPEngine::getCommand() const
 {
   if ( m__CurrentCommand == NULL ) return Command_None;
-  switch ( m__CurrentCommand->type() )
+  switch ( m__CurrentCommand->mainCommand()->type() )
   {
   case FTPCommand::Type_User:
     return Command_User;
@@ -633,27 +749,14 @@ FTPEngine::Command FTPEngine::getCommand() const
 
 void FTPEngine::sendAnswerResult( bool result )
 {
-    Command currentCommand = getCommand();
-    if ( m__ActualCommand == m__CurrentCommand )
-    {
-      delete m__ActualCommand;
-      m__ActualCommand = NULL;
-      m__CurrentCommand = NULL;
-    }
-    else
-    {
-      delete m__ActualCommand;
-      m__ActualCommand = NULL;
-      delete m__CurrentCommand;
-      m__CurrentCommand = NULL;
-    }
-    emit ftpAnswer( currentCommand, result );
+  Command currentCommand = getCommand();
+  delete m__CurrentCommand;
+  m__CurrentCommand = NULL;
+  emit ftpAnswer( currentCommand, result );
 }
 
 void FTPEngine::socketStateChanged( QAbstractSocket::SocketState socketState )
 {
-  qDebug() << "socketStateChanged" << socketState;
-
   m__Connected = ( socketState == QAbstractSocket::ConnectedState );
 
   if ( !m__Connected ) m__Authenticated = false;
@@ -662,7 +765,6 @@ void FTPEngine::socketStateChanged( QAbstractSocket::SocketState socketState )
 void FTPEngine::socketConnected()
 {
   QByteArray answer = m__Socket->readAll().trimmed();
-//  qDebug() << "FTP-answer" << answer;
   m__Socket->disconnect();
 
   m__Transfer->listen( m__Socket->localAddress() );
@@ -677,7 +779,6 @@ void FTPEngine::socketConnected()
 void FTPEngine::socketAuthUserReply()
 {
   QByteArray answer = m__Socket->readAll().trimmed();
-//  qDebug() << "FTP-answer" << answer;
   m__Socket->disconnect();
 
   emit ftpAnswer( QVariant( answer ).toString() );
@@ -692,7 +793,6 @@ void FTPEngine::socketAuthUserReply()
 void FTPEngine::socketAuthPassReply()
 {
   QByteArray answer = m__Socket->readAll().trimmed();
-//  qDebug() << "FTP-answer" << answer;
   m__Socket->disconnect();
 
   emit ftpAnswer( QVariant( answer ).toString() );
@@ -725,9 +825,14 @@ void FTPEngine::socketAllReply()
 
   m__LastText = text;
 
-//  qDebug() << "FTP-answer" << answer;
-  if ( m__ActualCommand != NULL )
-    switch ( m__ActualCommand->type() )
+#ifdef FTPENGINE_DEBUG
+  LogDebug() << "FTP-answer" << answer;
+#endif
+  if ( m__CurrentCommand != NULL )
+  {
+    FTPCommand *mainCommand = m__CurrentCommand->mainCommand();
+    FTPCommand *currentCommand = m__CurrentCommand->currentCommand();
+    switch ( currentCommand->type() )
     {
     case FTPCommand::Type_Noop:
       result = ( code == 200 || code == 226 );
@@ -737,60 +842,57 @@ void FTPEngine::socketAllReply()
         m__LastText = text;
         if ( code == 226 ) m__LastText = m__LastText.mid( 0, m__LastText.indexOf( "200" )-1 ).trimmed();
       }
-      sendAnswer = ( m__ActualCommand == m__CurrentCommand ||
-                     m__CurrentCommand->type() == FTPCommand::Type_List ||
-                     m__CurrentCommand->type() == FTPCommand::Type_Retr ||
-                     m__CurrentCommand->type() == FTPCommand::Type_Stor || !result );
-      sendNextCommand = !sendAnswer;
+      sendAnswer = ( !result || !m__CurrentCommand->hasNextCommand() );
+      sendNextCommand = ( result && ( m__CurrentCommand->hasNextCommand() || !m__Commands.isEmpty() ) );
       break;
     case FTPCommand::Type_Help:
       result = ( code == 331 );
       if ( !result ) m__LastError = text;
       else m__LastText = text;
-      sendAnswer = ( m__ActualCommand == m__CurrentCommand || !result );
-      sendNextCommand = !sendAnswer;
+      sendAnswer = ( !result || !m__CurrentCommand->hasNextCommand() );
+      sendNextCommand = ( result && ( m__CurrentCommand->hasNextCommand() || !m__Commands.isEmpty() ) );
       break;
     case FTPCommand::Type_User:
       result = ( code == 331 );
       if ( !result ) m__LastError = text;
       else m__LastText = text;
-      sendAnswer = ( m__ActualCommand == m__CurrentCommand || !result );
-      sendNextCommand = !sendAnswer;
+      sendAnswer = ( !result || !m__CurrentCommand->hasNextCommand() );
+      sendNextCommand = ( result && ( m__CurrentCommand->hasNextCommand() || !m__Commands.isEmpty() ) );
       break;
     case FTPCommand::Type_Pass:
       result = ( code == 230 );
       if ( !result ) m__LastError = text;
       else m__LastText = text;
-      sendAnswer = ( m__ActualCommand == m__CurrentCommand || !result );
-      sendNextCommand = !sendAnswer;
+      sendAnswer = ( !result || !m__CurrentCommand->hasNextCommand() );
+      sendNextCommand = ( result && ( m__CurrentCommand->hasNextCommand() || !m__Commands.isEmpty() ) );
       break;
     case FTPCommand::Type_Type:
       result = ( code == 200 );
       if ( !result ) m__LastError = text;
       else m__LastText = text;
-      sendAnswer = ( m__ActualCommand == m__CurrentCommand || !result );
-      sendNextCommand = !sendAnswer;
+      sendAnswer = ( !result || !m__CurrentCommand->hasNextCommand() );
+      sendNextCommand = ( result && ( m__CurrentCommand->hasNextCommand() || !m__Commands.isEmpty() ) );
       break;
     case FTPCommand::Type_Pwd:
       result = ( code == 257 );
       if ( !result ) m__LastError = text;
       else m__LastText = text.split( "\"" ).at( 1 );
-      sendAnswer = ( m__ActualCommand == m__CurrentCommand || !result );
-      sendNextCommand = !sendAnswer;
+      sendAnswer = ( !result || !m__CurrentCommand->hasNextCommand() );
+      sendNextCommand = ( result && ( m__CurrentCommand->hasNextCommand() || !m__Commands.isEmpty() ) );
       break;
     case FTPCommand::Type_Cdup:
       result = ( code == 250 );
       if ( !result ) m__LastError = text;
       else m__LastText = text;
-      sendAnswer = ( m__ActualCommand == m__CurrentCommand || !result );
-      sendNextCommand = !sendAnswer;
+      sendAnswer = ( !result || !m__CurrentCommand->hasNextCommand() );
+      sendNextCommand = ( result && ( m__CurrentCommand->hasNextCommand() || !m__Commands.isEmpty() ) );
       break;
     case FTPCommand::Type_Cwd:
       result = ( code == 250 );
       if ( !result ) m__LastError = text;
       else m__LastText = text;
-      sendAnswer = ( m__ActualCommand == m__CurrentCommand || !result );
-      sendNextCommand = !sendAnswer;
+      sendAnswer = ( !result || !m__CurrentCommand->hasNextCommand() );
+      sendNextCommand = ( result && ( m__CurrentCommand->hasNextCommand() || !m__Commands.isEmpty() ) );
       break;
     case FTPCommand::Type_List:
       result = ( code == 150 );
@@ -798,32 +900,31 @@ void FTPEngine::socketAllReply()
       else
       {
           m__LastText = text;
-          m__Transfer->setBuffer( m__CommandIODevice[m__CurrentCommand].second );
+          m__Transfer->setBuffer( m__CommandIODevice[currentCommand].second );
       }
-      sendAnswer = ( m__ActualCommand == m__CurrentCommand &&
-                     m__PendingCommands.isEmpty() || !result );
-      sendNextCommand = sendAnswer;
+      sendAnswer = ( !result || !m__CurrentCommand->hasNextCommand() );
+      sendNextCommand = false;
       break;
     case FTPCommand::Type_Mkd:
       result = ( code == 257 );
       if ( !result ) m__LastError = text;
       else m__LastText = text;
-      sendAnswer = ( m__ActualCommand == m__CurrentCommand || !result );
-      sendNextCommand = !sendAnswer;
+      sendAnswer = ( !result || !m__CurrentCommand->hasNextCommand() );
+      sendNextCommand = ( result && ( m__CurrentCommand->hasNextCommand() || !m__Commands.isEmpty() ) );
       break;
     case FTPCommand::Type_Rmd:
       result = ( code == 250 );
       if ( !result ) m__LastError = text;
       else m__LastText = text;
-      sendAnswer = ( m__ActualCommand == m__CurrentCommand || !result );
-      sendNextCommand = !sendAnswer;
+      sendAnswer = ( !result || !m__CurrentCommand->hasNextCommand() );
+      sendNextCommand = ( result && ( m__CurrentCommand->hasNextCommand() || !m__Commands.isEmpty() ) );
       break;
     case FTPCommand::Type_Allo:
       result = ( code == 200 );
       if ( !result ) m__LastError = text;
       else m__LastText = text;
-      sendAnswer = ( m__ActualCommand == m__CurrentCommand || !result );
-      sendNextCommand = !sendAnswer;
+      sendAnswer = ( !result || !m__CurrentCommand->hasNextCommand() );
+      sendNextCommand = ( result && ( m__CurrentCommand->hasNextCommand() || !m__Commands.isEmpty() ) );
       break;
     case FTPCommand::Type_Size:
       result = ( code == 213 );
@@ -832,14 +933,14 @@ void FTPEngine::socketAllReply()
       {
         m__LastText = text;
 
-        QString fileName = m__CurrentCommand->argument();
+        QString fileName = currentCommand->argument();
         fileName = fileName.replace( "\"", "" );
         qint64 fileSize = m__LastText.toInt();
-        m__CommandIODevice[m__CurrentCommand].first->setFileName( fileName );
-        m__CommandIODevice[m__CurrentCommand].first->setSize( fileSize );
+        m__CommandIODevice[mainCommand].first->setFileName( fileName );
+        m__CommandIODevice[mainCommand].first->setSize( fileSize );
       }
-      sendAnswer = ( m__ActualCommand == m__CurrentCommand || !result );
-      sendNextCommand = !sendAnswer;
+      sendAnswer = ( !result || !m__CurrentCommand->hasNextCommand() );
+      sendNextCommand = ( result && ( m__CurrentCommand->hasNextCommand() || !m__Commands.isEmpty() ) );
       break;
     case FTPCommand::Type_Retr:
       result = ( code == 150 );
@@ -847,11 +948,10 @@ void FTPEngine::socketAllReply()
       else
       {
           m__LastText = text;
-          m__Transfer->setBuffer( m__CommandIODevice[m__CurrentCommand].second );
+          m__Transfer->setBuffer( m__CommandIODevice[currentCommand].second );
       }
-      sendAnswer = ( m__ActualCommand == m__CurrentCommand &&
-                     m__PendingCommands.isEmpty() || !result );
-      sendNextCommand = sendAnswer;
+      sendAnswer = ( !result || !m__CurrentCommand->hasNextCommand() );
+      sendNextCommand = false;
       break;
     case FTPCommand::Type_Stor:
       result = ( code == 150 );
@@ -860,93 +960,91 @@ void FTPEngine::socketAllReply()
       {
         m__LastText = text;
 
-        m__Transfer->setBuffer( m__CommandIODevice[m__CurrentCommand].second );
+        m__Transfer->setBuffer( m__CommandIODevice[currentCommand].second );
         m__Transfer->startUploading();
-
       }
-
-      sendAnswer = ( m__ActualCommand == m__CurrentCommand &&
-                     m__PendingCommands.isEmpty() || !result );
-      sendNextCommand = sendAnswer;
+      sendAnswer = ( !result || !m__CurrentCommand->hasNextCommand() );
+      sendNextCommand = false;
       break;
     case FTPCommand::Type_Dele:
       result = ( code == 250 );
       if ( !result ) m__LastError = text;
       else m__LastText = text;
-      sendAnswer = ( m__ActualCommand == m__CurrentCommand || !result );
-      sendNextCommand = !sendAnswer;
+      sendAnswer = ( !result || !m__CurrentCommand->hasNextCommand() );
+      sendNextCommand = ( result && ( m__CurrentCommand->hasNextCommand() || !m__Commands.isEmpty() ) );
       break;
     case FTPCommand::Type_Port:
       result = ( code == 200 );
       if ( !result ) m__LastError = text;
       else m__LastText = text;
-      sendAnswer = ( m__ActualCommand == m__CurrentCommand || !result );
-      sendNextCommand = !sendAnswer;
+      sendAnswer = ( !result || !m__CurrentCommand->hasNextCommand() );
+      sendNextCommand = ( result && ( m__CurrentCommand->hasNextCommand() || !m__Commands.isEmpty() ) );
       break;
     case FTPCommand::Type_Quit:
       result = ( code == 200 );
       if ( !result ) m__LastError = text;
       else m__LastText = text;
-      sendAnswer = ( m__ActualCommand == m__CurrentCommand || !result );
-      sendNextCommand = !sendAnswer;
+      sendAnswer = ( !result || !m__CurrentCommand->hasNextCommand() );
+      sendNextCommand = ( result && ( m__CurrentCommand->hasNextCommand() || !m__Commands.isEmpty() ) );
       break;
     }
+  }
 
+#ifdef FTPENGINE_DEBUG
+  LogDebug() << "sendAnswer" << sendAnswer << "sendNextCommand" << sendNextCommand;
+#endif
   emit ftpAnswer( tr( "%1 %2" ).arg( code ).arg( m__LastText ) );
 
-  if ( m__ActualCommand != NULL )
+  if ( !result ) clearCommands();
+  if ( m__CurrentCommand != NULL )
   {
-    if ( !result ) clearPendingCommands();
     if ( sendAnswer ) sendAnswerResult( result );
-    if ( sendNextCommand )
-    {
-      delete m__ActualCommand;
-      m__ActualCommand = NULL;
-      nextCommand();
-    }
+    if ( sendNextCommand ) nextCommand();
   }
 }
 
 void FTPEngine::nextCommand()
 {
-  if ( m__PendingCommands.isEmpty() || m__ActualCommand != NULL ) return;
+  if ( m__Commands.isEmpty() && m__CurrentCommand == NULL ) return;
 
-  m__ActualCommand = m__PendingCommands.takeFirst();
-  if ( !m__ActualCommand->isAutomatically() ) m__CurrentCommand = m__ActualCommand;
-  int idx = 0;
-  while ( m__CurrentCommand == NULL && idx < m__PendingCommands.count() )
+  if ( m__CurrentCommand == NULL ||
+       ( !m__CurrentCommand->nextCommand() &&
+         m__CurrentCommand->isFinished() ) )
   {
-    if ( !m__PendingCommands.at( idx )->isAutomatically() )
-      m__CurrentCommand = m__PendingCommands.at( idx );
-    idx++;
+    m__CurrentCommand = m__Commands.takeFirst();
+    m__CurrentCommand->nextCommand();
   }
 
   m__LastError = QString();
   m__LastText = QString();
   connect( m__Socket, SIGNAL(readyRead()), this, SLOT(socketAllReply()) );
   executeCommand( QString( "%1 %2\r\n" ).arg(
-                    m__ActualCommand->name().toUpper(), m__ActualCommand->argument() ) );
+                    m__CurrentCommand->currentCommand()->name().toUpper(),
+                    m__CurrentCommand->currentCommand()->argument() ) );
 }
 
 void FTPEngine::transferDataProgress( qint64 currentSize, qint64 overallSize )
 {
-  if ( m__CurrentCommand->type() == FTPCommand::Type_Retr )
-    emit loadProgress( m__CommandIODevice.value( m__CurrentCommand ).first->fileName(),
-                       m__CommandIODevice.value( m__CurrentCommand ).second->size(),
-                       m__CommandIODevice.value( m__CurrentCommand ).first->size() );
-  else if ( m__CurrentCommand->type() == FTPCommand::Type_Stor )
-      emit loadProgress( m__CommandIODevice.value( m__CurrentCommand ).first->fileName(),
+  if ( m__CurrentCommand->mainCommand()->type() == FTPCommand::Type_Retr )
+    emit loadProgress( m__CommandIODevice.value(
+                         m__CurrentCommand->mainCommand() ).first->fileName(),
+                       m__CommandIODevice.value(
+                         m__CurrentCommand->mainCommand() ).second->size(),
+                       m__CommandIODevice.value(
+                         m__CurrentCommand->mainCommand() ).first->size() );
+  else if ( m__CurrentCommand->mainCommand()->type() == FTPCommand::Type_Stor )
+      emit loadProgress( m__CommandIODevice.value(
+                           m__CurrentCommand->mainCommand() ).first->fileName(),
                          currentSize, overallSize );
 }
 
 void FTPEngine::transferDataFinished()
 {
-    if ( m__CurrentCommand == NULL ) return;
+  if ( m__CurrentCommand == NULL ) return;
 
-
-  if ( m__CurrentCommand->type() == FTPCommand::Type_List )
+  if ( m__CurrentCommand->mainCommand()->type() == FTPCommand::Type_List )
   {
-    m__CommandIODevice[m__CurrentCommand].second->close();
+    m__CommandIODevice[m__CurrentCommand->mainCommand()].second->close();
 
     m__DirData = m__DirData.trimmed();
     foreach ( QByteArray line, m__DirData.split( '\n' ) )
@@ -956,12 +1054,11 @@ void FTPEngine::transferDataFinished()
       parseDir( line, m__User, m__DirInfo.last() );
     }
     m__DirData.clear();
-    delete m__CommandIODevice[m__CurrentCommand].second;
+    delete m__CommandIODevice[m__CurrentCommand->mainCommand()].second;
   }
-  if ( m__CommandIODevice[m__CurrentCommand].first != NULL )
-      delete m__CommandIODevice[m__CurrentCommand].first;
-  m__CommandIODevice.remove( m__CurrentCommand );
+  if ( m__CommandIODevice[m__CurrentCommand->mainCommand()].first != NULL )
+      delete m__CommandIODevice[m__CurrentCommand->mainCommand()].first;
+  m__CommandIODevice.remove( m__CurrentCommand->mainCommand() );
 
-  m__ActualCommand = NULL;
   m__Timer->singleShot( 500, this, SLOT(nextCommand()) );
 }

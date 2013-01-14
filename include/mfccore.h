@@ -4,6 +4,12 @@
 #include <QAbstractItemModel>
 #include <QDateTime>
 
+#ifdef MFCCORE_LIBRARY
+#define MFCCORE_EXPORT Q_DECL_EXPORT
+#else
+#define MFCCORE_EXPORT Q_DECL_IMPORT
+#endif
+
 typedef struct
 {
   QString surname;
@@ -11,7 +17,7 @@ typedef struct
   QString lastname;
 } StructName;
 
-class MFCCore
+class MFCCORE_EXPORT MFCCore
 {
 public:
   static int findColumn( QAbstractItemModel *model, const QString &name );

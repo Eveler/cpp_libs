@@ -80,12 +80,21 @@ bool FTPCommand::canAdd( Type type, const QString &arg1 )
   return false;
 }
 
-FTPCommand::FTPCommand( Type type, const QString &arg1 , bool automatically ) :
+FTPCommand::FTPCommand() :
+  m__Name(QString())
+{
+}
+
+FTPCommand::FTPCommand( Type type, const QString &arg1 ) :
   m__Type(type),
   m__Name(name(m__Type)),
-  m__Argument(arg1),
-  m__Automatically(automatically)
+  m__Argument(arg1)
 {
+}
+
+bool FTPCommand::isValid() const
+{
+  return !m__Name.isNull();
 }
 
 FTPCommand::Type FTPCommand::type() const
@@ -101,9 +110,4 @@ const QString & FTPCommand::name() const
 const QString & FTPCommand::argument() const
 {
   return m__Argument;
-}
-
-bool FTPCommand::isAutomatically() const
-{
-  return m__Automatically;
 }

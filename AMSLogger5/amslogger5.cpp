@@ -1,4 +1,4 @@
-#include "amslogger.h"
+#include "amslogger5.h"
 #include <QFileInfo>
 #include <QDateTime>
 #include <QDir>
@@ -8,14 +8,14 @@ bool AMSLogger::initialized=false;
 bool AMSLogger::installed=false;
 AMSLogger::LogLevels AMSLogger::loglevel=AMSLogger::LevelCritical;
 QFile *AMSLogger::outFile=new QFile();
-QtMsgHandler AMSLogger::oldMsgHandler=NULL;
+QtMessageHandler AMSLogger::oldMsgHandler=NULL;
 int AMSLogger::rotateCount=14;
 QTextStream AMSLogger::stream(stderr);
 int AMSLogger::oldMsgType=-1;
 
-void AMSLogger::messageOutput(QtMsgType type, const char *msg){
+void AMSLogger::messageOutput(QtMsgType type, const QMessageLogContext &,const QString &msg){
   AMSLogger::initialyze();
-  QByteArray ba(msg);
+  QByteArray ba(qPrintable(msg));
   QString strDateTime=
       QDateTime::currentDateTime().toString("[dd.MM.yyyy] [hh:mm:ss.zzz]: ");
 
@@ -70,7 +70,7 @@ void AMSLogger::messageOutput(QtMsgType type, const char *msg){
 
 void AMSLogger::install(){
   initialyze();
-  oldMsgHandler=qInstallMsgHandler(messageOutput);
+  oldMsgHandler=qInstallMessageHandler(messageOutput);
   installed=true;
 }
 
@@ -116,7 +116,8 @@ AMSLogger& AMSLogger::operator <<(const QVariant &msg){
     if(!str.isEmpty()) str+=": ";
   }
   str+=msg.toString();
-  messageOutput(msgType,qPrintable(str));
+  QMessageLogContext c;
+  messageOutput(msgType,c,qPrintable(str));
   return *this;
 }
 
@@ -155,4 +156,17 @@ QString AMSLogger::prefix(){
   QString completeBN=completeBaseName();
   return qApp->applicationDirPath()+"/"+completeBN+
       "_logger/"+completeBN;
+}
+
+AMSLOGGER_EXPORT AMSLogger logDebug(QString file,int line) {
+  return AMSLogger(QtDebugMsg,file,line);
+}
+AMSLOGGER_EXPORT AMSLogger logWarning(QString file,int line) {
+  return AMSLogger(QtWarningMsg,file,line);
+}
+AMSLOGGER_EXPORT AMSLogger logCritical(QString file,int line) {
+  return AMSLogger(QtCriticalMsg,file,line);
+}
+AMSLOGGER_EXPORT AMSLogger logFatal(QString file,int line) {
+  return AMSLogger(QtFatalMsg,file,line);
 }

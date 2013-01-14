@@ -14,18 +14,19 @@ public:
 
   static bool canAdd( Type type, const QString &arg1 );
 
-  FTPCommand( Type type, const QString &arg1 = QString(), bool automatically = false );
+  FTPCommand();
+  FTPCommand( Type type, const QString &arg1 = QString() );
+
+  bool isValid() const;
 
   Type type() const;
   const QString & name() const;
   const QString & argument() const;
-  bool isAutomatically() const;
 
 private:
   Type m__Type;
   QString m__Name;
   QString m__Argument;
-  bool m__Automatically;
 };
 
 #endif // FTPCOMMAND_H

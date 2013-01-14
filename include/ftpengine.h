@@ -4,7 +4,6 @@
 #include <QObject>
 
 #include "ftpengine_export.h"
-#include "ftpfile.h"
 #include "fileinfo.h"
 
 #include <QDir>
@@ -15,6 +14,7 @@
 #include <QIODevice>
 
 class FTPCommand;
+class FTPCommandsPool;
 class FTPTransfer;
 
 class FTPENGINE_EXPORT FTPEngine : public QObject
@@ -46,8 +46,10 @@ public:
   bool rmDir( QString name );
   bool sizeOf( QString name );
   bool putFile( QString name, QIODevice *buffer );
+  bool putFiles( QStringList names , QList<QIODevice *> buffers );
   bool rmFile( QString name );
   bool getFile( QString name, QIODevice *buffer );
+  bool getFiles( QStringList names , QList<QIODevice *> buffers );
 
   QString lastError() const;
   QString lastText() const;
@@ -71,9 +73,8 @@ private:
   QTcpSocket *m__Socket;
   bool m__Connected;
 
-  FTPCommand *m__ActualCommand;
-  FTPCommand *m__CurrentCommand;
-  QList<FTPCommand *> m__PendingCommands;
+  QList<FTPCommandsPool *> m__Commands;
+  FTPCommandsPool *m__CurrentCommand;
   QString m__LastError;
   QString m__LastText;
 
@@ -92,7 +93,10 @@ private:
   void setDefaultConnect();
 
   void executeCommand( QString text );
-  void clearPendingCommands();
+  void clearCommands();
+
+  FTPCommandsPool * putFile_P( QString name, QIODevice *buffer );
+  FTPCommandsPool * getFile_P( QString name, QIODevice *buffer );
 
   int ftpAnswerCode( const QByteArray &answer );
   QString ftpAnswerText( const QByteArray &answer );

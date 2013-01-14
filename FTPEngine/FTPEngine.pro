@@ -9,12 +9,12 @@ TEMPLATE = lib
 DEFINES += FTPENGINE_LIBRARY
 
 INCLUDEPATH += ./ \
-    ../bin/ \
+    ../bin_qt5/ \
     ../include/ \
     ./FTPEngine/ \
     ./FTPEngine/FTPCommand/ \
+    ./FTPEngine/FTPCommandsPool/ \
     ./FTPFile/FileInfo/ \
-    ./FTPFile/ \
     ./FTPEngine/FTPTransfer/
 
 symbian {
@@ -36,8 +36,15 @@ unix:!symbian {
     INSTALLS += target
 }
 
-DESTDIR = ../bin
-DLLDESTDIR = ../bin
+greaterThan( QT_MAJOR_VERSION, 4 ) {
+  DESTDIR = ../bin_qt5
+  DLLDESTDIR = ../bin_qt5
+}
+lessThan( QT_MAJOR_VERSION, 5 ) {
+  DESTDIR = ../bin
+  DLLDESTDIR = ../bin
+}
+
 CONFIG(release, debug|release){
   OBJECTS_DIR = ../temp/$$TARGET/release
   MOC_DIR = ../temp/$$TARGET/release
@@ -54,19 +61,22 @@ CONFIG(debug, debug|release){
 SOURCES += \
     FTPEngine/ftpengine.cpp \
     FTPEngine/FTPCommand/ftpcommand.cpp \
+    FTPEngine/FTPCommandsPool/ftpcommandspool.cpp \
     FTPFile/FileInfo/fileinfo.cpp \
-    FTPFile/ftpfile.cpp \
     FTPEngine/FTPTransfer/ftptransfer.cpp
 
 HEADERS += \
+    ../include/ftpengine_export.h \
     ../include/ftpengine.h \
     FTPEngine/FTPCommand/ftpcommand.h \
+    FTPEngine/FTPCommandsPool/ftpcommandspool.h \
     ../include/fileinfo.h \
-    ../include/ftpfile.h \
-    FTPEngine/FTPTransfer/ftptransfer.h \
-    ../include/ftpengine_export.h
+    FTPEngine/FTPTransfer/ftptransfer.h
 
-
+greaterThan( QT_MAJOR_VERSION, 4 ) {
+  LIBS += -L../bin_qt5/ \
+      -lAMSLogger
+}
 
 
 
