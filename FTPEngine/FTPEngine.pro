@@ -1,4 +1,4 @@
-QT       += network core-private
+QT       += network core
 
 TARGET = FTPEngine
 CONFIG(debug, debug|release): TARGET = $${TARGET}d
