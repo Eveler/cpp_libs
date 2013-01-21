@@ -65,6 +65,7 @@ void AMSLogger::messageOutput(QtMsgType type, const QMessageLogContext &,const Q
 //    abort();
     break;
   }
+  stream.flush();
   oldMsgType=type;
 }
 
