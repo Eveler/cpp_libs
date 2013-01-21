@@ -77,6 +77,7 @@ public:
   установленного уровня на основании типа сообщения \param type.
   \see setLogLevel()*/
   AMSLogger& operator <<(const QVariant& msg);
+  AMSLogger& operator<<(const void * ptr);
 
 
 private:

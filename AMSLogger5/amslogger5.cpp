@@ -121,6 +121,13 @@ AMSLogger& AMSLogger::operator <<(const QVariant &msg){
   return *this;
 }
 
+AMSLogger& AMSLogger::operator <<(const void * ptr){
+  QString str;
+  QTextStream ts(&str);
+  ts<<ptr;
+  return (*this)<<str;
+}
+
 void AMSLogger::rotate(){
   if(outFile->fileName().isEmpty()) return;
   QString completeBN=completeBaseName();
