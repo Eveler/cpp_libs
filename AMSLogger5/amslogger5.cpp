@@ -82,7 +82,7 @@ void AMSLogger::initialyze(){
   outFile->setFileName(logFile);
   //"вращение" либо отправка по почте журнала//////////////////////////////////
   rotate();
-  qDebug()<<"AMSLogger: logfile name:"<<outFile->fileName();
+  fprintf(stdout, "AMSLogger: logfile name: %s", qPrintable( outFile->fileName() ) );
   ////////////////////////////////////"вращение" либо отправка по почте журнала
   initialized=true;
 }
