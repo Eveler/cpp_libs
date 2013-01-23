@@ -27,12 +27,23 @@ public:
 
   QStringList columnNames() const;
 
-  bool addRoot( QString fldVal = QString(), bool checkable = false, bool checked = false );
-  bool addChild( QString rootVal, QString fldVal = QString(), bool checked = false );
+  TreelistItem * addRoot( const QStringList &fldVal = QStringList(), bool checked = false );
+  bool addRoot( TreelistItem *item );
+  TreelistItem * addChild( TreelistItem *item, const QStringList &fldVal = QStringList(),
+                           bool checked = false );
+  bool removeItem( TreelistItem *item );
 
-  QStringList checkedItems();
+  const QList<TreelistItem *> & rootItems() const;
+
+  QList<TreelistItem *> checkedItems();
 
   bool isEmpty();
+
+  void resizeColumnToContents( int index );
+  void resizeColumnsToContents();
+
+public slots:
+  void checkAll( bool checked );
 
 signals:
   void checkStateChanged();
@@ -43,16 +54,14 @@ private:
   bool isAdding;
   bool isCheckChanging;
 
-  QTreeWidget * treeWidget() const;
+  QList<TreelistItem *> m__RootItems;
 
-  QTreeWidgetItem *hasItem(QString val);
-  QStringList checkedItems( QTreeWidgetItem *item );
+  QTreeWidget * treeWidget() const;
 
 private slots:
   void on_treeWidget_itemChanged(QTreeWidgetItem *item, int column);
-
-  void on_treeWidget_itemExpanded(QTreeWidgetItem *);
-  void on_treeWidget_itemCollapsed(QTreeWidgetItem * item);
+  void on_tBt_CheckAll_clicked();
+  void on_tBt_UncheckAll_clicked();
 };
 
 #endif // Widget_Treelist_H

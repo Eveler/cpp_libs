@@ -3,18 +3,27 @@
 
 #include "treelistitem.h"
 
+#include "amslogger5.h"
+
 
 Widget_Treelist::Widget_Treelist(QWidget *parent) :
   QWidget(parent),
   ui(new Ui::Widget_Treelist),
   isAdding(false),
-  isCheckChanging(false)
+  isCheckChanging(false),
+  m__RootItems(QList<TreelistItem *>())
 {
   ui->setupUi(this);
 }
 
 Widget_Treelist::~Widget_Treelist()
 {
+  while ( !m__RootItems.isEmpty() )
+  {
+    TreelistItem *item = m__RootItems.takeFirst();
+    delete item;
+    item = NULL;
+  }
   delete ui;
 }
 
@@ -26,54 +35,68 @@ QStringList Widget_Treelist::columnNames() const
   return result;
 }
 
-bool Widget_Treelist::addRoot( QString fldVal, bool checkable, bool checked )
+TreelistItem * Widget_Treelist::addRoot( const QStringList &fldVal, bool checked )
 {
-  if(fldVal.isEmpty() || hasItem(fldVal)!=0) return false;
   isAdding = true;
-  ui->treeWidget->addTopLevelItem(new QTreeWidgetItem(QStringList()<<"\n"<<fldVal));
-  if ( checkable )
-  {
-    if ( checked )
-      ui->treeWidget->topLevelItem(
-            ui->treeWidget->topLevelItemCount()-1)->setCheckState( 0, Qt::Checked );
-    else
-      ui->treeWidget->topLevelItem(
-            ui->treeWidget->topLevelItemCount()-1)->setCheckState( 0, Qt::Unchecked );
-  }
-  ui->treeWidget->resizeColumnToContents( 0 );
-//  ui->treeWidget->resizeColumnToContents( 1 );
+  TreelistItem *newItem = new TreelistItem( this );
+  newItem->setLabels( fldVal );
+  newItem->setChecked( checked );
+  m__RootItems << newItem;
+//  ui->treeWidget->resizeColumnToContents( 0 );
   isAdding = false;
+
+  return newItem;
+}
+
+bool Widget_Treelist::addRoot( TreelistItem *item )
+{
+  if ( item->treeList() == this ) return true;
+  if ( item->treeList() != NULL )
+  {
+
+  }
+}
+
+TreelistItem * Widget_Treelist::addChild( TreelistItem *item, const QStringList &fldVal, bool checked )
+{
+  if ( item == NULL ) return NULL;
+
+  isAdding = true;
+  TreelistItem *newItem = new TreelistItem( item );
+  newItem->setLabels( fldVal );
+  newItem->setChecked( checked );
+//  ui->treeWidget->resizeColumnToContents( 0 );
+  isAdding = false;
+
+  return newItem;
+}
+
+bool Widget_Treelist::removeItem( TreelistItem *item )
+{
+  if ( item == NULL || item->treeList() != this ) return false;
+
+  if ( item->parentItem() == NULL ) item->removeFromTreelist();
+  else item->parentItem()->removeChild( item );
+
   return true;
 }
 
-bool Widget_Treelist::addChild(QString rootVal, QString fldVal, bool checked ){
-  if ( rootVal.isEmpty() || fldVal.isEmpty() ) return false;
-  QTreeWidgetItem *item=hasItem(rootVal);
-  if(item==0 || hasItem(fldVal)!=0) return false;
-  isAdding = true;
-  item->addChild(new QTreeWidgetItem(QStringList()<<""<<fldVal));
-  if ( checked )
-    item->child( item->childCount()-1 )->setCheckState( 0, Qt::Checked );
-  else
-    item->child( item->childCount()-1 )->setCheckState( 0, Qt::Unchecked );
-  ui->treeWidget->resizeColumnToContents( 0 );
-  ui->treeWidget->resizeColumnToContents( 1 );
-  isAdding = false;
-  return true;
+const QList<TreelistItem *> & Widget_Treelist::rootItems() const
+{
+  return m__RootItems;
 }
 
-QStringList Widget_Treelist::checkedItems()
+QList<TreelistItem *> Widget_Treelist::checkedItems()
 {
-  QStringList res = QStringList();
+  QList<TreelistItem *> result = QList<TreelistItem *>();
 
-  for ( int iIdx = 0; iIdx < ui->treeWidget->topLevelItemCount(); iIdx++ )
+  foreach ( TreelistItem *item, m__RootItems )
   {
-    QTreeWidgetItem *item = ui->treeWidget->topLevelItem( iIdx );
-    if ( item->childCount() > 0 ) res << checkedItems( item );
-    else if ( item->checkState( 0 ) == Qt::Checked ) res << item->text( 1 );
+    if ( item->checked() ) result << item;
+    result << item->checkedChildItems();
   }
 
-  return res;
+  return result;
 }
 
 bool Widget_Treelist::isEmpty()
@@ -81,30 +104,25 @@ bool Widget_Treelist::isEmpty()
   return (ui->treeWidget->topLevelItemCount() == 0);
 }
 
+void Widget_Treelist::resizeColumnToContents( int index )
+{
+  ui->treeWidget->resizeColumnToContents( index );
+}
+
+void Widget_Treelist::resizeColumnsToContents()
+{
+  ui->treeWidget->header()->resizeSections( QHeaderView::ResizeToContents );
+}
+
+void Widget_Treelist::checkAll( bool checked )
+{
+  foreach ( TreelistItem *item, m__RootItems )
+    item->setChecked( checked );
+}
+
 QTreeWidget * Widget_Treelist::treeWidget() const
 {
   return ui->treeWidget;
-}
-
-QTreeWidgetItem *Widget_Treelist::hasItem(QString val){
-  QList< QTreeWidgetItem* > items=
-      ui->treeWidget->findItems(val,Qt::MatchFixedString, 1);
-  if(items.count()>0) return items.first();
-  return 0;
-}
-
-QStringList Widget_Treelist::checkedItems( QTreeWidgetItem *item )
-{
-  QStringList res = QStringList();
-
-  for ( int iIdx = 0; iIdx < item->childCount(); iIdx++ )
-  {
-    QTreeWidgetItem *sub_item = item->child( iIdx );
-    if ( sub_item->childCount() > 0 ) res << checkedItems( sub_item );
-    else if ( sub_item->checkState( 0 ) == Qt::Checked ) res << sub_item->text( 1 );
-  }
-
-  return res;
 }
 
 void Widget_Treelist::on_treeWidget_itemChanged(QTreeWidgetItem *item, int column)
@@ -136,12 +154,12 @@ void Widget_Treelist::on_treeWidget_itemChanged(QTreeWidgetItem *item, int colum
   }
 }
 
-void Widget_Treelist::on_treeWidget_itemExpanded(QTreeWidgetItem */*item*/)
+void Widget_Treelist::on_tBt_CheckAll_clicked()
 {
-  ui->treeWidget->resizeColumnToContents( 0 );
+  checkAll( true );
 }
 
-void Widget_Treelist::on_treeWidget_itemCollapsed(QTreeWidgetItem *item)
+void Widget_Treelist::on_tBt_UncheckAll_clicked()
 {
-  on_treeWidget_itemExpanded( item );
+  checkAll( false );
 }

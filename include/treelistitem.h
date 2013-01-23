@@ -15,13 +15,21 @@ class EXPORT TreelistItem : public QObject
   friend class TreelistItemPrivate;
   friend class Widget_Treelist;
 public:
-  explicit TreelistItem( Widget_Treelist *parent );
-  explicit TreelistItem( Widget_Treelist *parent, TreelistItem *parentItem );
+  explicit TreelistItem( Widget_Treelist *treeList );
+  explicit TreelistItem( TreelistItem *parentItem );
+  ~TreelistItem();
 
-  Widget_Treelist * parentList() const;
+  Widget_Treelist * treeList() const;
 
   void setLabel( int column, const QString &label );
   void setLabels( const QStringList &labels );
+  QString label( int column ) const;
+  QStringList labels() const;
+
+  void setChecked( bool checked );
+  bool checked() const;
+
+  QList<TreelistItem *> checkedChildItems() const;
 
   void addChild( TreelistItem *item );
   void removeChild( TreelistItem *item );
@@ -30,13 +38,10 @@ public:
   TreelistItem * parentItem() const;
 
 private:
-  Widget_Treelist *m__Parent;
-  TreelistItem *m__ParentItem;
-  QList<TreelistItem *> m__ChildItems;
-
-  TreelistItemPrivate *p;
+  TreelistItemPrivate *m__P;
 
   QTreeWidgetItem * item() const;
+  void removeFromTreelist();
 };
 
 #endif // TREELISTITEM_H
