@@ -26,6 +26,14 @@ public:
   QString label( int column ) const;
   QStringList labels() const;
 
+  void setLabelColor( int column, const QColor &color );
+  void setLabelsColor( const QColor &color );
+  QColor labelColor( int column ) const;
+
+  void setLabelFont( int column, const QFont &font );
+  void setLabelsFont( const QFont &font );
+  QFont labelFont( int column ) const;
+
   void setChecked( bool checked );
   bool checked() const;
 

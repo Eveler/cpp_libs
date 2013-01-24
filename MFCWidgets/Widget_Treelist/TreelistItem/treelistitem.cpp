@@ -51,6 +51,38 @@ QStringList TreelistItem::labels() const
   return result;
 }
 
+void TreelistItem::setLabelColor( int column, const QColor &color )
+{
+  m__P->m__Item->setTextColor( column+0, color );
+}
+
+void TreelistItem::setLabelsColor( const QColor &color )
+{
+  for ( int lIdx = 0; lIdx < m__P->m__Item->columnCount(); lIdx++ )
+    setLabelColor( lIdx, color );
+}
+
+QColor TreelistItem::labelColor( int column ) const
+{
+  return m__P->m__Item->textColor( column );
+}
+
+void TreelistItem::setLabelFont( int column, const QFont &font )
+{
+  m__P->m__Item->setFont( column+0, font );
+}
+
+void TreelistItem::setLabelsFont( const QFont &font )
+{
+  for ( int lIdx = 0; lIdx < m__P->m__Item->columnCount(); lIdx++ )
+    setLabelFont( lIdx, font );
+}
+
+QFont TreelistItem::labelFont( int column ) const
+{
+  return m__P->m__Item->font( column );
+}
+
 void TreelistItem::setChecked( bool checked )
 {
   if ( checked )

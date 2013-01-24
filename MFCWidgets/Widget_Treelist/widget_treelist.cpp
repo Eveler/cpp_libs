@@ -114,10 +114,14 @@ void Widget_Treelist::resizeColumnsToContents()
   ui->treeWidget->header()->resizeSections( QHeaderView::ResizeToContents );
 }
 
+void Widget_Treelist::setHeaderHidden( bool visible )
+{
+  ui->treeWidget->setHeaderHidden( visible );
+}
+
 void Widget_Treelist::checkAll( bool checked )
 {
-  foreach ( TreelistItem *item, m__RootItems )
-    item->setChecked( checked );
+  foreach ( TreelistItem *item, m__RootItems ) item->setChecked( checked );
 }
 
 QTreeWidget * Widget_Treelist::treeWidget() const

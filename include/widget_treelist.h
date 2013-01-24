@@ -42,6 +42,8 @@ public:
   void resizeColumnToContents( int index );
   void resizeColumnsToContents();
 
+  void setHeaderHidden( bool visible );
+
 public slots:
   void checkAll( bool checked );
 
