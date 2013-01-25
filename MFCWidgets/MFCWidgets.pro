@@ -18,9 +18,7 @@ INCLUDEPATH += ./ \
     ../bin_qt5/ \
     ../include/ \
     ./MainWindow/ \
-    ./Widget/ \
-    ./Widget_Treelist/ \
-    ./Widget_Treelist/TreelistItem/
+    ./Widget/
 
 
 symbian {
@@ -72,21 +70,11 @@ CONFIG(debug, debug|release){
 
 HEADERS += \
     ../include/lib_export.h \
-    ../include/widget_treelist.h \
-    ../include/treelistitem.h \
     ../include/mfcwidgets.h \
-    Widget_Treelist/TreelistItem/treelistitemprivate.h
-
-SOURCES += \
-    Widget_Treelist/widget_treelist.cpp \
-    Widget_Treelist/TreelistItem/treelistitem.cpp \
-    Widget_Treelist/TreelistItem/treelistitemprivate.cpp
-
-FORMS += \
-    Widget_Treelist/widget_treelist.ui
 
 
-
+include(./Widget_Treelist/Widget_Treelist.pri)
+include(./Menu_PeriodDates/Menu_PeriodDates.pri)
 
 
 
