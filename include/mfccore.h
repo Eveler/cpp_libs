@@ -20,6 +20,10 @@ typedef struct
 class MFCCORE_EXPORT MFCCore
 {
 public:
+  enum Period {Daily = 0, Weekly, Monthly, Quarterly, Semiannual, Yearly};
+
+  static QString periodName( MFCCore::Period period );
+
   static int findColumn( QAbstractItemModel *model, const QString &name );
 
   template<class T>

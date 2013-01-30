@@ -1,5 +1,16 @@
 #include "mfccore.h"
 
+QString MFCCore::periodName( Period period )
+{
+  if ( period == Daily ) return QObject::tr( "Ежедневный" );
+  if ( period == Weekly ) return QObject::tr( "Еженедельный" );
+  if ( period == Monthly ) return QObject::tr( "Ежемесячный" );
+  if ( period == Quarterly ) return QObject::tr( "Квартальный" );
+  if ( period == Semiannual ) return QObject::tr( "Полугодовой" );
+  if ( period == Yearly ) return QObject::tr( "Годовой" );
+  return QObject::tr( "Undefined" );
+}
+
 int MFCCore::findColumn( QAbstractItemModel *model, const QString &name )
 {
   if ( model == NULL ) return -1;
