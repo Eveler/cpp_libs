@@ -25,7 +25,8 @@ FTPEngine::FTPEngine( QObject *parent ) :
   m__CommandIODevice(QHash<FTPCommand *, QPair<FileInfo *, QIODevice *> >()),
   m__DirData(QByteArray()),
   m__DirInfo(QList<FileInfo *>()),
-  m__Timer(new QTimer)
+  m__Timer(new QTimer),
+  m__CommandListCreation(false)
 {
   connect( m__Transfer, SIGNAL(dataCommunicationProgress(qint64,qint64)),
            SLOT(transferDataProgress(qint64,qint64)) );
@@ -370,6 +371,17 @@ bool FTPEngine::getFiles( QStringList names, QList<QIODevice *> buffers )
   return true;
 }
 
+void FTPEngine::beginCommands()
+{
+  m__CommandListCreation = true;
+}
+
+void FTPEngine::sendCommands()
+{
+  m__CommandListCreation = false;
+  nextCommand();
+}
+
 QString FTPEngine::lastError() const
 {
   return m__LastError;
@@ -385,6 +397,11 @@ QList<FileInfo *> FTPEngine::listResult()
   QList<FileInfo *> result = m__DirInfo;
   m__DirInfo.clear();
   return result;
+}
+
+bool FTPEngine::isFinished()
+{
+  return m__Commands.isEmpty();
 }
 
 void FTPEngine::setDefaultConnect()
@@ -1005,7 +1022,7 @@ void FTPEngine::socketAllReply()
 
 void FTPEngine::nextCommand()
 {
-  if ( m__Commands.isEmpty() && m__CurrentCommand == NULL ) return;
+  if ( m__CommandListCreation || ( m__Commands.isEmpty() && m__CurrentCommand == NULL ) ) return;
 
   if ( m__CurrentCommand == NULL ||
        ( !m__CurrentCommand->nextCommand() &&

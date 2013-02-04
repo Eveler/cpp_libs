@@ -50,11 +50,15 @@ public:
   bool rmFile( QString name );
   bool getFile( QString name, QIODevice *buffer );
   bool getFiles( QStringList names , QList<QIODevice *> buffers );
+  void beginCommands();
+  void sendCommands();
 
   QString lastError() const;
   QString lastText() const;
 
   QList<FileInfo *> listResult();
+
+  bool isFinished();
 
 signals:
   void authenticationRequired();
@@ -89,6 +93,8 @@ private:
   QList<FileInfo *> m__DirInfo;
 
   QTimer *m__Timer;
+
+  bool m__CommandListCreation;
 
   void setDefaultConnect();
 
