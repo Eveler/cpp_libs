@@ -45,6 +45,7 @@ public:
   void setHeaderHidden( bool visible );
 
 public slots:
+  void clear();
   void checkAll( bool checked );
 
 signals:

@@ -18,12 +18,7 @@ Widget_Treelist::Widget_Treelist(QWidget *parent) :
 
 Widget_Treelist::~Widget_Treelist()
 {
-  while ( !m__RootItems.isEmpty() )
-  {
-    TreelistItem *item = m__RootItems.takeFirst();
-    delete item;
-    item = NULL;
-  }
+  clear();
   delete ui;
 }
 
@@ -117,6 +112,16 @@ void Widget_Treelist::resizeColumnsToContents()
 void Widget_Treelist::setHeaderHidden( bool visible )
 {
   ui->treeWidget->setHeaderHidden( visible );
+}
+
+void Widget_Treelist::clear()
+{
+  while ( !m__RootItems.isEmpty() )
+  {
+    TreelistItem *item = m__RootItems.takeFirst();
+    delete item;
+    item = NULL;
+  }
 }
 
 void Widget_Treelist::checkAll( bool checked )
