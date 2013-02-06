@@ -11,6 +11,17 @@ QString MFCCore::periodName( Period period )
   return QObject::tr( "Undefined" );
 }
 
+bool MFCCore::matches( const QString &arg1, const QString &arg2, Qt::MatchFlag flag )
+{
+  if ( flag == Qt::MatchStartsWith )
+    return arg1.startsWith( arg2 );
+  else if ( flag == Qt::MatchEndsWith )
+    return arg1.endsWith( arg2 );
+  else if ( flag == Qt::MatchContains )
+    return arg1.contains( arg2 );
+  else return ( arg1 == arg2 );
+}
+
 int MFCCore::findColumn( QAbstractItemModel *model, const QString &name )
 {
   if ( model == NULL ) return -1;
@@ -20,6 +31,28 @@ int MFCCore::findColumn( QAbstractItemModel *model, const QString &name )
       return cIdx;
 
   return -1;
+}
+
+QList<QModelIndex> MFCCore::findIndexes( QAbstractItemModel *model, QString value,
+                                           Qt::MatchFlag flag, int column )
+{
+  QList<QModelIndex> result = QList<QModelIndex>();
+
+  if ( model != NULL )
+    for ( int rIdx = 0; rIdx < model->rowCount(); rIdx++ )
+    {
+      QVariant val = model->index( rIdx, column ).data();
+      if ( val.type() == QVariant::Int &&
+           matches( QString::number( val.toInt() ), value, flag ) )
+        result << model->index( rIdx, column );
+      else if ( val.type() == QVariant::Double &&
+                matches( QString::number( val.toDouble() ), value, flag ) )
+        result << model->index( rIdx, column );
+      else if ( matches( val.toString(), value, flag ) )
+        result << model->index( rIdx, column );
+    }
+
+  return result;
 }
 
 QDate MFCCore::addDays(const QDate &date, const int &days, bool isOverall, QList<int> weekend )
