@@ -20,9 +20,10 @@ typedef struct
 class MFCCORE_EXPORT MFCCore
 {
 public:
-  enum Period {Daily = 0, Weekly, Monthly, Quarterly, Semiannual, Yearly};
+  enum Period {Undefined = 0, Daily, Weekly, Monthly, Quarterly, Semiannual, Yearly};
 
-  static QString periodName( MFCCore::Period period );
+  static QString periodName( Period period );
+  static Period period( QString name );
 
   static bool matches( const QString &arg1, const QString &arg2, Qt::MatchFlag flag = Qt::MatchExactly );
 

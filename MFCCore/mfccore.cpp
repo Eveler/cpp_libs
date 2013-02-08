@@ -3,12 +3,23 @@
 QString MFCCore::periodName( Period period )
 {
   if ( period == Daily ) return QObject::tr( "Ежедневный" );
-  if ( period == Weekly ) return QObject::tr( "Еженедельный" );
-  if ( period == Monthly ) return QObject::tr( "Ежемесячный" );
-  if ( period == Quarterly ) return QObject::tr( "Квартальный" );
-  if ( period == Semiannual ) return QObject::tr( "Полугодовой" );
-  if ( period == Yearly ) return QObject::tr( "Годовой" );
-  return QObject::tr( "Undefined" );
+  else if ( period == Weekly ) return QObject::tr( "Еженедельный" );
+  else if ( period == Monthly ) return QObject::tr( "Ежемесячный" );
+  else if ( period == Quarterly ) return QObject::tr( "Квартальный" );
+  else if ( period == Semiannual ) return QObject::tr( "Полугодовой" );
+  else if ( period == Yearly ) return QObject::tr( "Годовой" );
+  else return QObject::tr( "Undefined" );
+}
+
+MFCCore::Period MFCCore::period( QString name )
+{
+  if ( name == QObject::tr( "Ежедневный" ) ) return Daily;
+  else if ( name == QObject::tr( "Еженедельный" ) ) return Weekly;
+  else if ( name == QObject::tr( "Ежемесячный" ) ) return Monthly;
+  else if ( name == QObject::tr( "Квартальный" ) ) return Quarterly;
+  else if ( name == QObject::tr( "Полугодовой" ) ) return Semiannual;
+  else if ( name == QObject::tr( "Годовой" ) ) return Yearly;
+  else Undefined;
 }
 
 bool MFCCore::matches( const QString &arg1, const QString &arg2, Qt::MatchFlag flag )
