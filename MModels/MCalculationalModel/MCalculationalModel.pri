@@ -1,8 +1,10 @@
 INCLUDEPATH *= $$PWD/
 
-HEADERS *=
+HEADERS *= \
+    $$PWD/../../include/mcalculationalmodel.h
 
-SOURCES *=
+SOURCES *= \
+    $$PWD/mcalculationalmodel.cpp
 
 
 
