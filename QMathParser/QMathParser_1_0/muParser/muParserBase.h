@@ -39,8 +39,6 @@
 #include "muParserBytecode.h"
 #include "muParserError.h"
 
-#include "lib_export.h"
-
 
 namespace mu
 {
@@ -59,7 +57,7 @@ namespace mu
   Complementary to a set of internally implemented functions the parser is able to handle
   user defined functions and variables.
 */
-class EXPORT ParserBase
+class ParserBase
 {
 friend class ParserTokenReader;
 

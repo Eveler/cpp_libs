@@ -35,8 +35,6 @@
 #include "muParserError.h"
 #include "muParserCallback.h"
 
-#include "lib_export.h"
-
 /** \file
     \brief This file contains the parser token definition.
 */
@@ -60,7 +58,7 @@ namespace mu
    \author (C) 2004 Ingo Berg
   */
   template<typename TBase, typename TString>
-  class EXPORT ParserToken
+  class ParserToken
   {
   public:
 

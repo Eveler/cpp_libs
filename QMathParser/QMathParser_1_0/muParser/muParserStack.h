@@ -34,8 +34,6 @@
 #include "muParserError.h"
 #include "muParserToken.h"
 
-#include "lib_export.h"
-
 /** \file
     \brief This file defines the stack used by muparser.
 */
@@ -52,7 +50,7 @@ namespace mu
       \author (C) 2004-2008 Ingo Berg
   */
   template <typename TValueType>
-  class EXPORT ParserStack
+  class ParserStack
   {
     private:
 

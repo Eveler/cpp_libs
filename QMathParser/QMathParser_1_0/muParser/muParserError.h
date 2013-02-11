@@ -35,8 +35,6 @@
 
 #include "muParserDef.h"
 
-#include "lib_export.h"
-
 /** \file
     \brief This file defines the error class used by the parser.
 */
@@ -96,7 +94,7 @@ enum EErrorCodes
 //---------------------------------------------------------------------------
 /** \brief A class that handles the error messages.
 */
-class EXPORT ParserErrorMsg
+class ParserErrorMsg
 {
 public:
     typedef ParserErrorMsg self_type;

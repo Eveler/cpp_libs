@@ -28,8 +28,6 @@
 
 #include "muParserDef.h"
 
-#include "lib_export.h"
-
 /** \file
     \brief Definition of the parser callback class.
 */
@@ -50,7 +48,7 @@ namespace mu
 
     \author (C) 2004-2007 Ingo Berg
 */
-class EXPORT ParserCallback
+class ParserCallback
 {
 public:
     ParserCallback(fun_type0 a_pFun, bool a_bAllowOpti);

@@ -32,8 +32,6 @@
 //--- Parser includes --------------------------------------------------------------------------
 #include "muParserBase.h"
 
-#include "lib_export.h"
-
 
 /** \file
     \brief Definition of the standard floating point parser.
@@ -51,7 +49,7 @@ namespace mu
     muparser(at)gmx.de
     </small>
   */
-  class EXPORT Parser : public ParserBase
+  class Parser : public ParserBase
   {
   public:
 

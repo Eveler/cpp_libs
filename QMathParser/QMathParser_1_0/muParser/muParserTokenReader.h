@@ -37,8 +37,6 @@
 #include "muParserDef.h"
 #include "muParserToken.h"
 
-#include "lib_export.h"
-
 /** \file
     \brief This file contains the parser token reader definition.
 */
@@ -52,7 +50,7 @@ namespace mu
   /** \brief Token reader for the ParserBase class.
 
   */
-  class EXPORT ParserTokenReader
+  class ParserTokenReader
   {
   private:
 

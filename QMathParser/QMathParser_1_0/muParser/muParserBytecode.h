@@ -34,8 +34,6 @@
 #include "muParserError.h"
 #include "muParserToken.h"
 
-#include "lib_export.h"
-
 /** \file
     \brief Definition of the parser bytecode class.
 */
@@ -54,7 +52,7 @@ namespace mu
 
   \author (C) 2004-2010 Ingo Berg
 */
-class EXPORT ParserByteCode
+class ParserByteCode
 {
 private:
 
