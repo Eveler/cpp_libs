@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/qmp">
+        <file>resource/about.png</file>
+        <file>resource/exit.png</file>
+        <file>resource/help.png</file>
+        <file>resource/qmp.png</file>
+        <file>resource/help.html</file>
+    </qresource>
+</RCC>
