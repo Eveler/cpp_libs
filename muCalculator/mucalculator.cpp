@@ -1,13 +1,13 @@
-#include "qmathparser.h"
+#include "mucalculator.h"
 
 #include "muParser.h"
 
 
-QMathParser::QMathParser()
+muCalculator::muCalculator()
 {
 }
 
-QVariant QMathParser::parse( QString expression )
+QVariant muCalculator::calc( QString expression )
 {
   QVariant result_buffer = QVariant();
   mu::Parser p;

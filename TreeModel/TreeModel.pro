@@ -1,32 +1,25 @@
-QT       += gui core
+QT       += gui
 
-TARGET = MModels
+TARGET = TreeModel
 CONFIG(debug, debug|release): TARGET = $${TARGET}d
 CONFIG += create_prl
 
 TEMPLATE = lib
 
-DEFINES += EXPORT_LIBRARY
-
-LIB_LIST = \
-    -lAMSLogger
+DEFINES += TREEMODEL_LIBRARY
 
 INCLUDEPATH += ./ \
     ../bin/ \
-    ../bin_qt5/ \
     ../include/ \
-    ./MCalculationalModel/
-
-
-include(./MCalculationalModel/MCalculationalModel.pri)
-
+    ./TreeItem/ \
+    ./TreeModel/
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
     TARGET.UID3 = 0xE279790D
     TARGET.CAPABILITY =
     TARGET.EPOCALLOWDLLDATA = 1
-    addFiles.sources = MModels.dll
+    addFiles.sources = TreeModel.dll
     addFiles.path = !:/sys/bin
     DEPLOYMENT += addFiles
 }
@@ -40,21 +33,8 @@ unix:!symbian {
     INSTALLS += target
 }
 
-greaterThan( QT_MAJOR_VERSION, 4 ) {
-  DESTDIR = ../bin_qt5
-  DLLDESTDIR = ../bin_qt5
-
-  LIBS += -L../bin_qt5/ \
-      $$LIB_LIST
-}
-lessThan( QT_MAJOR_VERSION, 5 ) {
-  DESTDIR = ../bin
-  DLLDESTDIR = ../bin
-
-  LIBS += -L../bin/ \
-      $$LIB_LIST
-}
-
+DESTDIR = ../bin
+DLLDESTDIR = ../bin
 CONFIG(release, debug|release){
   OBJECTS_DIR = ../temp/$$TARGET/release
   MOC_DIR = ../temp/$$TARGET/release
@@ -69,7 +49,14 @@ CONFIG(debug, debug|release){
 }
 
 HEADERS += \
-    ../include/lib_export.h
+    ../include/treeitem.h \
+    ../include/treemodel.h
+
+SOURCES += \
+    TreeItem/treeitem.cpp \
+    TreeModel/treemodel.cpp
+
+
 
 
 

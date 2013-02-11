@@ -5,17 +5,24 @@
 #include <QVariant>
 
 
+class MCalculationalModel;
 class MCalculationalRow;
+class MAbstractRowCalculationAlgorithm;
+class MAbstractColumnCalculationAlgorithm;
 
 class MCalculationalRowPrivate
 {
   friend class MCalculationalRow;
 public:
-  MCalculationalRowPrivate( int count );
+  MCalculationalRowPrivate( MCalculationalModel *model );
 
 
 private:
   QList<QVariant> m__Data;
+  MCalculationalModel *m__Model;
+
+  QList<MAbstractRowCalculationAlgorithm *> m__RowAlgorithms;
+  QList<MAbstractColumnCalculationAlgorithm *> m__ColumnAlgorithms;
 
   void declareValues();
 };

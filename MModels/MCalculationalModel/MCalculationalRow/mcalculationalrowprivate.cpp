@@ -1,10 +1,13 @@
 #include "mcalculationalrowprivate.h"
 
-MCalculationalRowPrivate::MCalculationalRowPrivate( int count )
+#include "mcalculationalmodel.h"
+
+
+MCalculationalRowPrivate::MCalculationalRowPrivate( MCalculationalModel *model )
 {
   declareValues();
 
-  while ( m__Data.count() < count ) m__Data << QVariant();
+  while ( m__Data.count() < model->columnCount() ) m__Data << QVariant();
 }
 
 void MCalculationalRowPrivate::declareValues()

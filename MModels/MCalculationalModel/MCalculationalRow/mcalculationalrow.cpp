@@ -1,6 +1,7 @@
 #include "mcalculationalrow.h"
 
 #include "mcalculationalrowprivate.h"
+#include "mcalculationalmodel.h"
 
 
 int MCalculationalRow::sectionCount() const
@@ -27,10 +28,20 @@ bool MCalculationalRow::setData( int section, QVariant value )
   return true;
 }
 
-MCalculationalRow::MCalculationalRow( int count, QObject *parent ) :
-  QObject(parent)
+MCalculationalModel * MCalculationalRow::model() const
 {
-  p = new MCalculationalRowPrivate( count );
+  return p->m__Model;
+}
+
+int MCalculationalRow::row()
+{
+  return p->m__Model->findRow( this );
+}
+
+MCalculationalRow::MCalculationalRow( MCalculationalModel *model ) :
+  QObject(model)
+{
+  p = new MCalculationalRowPrivate( model );
 }
 
 MCalculationalRow::~MCalculationalRow()
@@ -47,4 +58,14 @@ void MCalculationalRow::insert( int section )
 void MCalculationalRow::remove( int section )
 {
   p->m__Data.removeAt( section );
+}
+
+void MCalculationalRow::addRowAlgorithm( MAbstractRowCalculationAlgorithm *algorithm )
+{
+  p->m__RowAlgorithms << algorithm;
+}
+
+void MCalculationalRow::addColumnAlgorithm( MAbstractColumnCalculationAlgorithm *algorithm )
+{
+  p->m__ColumnAlgorithms << algorithm;
 }

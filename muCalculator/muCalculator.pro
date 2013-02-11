@@ -6,7 +6,7 @@
 
 QT       += core gui
 
-TARGET = QMathParser
+TARGET = muCalculator
 TEMPLATE = lib
 
 greaterThan( QT_MAJOR_VERSION, 4 ) QT += widgets
@@ -56,7 +56,7 @@ SOURCES += \
     QMathParser_1_0/muParser/muParserBytecode.cpp \
     QMathParser_1_0/muParser/muParserBase.cpp \
     QMathParser_1_0/muParser/muParser.cpp \
-    qmathparser.cpp
+    mucalculator.cpp
 
 HEADERS  += ../include/lib_export.h \
     QMathParser_1_0/muParser/muParserTokenReader.h \
@@ -73,5 +73,5 @@ HEADERS  += ../include/lib_export.h \
     QMathParser_1_0/muParser/muParserBytecode.h \
     QMathParser_1_0/muParser/muParserBase.h \
     QMathParser_1_0/muParser/muParser.h \
-    ../include/qmathparser.h
+    ../include/mucalculator.h
 

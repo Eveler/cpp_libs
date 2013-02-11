@@ -71,7 +71,7 @@ bool MCalculationalModel::insertRow( int row, const QModelIndex &parent )
   if ( row < 0 || row > p->m__Rows.count() ) return false;
 
   QAbstractItemModel::beginInsertRows( parent, row, row );
-  MCalculationalRow *rowData = new MCalculationalRow( p->m__Header.count(), this );
+  MCalculationalRow *rowData = new MCalculationalRow( this );
   p->m__Rows.insert( row, rowData );
   rowData = NULL;
   QAbstractItemModel::endInsertRows();
@@ -87,7 +87,7 @@ bool MCalculationalModel::insertRows( int row, int count, const QModelIndex &par
   int inserted = 0;
   while ( inserted < count )
   {
-    MCalculationalRow *rowData = new MCalculationalRow( p->m__Header.count(), this );
+    MCalculationalRow *rowData = new MCalculationalRow( this );
     p->m__Rows.insert( row, rowData );
     rowData = NULL;
     inserted++;
@@ -232,6 +232,11 @@ MCalculationalRow * MCalculationalModel::row( int rowIndex ) const
   if ( rowIndex < 0 || rowIndex >= p->m__Rows.count() ) return NULL;
 
   return p->m__Rows[rowIndex];
+}
+
+int MCalculationalModel::findRow( MCalculationalRow *row ) const
+{
+  return p->m__Rows.indexOf( row );
 }
 
 void MCalculationalModel::declareValues()

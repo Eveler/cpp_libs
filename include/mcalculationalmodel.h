@@ -43,6 +43,8 @@ public:
 
   MCalculationalRow * row( int rowIndex ) const;
 
+  int findRow( MCalculationalRow *row ) const;
+
 
 signals:
 

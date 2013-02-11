@@ -8,5 +8,5 @@ MAbstractColumnCalculationAlgorithm::MAbstractColumnCalculationAlgorithm(
     MCalculationalRow *writableRow) :
   QObject(writableRow)
 {
-  p = MAbstractColumnCalculationAlgorithmPrivate( writableRow );
+  p = new MAbstractColumnCalculationAlgorithmPrivate( writableRow );
 }

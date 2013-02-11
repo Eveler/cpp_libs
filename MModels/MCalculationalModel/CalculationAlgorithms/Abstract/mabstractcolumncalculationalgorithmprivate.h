@@ -16,10 +16,8 @@ public:
 
 private:
   MCalculationalRow *m__WritableRow;
-  QList<int> m__Columns;
-  QList<MCalculationalRow *> m__ReadableRows;
-
-  void reindexColumns();
+  int m__WritableColumn;
+  QList<int> m__ReadableColumns;
 };
 
 #endif // MABSTRACTCOLUMNCALCULATIONALGORITHMPRIVATE_H
