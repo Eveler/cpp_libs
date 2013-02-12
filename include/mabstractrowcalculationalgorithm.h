@@ -42,7 +42,7 @@ private:
 
 
 private slots:
-  void dataChanged( int column, QVariant, QVariant );
+  void dataChanged( int, QVariant, QVariant );
 };
 
 #endif // MABSTRACTROWCALCULATIONALGORITHM_H

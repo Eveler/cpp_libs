@@ -6,7 +6,8 @@ INCLUDEPATH *= $$PWD/ \
     $$PWD/CalculationAlgorithms/Row/
 
 LIB_LIST *= \
-    -lmuCalculator
+    -lmuCalculator \
+    -lAMSLogger
 
 HEADERS *= \
     $$PWD/../../include/mcalculationalmodel.h \

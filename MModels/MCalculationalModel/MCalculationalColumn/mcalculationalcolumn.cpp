@@ -80,6 +80,7 @@ void MCalculationalColumn::addColumnAlgorithm( MAbstractColumnCalculationAlgorit
 void MCalculationalColumn::setDataPrivate( int row, QVariant value )
 {
   QVariant oldValue = p->m__Data[row];
+  if ( oldValue == value ) return;
   p->m__Data[row] = value;
 
   emit dataChanged( row, oldValue, value );

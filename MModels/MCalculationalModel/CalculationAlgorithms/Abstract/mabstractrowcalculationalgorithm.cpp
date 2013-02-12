@@ -93,9 +93,11 @@ void MAbstractRowCalculationAlgorithm::calculate()
   foreach ( MCalculationalColumn *column, p->m__Columns ) calculateColumn( column->column() );
 }
 
-void MAbstractRowCalculationAlgorithm::dataChanged(
-    int column, QVariant /*oldVal*/, QVariant /*newVal*/ )
+void MAbstractRowCalculationAlgorithm::dataChanged( int /*row*/, QVariant /*oldVal*/, QVariant /*newVal*/ )
 {
-  MCalculationalColumn *c = p->m__WritableRow->model()->column( column );
-  if ( p->m__Columns.contains( c ) ) calculateColumn( column );
+    MCalculationalColumn *column = qobject_cast<MCalculationalColumn *>( sender() );
+
+    if ( column == NULL ) return;
+
+    calculateColumn( column->column() );
 }
