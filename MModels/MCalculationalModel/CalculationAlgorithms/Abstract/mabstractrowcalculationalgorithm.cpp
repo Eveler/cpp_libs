@@ -1,8 +1,10 @@
 #include "mabstractrowcalculationalgorithm.h"
 
 #include "mabstractrowcalculationalgorithmprivate.h"
+#include "mcalculationalcolumn.h"
 #include "mcalculationalrow.h"
-#include "mcalculationalrowprivate.h"
+#include "mcalculationalmodel.h"
+//#include "mcalculationalrowprivate.h"
 
 
 MAbstractRowCalculationAlgorithm::MAbstractRowCalculationAlgorithm( MCalculationalRow *writableRow ) :
@@ -22,9 +24,14 @@ const QList<MCalculationalRow *> & MAbstractRowCalculationAlgorithm::readableRow
   return p->m__ReadableRows;
 }
 
-const QList<int> & MAbstractRowCalculationAlgorithm::servedColumns() const
+QList<int> MAbstractRowCalculationAlgorithm::servedColumns() const
 {
-  return p->m__Columns;
+  QList<int> result = QList<int>();
+
+  foreach ( MCalculationalColumn *column, p->m__Columns )
+    result << column->column();
+
+  return result;
 }
 
 bool MAbstractRowCalculationAlgorithm::addReadableRow( MCalculationalRow *row )
@@ -34,6 +41,8 @@ bool MAbstractRowCalculationAlgorithm::addReadableRow( MCalculationalRow *row )
     return false;
 
   p->m__ReadableRows << row;
+
+  calculate();
 
   return true;
 }
@@ -45,17 +54,48 @@ bool MAbstractRowCalculationAlgorithm::removeReadableRow( MCalculationalRow *row
 
   p->m__ReadableRows.removeOne( row );
 
+  calculate();
+
   return true;
 }
 
 void MAbstractRowCalculationAlgorithm::setServedColumns( QList<int> columns )
 {
-  p->m__Columns = columns;
+  while ( !p->m__Columns.isEmpty() )
+  {
+    MCalculationalColumn *c = p->m__Columns.takeFirst();
+    disconnect( c, SIGNAL(dataChanged(int,QVariant,QVariant)),
+                this, SLOT(dataChanged(int,QVariant,QVariant)) );
+  }
 
-  calculate();
+  foreach ( int column, columns )
+  {
+    MCalculationalColumn *c = p->m__WritableRow->model()->column( column );
+    if ( c != NULL )
+    {
+      p->m__Columns << c;
+      connect( c, SIGNAL(dataChanged(int,QVariant,QVariant)),
+               SLOT(dataChanged(int,QVariant,QVariant)) );
+
+      calculateColumn( column );
+    }
+  }
+}
+
+void MAbstractRowCalculationAlgorithm::setData( int column, QVariant value )
+{
+  p->m__WritableRow->model()->column( column )->setDataPrivate(
+        p->m__WritableRow->row(), value );
 }
 
 void MAbstractRowCalculationAlgorithm::calculate()
 {
-  foreach ( int column, p->m__Columns ) calculateColumn( column );
+  foreach ( MCalculationalColumn *column, p->m__Columns ) calculateColumn( column->column() );
+}
+
+void MAbstractRowCalculationAlgorithm::dataChanged(
+    int column, QVariant /*oldVal*/, QVariant /*newVal*/ )
+{
+  MCalculationalColumn *c = p->m__WritableRow->model()->column( column );
+  if ( p->m__Columns.contains( c ) ) calculateColumn( column );
 }

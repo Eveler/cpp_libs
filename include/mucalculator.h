@@ -11,7 +11,7 @@ class EXPORT muCalculator
 public:
   muCalculator();
 
-  static QVariant calc( QString expression );
+  static QVariant calc( QString expression , int decCount = -1 );
 };
 
 #endif // MUCALCULATOR_H

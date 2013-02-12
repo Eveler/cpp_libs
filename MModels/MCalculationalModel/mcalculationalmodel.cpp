@@ -1,6 +1,7 @@
 #include "mcalculationalmodel.h"
 
 #include "mcalculationalmodelprivate.h"
+#include "mcalculationalcolumn.h"
 #include "mcalculationalrow.h"
 
 
@@ -17,13 +18,13 @@ int MCalculationalModel::rowCount( const QModelIndex &/*parent*/ ) const
 
 int MCalculationalModel::columnCount( const QModelIndex &/*parent*/ ) const
 {
-  return p->m__Header.count();
+  return p->m__Columns.count();
 }
 
 QModelIndex MCalculationalModel::index( int row, int column, const QModelIndex &/*parent*/ ) const
 {
   if ( row < 0 || row >= p->m__Rows.count() ||
-       column < 0 || column >= p->m__Header.count() )
+       column < 0 || column >= p->m__Columns.count() )
     return QModelIndex();
 
   return QAbstractItemModel::createIndex( row, column );
@@ -31,26 +32,24 @@ QModelIndex MCalculationalModel::index( int row, int column, const QModelIndex &
 
 QVariant MCalculationalModel::data( const QModelIndex &index, int role ) const
 {
-//  if ( index.row() < 0 || index.row() >= p->m__Data.count() ||
-//       index.column() < 0 || index.column() >= p->m__Header.count() )
-//    return QVariant();
   if ( !index.isValid() || role != Qt::DisplayRole ) return QVariant();
   if ( !QAbstractItemModel::hasIndex( index.row(), index.column(), index.parent() ) )
     return QVariant();
 
-  return p->m__Rows[index.row()]->data( index.column() );
+  return p->m__Columns[index.column()]->data( index.row() );
 }
 
-QVariant MCalculationalModel::headerData( int section, Qt::Orientation orientation, int role ) const
+QVariant MCalculationalModel::headerData(
+    int section, Qt::Orientation orientation, int role ) const
 {
   if ( role != Qt::DisplayRole ) return QVariant();
 
   if ( orientation == Qt::Horizontal )
   {
-    if ( section < 0 || section >= p->m__Header.count() )
+    if ( section < 0 || section >= p->m__Columns.count() )
       return QVariant();
 
-    return p->m__Header[section];
+    return p->m__Columns[section]->label();
   }
   else
   {
@@ -74,6 +73,8 @@ bool MCalculationalModel::insertRow( int row, const QModelIndex &parent )
   MCalculationalRow *rowData = new MCalculationalRow( this );
   p->m__Rows.insert( row, rowData );
   rowData = NULL;
+  foreach ( MCalculationalColumn *column, p->m__Columns )
+    column->insert( row );
   QAbstractItemModel::endInsertRows();
 
   return true;
@@ -90,6 +91,8 @@ bool MCalculationalModel::insertRows( int row, int count, const QModelIndex &par
     MCalculationalRow *rowData = new MCalculationalRow( this );
     p->m__Rows.insert( row, rowData );
     rowData = NULL;
+    foreach ( MCalculationalColumn *column, p->m__Columns )
+      column->insert( row );
     inserted++;
   }
   QAbstractItemModel::endInsertRows();
@@ -104,6 +107,8 @@ bool MCalculationalModel::removeRow( int row, const QModelIndex &parent )
   QAbstractItemModel::beginRemoveRows( parent, row, row );
   MCalculationalRow *rowData = p->m__Rows.takeAt( row );
   delete rowData;
+  foreach ( MCalculationalColumn *column, p->m__Columns )
+    column->remove( row );
   rowData = NULL;
   QAbstractItemModel::endRemoveRows();
 
@@ -123,6 +128,8 @@ bool MCalculationalModel::removeRows( int row, int count, const QModelIndex &par
     MCalculationalRow *rowData = p->m__Rows.takeAt( row );
     delete rowData;
     rowData = NULL;
+    foreach ( MCalculationalColumn *column, p->m__Columns )
+      column->remove( row );
     removed++;
   }
   QAbstractItemModel::endRemoveRows();
@@ -132,13 +139,15 @@ bool MCalculationalModel::removeRows( int row, int count, const QModelIndex &par
 
 bool MCalculationalModel::insertColumn( int column, const QModelIndex &parent )
 {
-  if ( column < 0 || column > p->m__Header.count() ) return false;
+  if ( column < 0 || column > p->m__Columns.count() ) return false;
 
   QAbstractItemModel::beginInsertColumns( parent, column, column );
-  p->m__Header.insert( column, QVariant() );
-
-  for ( int rIdx = 0; rIdx < p->m__Rows.count(); rIdx++ )
-    p->m__Rows[rIdx]->insert( column );
+  MCalculationalColumn *columnData = new MCalculationalColumn( this );
+  connect( columnData, SIGNAL(labelChanged(QVariant,QVariant)),
+           SLOT(columnLabelChanged(QVariant,QVariant)) );
+  connect( columnData, SIGNAL(dataChanged(int,QVariant,QVariant)),
+           SLOT(columnDataChanged(int,QVariant,QVariant)) );
+  p->m__Columns.insert( column, columnData );
   QAbstractItemModel::endInsertColumns();
 
   return true;
@@ -146,19 +155,20 @@ bool MCalculationalModel::insertColumn( int column, const QModelIndex &parent )
 
 bool MCalculationalModel::insertColumns( int column, int count, const QModelIndex &parent )
 {
-  if ( column < 0 || column > p->m__Header.count() || count < 1 ) return false;
+  if ( column < 0 || column > p->m__Columns.count() || count < 1 ) return false;
 
   QAbstractItemModel::beginInsertColumns( parent, column, column+count-1 );
   int inserted = 0;
   while ( inserted < count )
   {
-    p->m__Header.insert( column, QVariant() );
+    MCalculationalColumn *columnData = new MCalculationalColumn( this );
+    connect( columnData, SIGNAL(labelChanged(QVariant,QVariant)),
+             SLOT(columnLabelChanged(QVariant,QVariant)) );
+    connect( columnData, SIGNAL(dataChanged(int,QVariant,QVariant)),
+             SLOT(columnDataChanged(int,QVariant,QVariant)) );
+    p->m__Columns.insert( column, columnData );
     inserted++;
   }
-
-  for ( int rIdx = 0; rIdx < p->m__Rows.count(); rIdx++ )
-    while ( p->m__Rows[rIdx]->sectionCount() < p->m__Header.count() )
-      p->m__Rows[rIdx]->insert( column );
   QAbstractItemModel::endInsertColumns();
 
   return true;
@@ -166,13 +176,12 @@ bool MCalculationalModel::insertColumns( int column, int count, const QModelInde
 
 bool MCalculationalModel::removeColumn( int column, const QModelIndex &parent )
 {
-  if ( column < 0 || column >= p->m__Header.count() ) return false;
+  if ( column < 0 || column >= p->m__Columns.count() ) return false;
 
   QAbstractItemModel::beginRemoveColumns( parent, column, column );
-  p->m__Header.removeAt( column );
-
-  for ( int rIdx = 0; rIdx < p->m__Rows.count(); rIdx++ )
-    p->m__Rows[rIdx]->remove( column );
+  MCalculationalColumn *columnData = p->m__Columns.takeAt( column );
+  delete columnData;
+  columnData = NULL;
   QAbstractItemModel::endRemoveColumns();
 
   return true;
@@ -180,21 +189,19 @@ bool MCalculationalModel::removeColumn( int column, const QModelIndex &parent )
 
 bool MCalculationalModel::removeColumns( int column, int count, const QModelIndex &parent )
 {
-  if ( column < 0 || column >= p->m__Header.count() || count < 1 ||
-       (column+count-1) >= p->m__Header.count() )
+  if ( column < 0 || column >= p->m__Columns.count() || count < 1 ||
+       (column+count-1) >= p->m__Columns.count() )
     return false;
 
   QAbstractItemModel::beginRemoveColumns( parent, column, column+count-1 );
   int removed = 0;
   while ( removed < count )
   {
-    p->m__Header.removeAt( column );
+    MCalculationalColumn *columnData = p->m__Columns.takeAt( column );
+    delete columnData;
+    columnData = NULL;
     removed++;
   }
-
-  for ( int rIdx = 0; rIdx < p->m__Rows.count(); rIdx++ )
-    while ( p->m__Rows[rIdx]->sectionCount() > p->m__Header.count() )
-      p->m__Rows[rIdx]->remove( column );
   QAbstractItemModel::endRemoveColumns();
 
   return true;
@@ -206,9 +213,7 @@ bool MCalculationalModel::setData( const QModelIndex &index, const QVariant &val
     return false;
   if ( role != Qt::DisplayRole ) return false;
 
-  p->m__Rows[index.row()]->setData( index.column(), value );
-
-  emit dataChanged( index, index );
+  p->m__Columns[index.column()]->setData( index.row(), value );
 
   return true;
 }
@@ -218,13 +223,19 @@ bool MCalculationalModel::setHeaderData(
 {
   if ( orientation != Qt::Horizontal || role != Qt::DisplayRole ) return false;
 
-  if ( section < 0 || section >= p->m__Header.count() ) return false;
+  if ( section < 0 || section >= p->m__Columns.count() ) return false;
 
-  p->m__Header[section] = value;
-
-  emit headerDataChanged( orientation, section, section );
+  p->m__Columns[section]->setLabel( value );
 
   return true;
+}
+
+Qt::ItemFlags MCalculationalModel::flags(const QModelIndex & index) const
+{
+  if ( !QAbstractItemModel::hasIndex( index.row(), index.column(), index.parent() ) )
+    return Qt::NoItemFlags;
+
+  return (Qt::ItemIsEnabled | Qt::ItemIsSelectable/* | Qt::ItemIsEditable*/);
 }
 
 MCalculationalRow * MCalculationalModel::row( int rowIndex ) const
@@ -239,7 +250,37 @@ int MCalculationalModel::findRow( MCalculationalRow *row ) const
   return p->m__Rows.indexOf( row );
 }
 
+MCalculationalColumn * MCalculationalModel::column( int columnIndex ) const
+{
+  if ( columnIndex < 0 || columnIndex >= p->m__Columns.count() ) return NULL;
+
+  return p->m__Columns[columnIndex];
+}
+
+int MCalculationalModel::findColumn( MCalculationalColumn *column ) const
+{
+  return p->m__Columns.indexOf( column );
+}
+
 void MCalculationalModel::declareValues()
 {
   p = new MCalculationalModelPrivate( this );
+}
+
+void MCalculationalModel::columnLabelChanged( QVariant, QVariant )
+{
+  MCalculationalColumn *column = qobject_cast<MCalculationalColumn *>( sender() );
+
+  if ( column == NULL ) return;
+
+  emit headerData( column->column() );
+}
+
+void MCalculationalModel::columnDataChanged( int row, QVariant, QVariant )
+{
+  MCalculationalColumn *column = qobject_cast<MCalculationalColumn *>( sender() );
+
+  if ( column == NULL ) return;
+
+  emit dataChanged( index( row, column->column() ), index( row, column->column() ) );
 }

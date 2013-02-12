@@ -3,11 +3,13 @@
 
 #include <QObject>
 
+#include "lib_export.h"
+
 
 class MAbstractColumnCalculationAlgorithmPrivate;
 class MCalculationalRow;
 
-class MAbstractColumnCalculationAlgorithm : public QObject
+class EXPORT MAbstractColumnCalculationAlgorithm : public QObject
 {
   Q_OBJECT
 public:

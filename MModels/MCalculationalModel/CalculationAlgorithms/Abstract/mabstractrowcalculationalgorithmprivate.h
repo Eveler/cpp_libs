@@ -5,6 +5,7 @@
 
 
 class MAbstractRowCalculationAlgorithm;
+class MCalculationalColumn;
 class MCalculationalRow;
 
 class MAbstractRowCalculationAlgorithmPrivate
@@ -17,7 +18,7 @@ public:
 private:
   MCalculationalRow *m__WritableRow;
   QList<MCalculationalRow *> m__ReadableRows;
-  QList<int> m__Columns;
+  QList<MCalculationalColumn *> m__Columns;
 };
 
 #endif // MABSTRACTROWCALCULATIONALGORITHMPRIVATE_H

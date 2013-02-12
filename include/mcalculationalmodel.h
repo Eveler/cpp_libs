@@ -6,6 +6,7 @@
 #include "lib_export.h"
 
 
+class MCalculationalColumn;
 class MCalculationalRow;
 class MCalculationalModelPrivate;
 
@@ -39,11 +40,18 @@ public:
 
   bool setData( const QModelIndex &index, const QVariant &value, int role = Qt::DisplayRole );
   bool setHeaderData(
-      int section, Qt::Orientation orientation, const QVariant &value, int role = Qt::DisplayRole );
+      int section, Qt::Orientation orientation, const QVariant &value,
+      int role = Qt::DisplayRole );
+
+  Qt::ItemFlags flags(const QModelIndex & index) const;
 
   MCalculationalRow * row( int rowIndex ) const;
 
   int findRow( MCalculationalRow *row ) const;
+
+  MCalculationalColumn * column( int columnIndex ) const;
+
+  int findColumn( MCalculationalColumn *column ) const;
 
 
 signals:
@@ -56,6 +64,11 @@ private:
   MCalculationalModelPrivate *p;
 
   void declareValues();
+
+
+private slots:
+  void columnLabelChanged( QVariant, QVariant );
+  void columnDataChanged( int row, QVariant, QVariant );
 };
 
 #endif // MCALCULATIONALMODEL_H

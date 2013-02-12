@@ -3,16 +3,19 @@
 
 #include "mabstractrowcalculationalgorithm.h"
 
+#include "lib_export.h"
+
 
 class MRowCalculationAlgorithmPrivate;
 
-class MRowCalculationAlgorithm : public MAbstractRowCalculationAlgorithm
+class EXPORT MRowCalculationAlgorithm : public MAbstractRowCalculationAlgorithm
 {
 public:
   explicit MRowCalculationAlgorithm( MCalculationalRow *writableRow );
 
-  bool setAlgorithm( const QString &algorithm );
+  bool setAlgorithm(const QString &algorithm , int decCount = -1 );
   const QString & algorithm() const;
+  int decCount() const;
 
 
 protected:

@@ -2,7 +2,9 @@
 
 #include "mrowcalculationalgorithmprivate.h"
 #include "mucalculator.h"
+#include "mcalculationalcolumn.h"
 #include "mcalculationalrow.h"
+#include "mcalculationalmodel.h"
 
 
 MRowCalculationAlgorithm::MRowCalculationAlgorithm( MCalculationalRow *writableRow ) :
@@ -11,11 +13,17 @@ MRowCalculationAlgorithm::MRowCalculationAlgorithm( MCalculationalRow *writableR
   p = new MRowCalculationAlgorithmPrivate;
 }
 
-bool MRowCalculationAlgorithm::setAlgorithm( const QString &algorithm )
+bool MRowCalculationAlgorithm::setAlgorithm( const QString &algorithm, int decCount )
 {
   if ( algorithm.simplified().isEmpty() ) return false;
 
+  QVariant result = muCalculator::calc( algorithm.simplified().replace( tr( "row" ), "" ) );
+  if ( result.toString() == tr( "error" ) ) return false;
+
   p->m__Algorithm = algorithm.simplified();
+  p->m__DecCount = decCount;
+
+  calculate();
 
   return true;
 }
@@ -27,13 +35,14 @@ const QString & MRowCalculationAlgorithm::algorithm() const
 
 void MRowCalculationAlgorithm::calculateColumn( int column )
 {
-  QString calc = p->m__Algorithm;
+  QString algorithm = p->m__Algorithm;
+  MCalculationalColumn *c = writableRow()->model()->column( column );
   for ( int idx = 0; idx < readableRows().count(); idx++ )
   {
-    QVariant val = readableRows()[idx]->data( column );
+    QVariant val = c->data( readableRows()[idx]->row() );
     QString value = "0";
     if ( val.type() == QVariant::String )
-      value = val.toString().toInt();
+      value = QString::number( val.toString().toInt() );
     if ( val.type() == QVariant::Double )
       value = QString::number( val.toDouble() );
     if ( val.type() == QVariant::Int )
@@ -44,9 +53,10 @@ void MRowCalculationAlgorithm::calculateColumn( int column )
       value = QString::number( val.toUInt() );
     if ( val.type() == QVariant::ULongLong )
       value = QString::number( val.toULongLong() );
-    calc = calc.replace( tr( "col[%1]" ).arg( (idx+1) ), value );
+    algorithm = algorithm.replace( tr( "row%1" ).arg( (idx+1) ), value );
   }
 
-  QVariant result = 0;
-
+  QVariant result = muCalculator::calc( algorithm, p->m__DecCount );
+  if ( result.toString() == tr( "error" ) ) setData( column, 0 );
+  else setData( column, result );
 }

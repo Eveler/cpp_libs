@@ -15,6 +15,7 @@ public:
 
 private:
   QString m__Algorithm;
+  int m__DecCount;
 };
 
 #endif // MROWCALCULATIONALGORITHMPRIVATE_H

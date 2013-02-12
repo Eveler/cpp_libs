@@ -8,7 +8,6 @@
 class MCalculationalModel;
 class MCalculationalRow;
 class MAbstractRowCalculationAlgorithm;
-class MAbstractColumnCalculationAlgorithm;
 
 class MCalculationalRowPrivate
 {
@@ -18,13 +17,13 @@ public:
 
 
 private:
-  QList<QVariant> m__Data;
   MCalculationalModel *m__Model;
 
   QList<MAbstractRowCalculationAlgorithm *> m__RowAlgorithms;
-  QList<MAbstractColumnCalculationAlgorithm *> m__ColumnAlgorithms;
 
   void declareValues();
+
+  bool hasAlgorithmForSection( int section );
 };
 
 #endif // MCALCULATIONALROWPRIVATE_H

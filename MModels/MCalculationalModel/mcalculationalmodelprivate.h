@@ -6,6 +6,7 @@
 #include <QVariant>
 
 
+class MCalculationalColumn;
 class MCalculationalRow;
 class MCalculationalModel;
 
@@ -24,7 +25,7 @@ public slots:
 
 
 private:
-  QList<QVariant> m__Header;
+  QList<MCalculationalColumn *> m__Columns;
   QList<MCalculationalRow *> m__Rows;
 
   void declareValues();

@@ -2,28 +2,31 @@
 
 #include "mcalculationalrowprivate.h"
 #include "mcalculationalmodel.h"
+#include "mcalculationalcolumn.h"
 
 
 int MCalculationalRow::sectionCount() const
 {
-  return p->m__Data.count();
+  return p->m__Model->columnCount();
 }
 
-QVariant MCalculationalRow::data( int section ) const
+QVariant MCalculationalRow::data( int column )
 {
-  if ( section < 0 || section >= p->m__Data.count() ) return QVariant();
+  if ( column < 0 || column >= p->m__Model->columnCount() ) return QVariant();
 
-  return p->m__Data[section];
+  MCalculationalColumn *c = p->m__Model->column( column );
+  if ( c == NULL ) return QVariant();
+
+  return c->data( row() );
 }
 
-bool MCalculationalRow::setData( int section, QVariant value )
+bool MCalculationalRow::setData( int column, QVariant value )
 {
-  if ( section < 0 || section >= p->m__Data.count() ) return false;
+  if ( column < 0 || column >= p->m__Model->columnCount() ) return false;
 
-  QVariant oldValue = p->m__Data[section];
-  p->m__Data[section] = value;
+  if ( p->hasAlgorithmForSection( column ) ) return false;
 
-  emit dataChanged( section, oldValue, value );
+  p->m__Model->column( column )->setData( row(), value );
 
   return true;
 }
@@ -50,22 +53,7 @@ MCalculationalRow::~MCalculationalRow()
   p = NULL;
 }
 
-void MCalculationalRow::insert( int section )
-{
-  p->m__Data.insert( section, QVariant() );
-}
-
-void MCalculationalRow::remove( int section )
-{
-  p->m__Data.removeAt( section );
-}
-
 void MCalculationalRow::addRowAlgorithm( MAbstractRowCalculationAlgorithm *algorithm )
 {
   p->m__RowAlgorithms << algorithm;
-}
-
-void MCalculationalRow::addColumnAlgorithm( MAbstractColumnCalculationAlgorithm *algorithm )
-{
-  p->m__ColumnAlgorithms << algorithm;
 }

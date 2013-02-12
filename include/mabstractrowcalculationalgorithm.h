@@ -3,11 +3,15 @@
 
 #include <QObject>
 
+#include "lib_export.h"
+
+#include <QVariant>
+
 
 class MAbstractRowCalculationAlgorithmPrivate;
 class MCalculationalRow;
 
-class MAbstractRowCalculationAlgorithm : public QObject
+class EXPORT MAbstractRowCalculationAlgorithm : public QObject
 {
   Q_OBJECT
 public:
@@ -15,7 +19,7 @@ public:
 
   MCalculationalRow * writableRow() const;
   const QList<MCalculationalRow *> & readableRows() const;
-  const QList<int> & servedColumns() const;
+  QList<int> servedColumns() const;
 
   bool addReadableRow( MCalculationalRow *row );
   bool removeReadableRow( MCalculationalRow *row );
@@ -28,13 +32,17 @@ public slots:
 
 
 protected:
+  void setData( int column, QVariant value );
   virtual void calculateColumn( int column ) = 0;
+  void calculate();
 
 
 private:
   MAbstractRowCalculationAlgorithmPrivate *p;
 
-  void calculate();
+
+private slots:
+  void dataChanged( int column, QVariant, QVariant );
 };
 
 #endif // MABSTRACTROWCALCULATIONALGORITHM_H
