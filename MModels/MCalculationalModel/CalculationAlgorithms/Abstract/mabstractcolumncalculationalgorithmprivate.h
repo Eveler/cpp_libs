@@ -5,19 +5,21 @@
 
 
 class MAbstractColumnCalculationAlgorithm;
+class MCalculationalColumn;
 class MCalculationalRow;
 
 class MAbstractColumnCalculationAlgorithmPrivate
 {
   friend class MAbstractColumnCalculationAlgorithm;
 public:
-  MAbstractColumnCalculationAlgorithmPrivate( MCalculationalRow *writableRow );
+  MAbstractColumnCalculationAlgorithmPrivate( MCalculationalColumn *writableColumn );
+  ~MAbstractColumnCalculationAlgorithmPrivate();
 
 
 private:
-  MCalculationalRow *m__WritableRow;
-  int m__WritableColumn;
-  QList<int> m__ReadableColumns;
+  MCalculationalColumn *m__WritableColumn;
+  QList<MCalculationalColumn *> m__ReadableColumns;
+  QList<MCalculationalRow *> m__Rows;
 };
 
 #endif // MABSTRACTCOLUMNCALCULATIONALGORITHMPRIVATE_H

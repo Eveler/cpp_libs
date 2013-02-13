@@ -14,6 +14,12 @@ MAbstractRowCalculationAlgorithm::MAbstractRowCalculationAlgorithm( MCalculation
   writableRow->addRowAlgorithm( this );
 }
 
+MAbstractRowCalculationAlgorithm::~MAbstractRowCalculationAlgorithm()
+{
+  delete p;
+  p = NULL;
+}
+
 MCalculationalRow * MAbstractRowCalculationAlgorithm::writableRow() const
 {
   return p->m__WritableRow;
@@ -93,7 +99,8 @@ void MAbstractRowCalculationAlgorithm::calculate()
   foreach ( MCalculationalColumn *column, p->m__Columns ) calculateColumn( column->column() );
 }
 
-void MAbstractRowCalculationAlgorithm::dataChanged( int /*row*/, QVariant /*oldVal*/, QVariant /*newVal*/ )
+void MAbstractRowCalculationAlgorithm::dataChanged(
+    int /*row*/, QVariant /*oldVal*/, QVariant /*newVal*/ )
 {
     MCalculationalColumn *column = qobject_cast<MCalculationalColumn *>( sender() );
 

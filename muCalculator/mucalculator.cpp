@@ -2,6 +2,9 @@
 
 #include "muParser.h"
 
+#include <QtCore/qmath.h>
+
+#include <QDebug>
 
 muCalculator::muCalculator()
 {
@@ -32,19 +35,32 @@ QVariant muCalculator::calc( QString expression, int decCount )
   QString val = result_buffer.toString();
   if ( val != QObject::tr( "error" ) )
   {
-    while ( val.length() > 1 && val.right( 1 ) == "0" )
-      val = val.mid( 0, val.length()-1 );
+    double dVal = val.toDouble();
     if ( decCount > -1 )
-    {
-      int dotIndex = val.indexOf( "." );
-      if ( dotIndex > -1 )
-        while ( val.length()-(dotIndex+1) > decCount )
-          val = val.mid( 0, val.length()-1 );
-    }
-    if ( val.right( 1 ) == "." )
-      val = val.mid( 0, val.length()-1 );
-    result_buffer = val;
+      dVal = round( dVal, decCount );
+//    while ( val.length() > 1 && val.right( 1 ) == "0" )
+//      val = val.mid( 0, val.length()-1 );
+//    if ( decCount > -1 )
+//    {
+//      int dotIndex = val.indexOf( "." );
+//      if ( dotIndex > -1 )
+//        while ( val.length()-(dotIndex+1) > decCount )
+//          val = val.mid( 0, val.length()-1 );
+//    }
+    if ( !QString::number( dVal ).contains( "." ) )
+      return (qint64)dVal;
+    else return dVal;
   }
 
   return result_buffer;
+}
+
+double muCalculator::round( double value, int decCount )
+{
+  QString sdec = "";
+  while ( sdec.length() < decCount )
+    sdec += "0";
+  int s_inc = QString( "1%1" ).arg( sdec ).toInt();
+
+  return (double)qFloor(value*s_inc)/(double)s_inc;
 }

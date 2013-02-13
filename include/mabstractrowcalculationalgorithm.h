@@ -16,6 +16,7 @@ class EXPORT MAbstractRowCalculationAlgorithm : public QObject
   Q_OBJECT
 public:
   explicit MAbstractRowCalculationAlgorithm( MCalculationalRow *writableRow );
+  ~MAbstractRowCalculationAlgorithm();
 
   MCalculationalRow * writableRow() const;
   const QList<MCalculationalRow *> & readableRows() const;
@@ -27,6 +28,7 @@ public:
 
 
 signals:
+
 
 public slots:
 

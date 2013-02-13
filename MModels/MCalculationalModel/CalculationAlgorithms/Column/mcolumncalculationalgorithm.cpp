@@ -1,29 +1,30 @@
-#include "mrowcalculationalgorithm.h"
+#include "mcolumncalculationalgorithm.h"
 
-#include "mrowcalculationalgorithmprivate.h"
+#include "mcolumncalculationalgorithmprivate.h"
 #include "mucalculator.h"
 #include "mcalculationalcolumn.h"
 #include "mcalculationalrow.h"
 #include "mcalculationalmodel.h"
 
 
-MRowCalculationAlgorithm::MRowCalculationAlgorithm( MCalculationalRow *writableRow ) :
-  MAbstractRowCalculationAlgorithm( writableRow )
+MColumnCalculationAlgorithm::MColumnCalculationAlgorithm(
+    MCalculationalColumn *writableColumn ) :
+  MAbstractColumnCalculationAlgorithm( writableColumn )
 {
-  p = new MRowCalculationAlgorithmPrivate;
+  p = new MColumnCalculationAlgorithmPrivate;
 }
 
-MRowCalculationAlgorithm::~MRowCalculationAlgorithm()
+MColumnCalculationAlgorithm::~MColumnCalculationAlgorithm()
 {
   delete p;
   p = NULL;
 }
 
-bool MRowCalculationAlgorithm::setAlgorithm( const QString &algorithm, int decCount )
+bool MColumnCalculationAlgorithm::setAlgorithm( const QString &algorithm, int decCount )
 {
   if ( algorithm.simplified().isEmpty() ) return false;
 
-  QVariant result = muCalculator::calc( algorithm.simplified().replace( tr( "row" ), "" ) );
+  QVariant result = muCalculator::calc( algorithm.simplified().replace( tr( "col" ), "" ) );
   if ( result.toString() == tr( "error" ) ) return false;
 
   p->m__Algorithm = algorithm.simplified();
@@ -34,18 +35,17 @@ bool MRowCalculationAlgorithm::setAlgorithm( const QString &algorithm, int decCo
   return true;
 }
 
-const QString & MRowCalculationAlgorithm::algorithm() const
+const QString & MColumnCalculationAlgorithm::algorithm() const
 {
   return p->m__Algorithm;
 }
 
-void MRowCalculationAlgorithm::calculateColumn( int column )
+void MColumnCalculationAlgorithm::calculateRow( int row )
 {
   QString algorithm = p->m__Algorithm;
-  MCalculationalColumn *c = writableRow()->model()->column( column );
-  for ( int idx = 0; idx < readableRows().count(); idx++ )
+  for ( int idx = 0; idx < readableColumns().count(); idx++ )
   {
-    QVariant val = c->data( readableRows()[idx]->row() );
+    QVariant val = readableColumns()[idx]->data( row );
     QString value = "0";
     if ( val.type() == QVariant::String )
       value = QString::number( val.toString().toInt() );
@@ -59,10 +59,10 @@ void MRowCalculationAlgorithm::calculateColumn( int column )
       value = QString::number( val.toUInt() );
     if ( val.type() == QVariant::ULongLong )
       value = QString::number( val.toULongLong() );
-    algorithm = algorithm.replace( tr( "row%1" ).arg( (idx+1) ), value );
+    algorithm = algorithm.replace( tr( "col%1" ).arg( (idx+1) ), value );
   }
 
   QVariant result = muCalculator::calc( algorithm, p->m__DecCount );
-  if ( result.toString() == tr( "error" ) ) setData( column, 0 );
-  else setData( column, result );
+  if ( result.toString() == tr( "error" ) ) setData( row, 0 );
+  else setData( row, result );
 }

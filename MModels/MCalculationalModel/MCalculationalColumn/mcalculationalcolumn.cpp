@@ -3,6 +3,8 @@
 #include "mcalculationalcolumnprivate.h"
 #include "mcalculationalmodel.h"
 
+#include <QDebug>
+
 
 int MCalculationalColumn::sectionCount() const
 {
@@ -33,7 +35,7 @@ bool MCalculationalColumn::setData( int row, QVariant value )
 {
   if ( row < 0 || row >= p->m__Data.count() ) return false;
 
-  if ( p->hasAlgorithmForSection( row ) ) return false;
+  if ( algorithmForRow( row ) != NULL ) return false;
 
   setDataPrivate( row, value );
 
@@ -48,6 +50,21 @@ MCalculationalModel * MCalculationalColumn::model() const
 int MCalculationalColumn::column()
 {
   return p->m__Model->findColumn( this );
+}
+
+const QList<MAbstractColumnCalculationAlgorithm *> &
+MCalculationalColumn::columnAlgorithms() const
+{
+  return p->m__ColumnAlgorithms;
+}
+
+MAbstractColumnCalculationAlgorithm *
+MCalculationalColumn::algorithmForRow( int row ) const
+{
+  foreach ( MAbstractColumnCalculationAlgorithm *algorithm, p->m__ColumnAlgorithms )
+    if ( algorithm->servedRows().contains( row ) ) return algorithm;
+
+  return NULL;
 }
 
 MCalculationalColumn::MCalculationalColumn( MCalculationalModel *model ) :

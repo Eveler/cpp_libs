@@ -2,18 +2,21 @@
 #define MCALCULATIONALROWPRIVATE_H
 
 #include <QList>
+
+#include "mabstractrowcalculationalgorithm.h"
+
 #include <QVariant>
 
 
 class MCalculationalModel;
 class MCalculationalRow;
-class MAbstractRowCalculationAlgorithm;
 
 class MCalculationalRowPrivate
 {
   friend class MCalculationalRow;
 public:
   MCalculationalRowPrivate( MCalculationalModel *model );
+  ~MCalculationalRowPrivate();
 
 
 private:
@@ -22,8 +25,6 @@ private:
   QList<MAbstractRowCalculationAlgorithm *> m__RowAlgorithms;
 
   void declareValues();
-
-  bool hasAlgorithmForSection( int section );
 };
 
 #endif // MCALCULATIONALROWPRIVATE_H

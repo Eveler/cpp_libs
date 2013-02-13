@@ -1,5 +1,5 @@
-#ifndef MROWCALCULATIONALGORITHM_H
-#define MROWCALCULATIONALGORITHM_H
+#ifndef MCOLUMNCALCULATIONALGORITHM_H
+#define MCOLUMNCALCULATIONALGORITHM_H
 
 #include "mabstractrowcalculationalgorithm.h"
 
@@ -12,6 +12,7 @@ class EXPORT MRowCalculationAlgorithm : public MAbstractRowCalculationAlgorithm
 {
 public:
   explicit MRowCalculationAlgorithm( MCalculationalRow *writableRow );
+  ~MRowCalculationAlgorithm();
 
   bool setAlgorithm(const QString &algorithm , int decCount = -1 );
   const QString & algorithm() const;
@@ -26,4 +27,4 @@ private:
   MRowCalculationAlgorithmPrivate *p;
 };
 
-#endif // MROWCALCULATIONALGORITHM_H
+#endif // MCOLUMNCALCULATIONALGORITHM_H

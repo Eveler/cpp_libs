@@ -13,6 +13,7 @@ class MAbstractRowCalculationAlgorithmPrivate
   friend class MAbstractRowCalculationAlgorithm;
 public:
   MAbstractRowCalculationAlgorithmPrivate( MCalculationalRow *writableRow );
+  ~MAbstractRowCalculationAlgorithmPrivate();
 
 
 private:

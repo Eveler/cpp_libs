@@ -1,8 +1,6 @@
 #include "mcalculationalrowprivate.h"
 
 #include "mcalculationalmodel.h"
-#include "mabstractrowcalculationalgorithm.h"
-#include "mabstractcolumncalculationalgorithm.h"
 
 
 MCalculationalRowPrivate::MCalculationalRowPrivate( MCalculationalModel *model )
@@ -11,16 +9,18 @@ MCalculationalRowPrivate::MCalculationalRowPrivate( MCalculationalModel *model )
   m__Model = model;
 }
 
+MCalculationalRowPrivate::~MCalculationalRowPrivate()
+{
+  m__Model = NULL;
+  while ( !m__RowAlgorithms.isEmpty() )
+  {
+    MAbstractRowCalculationAlgorithm *algorithm = m__RowAlgorithms.takeFirst();
+    delete algorithm;
+    algorithm = NULL;
+  }
+}
+
 void MCalculationalRowPrivate::declareValues()
 {
   m__RowAlgorithms = QList<MAbstractRowCalculationAlgorithm *>();
-}
-
-bool MCalculationalRowPrivate::hasAlgorithmForSection( int section )
-{
-  foreach ( MAbstractRowCalculationAlgorithm *algorithm, m__RowAlgorithms )
-    if ( algorithm->servedColumns().contains( section ) )
-      return true;
-
-  return false;
 }

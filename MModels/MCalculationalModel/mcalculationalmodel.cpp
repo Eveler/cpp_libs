@@ -1,14 +1,32 @@
 #include "mcalculationalmodel.h"
 
 #include "mcalculationalmodelprivate.h"
-#include "mcalculationalcolumn.h"
-#include "mcalculationalrow.h"
 
 
 MCalculationalModel::MCalculationalModel(QObject *parent) :
   QAbstractItemModel(parent)
 {
   declareValues();
+}
+
+MCalculationalModel::~MCalculationalModel()
+{
+  while ( !p->m__Columns.isEmpty() )
+  {
+    MCalculationalColumn *column = p->m__Columns.takeFirst();
+    connect( column, SIGNAL(labelChanged(QVariant,QVariant)),
+             this, SLOT(columnLabelChanged(QVariant,QVariant)) );
+    connect( column, SIGNAL(dataChanged(int,QVariant,QVariant)),
+             this, SLOT(columnDataChanged(int,QVariant,QVariant)) );
+    delete column;
+    column = NULL;
+  }
+  while ( !p->m__Rows.isEmpty() )
+  {
+    MCalculationalRow *row = p->m__Rows.takeFirst();
+    delete row;
+    row = NULL;
+  }
 }
 
 int MCalculationalModel::rowCount( const QModelIndex &/*parent*/ ) const

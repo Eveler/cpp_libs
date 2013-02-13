@@ -15,6 +15,7 @@ class EXPORT MCalculationalModel : public QAbstractItemModel
   Q_OBJECT
 public:
   explicit MCalculationalModel(QObject *parent = 0);
+  ~MCalculationalModel();
 
   int rowCount(const QModelIndex & = QModelIndex()) const;
   int columnCount( const QModelIndex & = QModelIndex() ) const;

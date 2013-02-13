@@ -20,8 +20,11 @@ HEADERS *= \
     $$PWD/CalculationAlgorithms/Abstract/mabstractcolumncalculationalgorithmprivate.h \
     $$PWD/../../include/mabstractrowcalculationalgorithm.h \
     $$PWD/CalculationAlgorithms/Abstract/mabstractrowcalculationalgorithmprivate.h \
+    $$PWD/../../include/mcolumncalculationalgorithm.h \
+    $$PWD/CalculationAlgorithms/Column/mcolumncalculationalgorithmprivate.h \
     $$PWD/../../include/mrowcalculationalgorithm.h \
-    $$PWD/CalculationAlgorithms/Row/mrowcalculationalgorithmprivate.h
+    $$PWD/CalculationAlgorithms/Row/mrowcalculationalgorithmprivate.h \
+    $$PWD/../../include/mcalculationalmodel_global.h
 
 SOURCES *= \
     $$PWD/mcalculationalmodel.cpp \
@@ -34,6 +37,8 @@ SOURCES *= \
     $$PWD/CalculationAlgorithms/Abstract/mabstractcolumncalculationalgorithmprivate.cpp \
     $$PWD/CalculationAlgorithms/Abstract/mabstractrowcalculationalgorithm.cpp \
     $$PWD/CalculationAlgorithms/Abstract/mabstractrowcalculationalgorithmprivate.cpp \
+    $$PWD/CalculationAlgorithms/Column/mcolumncalculationalgorithmprivate.cpp \
+    $$PWD/CalculationAlgorithms/Column/mcolumncalculationalgorithm.cpp \
     $$PWD/CalculationAlgorithms/Row/mrowcalculationalgorithm.cpp \
     $$PWD/CalculationAlgorithms/Row/mrowcalculationalgorithmprivate.cpp
 

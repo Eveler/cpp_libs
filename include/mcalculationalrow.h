@@ -28,6 +28,10 @@ public:
 
   int row();
 
+  const QList<MAbstractRowCalculationAlgorithm *> & rowAlgorithms() const;
+  MAbstractRowCalculationAlgorithm * algorithmForColumn( int column ) const;
+
+
 signals:
 
 

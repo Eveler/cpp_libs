@@ -1,9 +1,16 @@
 #include "mabstractcolumncalculationalgorithmprivate.h"
 
 MAbstractColumnCalculationAlgorithmPrivate::MAbstractColumnCalculationAlgorithmPrivate(
-    MCalculationalRow *writableRow )
+    MCalculationalColumn *writableColumn )
 {
-  m__WritableRow = writableRow;
-  m__WritableColumn = -1;
-  m__ReadableColumns = QList<int>();
+  m__WritableColumn = writableColumn;
+  m__ReadableColumns = QList<MCalculationalColumn *>();
+  m__Rows = QList<MCalculationalRow *>();
+}
+
+MAbstractColumnCalculationAlgorithmPrivate::~MAbstractColumnCalculationAlgorithmPrivate()
+{
+  m__WritableColumn = NULL;
+  m__ReadableColumns.clear();
+  m__Rows.clear();
 }

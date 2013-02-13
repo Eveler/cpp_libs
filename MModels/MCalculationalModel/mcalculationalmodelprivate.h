@@ -3,11 +3,12 @@
 
 #include <QObject>
 
+#include "mcalculationalcolumn.h"
+#include "mcalculationalrow.h"
+
 #include <QVariant>
 
 
-class MCalculationalColumn;
-class MCalculationalRow;
 class MCalculationalModel;
 
 class MCalculationalModelPrivate : public QObject

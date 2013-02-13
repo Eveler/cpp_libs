@@ -34,6 +34,10 @@ public:
 
   int column();
 
+  const QList<MAbstractColumnCalculationAlgorithm *> & columnAlgorithms() const;
+  MAbstractColumnCalculationAlgorithm * algorithmForRow( int row ) const;
+
+
 signals:
   void labelChanged( QVariant oldValue, QVariant newValue );
   void dataChanged( int row, QVariant oldValue, QVariant newValue );

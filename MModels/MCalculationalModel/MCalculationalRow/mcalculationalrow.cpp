@@ -24,7 +24,7 @@ bool MCalculationalRow::setData( int column, QVariant value )
 {
   if ( column < 0 || column >= p->m__Model->columnCount() ) return false;
 
-  if ( p->hasAlgorithmForSection( column ) ) return false;
+  if ( algorithmForColumn( column ) != NULL ) return false;
 
   p->m__Model->column( column )->setData( row(), value );
 
@@ -39,6 +39,19 @@ MCalculationalModel * MCalculationalRow::model() const
 int MCalculationalRow::row()
 {
   return p->m__Model->findRow( this );
+}
+
+const QList<MAbstractRowCalculationAlgorithm *> & MCalculationalRow::rowAlgorithms() const
+{
+  return p->m__RowAlgorithms;
+}
+
+MAbstractRowCalculationAlgorithm * MCalculationalRow::algorithmForColumn( int column ) const
+{
+  foreach ( MAbstractRowCalculationAlgorithm *algorithm, p->m__RowAlgorithms )
+    if ( algorithm->servedColumns().contains( column ) ) return algorithm;
+
+  return NULL;
 }
 
 MCalculationalRow::MCalculationalRow( MCalculationalModel *model ) :

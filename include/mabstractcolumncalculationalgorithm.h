@@ -5,15 +5,26 @@
 
 #include "lib_export.h"
 
+#include <QVariant>
+
 
 class MAbstractColumnCalculationAlgorithmPrivate;
-class MCalculationalRow;
+class MCalculationalColumn;
 
 class EXPORT MAbstractColumnCalculationAlgorithm : public QObject
 {
   Q_OBJECT
 public:
-  explicit MAbstractColumnCalculationAlgorithm( MCalculationalRow *writableRow );
+  explicit MAbstractColumnCalculationAlgorithm( MCalculationalColumn *writableColumn );
+  ~MAbstractColumnCalculationAlgorithm();
+
+  MCalculationalColumn * writableColumn() const;
+  const QList<MCalculationalColumn *> & readableColumns() const;
+  QList<int> servedRows() const;
+
+  bool addReadableColumn( MCalculationalColumn *column );
+  bool removeReadableColumn( MCalculationalColumn *column );
+  void setServedRows( QList<int> rows );
 
 
 signals:
@@ -22,8 +33,18 @@ signals:
 public slots:
 
 
+protected:
+  void setData( int row, QVariant value );
+  virtual void calculateRow( int row ) = 0;
+  void calculate();
+
+
 private:
   MAbstractColumnCalculationAlgorithmPrivate *p;
+
+
+private slots:
+  void dataChanged( int row, QVariant, QVariant );
 };
 
 #endif // MABSTRACTCOLUMNCALCULATIONALGORITHM_H
