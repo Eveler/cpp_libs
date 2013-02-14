@@ -10,9 +10,11 @@
 
 class MAbstractRowCalculationAlgorithmPrivate;
 class MCalculationalRow;
+class MCalculationalModel;
 
 class EXPORT MAbstractRowCalculationAlgorithm : public QObject
 {
+  friend class MCalculationalModel;
   Q_OBJECT
 public:
   explicit MAbstractRowCalculationAlgorithm( MCalculationalRow *writableRow );

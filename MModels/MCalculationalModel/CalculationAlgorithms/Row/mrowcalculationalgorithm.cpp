@@ -6,6 +6,8 @@
 #include "mcalculationalrow.h"
 #include "mcalculationalmodel.h"
 
+#include "amslogger5.h"
+
 
 MRowCalculationAlgorithm::MRowCalculationAlgorithm( MCalculationalRow *writableRow ) :
   MAbstractRowCalculationAlgorithm( writableRow )
@@ -23,7 +25,9 @@ bool MRowCalculationAlgorithm::setAlgorithm( const QString &algorithm, int decCo
 {
   if ( algorithm.simplified().isEmpty() ) return false;
 
-  QVariant result = muCalculator::calc( algorithm.simplified().replace( tr( "row" ), "" ) );
+  QVariant result = muCalculator::calc(
+        algorithm.simplified().replace( tr( "[" ), "" ).replace(
+          tr( "]" ), "" ).replace( tr( "row" ), "" ) );
   if ( result.toString() == tr( "error" ) ) return false;
 
   p->m__Algorithm = algorithm.simplified();
@@ -42,10 +46,9 @@ const QString & MRowCalculationAlgorithm::algorithm() const
 void MRowCalculationAlgorithm::calculateColumn( int column )
 {
   QString algorithm = p->m__Algorithm;
-  MCalculationalColumn *c = writableRow()->model()->column( column );
   for ( int idx = 0; idx < readableRows().count(); idx++ )
   {
-    QVariant val = c->data( readableRows()[idx]->row() );
+    QVariant val = readableRows()[idx]->data( column );
     QString value = "0";
     if ( val.type() == QVariant::String )
       value = QString::number( val.toString().toInt() );
@@ -59,7 +62,8 @@ void MRowCalculationAlgorithm::calculateColumn( int column )
       value = QString::number( val.toUInt() );
     if ( val.type() == QVariant::ULongLong )
       value = QString::number( val.toULongLong() );
-    algorithm = algorithm.replace( tr( "row%1" ).arg( (idx+1) ), value );
+    QString key = tr( "[row%1]" ).arg( (idx+1) );
+    algorithm = algorithm.replace( key, value );
   }
 
   QVariant result = muCalculator::calc( algorithm, p->m__DecCount );

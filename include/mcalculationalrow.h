@@ -22,7 +22,7 @@ public:
 
   QVariant data( int column );
 
-  bool setData( int column, QVariant value );
+  bool setData( int column, const QVariant &value );
 
   MCalculationalModel * model() const;
 

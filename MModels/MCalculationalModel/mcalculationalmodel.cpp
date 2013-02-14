@@ -1,6 +1,10 @@
 #include "mcalculationalmodel.h"
 
 #include "mcalculationalmodelprivate.h"
+#include "mabstractrowcalculationalgorithm.h"
+#include "mabstractcolumncalculationalgorithm.h"
+
+#include <QCoreApplication>
 
 
 MCalculationalModel::MCalculationalModel(QObject *parent) :
@@ -231,9 +235,7 @@ bool MCalculationalModel::setData( const QModelIndex &index, const QVariant &val
     return false;
   if ( role != Qt::DisplayRole ) return false;
 
-  p->m__Columns[index.column()]->setData( index.row(), value );
-
-  return true;
+  return p->m__Columns[index.column()]->setData( index.row(), value );
 }
 
 bool MCalculationalModel::setHeaderData(
@@ -280,9 +282,51 @@ int MCalculationalModel::findColumn( MCalculationalColumn *column ) const
   return p->m__Columns.indexOf( column );
 }
 
+void MCalculationalModel::calculate()
+{
+  do
+  {
+    while ( !p->m__PreparedRowAlgorithm.isEmpty() ||
+            !p->m__PreparedColumnAlgorithm.isEmpty() )
+    {
+      if ( !p->m__PreparedRowAlgorithm.isEmpty() )
+      {
+        MAbstractRowCalculationAlgorithm *algorithm =
+            p->m__PreparedRowAlgorithm.takeFirst();
+        algorithm->calculate();
+      }
+
+      if ( !p->m__PreparedColumnAlgorithm.isEmpty() )
+      {
+        MAbstractColumnCalculationAlgorithm *algorithm =
+            p->m__PreparedColumnAlgorithm.takeFirst();
+        algorithm->calculate();
+      }
+    }
+    qApp->processEvents();
+  } while ( !p->m__PreparedRowAlgorithm.isEmpty() ||
+            !p->m__PreparedColumnAlgorithm.isEmpty() );
+}
+
 void MCalculationalModel::declareValues()
 {
   p = new MCalculationalModelPrivate( this );
+}
+
+void MCalculationalModel::addPreparedRowCalculationAlgorithm(
+    MAbstractRowCalculationAlgorithm *algorithm )
+{
+  if ( p->m__PreparedRowAlgorithm.contains( algorithm ) ) return;
+
+  p->m__PreparedRowAlgorithm << algorithm;
+}
+
+void MCalculationalModel::addPreparedColumnCalculationAlgorithm(
+    MAbstractColumnCalculationAlgorithm *algorithm )
+{
+  if ( p->m__PreparedColumnAlgorithm.contains( algorithm ) ) return;
+
+  p->m__PreparedColumnAlgorithm << algorithm;
 }
 
 void MCalculationalModel::columnLabelChanged( QVariant, QVariant )

@@ -10,9 +10,11 @@
 
 class MAbstractColumnCalculationAlgorithmPrivate;
 class MCalculationalColumn;
+class MCalculationalModel;
 
 class EXPORT MAbstractColumnCalculationAlgorithm : public QObject
 {
+  friend class MCalculationalModel;
   Q_OBJECT
 public:
   explicit MAbstractColumnCalculationAlgorithm( MCalculationalColumn *writableColumn );
@@ -44,7 +46,7 @@ private:
 
 
 private slots:
-  void dataChanged( int row, QVariant, QVariant );
+  void dataChanged( int, QVariant, QVariant );
 };
 
 #endif // MABSTRACTCOLUMNCALCULATIONALGORITHM_H

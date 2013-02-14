@@ -28,7 +28,7 @@ public:
 
   QVariant data( int row ) const;
 
-  bool setData( int row, QVariant value );
+  bool setData( int row, const QVariant &value );
 
   MCalculationalModel * model() const;
 

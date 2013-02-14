@@ -20,15 +20,11 @@ QVariant MCalculationalRow::data( int column )
   return c->data( row() );
 }
 
-bool MCalculationalRow::setData( int column, QVariant value )
+bool MCalculationalRow::setData( int column, const QVariant &value )
 {
   if ( column < 0 || column >= p->m__Model->columnCount() ) return false;
 
-  if ( algorithmForColumn( column ) != NULL ) return false;
-
-  p->m__Model->column( column )->setData( row(), value );
-
-  return true;
+  return p->m__Model->column( column )->setData( row(), value );
 }
 
 MCalculationalModel * MCalculationalRow::model() const

@@ -102,12 +102,13 @@ void MAbstractColumnCalculationAlgorithm::calculate()
 }
 
 void MAbstractColumnCalculationAlgorithm::dataChanged(
-    int row, QVariant /*oldVal*/, QVariant /*newVal*/ )
+    int /*row*/, QVariant /*oldVal*/, QVariant /*newVal*/ )
 {
-    MCalculationalColumn *column = qobject_cast<MCalculationalColumn *>( sender() );
+  p->m__WritableColumn->model()->addPreparedColumnCalculationAlgorithm( this );
+//  MCalculationalColumn *column = qobject_cast<MCalculationalColumn *>( sender() );
 
-    if ( column == NULL ) return;
+//  if ( column == NULL ) return;
 
-    foreach ( MCalculationalRow *r, p->m__Rows )
-      if ( r->row() == row ) calculateRow( row );
+//  foreach ( MCalculationalRow *r, p->m__Rows )
+//    if ( r->row() == row ) calculateRow( row );
 }

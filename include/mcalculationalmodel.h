@@ -8,10 +8,14 @@
 
 class MCalculationalColumn;
 class MCalculationalRow;
+class MAbstractRowCalculationAlgorithm;
+class MAbstractColumnCalculationAlgorithm;
 class MCalculationalModelPrivate;
 
 class EXPORT MCalculationalModel : public QAbstractItemModel
 {
+  friend class MAbstractRowCalculationAlgorithm;
+  friend class MAbstractColumnCalculationAlgorithm;
   Q_OBJECT
 public:
   explicit MCalculationalModel(QObject *parent = 0);
@@ -39,7 +43,8 @@ public:
   bool removeColumn( int column, const QModelIndex &parent = QModelIndex() );
   bool removeColumns( int column, int count, const QModelIndex &parent = QModelIndex() );
 
-  bool setData( const QModelIndex &index, const QVariant &value, int role = Qt::DisplayRole );
+  bool setData( const QModelIndex &index, const QVariant &value,
+                int role = Qt::DisplayRole );
   bool setHeaderData(
       int section, Qt::Orientation orientation, const QVariant &value,
       int role = Qt::DisplayRole );
@@ -59,12 +64,18 @@ signals:
 
 
 public slots:
+  void calculate();
 
 
 private:
   MCalculationalModelPrivate *p;
 
   void declareValues();
+
+  void addPreparedRowCalculationAlgorithm(
+      MAbstractRowCalculationAlgorithm *algorithm );
+  void addPreparedColumnCalculationAlgorithm(
+      MAbstractColumnCalculationAlgorithm *algorithm );
 
 
 private slots:

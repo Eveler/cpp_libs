@@ -2,6 +2,7 @@
 
 #include "mcalculationalcolumnprivate.h"
 #include "mcalculationalmodel.h"
+#include "mcalculationalrow.h"
 
 #include <QDebug>
 
@@ -31,11 +32,12 @@ QVariant MCalculationalColumn::data( int row ) const
   return p->m__Data[row];
 }
 
-bool MCalculationalColumn::setData( int row, QVariant value )
+bool MCalculationalColumn::setData( int row, const QVariant &value )
 {
   if ( row < 0 || row >= p->m__Data.count() ) return false;
 
   if ( algorithmForRow( row ) != NULL ) return false;
+  if ( p->m__Model->row( row )->algorithmForColumn( column() ) != NULL ) return false;
 
   setDataPrivate( row, value );
 

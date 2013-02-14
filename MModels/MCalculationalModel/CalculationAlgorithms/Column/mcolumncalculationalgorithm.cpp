@@ -6,6 +6,8 @@
 #include "mcalculationalrow.h"
 #include "mcalculationalmodel.h"
 
+#include <QDebug>
+
 
 MColumnCalculationAlgorithm::MColumnCalculationAlgorithm(
     MCalculationalColumn *writableColumn ) :
@@ -24,7 +26,9 @@ bool MColumnCalculationAlgorithm::setAlgorithm( const QString &algorithm, int de
 {
   if ( algorithm.simplified().isEmpty() ) return false;
 
-  QVariant result = muCalculator::calc( algorithm.simplified().replace( tr( "col" ), "" ) );
+  QVariant result = muCalculator::calc(
+        algorithm.simplified().replace( tr( "[" ), "" ).replace(
+          tr( "]" ), "" ).replace( tr( "col" ), "" ) );
   if ( result.toString() == tr( "error" ) ) return false;
 
   p->m__Algorithm = algorithm.simplified();
@@ -59,10 +63,16 @@ void MColumnCalculationAlgorithm::calculateRow( int row )
       value = QString::number( val.toUInt() );
     if ( val.type() == QVariant::ULongLong )
       value = QString::number( val.toULongLong() );
-    algorithm = algorithm.replace( tr( "col%1" ).arg( (idx+1) ), value );
+    algorithm = algorithm.replace( tr( "[col%1]" ).arg( (idx+1) ), value );
   }
 
   QVariant result = muCalculator::calc( algorithm, p->m__DecCount );
+//  if ( writableColumn()->model()->column(
+//         0 )->data( row ).toString() == tr( "2.2М" ) )
+//  {
+//    qDebug() << algorithm;
+//    qDebug() << result;
+//  }
   if ( result.toString() == tr( "error" ) ) setData( row, 0 );
   else setData( row, result );
 }

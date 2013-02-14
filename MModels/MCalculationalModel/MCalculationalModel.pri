@@ -5,6 +5,8 @@ INCLUDEPATH *= $$PWD/ \
     $$PWD/CalculationAlgorithms/Column/ \
     $$PWD/CalculationAlgorithms/Row/
 
+QT *= network
+
 LIB_LIST *= \
     -lmuCalculator \
     -lAMSLogger

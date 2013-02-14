@@ -9,6 +9,8 @@
 #include <QVariant>
 
 
+class MAbstractRowCalculationAlgorithm;
+class MAbstractColumnCalculationAlgorithm;
 class MCalculationalModel;
 
 class MCalculationalModelPrivate : public QObject
@@ -28,6 +30,9 @@ public slots:
 private:
   QList<MCalculationalColumn *> m__Columns;
   QList<MCalculationalRow *> m__Rows;
+
+  QList<MAbstractRowCalculationAlgorithm *> m__PreparedRowAlgorithm;
+  QList<MAbstractColumnCalculationAlgorithm *> m__PreparedColumnAlgorithm;
 
   void declareValues();
 };

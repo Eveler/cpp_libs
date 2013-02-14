@@ -31,13 +31,13 @@ QVariant muCalculator::calc( QString expression, int decCount )
     result_buffer = "error";
   }
 
-
   QString val = result_buffer.toString();
+  if ( val == QObject::tr( "inf" ) ||
+       val == QObject::tr( "nan" ) ) return 0;
   if ( val != QObject::tr( "error" ) )
   {
     double dVal = val.toDouble();
-    if ( decCount > -1 )
-      dVal = round( dVal, decCount );
+    if ( decCount > -1 ) dVal = round( dVal, decCount );
 //    while ( val.length() > 1 && val.right( 1 ) == "0" )
 //      val = val.mid( 0, val.length()-1 );
 //    if ( decCount > -1 )
