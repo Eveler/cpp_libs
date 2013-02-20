@@ -110,7 +110,7 @@ QIODevice * FTPEngine::buffer() const
   return m__Buffer;
 }
 
-bool FTPEngine::sendCommand( QString text )
+bool FTPEngine::sendCommand( QString text, bool ignoreError )
 {
   m__Socket->disconnect();
 
@@ -143,7 +143,7 @@ bool FTPEngine::sendCommand( QString text )
   }
   else if ( cmdText == FTPCommand::name( FTPCommand::Type_Mkd ) )
   {
-    if ( !mkDir( cmdArg ) ) return false;
+    if ( !mkDir( cmdArg, ignoreError ) ) return false;
   }
   else if ( cmdText == FTPCommand::name( FTPCommand::Type_Rmd ) )
   {
@@ -244,12 +244,12 @@ bool FTPEngine::cd( QString path )
   return true;
 }
 
-bool FTPEngine::mkDir( QString name )
+bool FTPEngine::mkDir( QString name , bool ignoreError )
 {
   if ( !isConnected() ) return false;
   if ( !FTPCommand::canAdd( FTPCommand::Type_Mkd, name ) ) return false;
 
-  m__Commands << new FTPCommandsPool( new FTPCommand( FTPCommand::Type_Mkd, name ) );
+  m__Commands << new FTPCommandsPool( new FTPCommand( FTPCommand::Type_Mkd, name, ignoreError ) );
 
   nextCommand();
 
@@ -923,7 +923,7 @@ void FTPEngine::socketAllReply()
       sendNextCommand = false;
       break;
     case FTPCommand::Type_Mkd:
-      result = ( code == 257 );
+      result = ( code == 257 || currentCommand->ignoreError() );
       if ( !result ) m__LastError = text;
       else m__LastText = text;
       sendAnswer = ( !result || !m__CurrentCommand->hasNextCommand() );

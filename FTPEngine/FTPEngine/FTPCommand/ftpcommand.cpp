@@ -85,10 +85,11 @@ FTPCommand::FTPCommand() :
 {
 }
 
-FTPCommand::FTPCommand( Type type, const QString &arg1 ) :
+FTPCommand::FTPCommand( Type type, const QString &arg1 , bool ignoreError ) :
   m__Type(type),
   m__Name(name(m__Type)),
-  m__Argument(arg1)
+  m__Argument(arg1),
+  m__IgnoreError(ignoreError)
 {
 }
 
@@ -110,4 +111,9 @@ const QString & FTPCommand::name() const
 const QString & FTPCommand::argument() const
 {
   return m__Argument;
+}
+
+bool FTPCommand::ignoreError() const
+{
+  return m__IgnoreError;
 }

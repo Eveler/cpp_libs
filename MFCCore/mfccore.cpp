@@ -45,7 +45,7 @@ int MFCCore::findColumn( QAbstractItemModel *model, const QString &name )
 }
 
 QList<QModelIndex> MFCCore::findIndexes( QAbstractItemModel *model, QString value,
-                                           Qt::MatchFlag flag, int column )
+                                         int column, Qt::MatchFlag flag )
 {
   QList<QModelIndex> result = QList<QModelIndex>();
 

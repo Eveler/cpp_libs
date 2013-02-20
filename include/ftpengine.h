@@ -37,12 +37,12 @@ public:
 
   void setBuffer( QIODevice *buffer );
   QIODevice * buffer() const;
-  bool sendCommand( QString text );
+  bool sendCommand( QString text, bool ignoreError = false );
 
   bool path();
   bool list();
   bool cd( QString path );
-  bool mkDir( QString name );
+  bool mkDir( QString name, bool ignoreError = false );
   bool rmDir( QString name );
   bool sizeOf( QString name );
   bool putFile( QString name, QIODevice *buffer );

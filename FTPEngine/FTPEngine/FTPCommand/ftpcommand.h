@@ -15,18 +15,20 @@ public:
   static bool canAdd( Type type, const QString &arg1 );
 
   FTPCommand();
-  FTPCommand( Type type, const QString &arg1 = QString() );
+  FTPCommand( Type type, const QString &arg1 = QString(), bool ignoreError = false );
 
   bool isValid() const;
 
   Type type() const;
   const QString & name() const;
   const QString & argument() const;
+  bool ignoreError() const;
 
 private:
   Type m__Type;
   QString m__Name;
   QString m__Argument;
+  bool m__IgnoreError;
 };
 
 #endif // FTPCOMMAND_H

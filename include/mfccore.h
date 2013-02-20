@@ -29,7 +29,7 @@ public:
 
   static int findColumn( QAbstractItemModel *model, const QString &name );
   static QList<QModelIndex> findIndexes( QAbstractItemModel *model, QString value,
-                                         Qt::MatchFlag flag = Qt::MatchExactly, int column = 0 );
+                                         int column = 0, Qt::MatchFlag flag = Qt::MatchExactly );
 
   template<class T>
   static QList<T> exists( QList<T> list1, QList<T> list2 )
