@@ -96,6 +96,9 @@ void FTPTransfer::disconnectClient()
 {
     m__Buffer = NULL;
     m__BytesDone = 0;
+    disconnect( m__Client, SIGNAL(readyRead()), this, SLOT(receivedData()) );
+    disconnect( m__Client, SIGNAL(readChannelFinished()), this, SIGNAL(disconnectClient()) );
+    disconnect( m__Client, SIGNAL(bytesWritten(qint64)), this, SLOT(bytesWritten(qint64)) );
     m__Client->disconnectFromHost();
     emit dataCommunicationFinished();
 }

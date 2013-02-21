@@ -6,6 +6,8 @@
 
 #include <QHostAddress>
 #include <QBuffer>
+#include <QTextCodec>
+
 
 FTPEngine::FTPEngine( QObject *parent ) :
   QObject(parent),
@@ -117,7 +119,7 @@ bool FTPEngine::sendCommand( QString text, bool ignoreError )
   if ( !isConnected() )
   {
 #ifdef FTPENGINE_DEBUG
-    LogDebug() << "Not connected!";
+    LogDebug() << QString( "Not connected!" );
     return false;
 #endif
   }
@@ -249,7 +251,13 @@ bool FTPEngine::mkDir( QString name , bool ignoreError )
   if ( !isConnected() ) return false;
   if ( !FTPCommand::canAdd( FTPCommand::Type_Mkd, name ) ) return false;
 
-  m__Commands << new FTPCommandsPool( new FTPCommand( FTPCommand::Type_Mkd, name, ignoreError ) );
+  QString fileName = name;
+//#ifdef Q_OS_WIN32
+//  fileName = QTextCodec::codecForName( "Windows-1251" )->fromUnicode( fileName ).data();
+//#endif
+
+  m__Commands << new FTPCommandsPool(
+                   new FTPCommand( FTPCommand::Type_Mkd, fileName, ignoreError ) );
 
   nextCommand();
 
@@ -261,7 +269,12 @@ bool FTPEngine::rmDir( QString name )
   if ( !isConnected() ) return false;
   if ( !FTPCommand::canAdd( FTPCommand::Type_Rmd, name ) ) return false;
 
-  m__Commands << new FTPCommandsPool( new FTPCommand( FTPCommand::Type_Rmd, name ) );
+  QString fileName = name;
+//#ifdef Q_OS_WIN32
+//  fileName = QTextCodec::codecForName( "Windows-1251" )->fromUnicode( fileName ).data();
+//#endif
+
+  m__Commands << new FTPCommandsPool( new FTPCommand( FTPCommand::Type_Rmd, fileName ) );
 
   nextCommand();
 
@@ -273,7 +286,13 @@ bool FTPEngine::sizeOf( QString name )
   if ( !isConnected() ) return false;
   if ( !FTPCommand::canAdd( FTPCommand::Type_Size, name ) ) return false;
 
-  FTPCommandsPool *commandsPool = new FTPCommandsPool( new FTPCommand( FTPCommand::Type_Size, name ) );
+  QString fileName = name;
+//#ifdef Q_OS_WIN32
+//  fileName = QTextCodec::codecForName( "Windows-1251" )->fromUnicode( fileName ).data();
+//#endif
+
+  FTPCommandsPool *commandsPool = new FTPCommandsPool(
+        new FTPCommand( FTPCommand::Type_Size, fileName ) );
   m__Commands << commandsPool;
 
   commandsPool->appendBefore( new FTPCommand( FTPCommand::Type_Type, tr( "i" ) ) );
@@ -326,7 +345,12 @@ bool FTPEngine::rmFile( QString name )
   if ( !isConnected() ) return false;
   if ( !FTPCommand::canAdd( FTPCommand::Type_Dele, name ) ) return false;
 
-  m__Commands << new FTPCommandsPool( new FTPCommand( FTPCommand::Type_Dele, name ) );
+  QString fileName = name;
+//#ifdef Q_OS_WIN32
+//  fileName = QTextCodec::codecForName( "Windows-1251" )->fromUnicode( fileName ).data();
+//#endif
+
+  m__Commands << new FTPCommandsPool( new FTPCommand( FTPCommand::Type_Dele, fileName ) );
 
   nextCommand();
 
@@ -416,10 +440,18 @@ void FTPEngine::executeCommand( QString text )
   QString command = text;
   text = text.replace( "\r", "" ).replace( "\n", "" );
 #ifdef FTPENGINE_DEBUG
-  LogDebug() << "------>" << text;
+  LogDebug() << QString( "------> " ) << text;
 #endif
   emit executedCommand( text );
-  m__Socket->write( command.toLatin1() );
+//#ifdef Q_OS_WIN32
+//  qint64 result = m__Socket->write(
+//        QTextCodec::codecForName( "IBM 866" )->fromUnicode( command ) );
+//#else
+  qint64 result = m__Socket->write( command.toUtf8() );
+//#endif
+#ifdef FTPENGINE_DEBUG
+  LogDebug() << QString( "Written bytes: " ) << result;
+#endif
 }
 
 void FTPEngine::clearCommands()
@@ -452,6 +484,9 @@ FTPCommandsPool * FTPEngine::putFile_P( QString name , QIODevice *buffer )
 
   FileInfo *fi = new FileInfo;
   QString fileName = commandsPool->mainCommand()->argument();
+//#ifdef Q_OS_WIN32
+//  fileName = QTextCodec::codecForName( "Windows-1251" )->fromUnicode( fileName ).data();
+//#endif
   fileName = fileName.replace( "\"", "" );
   qint64 fileSize = buffer->size();
   fi->setFileName( fileName );
@@ -467,11 +502,17 @@ FTPCommandsPool * FTPEngine::getFile_P( QString name, QIODevice *buffer )
   if ( !FTPCommand::canAdd( FTPCommand::Type_Retr, name ) ||
        buffer == NULL || !buffer->isOpen() ) return NULL;
 
-  FTPCommandsPool *commandsPool = new FTPCommandsPool( new FTPCommand( FTPCommand::Type_Retr, name ) );
+  QString fileName = name;
+//#ifdef Q_OS_WIN32
+//  fileName = QTextCodec::codecForName( "Windows-1251" )->fromUnicode( fileName ).data();
+//#endif
+
+  FTPCommandsPool *commandsPool = new FTPCommandsPool(
+        new FTPCommand( FTPCommand::Type_Retr, fileName ) );
   m__Commands << commandsPool;
 
   commandsPool->appendBefore( new FTPCommand( FTPCommand::Type_Type, tr( "i" ) ) );
-  commandsPool->appendBefore( new FTPCommand( FTPCommand::Type_Size, name ) );
+  commandsPool->appendBefore( new FTPCommand( FTPCommand::Type_Size, fileName ) );
   QString argument = m__Transfer->address().toString().replace( ".", "," );
   argument += ","+QString::number((m__Transfer->port() & 0xff00) >> 8);
   argument += ","+QString::number(m__Transfer->port() & 0xff);
@@ -500,7 +541,7 @@ bool FTPEngine::checkCode( const QByteArray &answer, int code )
   if ( ansCode != code )
   {
 #ifdef FTPENGINE_DEBUG
-    LogDebug() << "Unknown FTP-answer code:" << code;
+    LogDebug() << QString( "Unknown FTP-answer code: " ) << code;
 #endif
     return false;
   }
@@ -552,7 +593,7 @@ static void _q_parseUnixDir(const QStringList &tokens, const QString &userName, 
     if (tokens.size() != 8)
         return;
 
-    char first = tokens.at(1).at(0).toLatin1();
+    QChar first = tokens.at(1).at(0);
     if (first == 'd') {
         info->setIsFile(false);
         info->setIsSymLink(false);
@@ -708,7 +749,8 @@ bool FTPEngine::parseDir( const QByteArray &buffer, const QString &userName, Fil
     if (buffer.isEmpty())
         return false;
 
-    QString bufferStr = QString::fromLatin1(buffer).trimmed();
+//    QString bufferStr = QString::fromLatin1(buffer).trimmed();
+    QString bufferStr = buffer;
 
     // Unix style FTP servers
     QRegExp unixPattern(QLatin1String("^([\\-dl])([a-zA-Z\\-]{9,9})\\s+\\d+\\s+(\\S*)\\s+"
@@ -828,6 +870,9 @@ void FTPEngine::socketAuthPassReply()
 
 void FTPEngine::socketAllReply()
 {
+#ifdef FTPENGINE_DEBUG
+  LogDebug() << QString( "socketAllReply" );
+#endif
   QByteArray answer = QByteArray();
   while ( m__Socket->canReadLine() )
     answer += m__Socket->readAll();
@@ -843,7 +888,7 @@ void FTPEngine::socketAllReply()
   m__LastText = text;
 
 #ifdef FTPENGINE_DEBUG
-  LogDebug() << "FTP-answer" << answer;
+  LogDebug() << QString( "FTP-answer " ) << QVariant( answer ).toString();
 #endif
   if ( m__CurrentCommand != NULL )
   {
@@ -1008,7 +1053,9 @@ void FTPEngine::socketAllReply()
   }
 
 #ifdef FTPENGINE_DEBUG
-  LogDebug() << "sendAnswer" << sendAnswer << "sendNextCommand" << sendNextCommand;
+  LogDebug() << QString( "result " ) << result <<
+                QString( " sendAnswer " ) << sendAnswer <<
+                QString( " sendNextCommand " ) << sendNextCommand;
 #endif
   emit ftpAnswer( tr( "%1 %2" ).arg( code ).arg( m__LastText ) );
 
@@ -1074,7 +1121,7 @@ void FTPEngine::transferDataFinished()
     delete m__CommandIODevice[m__CurrentCommand->mainCommand()].second;
   }
   if ( m__CommandIODevice[m__CurrentCommand->mainCommand()].first != NULL )
-      delete m__CommandIODevice[m__CurrentCommand->mainCommand()].first;
+    delete m__CommandIODevice[m__CurrentCommand->mainCommand()].first;
   m__CommandIODevice.remove( m__CurrentCommand->mainCommand() );
 
   m__Timer->singleShot( 500, this, SLOT(nextCommand()) );

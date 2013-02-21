@@ -7,6 +7,7 @@ CONFIG += create_prl
 TEMPLATE = lib
 
 DEFINES += FTPENGINE_LIBRARY
+#    FTPENGINE_DEBUG
 
 INCLUDEPATH += ./ \
     ../bin_qt5/ \
