@@ -6,6 +6,7 @@
 
 bool AMSLogger::initialized=false;
 bool AMSLogger::installed=false;
+bool AMSLogger::space=true;
 AMSLogger::LogLevels AMSLogger::loglevel=AMSLogger::LevelCritical;
 QFile *AMSLogger::outFile=new QFile();
 QtMessageHandler AMSLogger::oldMsgHandler=NULL;
@@ -37,7 +38,7 @@ void AMSLogger::messageOutput(QtMsgType type, const QMessageLogContext &,const Q
       ba.prepend("Warning: ");
       ba.prepend(qPrintable(strDateTime));
     }
-    stream<<msg;
+    stream<<ba;
     if(AMSLogger::logLevel().testFlag(AMSLogger::LevelWarn))
       if(outFile->fileName().length()>0) writeToFile(ba);
     break;
@@ -48,7 +49,7 @@ void AMSLogger::messageOutput(QtMsgType type, const QMessageLogContext &,const Q
       ba.prepend("Critical: ");
       ba.prepend(qPrintable(strDateTime));
     }
-    stream<<msg;
+    stream<<ba;
     if(AMSLogger::logLevel().testFlag(AMSLogger::LevelCritical))
       if(outFile->fileName().length()>0) writeToFile(ba);
     break;
@@ -59,7 +60,7 @@ void AMSLogger::messageOutput(QtMsgType type, const QMessageLogContext &,const Q
       ba.prepend("Fatal: ");
       ba.prepend(qPrintable(strDateTime));
     }
-    stream<<msg;
+    stream<<ba;
     if(AMSLogger::logLevel().testFlag(AMSLogger::LevelFatal))
       if(outFile->fileName().length()>0) writeToFile(ba);
 //    abort();
@@ -76,6 +77,7 @@ void AMSLogger::install(){
 }
 
 void AMSLogger::initialyze(){
+  space=true;
   if(initialized) return;
 //  loglevel=LevelCritical;
   QString logFile=prefix()+".log";
@@ -119,7 +121,7 @@ AMSLogger& AMSLogger::operator <<(const QVariant &msg){
   str+=msg.toString();
   QMessageLogContext c;
   messageOutput(msgType,c,qPrintable(str));
-  return *this;
+  return maybeSpace();
 }
 
 AMSLogger& AMSLogger::operator <<(const void * ptr){
