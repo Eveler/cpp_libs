@@ -3,7 +3,11 @@
 #include "treelistitemprivate.h"
 #include "widget_treelist.h"
 
+#if QT_VERSION >= 0x050000
 #include "amslogger5.h"
+#else
+#include "amslogger.h"
+#endif
 
 TreelistItem::TreelistItem( Widget_Treelist *treeList ) :
   QObject(treeList),

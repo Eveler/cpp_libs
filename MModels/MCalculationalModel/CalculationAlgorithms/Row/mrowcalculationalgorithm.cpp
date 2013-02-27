@@ -6,7 +6,11 @@
 #include "mcalculationalrow.h"
 #include "mcalculationalmodel.h"
 
+#if QT_VERSION >= 0x050000
 #include "amslogger5.h"
+#else
+#include "amslogger.h"
+#endif
 
 
 MRowCalculationAlgorithm::MRowCalculationAlgorithm( MCalculationalRow *writableRow ) :
