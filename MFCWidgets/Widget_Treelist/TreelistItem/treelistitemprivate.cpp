@@ -3,7 +3,11 @@
 #include "treelistitem.h"
 #include "widget_treelist.h"
 
+#if QT_VERSION >= 0x050000
 #include "amslogger5.h"
+#else
+#include "amslogger.h"
+#endif
 
 TreelistItemPrivate::TreelistItemPrivate( TreelistItem *parent, Widget_Treelist *parentTreelist ) :
   m__Parent(parent),

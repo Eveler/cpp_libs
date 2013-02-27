@@ -73,6 +73,10 @@ public:
   static bool isInstalled(){
     return installed;
   }
+  /** Добавляет пробел, если нужно*/
+  AMSLogger &maybeSpace() {if(space) stream<<" ";return *this;}
+  AMSLogger &setSpace() {space=true;stream<<" ";return *this;}
+  AMSLogger &nospace() {space=false;return *this;}
   /** Выводит сообщение \param msg и записывает его в файл журнала в зависимости от
   установленного уровня на основании типа сообщения \param type.
   \see setLogLevel()*/
@@ -98,6 +102,7 @@ private:
   QtMsgType msgType;
   QString msgFile;
   int msgLine;
+  static bool space;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(AMSLogger::LogLevels)
