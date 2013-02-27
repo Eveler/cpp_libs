@@ -2,8 +2,6 @@
 
 #include "muParser.h"
 
-#include <QtCore/qmath.h>
-
 #include <QDebug>
 
 muCalculator::muCalculator()
@@ -60,7 +58,7 @@ double muCalculator::round( double value, int decCount )
   QString sdec = "";
   while ( sdec.length() < decCount )
     sdec += "0";
-  int s_inc = QString( "1%1" ).arg( sdec ).toInt();
+  double s_inc = QString( "1%1" ).arg( sdec ).toDouble();
 
-  return (double)qFloor(value*s_inc)/(double)s_inc;
+  return (double)qRound(value*s_inc)/s_inc;
 }
