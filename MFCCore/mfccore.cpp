@@ -1,5 +1,16 @@
 #include "mfccore.h"
 
+#include "math.h"
+#include "mucalculator.h"
+
+#include <QStringList>
+
+
+const QStringList MFCCore::byteSizeNames = QStringList()
+    << QObject::tr( "Б" ) << QObject::tr( "КБ" ) << QObject::tr( "МБ" )
+    << QObject::tr( "ГБ" ) << QObject::tr( "ТБ" ) << QObject::tr( "ПБ" )
+    << QObject::tr( "ЭБ" ) << QObject::tr( "ЗБ" ) << QObject::tr( "ЙБ" );
+
 QString MFCCore::periodName( Period period )
 {
   if ( period == Daily ) return QObject::tr( "Ежедневный" );
@@ -96,4 +107,13 @@ QDate MFCCore::addDays(const QDate &date, const int &days, bool isOverall, QList
     while ( weekend.contains( result.dayOfWeek() ) ) result = result.addDays( 1 );
   }
   return result;
+}
+
+QString MFCCore::humanBytes( qint64 size )
+{
+  if ( size == 0 ) return QObject::tr( "0 Б" );
+
+  int idx = floor( log( size )/log(1024) );
+  double rounded = muCalculator::round( ((double)size/pow( 1024., (double)idx )), 2 );
+  return QString( QString::number( rounded )+" "+byteSizeNames[idx] );
 }

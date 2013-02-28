@@ -22,6 +22,8 @@ class MFCCORE_EXPORT MFCCore
 public:
   enum Period {Undefined = 0, Daily, Weekly, Monthly, Quarterly, Semiannual, Yearly};
 
+  static const QStringList byteSizeNames;
+
   static QString periodName( Period period );
   static Period period( QString name );
 
@@ -54,6 +56,7 @@ public:
   static QDate addDays( const QDate &date, const int &days, bool isOverall = true,
                         QList<int> weekend = QList<int>() << 6 << 7 );
 
+  static QString humanBytes( qint64 size );
 };
 
 #endif // MFCCORE_H

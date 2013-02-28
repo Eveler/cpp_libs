@@ -832,7 +832,8 @@ void FTPEngine::socketConnected()
 
   m__Transfer->listen( m__Socket->localAddress() );
 
-  emit ftpAnswer( QVariant( answer ).toString() );
+  int code = ftpAnswerCode( answer );
+  emit ftpAnswer( answer, code );
 
   if ( !checkCode( answer, 220 ) ) return;
 
@@ -844,7 +845,8 @@ void FTPEngine::socketAuthUserReply()
   QByteArray answer = m__Socket->readAll().trimmed();
   m__Socket->disconnect();
 
-  emit ftpAnswer( QVariant( answer ).toString() );
+  int code = ftpAnswerCode( answer );
+  emit ftpAnswer( answer, code );
 
   if ( !checkCode( answer, 331 ) ) return;
 
@@ -858,7 +860,8 @@ void FTPEngine::socketAuthPassReply()
   QByteArray answer = m__Socket->readAll().trimmed();
   m__Socket->disconnect();
 
-  emit ftpAnswer( QVariant( answer ).toString() );
+  int code = ftpAnswerCode( answer );
+  emit ftpAnswer( answer, code );
 
   if ( !checkCode( answer, 230 ) )
   {
@@ -1061,7 +1064,7 @@ void FTPEngine::socketAllReply()
                 QString( " sendAnswer " ) << sendAnswer <<
                 QString( " sendNextCommand " ) << sendNextCommand;
 #endif
-  emit ftpAnswer( tr( "%1 %2" ).arg( code ).arg( m__LastText ) );
+  emit ftpAnswer( m__LastText, code );
 
   if ( !result ) clearCommands();
   if ( m__CurrentCommand != NULL )

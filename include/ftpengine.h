@@ -13,6 +13,7 @@
 #include <QTimer>
 #include <QIODevice>
 
+
 class FTPCommand;
 class FTPCommandsPool;
 class FTPTransfer;
@@ -64,7 +65,7 @@ signals:
   void authenticationRequired();
   void authenticationCompleted( bool );
   void executedCommand( QString text );
-  void ftpAnswer( QString answerText );
+  void ftpAnswer( QString answerText, int ftpCode );
 
   void ftpAnswer( FTPEngine::Command, bool result );
   void loadProgress( QString fileName, qint64 current,qint64 max );

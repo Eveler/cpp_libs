@@ -42,11 +42,19 @@ unix:!symbian {
 greaterThan(QT_MAJOR_VERSION, 4) {
   DESTDIR = ../bin_qt5
   DLLDESTDIR = ../bin_qt5
+
+  LIBS += -L../bin_qt5/ \
+      -lmuCalculator
 }
+
 lessThan(QT_MAJOR_VERSION, 5) {
   DESTDIR = ../bin
   DLLDESTDIR = ../bin
+
+  LIBS += -L../bin/ \
+      -lmuCalculator
 }
+
 CONFIG(release, debug|release){
   OBJECTS_DIR = ../temp/$$TARGET/release
   MOC_DIR = ../temp/$$TARGET/release
@@ -66,4 +74,8 @@ HEADERS += \
 SOURCES += \
     mfccore.cpp
 
+greaterThan( QT_MAJOR_VERSION, 4 ) {
+  LIBS += -L../bin_qt5/ \
+      -lAMSLogger
+}
 
