@@ -70,6 +70,8 @@ signals:
   void ftpAnswer( FTPEngine::Command, bool result );
   void loadProgress( QString fileName, qint64 current,qint64 max );
 
+  void disconnected();
+
 public slots:
 
 private:
@@ -121,6 +123,7 @@ private slots:
   void socketStateChanged( QAbstractSocket::SocketState socketState );
 
   void socketConnected();
+  void socketDisconnected();
   void socketAuthUserReply();
   void socketAuthPassReply();
   void socketAllReply();

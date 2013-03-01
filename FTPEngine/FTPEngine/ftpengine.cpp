@@ -440,7 +440,6 @@ void FTPEngine::setDefaultConnect()
 
 void FTPEngine::executeCommand( QString text )
 {
-  setDefaultConnect();
   QString command = text;
   text = text.replace( "\r", "" ).replace( "\n", "" );
 #ifdef FTPENGINE_DEBUG
@@ -820,9 +819,14 @@ void FTPEngine::sendAnswerResult( bool result )
 
 void FTPEngine::socketStateChanged( QAbstractSocket::SocketState socketState )
 {
+  bool before = m__Connected;
   m__Connected = ( socketState == QAbstractSocket::ConnectedState );
 
-  if ( !m__Connected ) m__Authenticated = false;
+  if ( !m__Connected )
+  {
+    m__Authenticated = false;
+    if ( before ) emit disconnected();
+  }
 }
 
 void FTPEngine::socketConnected()
@@ -840,15 +844,26 @@ void FTPEngine::socketConnected()
   authenticationStart();
 }
 
+void FTPEngine::socketDisconnected()
+{
+
+}
+
 void FTPEngine::socketAuthUserReply()
 {
   QByteArray answer = m__Socket->readAll().trimmed();
   m__Socket->disconnect();
+  setDefaultConnect();
 
   int code = ftpAnswerCode( answer );
   emit ftpAnswer( answer, code );
 
-  if ( !checkCode( answer, 331 ) ) return;
+  if ( !checkCode( answer, 331 ) )
+  {
+    m__User.clear();
+    m__Password.clear();
+    return;
+  }
 
   connect( m__Socket, SIGNAL(readyRead()), this, SLOT(socketAuthPassReply()) );
 
@@ -859,17 +874,18 @@ void FTPEngine::socketAuthPassReply()
 {
   QByteArray answer = m__Socket->readAll().trimmed();
   m__Socket->disconnect();
+  setDefaultConnect();
 
   int code = ftpAnswerCode( answer );
   emit ftpAnswer( answer, code );
 
   if ( !checkCode( answer, 230 ) )
   {
+    m__User.clear();
+    m__Password.clear();
     emit authenticationCompleted( m__Authenticated );
     return;
   }
-
-  setDefaultConnect();
 
   m__Authenticated = true;
   emit authenticationCompleted( m__Authenticated );
@@ -885,6 +901,7 @@ void FTPEngine::socketAllReply()
     answer += m__Socket->readAll();
   answer = answer.trimmed();
   m__Socket->disconnect();
+  setDefaultConnect();
 
   int code = ftpAnswerCode( answer );
   QString text = ftpAnswerText( answer );
