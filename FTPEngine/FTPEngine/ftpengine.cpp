@@ -1143,6 +1143,13 @@ void FTPEngine::transferDataFinished()
     }
     m__DirData.clear();
     delete m__CommandIODevice[m__CurrentCommand->mainCommand()].second;
+
+    if ( m__DirInfo.count() == 1 && m__DirInfo.first()->fileName().isEmpty() )
+    {
+      FileInfo *fi = m__DirInfo.takeFirst();
+      delete fi;
+      fi = NULL;
+    }
   }
   if ( m__CommandIODevice[m__CurrentCommand->mainCommand()].first != NULL )
     delete m__CommandIODevice[m__CurrentCommand->mainCommand()].first;
