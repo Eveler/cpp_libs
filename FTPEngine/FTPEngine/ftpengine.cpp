@@ -678,22 +678,22 @@ static void _q_parseUnixDir(const QStringList &tokens, const QString &userName, 
     // Resolve permissions
     int permissions = 0;
     QString p = tokens.at(2);
-    permissions |= (p[0] == QLatin1Char('r') ? QFileDevice::ReadOwner : 0);
-    permissions |= (p[1] == QLatin1Char('w') ? QFileDevice::WriteOwner : 0);
-    permissions |= (p[2] == QLatin1Char('x') ? QFileDevice::ExeOwner : 0);
-    permissions |= (p[3] == QLatin1Char('r') ? QFileDevice::ReadGroup : 0);
-    permissions |= (p[4] == QLatin1Char('w') ? QFileDevice::WriteGroup : 0);
-    permissions |= (p[5] == QLatin1Char('x') ? QFileDevice::ExeGroup : 0);
-    permissions |= (p[6] == QLatin1Char('r') ? QFileDevice::ReadOther : 0);
-    permissions |= (p[7] == QLatin1Char('w') ? QFileDevice::WriteOther : 0);
-    permissions |= (p[8] == QLatin1Char('x') ? QFileDevice::ExeOther : 0);
+    permissions |= (p[0] == QLatin1Char('r') ? QFile::ReadOwner : 0);
+    permissions |= (p[1] == QLatin1Char('w') ? QFile::WriteOwner : 0);
+    permissions |= (p[2] == QLatin1Char('x') ? QFile::ExeOwner : 0);
+    permissions |= (p[3] == QLatin1Char('r') ? QFile::ReadGroup : 0);
+    permissions |= (p[4] == QLatin1Char('w') ? QFile::WriteGroup : 0);
+    permissions |= (p[5] == QLatin1Char('x') ? QFile::ExeGroup : 0);
+    permissions |= (p[6] == QLatin1Char('r') ? QFile::ReadOther : 0);
+    permissions |= (p[7] == QLatin1Char('w') ? QFile::WriteOther : 0);
+    permissions |= (p[8] == QLatin1Char('x') ? QFile::ExeOther : 0);
     info->setPermissions(permissions);
 
     bool isOwner = info->owner() == userName;
-    info->setReadable((permissions & QFileDevice::ReadOther) ||
-                      ((permissions & QFileDevice::ReadOwner) && isOwner));
-    info->setWritable((permissions & QFileDevice::WriteOther) ||
-                      ((permissions & QFileDevice::WriteOwner) && isOwner));
+    info->setReadable((permissions & QFile::ReadOther) ||
+                      ((permissions & QFile::ReadOwner) && isOwner));
+    info->setWritable((permissions & QFile::WriteOther) ||
+                      ((permissions & QFile::WriteOwner) && isOwner));
 }
 
 static void _q_parseDosDir(const QStringList &tokens, const QString &userName, FileInfo *info)
@@ -719,15 +719,15 @@ static void _q_parseDosDir(const QStringList &tokens, const QString &userName, F
 
     // Note: We cannot use QFileInfo; permissions are for the server-side
     // machine, and QFileInfo's behavior depends on the local platform.
-    int permissions = QFileDevice::ReadOwner | QFileDevice::WriteOwner
-                      | QFileDevice::ReadGroup | QFileDevice::WriteGroup
-                      | QFileDevice::ReadOther | QFileDevice::WriteOther;
+    int permissions = QFile::ReadOwner | QFile::WriteOwner
+                      | QFile::ReadGroup | QFile::WriteGroup
+                      | QFile::ReadOther | QFile::WriteOther;
     QString ext;
     int extIndex = name.lastIndexOf(QLatin1Char('.'));
     if (extIndex != -1)
         ext = name.mid(extIndex + 1);
     if (ext == QLatin1String("exe") || ext == QLatin1String("bat") || ext == QLatin1String("com"))
-        permissions |= QFileDevice::ExeOwner | QFileDevice::ExeGroup | QFileDevice::ExeOther;
+        permissions |= QFile::ExeOwner | QFile::ExeGroup | QFile::ExeOther;
     info->setPermissions(permissions);
 
     info->setReadable(true);

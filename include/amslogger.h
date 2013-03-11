@@ -18,7 +18,7 @@
   либо прямых вызов методов данного класса на консоль и/или файл. При выводе в
 файл может "вращать" журналы
 \author Савенко М.Ю.*/
-class AMSLogger/*:QObject*/ {
+class AMSLOGGER_EXPORT AMSLogger/*:QObject*/ {
 //  Q_OBJECT
 public:
   /** Уровень журналирования. По умолчания LevelCritical - ошибки
@@ -26,21 +26,30 @@ public:
   enum LogLevel {LevelDebug=1,LevelWarn=2,LevelCritical=4,LevelFatal=8};
   Q_DECLARE_FLAGS(LogLevels,LogLevel)
   Q_FLAGS(LogLevels)
-  Q_CORE_EXPORT_INLINE AMSLogger():msgFile(),msgLine(0){
+  AMSLogger():msgFile(),msgLine(0){
     initialyze();
   }
-  Q_CORE_EXPORT_INLINE AMSLogger(QtMsgType type,QString &file,int line){
+  AMSLogger(QtMsgType type,QString &file,int line){
     initialyze();
     msgType=type;
     oldMsgType=-1;
     msgFile=file;
     msgLine=line;
   }
+#if QT_VERSION >= 0x050000
+  ~AMSLogger(){QMessageLogContext c;messageOutput(msgType,c,"\n");}
+#else
   ~AMSLogger(){messageOutput(msgType,"\n");}
+#endif
   /** Выводит сообщение \param msg и записывает его в файл журнала в зависимости от
  установленного уровня на основании типа сообщения \param type.
 \see setLogLevel()*/
+#if QT_VERSION >= 0x050000
+  static void messageOutput(QtMsgType type, const QMessageLogContext &c=QMessageLogContext(),
+                            const QString &msg=QString());
+#else
   Q_CORE_EXPORT_INLINE static void messageOutput(QtMsgType type, const char *msg);
+#endif
   /** Устанавливает обработчик сообщений, уровень журналирования в LevelCritical
  и имя файла журнала в
 \bold qApp->applicationDirPath()+"/"+QFileInfo(qApp->applicationFilePath()).completeBaseName()+".log"
@@ -48,14 +57,18 @@ public:
   static void install();
   /** Возвращает системный обработчик сообщений \see install()*/
   static void uninstall(){
+#if QT_VERSION >= 0x050000
+    qInstallMessageHandler(oldMsgHandler);
+#else
     qInstallMsgHandler(oldMsgHandler);
+#endif
   }
   /** Устанавливает уровень журналирования в LevelCritical и имя файла журнала в
 \bold qApp->applicationDirPath()+"/"+QFileInfo(qApp->applicationFilePath()).completeBaseName()+".log"
 и "вращает" его*/
   static void initialyze();
   /** Записывает сообщение msg в файл журнала*/
-  Q_CORE_EXPORT_INLINE static void writeToFile(const QByteArray &msg);
+  static void writeToFile(const QByteArray &msg);
   /** Устанавливает уровень журналирования в файл в \param level \see logLevel()*/
   static void setLogLevel(LogLevels level){
     loglevel=level;
@@ -80,6 +93,7 @@ public:
   установленного уровня на основании типа сообщения \param type.
   \see setLogLevel()*/
   AMSLogger& operator <<(const QVariant& msg);
+  AMSLogger& operator<<(const void * ptr);
 
 
 private:
@@ -91,7 +105,11 @@ private:
   static bool installed;
   static LogLevels loglevel;
   static QFile *outFile;
+#if QT_VERSION >= 0x050000
+  static QtMessageHandler oldMsgHandler;
+#else
   static QtMsgHandler oldMsgHandler;
+#endif
   static QTextStream stream;
   static int oldMsgType;
 
@@ -105,18 +123,10 @@ private:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(AMSLogger::LogLevels)
 
-Q_CORE_EXPORT_INLINE AMSLogger logDebug(QString file,int line) {
-  return AMSLogger(QtDebugMsg,file,line);
-}
-Q_CORE_EXPORT_INLINE AMSLogger logWarning(QString file,int line) {
-  return AMSLogger(QtWarningMsg,file,line);
-}
-Q_CORE_EXPORT_INLINE AMSLogger logCritical(QString file,int line) {
-  return AMSLogger(QtCriticalMsg,file,line);
-}
-Q_CORE_EXPORT_INLINE AMSLogger logFatal(QString file,int line) {
-  return AMSLogger(QtFatalMsg,file,line);
-}
+AMSLOGGER_EXPORT AMSLogger logDebug(QString file,int line);
+AMSLOGGER_EXPORT AMSLogger logWarning(QString file,int line);
+AMSLOGGER_EXPORT AMSLogger logCritical(QString file,int line);
+AMSLOGGER_EXPORT AMSLogger logFatal(QString file,int line);
 #define LogFatal() logFatal(__FILE__,__LINE__)
 #define LogCritical() logCritical(__FILE__,__LINE__)
 #define LogWarning() logWarning(__FILE__,__LINE__)
