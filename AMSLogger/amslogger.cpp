@@ -9,14 +9,22 @@ bool AMSLogger::installed=false;
 bool AMSLogger::space=true;
 AMSLogger::LogLevels AMSLogger::loglevel=AMSLogger::LevelCritical;
 QFile *AMSLogger::outFile=new QFile();
+#if QT_VERSION >= 0x050000
+QtMessageHandler AMSLogger::oldMsgHandler=NULL;
+#else
 QtMsgHandler AMSLogger::oldMsgHandler=NULL;
+#endif
 int AMSLogger::rotateCount=14;
 QTextStream AMSLogger::stream(stderr);
 int AMSLogger::oldMsgType=-1;
 
+#if QT_VERSION >= 0x050000
+void AMSLogger::messageOutput(QtMsgType type, const QMessageLogContext &,const QString &msg){
+#else
 void AMSLogger::messageOutput(QtMsgType type, const char *msg){
+#endif
   AMSLogger::initialyze();
-  QByteArray ba(msg);
+  QByteArray ba(qPrintable(msg));
   QString strDateTime=
       QDateTime::currentDateTime().toString("[dd.MM.yyyy] [hh:mm:ss.zzz]: ");
 
@@ -66,12 +74,17 @@ void AMSLogger::messageOutput(QtMsgType type, const char *msg){
 //    abort();
     break;
   }
+  stream.flush();
   oldMsgType=type;
 }
 
 void AMSLogger::install(){
   initialyze();
+#if QT_VERSION >= 0x050000
+  oldMsgHandler=qInstallMessageHandler(messageOutput);
+#else
   oldMsgHandler=qInstallMsgHandler(messageOutput);
+#endif
   installed=true;
 }
 
@@ -82,9 +95,8 @@ void AMSLogger::initialyze(){
   QString logFile=prefix()+".log";
   outFile->setFileName(logFile);
   //"вращение" либо отправка по почте журнала//////////////////////////////////
-#warning Log email realization mis (отправка по почте не реализована)
   rotate();
-  qDebug()<<"AMSLogger: logfile name:"<<outFile->fileName();
+  fprintf(stdout, "AMSLogger: logfile name: %s", qPrintable( outFile->fileName() ) );
   ////////////////////////////////////"вращение" либо отправка по почте журнала
   initialized=true;
 }
@@ -99,7 +111,7 @@ void AMSLogger::writeToFile(const QByteArray &msg){
     return;
   }
 
-  QTextCodec *cfcs=QTextCodec::codecForUtfText(msg,QTextCodec::codecForCStrings());
+  QTextCodec *cfcs=QTextCodec::codecForUtfText(msg,QTextCodec::codecForLocale());
   if(cfcs){
     QString intenalMsg=cfcs->toUnicode(msg);
     QTextCodec *cfl=QTextCodec::codecForLocale();
@@ -119,8 +131,20 @@ AMSLogger& AMSLogger::operator <<(const QVariant &msg){
     if(!str.isEmpty()) str+=": ";
   }
   str+=msg.toString();
+#if QT_VERSION >= 0x050000
+  QMessageLogContext c;
+  messageOutput(msgType,c,qPrintable(str));
+#else
   messageOutput(msgType,qPrintable(str));
+#endif
   return maybeSpace();
+}
+
+AMSLogger& AMSLogger::operator <<(const void * ptr){
+  QString str;
+  QTextStream ts(&str);
+  ts<<ptr;
+  return (*this)<<str;
 }
 
 void AMSLogger::rotate(){
@@ -158,4 +182,17 @@ QString AMSLogger::prefix(){
   QString completeBN=completeBaseName();
   return qApp->applicationDirPath()+"/"+completeBN+
       "_logger/"+completeBN;
+}
+
+AMSLOGGER_EXPORT AMSLogger logDebug(QString file,int line) {
+  return AMSLogger(QtDebugMsg,file,line);
+}
+AMSLOGGER_EXPORT AMSLogger logWarning(QString file,int line) {
+  return AMSLogger(QtWarningMsg,file,line);
+}
+AMSLOGGER_EXPORT AMSLogger logCritical(QString file,int line) {
+  return AMSLogger(QtCriticalMsg,file,line);
+}
+AMSLOGGER_EXPORT AMSLogger logFatal(QString file,int line) {
+  return AMSLogger(QtFatalMsg,file,line);
 }

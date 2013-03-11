@@ -75,11 +75,9 @@ HEADERS += \
     FTPEngine/FTPTransfer/ftptransfer.h
 
 greaterThan( QT_MAJOR_VERSION, 4 ) {
-  LIBS += -L../bin_qt5/ \
-      -lAMSLogger
+  LIBS += -L../bin_qt5/
 }
-
-
-
-
-
+lessThan( QT_MAJOR_VERSION, 5 ) {
+  LIBS += -L../bin/
+}
+LIBS += -lAMSLogger

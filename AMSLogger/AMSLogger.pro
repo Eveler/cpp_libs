@@ -11,17 +11,27 @@ TEMPLATE = lib
 #CONFIG += staticlib release
 CONFIG += create_prl
 
+DEFINES += AMSLOGGER_BUILD
+
 INCLUDEPATH += ./ \
     ../include/
 
-SOURCES += amslogger.cpp \
-    smtp.cpp
+SOURCES += \
+    smtp.cpp \
+    amslogger.cpp
 
-HEADERS += ../include/amslogger.h \
-    ../include/smtp.h
+HEADERS += \
+    ../include/smtp.h \
+    ../include/amslogger.h
 
-DESTDIR = ../bin
-DLLDESTDIR = ../bin
+greaterThan(QT_MAJOR_VERSION, 4) {
+  DESTDIR = ../bin_qt5
+  DLLDESTDIR = ../bin_qt5
+}
+lessThan(QT_MAJOR_VERSION, 5) {
+  DESTDIR = ../bin
+  DLLDESTDIR = ../bin
+}
 CONFIG(release, debug|release){
   OBJECTS_DIR = ../temp/$$TARGET/release
   MOC_DIR = ../temp/$$TARGET/release
