@@ -20,7 +20,7 @@ typedef struct
 class MFCCORE_EXPORT MFCCore
 {
 public:
-  enum Period {Undefined = 0, Daily, Weekly, Monthly, Quarterly, Semiannual, Yearly};
+  enum Period {Undefined = 0, Random, Daily, Weekly, Monthly, Quarterly, Semiannual, Yearly};
 
   static const QStringList byteSizeNames;
 
