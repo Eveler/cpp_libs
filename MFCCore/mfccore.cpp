@@ -13,7 +13,8 @@ const QStringList MFCCore::byteSizeNames = QStringList()
 
 QString MFCCore::periodName( Period period )
 {
-  if ( period == Daily ) return QObject::tr( "Ежедневный" );
+  if ( period == Random ) return QObject::tr( "Произвольный" );
+  else if ( period == Daily ) return QObject::tr( "Ежедневный" );
   else if ( period == Weekly ) return QObject::tr( "Еженедельный" );
   else if ( period == Monthly ) return QObject::tr( "Ежемесячный" );
   else if ( period == Quarterly ) return QObject::tr( "Квартальный" );
@@ -24,7 +25,8 @@ QString MFCCore::periodName( Period period )
 
 MFCCore::Period MFCCore::period( QString name )
 {
-  if ( name == QObject::tr( "Ежедневный" ) ) return Daily;
+  if ( name == QObject::tr( "Произвольный" ) ) return Random;
+  else if ( name == QObject::tr( "Ежедневный" ) ) return Daily;
   else if ( name == QObject::tr( "Еженедельный" ) ) return Weekly;
   else if ( name == QObject::tr( "Ежемесячный" ) ) return Monthly;
   else if ( name == QObject::tr( "Квартальный" ) ) return Quarterly;

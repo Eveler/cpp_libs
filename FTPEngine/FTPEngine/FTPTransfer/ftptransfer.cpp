@@ -77,8 +77,7 @@ void FTPTransfer::receivedData()
   m__State = State_Communication;
 
   QByteArray data = QByteArray();
-  while ( m__Client->canReadLine() )
-    data.append( m__Client->readAll() );
+  data.append( m__Client->readAll() );
 
   m__Buffer->write( data );
   emit dataCommunicationProgress( m__Buffer->size(), 0 );
@@ -94,13 +93,17 @@ void FTPTransfer::bytesWritten(qint64 size)
 
 void FTPTransfer::disconnectClient()
 {
-    m__Buffer = NULL;
-    m__BytesDone = 0;
-    disconnect( m__Client, SIGNAL(readyRead()), this, SLOT(receivedData()) );
-    disconnect( m__Client, SIGNAL(readChannelFinished()), this, SIGNAL(disconnectClient()) );
-    disconnect( m__Client, SIGNAL(bytesWritten(qint64)), this, SLOT(bytesWritten(qint64)) );
-    m__Client->disconnectFromHost();
-    emit dataCommunicationFinished();
+//  QByteArray data = QByteArray();
+//  data.append( m__Client->readAll() );
+
+//  m__Buffer->write( data );
+  m__Buffer = NULL;
+  m__BytesDone = 0;
+  disconnect( m__Client, SIGNAL(readyRead()), this, SLOT(receivedData()) );
+  disconnect( m__Client, SIGNAL(readChannelFinished()), this, SIGNAL(disconnectClient()) );
+  disconnect( m__Client, SIGNAL(bytesWritten(qint64)), this, SLOT(bytesWritten(qint64)) );
+  m__Client->disconnectFromHost();
+  emit dataCommunicationFinished();
 }
 
 void FTPTransfer::connectionClosed()
