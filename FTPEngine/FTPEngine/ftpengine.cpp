@@ -64,7 +64,13 @@ FTPEngine::~FTPEngine()
 void FTPEngine::connectToHost( const QUrl &url, int port )
 {
   m__Url = url;
-  m__Port = port;
+  if ( url.port() != -1 ) m__Port = url.port();
+  else m__Port = port;
+  if ( !url.userName().isEmpty() )
+  {
+    m__User = url.userName();
+    m__Password = url.password();
+  }
 
   m__Socket->disconnect();
 
