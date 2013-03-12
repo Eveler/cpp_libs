@@ -1117,15 +1117,15 @@ void FTPEngine::transferDataProgress( qint64 currentSize, qint64 overallSize )
 {
   if ( m__CurrentCommand->mainCommand()->type() == FTPCommand::Type_Retr )
     emit loadProgress( m__CommandIODevice.value(
-                         m__CurrentCommand->mainCommand() ).first->fileName(),
-                       m__CommandIODevice.value(
                          m__CurrentCommand->mainCommand() ).second->size(),
                        m__CommandIODevice.value(
-                         m__CurrentCommand->mainCommand() ).first->size() );
+                         m__CurrentCommand->mainCommand() ).first->size(),
+                       m__CommandIODevice.value(
+                         m__CurrentCommand->mainCommand() ).first->fileName());
   else if ( m__CurrentCommand->mainCommand()->type() == FTPCommand::Type_Stor )
-      emit loadProgress( m__CommandIODevice.value(
-                           m__CurrentCommand->mainCommand() ).first->fileName(),
-                         currentSize, overallSize );
+    emit loadProgress( currentSize, overallSize,
+                       m__CommandIODevice.value(
+                         m__CurrentCommand->mainCommand() ).first->fileName());
 }
 
 void FTPEngine::transferDataFinished()

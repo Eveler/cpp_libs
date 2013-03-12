@@ -68,7 +68,7 @@ signals:
   void ftpAnswer( QString answerText, int ftpCode );
 
   void ftpAnswer( FTPEngine::Command, bool result );
-  void loadProgress( QString fileName, qint64 current,qint64 max );
+  void loadProgress( qint64 current,qint64 max, QString fileName );
 
   void disconnected();
 
