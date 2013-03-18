@@ -60,7 +60,13 @@ FTPEngine::~FTPEngine()
 void FTPEngine::connectToHost( const QUrl &url, int port )
 {
   m__Url = url;
-  m__Port = port;
+  if ( url.port() != -1 ) m__Port = url.port();
+  else m__Port = port;
+  if ( !url.userName().isEmpty() )
+  {
+    m__User = url.userName();
+    m__Password = url.password();
+  }
 
   m__Socket->disconnect();
 
@@ -1111,15 +1117,15 @@ void FTPEngine::transferDataProgress( qint64 currentSize, qint64 overallSize )
 {
   if ( m__CurrentCommand->mainCommand()->type() == FTPCommand::Type_Retr )
     emit loadProgress( m__CommandIODevice.value(
-                         m__CurrentCommand->mainCommand() ).first->fileName(),
-                       m__CommandIODevice.value(
                          m__CurrentCommand->mainCommand() ).second->size(),
                        m__CommandIODevice.value(
-                         m__CurrentCommand->mainCommand() ).first->size() );
+                         m__CurrentCommand->mainCommand() ).first->size(),
+                       m__CommandIODevice.value(
+                         m__CurrentCommand->mainCommand() ).first->fileName());
   else if ( m__CurrentCommand->mainCommand()->type() == FTPCommand::Type_Stor )
-      emit loadProgress( m__CommandIODevice.value(
-                           m__CurrentCommand->mainCommand() ).first->fileName(),
-                         currentSize, overallSize );
+    emit loadProgress( currentSize, overallSize,
+                       m__CommandIODevice.value(
+                         m__CurrentCommand->mainCommand() ).first->fileName());
 }
 
 void FTPEngine::transferDataFinished()
