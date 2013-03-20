@@ -4,7 +4,7 @@ greaterThan( QT_MAJOR_VERSION, 4 ) QT += widgets
 
 TARGET = MFCWidgets
 CONFIG(debug, debug|release): TARGET = $${TARGET}d
-CONFIG += create_prl
+#CONFIG += create_prl
 
 TEMPLATE = lib
 
