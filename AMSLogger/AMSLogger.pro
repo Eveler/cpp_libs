@@ -9,7 +9,7 @@ QT     += network
 TARGET = AMSLogger
 TEMPLATE = lib
 #CONFIG += staticlib release
-CONFIG += create_prl
+#CONFIG += create_prl
 
 DEFINES += AMSLOGGER_BUILD
 

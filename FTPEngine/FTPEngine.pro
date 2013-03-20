@@ -2,7 +2,7 @@ QT       += network core
 
 TARGET = FTPEngine
 CONFIG(debug, debug|release): TARGET = $${TARGET}d
-CONFIG += create_prl
+#CONFIG += create_prl
 
 TEMPLATE = lib
 

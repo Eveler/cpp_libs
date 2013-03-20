@@ -2,6 +2,8 @@
 #define TREELISTITEM_H
 
 #include <QObject>
+#include <QColor>
+#include <QFont>
 
 #include "lib_export.h"
 
