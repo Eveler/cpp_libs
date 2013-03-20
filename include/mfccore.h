@@ -4,11 +4,15 @@
 #include <QAbstractItemModel>
 #include <QDateTime>
 
+
 #ifdef MFCCORE_LIBRARY
 #define MFCCORE_EXPORT Q_DECL_EXPORT
 #else
 #define MFCCORE_EXPORT Q_DECL_IMPORT
 #endif
+
+
+class QSettings;
 
 typedef struct
 {
@@ -17,8 +21,10 @@ typedef struct
   QString lastname;
 } StructName;
 
-class MFCCORE_EXPORT MFCCore
+class MFCCORE_EXPORT MFCCore : public QObject
 {
+  Q_OBJECT
+
 public:
   enum Period {Undefined = 0, Random, Daily, Weekly, Monthly, Quarterly, Semiannual, Yearly};
 
@@ -57,6 +63,20 @@ public:
                         QList<int> weekend = QList<int>() << 6 << 7 );
 
   static QString humanBytes( qint64 size );
+
+  static QSettings * appSettings( QString fileName );
+  static QSettings * appSettings();
+
+
+private:
+  static MFCCore *m__Core;
+  static QSettings *m__Settings;
+
+  explicit MFCCore();
+
+
+private slots:
+  void settingsDestroyed();
 };
 
 #endif // MFCCORE_H

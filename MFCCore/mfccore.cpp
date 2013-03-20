@@ -4,7 +4,11 @@
 #include "mucalculator.h"
 
 #include <QStringList>
+#include <QSettings>
 
+
+MFCCore *MFCCore::m__Core = NULL;
+QSettings *MFCCore::m__Settings = NULL;
 
 const QStringList MFCCore::byteSizeNames = QStringList()
     << QObject::tr( "Б" ) << QObject::tr( "КБ" ) << QObject::tr( "МБ" )
@@ -32,7 +36,7 @@ MFCCore::Period MFCCore::period( QString name )
   else if ( name == QObject::tr( "Квартальный" ) ) return Quarterly;
   else if ( name == QObject::tr( "Полугодовой" ) ) return Semiannual;
   else if ( name == QObject::tr( "Годовой" ) ) return Yearly;
-  else Undefined;
+  else return Undefined;
 }
 
 bool MFCCore::matches( const QString &arg1, const QString &arg2, Qt::MatchFlag flag )
@@ -118,4 +122,29 @@ QString MFCCore::humanBytes( qint64 size )
   int idx = floor( log( size )/log(1024) );
   double rounded = muCalculator::round( ((double)size/pow( 1024., (double)idx )), 2 );
   return QString( QString::number( rounded )+" "+byteSizeNames[idx] );
+}
+
+QSettings * MFCCore::appSettings( QString fileName )
+{
+  if ( m__Core == NULL ) m__Core = new MFCCore;
+
+  if ( m__Settings == NULL )
+  {
+    m__Settings = new QSettings( fileName, QSettings::IniFormat );
+    connect( m__Settings, SIGNAL(destroyed()), m__Core, SLOT(settingsDestroyed()) );
+  }
+  if ( m__Settings->fileName().endsWith( fileName ) ) return m__Settings;
+  else return NULL;
+}
+
+QSettings * MFCCore::appSettings()
+{
+  return m__Settings;
+}
+
+MFCCore::MFCCore() {}
+
+void MFCCore::settingsDestroyed()
+{
+  m__Settings = NULL;
 }
