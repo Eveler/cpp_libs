@@ -5,11 +5,6 @@ INCLUDEPATH *= $$PWD/ \
     $$PWD/DepartmentsStorage/ \
     $$PWD/../../include/
 
-LIBS *= -L$$PWD/../../bin/ \
-    -lMFCStorage \
-    -lAMSLogger \
-    -lMFCCore
-
 HEADERS *= \
     $$PWD/../../include/abstractsimpleobject.h \
     $$PWD/../../include/abstractsimplestorage.h \

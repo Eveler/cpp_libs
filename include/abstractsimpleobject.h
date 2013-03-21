@@ -2,8 +2,14 @@
 #define ABSTRACTSIMPLEOBJECT_H
 
 #include <QObject>
+
+#include "lib_export.h"
+
 #include <QString>
 #include <QVariant>
+
+
+class AbstractSimpleStorage;
 
 class AbstractSimpleObject : public QObject
 {
@@ -12,26 +18,33 @@ class AbstractSimpleObject : public QObject
     QVariant m__Id;
     QString m__Name;
   } StructAbstractSimpleObject;
-
   Q_OBJECT
+  friend class AbstractSimpleStorage;
+
+
 public:
-  explicit AbstractSimpleObject(QObject *parent = 0);
   ~AbstractSimpleObject();
 
   const QVariant & id() const;
   const QString & name() const;
 
+
 signals:
   void changedName( QString value );
 
-public slots:
-  void clear();
 
-  void setId( QVariant value );
+public slots:
   void setName( QString value );
+
 
 private:
   StructAbstractSimpleObject m__Value;
+
+  explicit AbstractSimpleObject( QVariant id, QObject *parent = 0);
+
+  void clear();
+
+  void setId( QVariant value );
 };
 
 #endif // ABSTRACTSIMPLEOBJECT_H

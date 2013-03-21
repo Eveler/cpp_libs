@@ -3,18 +3,19 @@
 
 #include "abstractsimplestorage.h"
 
-class GroupsStorage : public AbstractSimpleStorage
+
+class EXPORT GroupsStorage : public AbstractSimpleStorage
 {
   Q_OBJECT
 public:
-  static GroupsStorage * instance();
+  static GroupsStorage * EXPORT instance();
 
 signals:
 
 public slots:
 
 private:
-  static GroupsStorage *m__Instance;
+  static GroupsStorage * EXPORT m__Instance;
 
   QList<AbstractSimpleObject *> m__Groups;
 

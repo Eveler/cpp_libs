@@ -6,7 +6,10 @@
 #include "mfccore.h"
 #include "abstractsimpleobject.h"
 
-class User : public QObject
+
+class UsersStorage;
+
+class EXPORT User : public QObject
 {
   typedef struct
   {
@@ -19,8 +22,10 @@ class User : public QObject
     AbstractSimpleObject *m__Office;
   } StructUser;
   Q_OBJECT
+  friend class UsersStorage;
+
+
 public:
-  explicit User(QObject *parent = 0);
   ~User();
 
   const QVariant & id() const;
@@ -31,12 +36,11 @@ public:
   bool dismissed() const;
   const AbstractSimpleObject * office() const;
 
+
 signals:
 
-public slots:
-  void clear();
 
-  void setId( QVariant value );
+public slots:
   void setName( StructName value );
   void setPost( AbstractSimpleObject *value );
   void setDepartment( AbstractSimpleObject *value );
@@ -44,8 +48,15 @@ public slots:
   void setDismissed( bool value );
   void setOffice( AbstractSimpleObject *value );
 
+
 private:
   StructUser m__Value;
+
+  explicit User( QVariant id, QObject *parent = 0 );
+
+  void clear();
+
+  void setId( QVariant value );
 };
 
 #endif // USER_H

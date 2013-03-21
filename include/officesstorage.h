@@ -3,7 +3,7 @@
 
 #include "abstractsimplestorage.h"
 
-class OfficesStorage : public AbstractSimpleStorage
+class EXPORT OfficesStorage : public AbstractSimpleStorage
 {
   Q_OBJECT
 public:

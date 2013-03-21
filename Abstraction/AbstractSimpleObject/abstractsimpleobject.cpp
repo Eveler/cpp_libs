@@ -1,11 +1,5 @@
 #include "abstractsimpleobject.h"
 
-AbstractSimpleObject::AbstractSimpleObject(QObject *parent) :
-    QObject(parent)
-{
-  clear();
-}
-
 AbstractSimpleObject::~AbstractSimpleObject()
 {
   clear();
@@ -21,17 +15,6 @@ const QString & AbstractSimpleObject::name() const
   return m__Value.m__Name;
 }
 
-void AbstractSimpleObject::clear()
-{
-  setId( QVariant() );
-  setName( QString() );
-}
-
-void AbstractSimpleObject::setId( QVariant value )
-{
-  m__Value.m__Id = value;
-}
-
 void AbstractSimpleObject::setName( QString value )
 {
   if ( m__Value.m__Name == value ) return;
@@ -39,3 +22,22 @@ void AbstractSimpleObject::setName( QString value )
   m__Value.m__Name = value;
   emit changedName( value );
 }
+
+AbstractSimpleObject::AbstractSimpleObject( QVariant id, QObject *parent ) :
+    QObject(parent)
+{
+  clear();
+  setId( id );
+}
+
+void AbstractSimpleObject::clear()
+{
+  m__Value.m__Id = QVariant();
+  m__Value.m__Name = QString();
+}
+
+void AbstractSimpleObject::setId( QVariant value )
+{
+  m__Value.m__Id = value;
+}
+

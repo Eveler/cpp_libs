@@ -6,10 +6,9 @@ CONFIG += create_prl
 
 TEMPLATE = lib
 
-DEFINES += OFFICE_LIBRARY
+DEFINES += EXPORT_LIBRARY
 
 INCLUDEPATH += ./ \
-    ../bin/ \
     ../include/ \
     ../Abstraction/AbstractSimpleObject/ \
     ../Abstraction/AbstractSimpleStorage/ \
@@ -34,8 +33,32 @@ unix:!symbian {
     INSTALLS += target
 }
 
-DESTDIR = ../bin
-DLLDESTDIR = ../bin
+LIB_LIST = \
+    -lAMSLogger \
+    -lMFCCore \
+
+greaterThan(QT_MAJOR_VERSION, 4) {
+  INCLUDEPATH += \
+      ../bin_qt5
+
+  DESTDIR = ../bin_qt5
+  DLLDESTDIR = ../bin_qt5
+
+  LIBS += -L../bin_qt5/ \
+      $$LIB_LIST
+}
+
+lessThan(QT_MAJOR_VERSION, 5) {
+  INCLUDEPATH += \
+      ../bin
+
+  DESTDIR = ../bin
+  DLLDESTDIR = ../bin
+
+  LIBS += -L../bin/ \
+      $$LIB_LIST
+}
+
 CONFIG(release, debug|release){
   OBJECTS_DIR = ../temp/$$TARGET/release
   MOC_DIR = ../temp/$$TARGET/release
@@ -48,11 +71,6 @@ CONFIG(debug, debug|release){
   RCC_DIR = ../temp/$$TARGET/debug
   UI_DIR = ../temp/$$TARGET/debug
 }
-
-LIBS += -L../bin/ \
-    -lAMSLogger \
-    -lMFCCore \
-    -lMFCStorage
 
 HEADERS += \
     ../include/abstractsimpleobject.h \

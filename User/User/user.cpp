@@ -1,11 +1,5 @@
 #include "user.h"
 
-User::User(QObject *parent) :
-    QObject(parent)
-{
-  clear();
-}
-
 User::~User()
 {
   clear();
@@ -46,23 +40,6 @@ const AbstractSimpleObject * User::office() const
   return m__Value.m__Office;
 }
 
-void User::clear()
-{
-  StructName sName = {QString(), QString(), QString()};
-  setId( QVariant() );
-  setName( sName );
-  setPost( NULL );
-  setDepartment( NULL );
-  setActive( false );
-  setDismissed( false );
-  setOffice( NULL );
-}
-
-void User::setId( QVariant value )
-{
-  m__Value.m__Id = value;
-}
-
 void User::setName( StructName value )
 {
   m__Value.m__Name = value;
@@ -91,5 +68,28 @@ void User::setDismissed( bool value )
 void User::setOffice( AbstractSimpleObject *value )
 {
   m__Value.m__Office = value;
+}
+
+User::User( QVariant id, QObject *parent ) :
+    QObject(parent)
+{
+  clear();
+}
+
+void User::clear()
+{
+  StructName sName = {QString(), QString(), QString()};
+  setId( QVariant() );
+  setName( sName );
+  setPost( NULL );
+  setDepartment( NULL );
+  setActive( false );
+  setDismissed( false );
+  setOffice( NULL );
+}
+
+void User::setId( QVariant value )
+{
+  m__Value.m__Id = value;
 }
 

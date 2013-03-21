@@ -3,56 +3,23 @@
 AbstractSimpleStorage::AbstractSimpleStorage(QObject *parent) :
   QObject(parent)
 {
-  reset();
 }
 
 AbstractSimpleStorage::~AbstractSimpleStorage()
 {
-  reset();
 }
 
-bool AbstractSimpleStorage::setStorage( StorageItemModel *stor, StructASSCols cols )
+AbstractSimpleObject * AbstractSimpleStorage::addObject( QVariant id )
 {
-  if ( m__Storage != NULL )
-    storageDestroyed();
-
-  if ( stor == NULL )
+  QList<AbstractSimpleObject *> objs = find( objects(), id );
+  if ( !objs.isEmpty() ) return objs.first();
+  else
   {
-    reset();
-
-    return true;
+    AbstractSimpleObject *obj = new AbstractSimpleObject( id, this );
+    connect( obj, SIGNAL(destroyed(QObject*)), SLOT(objectDestroyed(QObject*)) );
+    m__Objects << obj;
+    return obj;
   }
-
-  if ( stor->findColumnByRealName( stor->getPropertiesView(), cols.cId ) == -1 ||
-       stor->findColumnByRealName( stor->getPropertiesView(), cols.cName ) == -1 )
-    return false;
-
-  m__Storage = stor;
-  m__Cols = cols;
-
-  connect( stor, SIGNAL(destroyed()),
-           this, SLOT(storageDestroyed()) );
-  connect( stor, SIGNAL(recordAdded(MFCRecord*,int)),
-           this, SLOT(recordAdded(MFCRecord*,int)) );
-  connect( stor, SIGNAL(recordRemoved(MFCRecord*,int)),
-           this, SLOT(recordRemoved(MFCRecord*,int)) );
-  connect( stor, SIGNAL(recordRemoved(MFCRecord*,int)),
-           this, SLOT(disconnectRecord(MFCRecord*,int)) );
-
-  for ( int rIdx = 0; rIdx < stor->availableRecords().count(); rIdx++ )
-  {
-    MFCRecord *record = stor->availableRecords()[rIdx];
-    connect( record, SIGNAL(propertyChanged(QString)),
-             this, SLOT(propertyChanged(QString)) );
-    recordAdded( record, rIdx );
-  }
-
-  return true;
-}
-
-StorageItemModel * AbstractSimpleStorage::storage() const
-{
-  return m__Storage;
 }
 
 const QList<AbstractSimpleObject *> & AbstractSimpleStorage::objects() const
@@ -101,62 +68,9 @@ QList<AbstractSimpleObject *> AbstractSimpleStorage::find(
   return result;
 }
 
-void AbstractSimpleStorage::reset()
+void AbstractSimpleStorage::objectDestroyed( QObject *obj )
 {
-  m__Storage = NULL;
-  m__Cols.cId.clear();
-  m__Cols.cName.clear();
+  AbstractSimpleObject *ob = (AbstractSimpleObject *)obj;
+  m__Objects.removeOne( ob );
 }
 
-void AbstractSimpleStorage::setObjectData( AbstractSimpleObject *obj, MFCRecord *record )
-{
-  obj->setId( record->currentProperty( m__Cols.cId ) );
-  obj->setName( record->currentProperty( m__Cols.cName ).toString() );
-}
-
-void AbstractSimpleStorage::storageDestroyed()
-{
-  disconnect( this, SLOT(storageDestroyed()) );
-  disconnect( this, SLOT(recordAdded(MFCRecord*,int)) );
-  disconnect( this, SLOT(recordRemoved(MFCRecord*,int)) );
-  disconnect( this, SLOT(propertyChanged(QString,QVariant)) );
-}
-
-
-void AbstractSimpleStorage::recordAdded( MFCRecord *record, int index )
-{
-  AbstractSimpleObject *obj = new AbstractSimpleObject( this );
-  setObjectData( obj, record );
-  m__Objects.insert( index, obj );
-  connect( obj, SIGNAL(changedName(QString)), this, SLOT(changedName(QString)) );
-}
-
-void AbstractSimpleStorage::recordRemoved( MFCRecord */*record*/, int index )
-{
-  AbstractSimpleObject *obj = m__Objects.takeAt( index );
-  delete obj;
-}
-
-void AbstractSimpleStorage::disconnectRecord( MFCRecord *record, int /*index*/ )
-{
-  disconnect( record, SIGNAL(propertyChanged(QString)),
-              this, SLOT(propertyChanged(QString)) );
-}
-
-void AbstractSimpleStorage::propertyChanged( QString column )
-{
-  if ( column != m__Cols.cId && column != m__Cols.cName ) return;
-
-  MFCRecord *record = qobject_cast<MFCRecord *>( sender() );
-  int index = m__Storage->availableRecords().indexOf( record );
-  AbstractSimpleObject *obj = objects()[index];
-  setObjectData( obj, record );
-}
-
-void AbstractSimpleStorage::changedName( QString value )
-{
-  AbstractSimpleObject *obj = qobject_cast<AbstractSimpleObject *>( sender() );
-
-  m__Storage->availableRecords()[objects().indexOf( obj )]->setCurrentProperty(
-        m__Cols.cName, value );
-}
