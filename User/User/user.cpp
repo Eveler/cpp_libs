@@ -15,12 +15,12 @@ const StructName & User::name() const
   return m__Value.m__Name;
 }
 
-const AbstractSimpleObject * User::post() const
+AbstractSimpleObject * User::post() const
 {
   return m__Value.m__Post;
 }
 
-const AbstractSimpleObject * User::department() const
+AbstractSimpleObject * User::department() const
 {
   return m__Value.m__Department;
 }
@@ -35,7 +35,7 @@ bool User::dismissed() const
   return m__Value.m__Dismissed;
 }
 
-const AbstractSimpleObject * User::office() const
+AbstractSimpleObject * User::office() const
 {
   return m__Value.m__Office;
 }
@@ -43,37 +43,44 @@ const AbstractSimpleObject * User::office() const
 void User::setName( StructName value )
 {
   m__Value.m__Name = value;
+  emit nameChanged();
 }
 
 void User::setPost( AbstractSimpleObject *value )
 {
   m__Value.m__Post = value;
+  emit postChaged();
 }
 
 void User::setDepartment( AbstractSimpleObject *value )
 {
   m__Value.m__Department = value;
+  emit departmentChanged();
 }
 
 void User::setActive( bool value )
 {
   m__Value.m__Active = value;
+  emit activeChanged();
 }
 
 void User::setDismissed( bool value )
 {
   m__Value.m__Dismissed = value;
+  emit dismissedChanged();
 }
 
 void User::setOffice( AbstractSimpleObject *value )
 {
   m__Value.m__Office = value;
+  emit officeChanged();
 }
 
 User::User( QVariant id, QObject *parent ) :
     QObject(parent)
 {
   clear();
+  setId( id );
 }
 
 void User::clear()

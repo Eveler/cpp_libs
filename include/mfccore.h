@@ -3,6 +3,7 @@
 
 #include <QAbstractItemModel>
 #include <QDateTime>
+#include <QAuthenticator>
 
 
 #ifdef MFCCORE_LIBRARY
@@ -67,10 +68,14 @@ public:
   static QSettings * appSettings( QString fileName );
   static QSettings * appSettings();
 
+  static QAuthenticator * authenticator( QString key );
+  static void removeAuthenticator( QString key );
+
 
 private:
   static MFCCore *m__Core;
   static QSettings *m__Settings;
+  static QHash<QString, QAuthenticator> m__Authenticators;
 
   explicit MFCCore();
 

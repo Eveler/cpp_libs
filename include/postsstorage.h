@@ -3,21 +3,26 @@
 
 #include "abstractsimplestorage.h"
 
-class PostsStorage : public AbstractSimpleStorage
+#include "lib_export.h"
+
+
+class EXPORT PostsStorage : public AbstractSimpleStorage
 {
   Q_OBJECT
 public:
   static PostsStorage * instance();
 
+
 signals:
 
+
 public slots:
+
 
 private:
   static PostsStorage *m__Instance;
 
   explicit PostsStorage(QObject *parent = 0);
-
 };
 
 #endif // POSTSSTORAGE_H

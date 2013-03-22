@@ -9,6 +9,7 @@
 
 MFCCore *MFCCore::m__Core = NULL;
 QSettings *MFCCore::m__Settings = NULL;
+QHash<QString, QAuthenticator> MFCCore::m__Authenticators = QHash<QString, QAuthenticator>();
 
 const QStringList MFCCore::byteSizeNames = QStringList()
     << QObject::tr( "Б" ) << QObject::tr( "КБ" ) << QObject::tr( "МБ" )
@@ -140,6 +141,21 @@ QSettings * MFCCore::appSettings( QString fileName )
 QSettings * MFCCore::appSettings()
 {
   return m__Settings;
+}
+
+QAuthenticator * MFCCore::authenticator( QString key )
+{
+  if ( !m__Authenticators.contains( key ) )
+    m__Authenticators[key] = QAuthenticator();
+
+  return &m__Authenticators[key];
+}
+
+void MFCCore::removeAuthenticator( QString key )
+{
+  if ( !m__Authenticators.contains( key ) ) return;
+
+  m__Authenticators.remove( key );
 }
 
 MFCCore::MFCCore() {}

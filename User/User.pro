@@ -1,4 +1,4 @@
-QT       += gui
+QT       += gui network
 
 TARGET = User
 CONFIG(debug, debug|release): TARGET = $${TARGET}d

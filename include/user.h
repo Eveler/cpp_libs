@@ -30,14 +30,20 @@ public:
 
   const QVariant & id() const;
   const StructName & name() const;
-  const AbstractSimpleObject * post() const;
-  const AbstractSimpleObject * department() const;
+  AbstractSimpleObject * post() const;
+  AbstractSimpleObject * department() const;
   bool active() const;
   bool dismissed() const;
-  const AbstractSimpleObject * office() const;
+  AbstractSimpleObject * office() const;
 
 
 signals:
+  void nameChanged();
+  void postChaged();
+  void departmentChanged();
+  void activeChanged();
+  void dismissedChanged();
+  void officeChanged();
 
 
 public slots:

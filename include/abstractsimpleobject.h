@@ -11,7 +11,7 @@
 
 class AbstractSimpleStorage;
 
-class AbstractSimpleObject : public QObject
+class EXPORT AbstractSimpleObject : public QObject
 {
   typedef struct
   {
