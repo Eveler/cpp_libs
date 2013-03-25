@@ -46,10 +46,12 @@ QList<User *> UsersStorage::findByName( QList<User *> objs, StructName value ) c
   QList<User *> result = QList<User *>();
 
   foreach ( User *user, objs )
+  {
     if ( user->name().surname == value.surname &&
          user->name().firstname == value.firstname &&
          user->name().lastname == value.lastname )
       result << user;
+  }
 
   return result;
 }
