@@ -7,7 +7,8 @@
 bool AMSLogger::initialized=false;
 bool AMSLogger::installed=false;
 bool AMSLogger::space=true;
-AMSLogger::LogLevels AMSLogger::loglevel=AMSLogger::LevelCritical;
+AMSLogger::LogLevels AMSLogger::loglevel=
+    AMSLogger::LevelCritical | AMSLogger::LevelFatal;
 QFile *AMSLogger::outFile=new QFile();
 #if QT_VERSION >= 0x050000
 QtMessageHandler AMSLogger::oldMsgHandler=NULL;
