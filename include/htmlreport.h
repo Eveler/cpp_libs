@@ -61,9 +61,6 @@ public:
               const QString &fieldName);
   bool assign(const QString &section,const QString &key,const QVariant &val);
 
-  /// Открывает отчёт во внешнем редакторе
-  bool exec();
-
   void reset();
   void clear();
 

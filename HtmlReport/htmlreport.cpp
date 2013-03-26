@@ -230,51 +230,6 @@ bool HtmlReport::assign(const QString &section, const QString &key,
   return true;
 }
 
-bool HtmlReport::exec(){
-  AMSLogger::setLogLevel(AMSLogger::LevelDebug | AMSLogger::LevelWarn |
-                         AMSLogger::LevelCritical | AMSLogger::LevelFatal);
-
-  if(repData.isEmpty()){
-    setError(tr("Отчёт пуст"));
-    return false;
-  }
-  QTemporaryFile rep(QDir::tempPath()+"/reportXXXXXX.doc",this);
-  rep.setAutoRemove(false);
-//  QFile rep(QDir::tempPath()+"/reportXXXXXX.doc",this);
-  if(!rep.open()/*rep.open(QFile::ReadWrite)*/){
-    setError(tr("Ошибка создания временного файла: %1").arg(rep.errorString()));
-    return false;
-  }
-  rep.write(qPrintable(generate()));
-  rep.close();
-
-  QString repName=rep.fileName();
-  repName.replace("/","\\");
-  LogDebug()<<repName;
-  QProcess proc(this);
-  proc.setProcessChannelMode(QProcess::MergedChannels);
-  int res=proc.execute("cmd /C "+repName);
-  LogDebug()<<res<<proc.errorString();
-
-//  rep.remove();
-
-  if(res==-2){
-    setError(tr("Нет возможности запустить дочерний процесс: %1: %2")
-             .arg(rep.fileName()).arg(proc.errorString()));
-    return false;
-  }else if(res==-1){
-    setError(tr("Дочерний процесс внезапно завершился: %1: %2")
-             .arg(rep.fileName()).arg(proc.errorString()));
-  }
-  if(!proc.errorString().isEmpty() && proc.errorString()!="Unknown error")
-    setError(tr("Дочерний процесс вернул ошибку: %1").arg(proc.errorString()));
-  QString sys_out=proc.readAllStandardOutput()+" "+proc.readAllStandardError();
-  if(sys_out.simplified().length()>0)
-    LogDebug()<<sys_out;
-
-  return proc.exitStatus()>=0;
-}
-
 void HtmlReport::reset(){
   parse();
   errStr.clear();

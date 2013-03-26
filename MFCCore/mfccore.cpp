@@ -5,11 +5,16 @@
 
 #include <QStringList>
 #include <QSettings>
+#include <QUuid>
+#include <QDir>
 
+#include <QDebug>
 
 MFCCore *MFCCore::m__Core = NULL;
 QSettings *MFCCore::m__Settings = NULL;
 QHash<QString, QAuthenticator> MFCCore::m__Authenticators = QHash<QString, QAuthenticator>();
+QProcess *MFCCore::ext_proc=NULL;
+QFile *MFCCore::ext_proc_file=NULL;
 
 const QStringList MFCCore::byteSizeNames = QStringList()
     << QObject::tr( "Б" ) << QObject::tr( "КБ" ) << QObject::tr( "МБ" )
@@ -158,9 +163,135 @@ void MFCCore::removeAuthenticator( QString key )
   m__Authenticators.remove( key );
 }
 
+QString MFCCore::execFile(const QString &fName, const bool block_ui){
+  if(!m__Core && !block_ui) m__Core=new MFCCore;
+  if(!ext_proc){
+    ext_proc=new QProcess(m__Core);
+    ext_proc->setProcessChannelMode(QProcess::MergedChannels);
+    if(!block_ui){
+      connect(ext_proc,SIGNAL(finished(int)),m__Core,SLOT(processFinished(int)));
+      connect(ext_proc,SIGNAL(error(QProcess::ProcessError)),
+              m__Core,SLOT(processError(QProcess::ProcessError)));
+    }
+  }
+  QString errStr;
+
+  QString fileName=fName;
+  if(block_ui){
+    fileName.replace("/","\\");
+    int res=ext_proc->execute(tr("cmd /C %1").arg(fileName));
+    if(res==-2){
+      errStr=tr("Нет возможности запустить дочерний процесс: %1: %2")
+               .arg(fileName).arg(ext_proc->errorString());
+    }else if(res==-1){
+      errStr=tr("Дочерний процесс внезапно завершился: %1: %2")
+               .arg(fileName).arg(ext_proc->errorString());
+    }else if(!ext_proc->errorString().isEmpty() &&
+             ext_proc->errorString()!="Unknown error")
+      errStr=tr("Дочерний процесс вернул ошибку: %1").arg(ext_proc->errorString());
+    QString sys_out=ext_proc->readAllStandardOutput()+" "+
+        ext_proc->readAllStandardError();
+    if(sys_out.simplified().length()>0)
+      errStr+=tr("Вывод процесса: %1").arg(sys_out);
+
+    ext_proc->deleteLater();
+    ext_proc=NULL;
+    return errStr;
+  }else{
+    ext_proc->start(tr("cmd /C %1").arg(fileName));
+    if(!ext_proc->waitForStarted()){
+      errStr=tr("Истекло время ожидания запуска процесса: %1")
+          .arg(ext_proc->errorString());
+      ext_proc->deleteLater();
+      ext_proc=NULL;
+    }
+  }
+
+  return errStr;
+}
+
+QString MFCCore::execFile(const QByteArray &buf, const QString extension,
+                          const bool block_ui){
+  QUuid uuid=QUuid::createUuid();
+  QString fileName=uuid.toString();
+  fileName=QDir::tempPath()+tr("/exec%1.%2").arg(
+        fileName.mid(1,fileName.length()-1)).arg(extension);
+  qDebug()<<fileName;
+  if(!m__Core && !block_ui) m__Core=new MFCCore;
+  QString errStr;
+
+  if(!ext_proc_file){
+    ext_proc_file=new QFile(fileName,m__Core);
+  }
+  if(!ext_proc_file->open(QFile::WriteOnly)){
+    errStr=tr("Ошибка создания временного файла: %1: %2")
+        .arg(fileName).arg(ext_proc_file->errorString());
+    ext_proc_file->deleteLater();
+    ext_proc_file=NULL;
+    return errStr;
+  }
+  ext_proc_file->write(buf);
+  if(ext_proc_file->error()!=QFile::NoError){
+    errStr=tr("Ошибка записи данных во временный файл: %1").arg(
+          ext_proc_file->errorString());
+    ext_proc_file->close();
+    ext_proc_file->remove();
+    ext_proc_file->deleteLater();
+    ext_proc_file=NULL;
+    return errStr;
+  }
+  ext_proc_file->close();
+
+  return execFile(fileName,block_ui);
+}
+
 MFCCore::MFCCore() {}
 
 void MFCCore::settingsDestroyed()
 {
   m__Settings = NULL;
+}
+
+void MFCCore::processFinished(int exitCode){
+  if(!ext_proc) return;
+
+  QString errStr;
+  if(exitCode==-2){
+    errStr=tr("Нет возможности запустить дочерний процесс: %1")
+             .arg(ext_proc->errorString());
+  }else if(exitCode==-1){
+    errStr=tr("Дочерний процесс внезапно завершился: %1")
+             .arg(ext_proc->errorString());
+  }else if(!ext_proc->errorString().isEmpty() &&
+           ext_proc->errorString()!="Unknown error")
+    errStr=tr("Дочерний процесс вернул ошибку: %1").arg(ext_proc->errorString());
+  QString sys_out=ext_proc->readAllStandardOutput()+" "+
+      ext_proc->readAllStandardError();
+  if(sys_out.simplified().length()>0)
+    errStr+=tr("Вывод процесса: %1").arg(sys_out);
+
+  ext_proc->deleteLater();
+  ext_proc=NULL;
+
+  if(ext_proc_file){
+    ext_proc_file->remove();
+    ext_proc_file->deleteLater();
+    ext_proc_file=NULL;
+  }
+}
+
+void MFCCore::processError(QProcess::ProcessError err){
+  if(err==QProcess::FailedToStart || err==QProcess::Crashed ||
+     err==QProcess::Timedout || err==QProcess::UnknownError){
+    if(ext_proc){
+      ext_proc->deleteLater();
+      ext_proc=NULL;
+
+      if(ext_proc_file){
+        ext_proc_file->remove();
+        ext_proc_file->deleteLater();
+        ext_proc_file=NULL;
+      }
+    }
+  }
 }

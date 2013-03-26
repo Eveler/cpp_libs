@@ -4,7 +4,8 @@
 #include <QAbstractItemModel>
 #include <QDateTime>
 #include <QAuthenticator>
-
+#include <QProcess>
+#include <QFile>
 
 #ifdef MFCCORE_LIBRARY
 #define MFCCORE_EXPORT Q_DECL_EXPORT
@@ -71,17 +72,24 @@ public:
   static QAuthenticator * authenticator( QString key );
   static void removeAuthenticator( QString key );
 
+  static QString execFile(const QString &fName, const bool block_ui=true);
+  static QString execFile(const QByteArray &buf, const QString extension,
+                          const bool block_ui=true);
 
 private:
   static MFCCore *m__Core;
   static QSettings *m__Settings;
   static QHash<QString, QAuthenticator> m__Authenticators;
+  static QProcess *ext_proc;
+  static QFile *ext_proc_file;
 
   explicit MFCCore();
 
 
 private slots:
   void settingsDestroyed();
+  void processFinished(int exitCode);
+  void processError(QProcess::ProcessError err);
 };
 
 #endif // MFCCORE_H
