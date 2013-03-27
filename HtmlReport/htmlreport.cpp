@@ -56,6 +56,9 @@ bool HtmlReport::load(const QString &name){
   QTextCodec *cfcs=QTextCodec::codecForHtml(msg,0);
   if(cfcs){
     QTextCodec *cfl=QTextCodec::codecForLocale();
+
+    msg=replaceMeta(msg,cfl);
+
     if(cfcs!=cfl){
       QString intenalMsg=cfcs->toUnicode(msg);
       if(cfl && cfl->canEncode(intenalMsg)){
@@ -415,4 +418,25 @@ QString HtmlReport::getFirstSectionName(QString data){
   section.remove(0,section.indexOf("\"")+1);
   section.truncate(section.lastIndexOf("\""));
   return section;
+}
+
+QByteArray HtmlReport::replaceMeta(const QByteArray &msg,QTextCodec *to){
+  // <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+  QByteArray retMsg=msg.left(msg.toLower().indexOf("<meta"));
+  QByteArray str=msg.mid(msg.toLower().indexOf("<meta"));
+  if(retMsg.length()==msg.length()) return retMsg;
+  if(retMsg.length()==0 && str.length()==0) return retMsg;
+  retMsg+=tr("<meta content=\"text/html; charset=%1\" "
+             "http-equiv=\"content-type\">").arg(QString(to->name()));
+
+  // вырезаем оставшиеся <meta >
+  while(str.toLower().contains("<meta")){
+    QByteArray meta=str.left(str.indexOf(">")+1);
+    str.replace(meta,"");
+    retMsg+=str.left(str.toLower().indexOf("<meta"));
+    str=str.mid(str.toLower().indexOf("<meta"));
+  }
+  if(str.length()>0) retMsg+=str;
+
+  return retMsg;
 }

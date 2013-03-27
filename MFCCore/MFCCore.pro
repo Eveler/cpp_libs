@@ -52,7 +52,8 @@ lessThan(QT_MAJOR_VERSION, 5) {
   DLLDESTDIR = ../bin
 
   LIBS += -L../bin/ \
-      -lmuCalculator
+      -lmuCalculator \
+      -lAMSLogger
 }
 
 CONFIG(release, debug|release){

@@ -75,6 +75,10 @@ public:
   static QString execFile(const QString &fName, const bool block_ui=true);
   static QString execFile(const QByteArray &buf, const QString extension,
                           const bool block_ui=true);
+  static QString execFile(const QString &buf, const QString extension,
+                          const bool block_ui=true) {
+    return execFile(buf.toLocal8Bit(),extension,block_ui);
+  }
 
 private:
   static MFCCore *m__Core;
