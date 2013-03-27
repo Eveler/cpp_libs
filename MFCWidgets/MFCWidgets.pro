@@ -73,6 +73,7 @@ HEADERS += \
     ../include/mfcwidgets.h \
 
 
+include(./MWidgetsCore/MWidgetsCore.pri)
 include(./Widget_Treelist/Widget_Treelist.pri)
 include(./Menu_PeriodDates/Menu_PeriodDates.pri)
 

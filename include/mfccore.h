@@ -33,16 +33,16 @@ public:
   static const QStringList byteSizeNames;
 
   static QString periodName( Period period );
-  static Period period( QString name );
+  static Period period( const QString &name );
 
   static bool matches( const QString &arg1, const QString &arg2, Qt::MatchFlag flag = Qt::MatchExactly );
 
   static int findColumn( QAbstractItemModel *model, const QString &name );
-  static QList<QModelIndex> findIndexes( QAbstractItemModel *model, QString value,
+  static QList<QModelIndex> findIndexes( QAbstractItemModel *model, const QString &value,
                                          int column = 0, Qt::MatchFlag flag = Qt::MatchExactly );
 
   template<class T>
-  static QList<T> exists( QList<T> list1, QList<T> list2 )
+  static QList<T> exists( const QList<T> &list1, const QList<T> &list2 )
   {
     QList<T> result = QList<T>();
     foreach ( T val, list2 )
@@ -53,7 +53,7 @@ public:
   }
 
   template<class T>
-  static QList<T> notExists( QList<T> list1, QList<T> list2 )
+  static QList<T> notExists( const QList<T> &list1, const QList<T> &list2 )
   {
     QList<T> result = list1;
     foreach ( T val, list2 ) result.removeOne( val );
@@ -62,18 +62,19 @@ public:
   }
 
   static QDate addDays( const QDate &date, const int &days, bool isOverall = true,
-                        QList<int> weekend = QList<int>() << 6 << 7 );
+                        const QList<int> &weekend = QList<int>() << 6 << 7 );
 
   static QString humanBytes( qint64 size );
 
-  static QSettings * appSettings( QString fileName );
+  static QSettings * appSettings( const QString &fileName );
   static QSettings * appSettings();
 
-  static QAuthenticator * authenticator( QString key );
-  static void removeAuthenticator( QString key );
+  static QAuthenticator * authenticator( const QString &key );
+  static void removeAuthenticator( const QString &key );
+  static bool authenticatorExists( const QString &key );
 
   static QString execFile(const QString &fName, const bool block_ui=true);
-  static QString execFile(const QByteArray &buf, const QString extension,
+  static QString execFile(const QByteArray &buf, const QString &extension,
                           const bool block_ui=true);
   static QString execFile(const QString &buf, const QString extension,
                           const bool block_ui=true) {

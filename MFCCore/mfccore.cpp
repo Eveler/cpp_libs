@@ -33,7 +33,7 @@ QString MFCCore::periodName( Period period )
   else return QObject::tr( "Undefined" );
 }
 
-MFCCore::Period MFCCore::period( QString name )
+MFCCore::Period MFCCore::period( const QString &name )
 {
   if ( name == QObject::tr( "Произвольный" ) ) return Random;
   else if ( name == QObject::tr( "Ежедневный" ) ) return Daily;
@@ -67,7 +67,7 @@ int MFCCore::findColumn( QAbstractItemModel *model, const QString &name )
   return -1;
 }
 
-QList<QModelIndex> MFCCore::findIndexes( QAbstractItemModel *model, QString value,
+QList<QModelIndex> MFCCore::findIndexes( QAbstractItemModel *model, const QString &value,
                                          int column, Qt::MatchFlag flag )
 {
   QList<QModelIndex> result = QList<QModelIndex>();
@@ -89,7 +89,7 @@ QList<QModelIndex> MFCCore::findIndexes( QAbstractItemModel *model, QString valu
   return result;
 }
 
-QDate MFCCore::addDays(const QDate &date, const int &days, bool isOverall, QList<int> weekend )
+QDate MFCCore::addDays( const QDate &date, const int &days, bool isOverall, const QList<int> &weekend )
 {
   QMap<int, int> weekdays;
   foreach( int dayNum, weekend )
@@ -130,7 +130,7 @@ QString MFCCore::humanBytes( qint64 size )
   return QString( QString::number( rounded )+" "+byteSizeNames[idx] );
 }
 
-QSettings * MFCCore::appSettings( QString fileName )
+QSettings * MFCCore::appSettings( const QString &fileName )
 {
   if ( m__Core == NULL ) m__Core = new MFCCore;
 
@@ -148,7 +148,7 @@ QSettings * MFCCore::appSettings()
   return m__Settings;
 }
 
-QAuthenticator * MFCCore::authenticator( QString key )
+QAuthenticator * MFCCore::authenticator( const QString &key )
 {
   if ( !m__Authenticators.contains( key ) )
     m__Authenticators[key] = QAuthenticator();
@@ -156,11 +156,16 @@ QAuthenticator * MFCCore::authenticator( QString key )
   return &m__Authenticators[key];
 }
 
-void MFCCore::removeAuthenticator( QString key )
+void MFCCore::removeAuthenticator( const QString &key )
 {
   if ( !m__Authenticators.contains( key ) ) return;
 
   m__Authenticators.remove( key );
+}
+
+bool MFCCore::authenticatorExists( const QString &key )
+{
+  return m__Authenticators.contains( key );
 }
 
 QString MFCCore::execFile(const QString &fName, const bool block_ui){
@@ -225,7 +230,7 @@ QString MFCCore::execFile(const QString &fName, const bool block_ui){
   return errStr;
 }
 
-QString MFCCore::execFile(const QByteArray &buf, const QString extension,
+QString MFCCore::execFile(const QByteArray &buf, const QString &extension,
                           const bool block_ui){
   QUuid uuid=QUuid::createUuid();
   QString fileName=uuid.toString();
