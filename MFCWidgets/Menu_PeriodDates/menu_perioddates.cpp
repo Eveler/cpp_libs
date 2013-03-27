@@ -119,36 +119,60 @@ QPair<QDate, QDate> Menu_PeriodDates::periodByAction( QAction *action )
     result.first = QDate( QDate::currentDate().year(), 1, 1 );
     result.second = QDate( QDate::currentDate().year(), 3, 1 );
     result.second = QDate( QDate::currentDate().year(), 3, result.second.daysInMonth() );
+
+    if ( QDate::currentDate() >= result.first && QDate::currentDate() <= result.second )
+      action->setIcon( m__P->m__Icon );
+    else action->setIcon( QIcon() );
   }
   else if ( action == m__P->m__Quarterly->actions().value( 1, NULL ) )
   {
     result.first = QDate( QDate::currentDate().year(), 4, 1 );
     result.second = QDate( QDate::currentDate().year(), 6, 1 );
     result.second = QDate( QDate::currentDate().year(), 6, result.second.daysInMonth() );
+
+    if ( QDate::currentDate() >= result.first && QDate::currentDate() <= result.second )
+      action->setIcon( m__P->m__Icon );
+    else action->setIcon( QIcon() );
   }
   else if ( action == m__P->m__Quarterly->actions().value( 2, NULL ) )
   {
     result.first = QDate( QDate::currentDate().year(), 7, 1 );
     result.second = QDate( QDate::currentDate().year(), 9, 1 );
     result.second = QDate( QDate::currentDate().year(), 9, result.second.daysInMonth() );
+
+    if ( QDate::currentDate() >= result.first && QDate::currentDate() <= result.second )
+      action->setIcon( m__P->m__Icon );
+    else action->setIcon( QIcon() );
   }
   else if ( action == m__P->m__Quarterly->actions().value( 3, NULL ) )
   {
     result.first = QDate( QDate::currentDate().year(), 10, 1 );
     result.second = QDate( QDate::currentDate().year(), 12, 1 );
     result.second = QDate( QDate::currentDate().year(), 12, result.second.daysInMonth() );
+
+    if ( QDate::currentDate() >= result.first && QDate::currentDate() <= result.second )
+      action->setIcon( m__P->m__Icon );
+    else action->setIcon( QIcon() );
   }
   else if ( action == m__P->m__Semiannual->actions().value( 0, NULL ) )
   {
     result.first = QDate( QDate::currentDate().year(), 1, 1 );
     result.second = QDate( QDate::currentDate().year(), 6, 1 );
     result.second = QDate( QDate::currentDate().year(), 6, result.second.daysInMonth() );
+
+    if ( QDate::currentDate() >= result.first && QDate::currentDate() <= result.second )
+      action->setIcon( m__P->m__Icon );
+    else action->setIcon( QIcon() );
   }
   else if ( action == m__P->m__Semiannual->actions().value( 1, NULL ) )
   {
     result.first = QDate( QDate::currentDate().year(), 7, 1 );
     result.second = QDate( QDate::currentDate().year(), 12, 1 );
     result.second = QDate( QDate::currentDate().year(), 12, result.second.daysInMonth() );
+
+    if ( QDate::currentDate() >= result.first && QDate::currentDate() <= result.second )
+      action->setIcon( m__P->m__Icon );
+    else action->setIcon( QIcon() );
   }
   else if ( action == m__P->m__Yearly->actions().value( 0, NULL ) )
   {
@@ -168,10 +192,6 @@ QPair<QDate, QDate> Menu_PeriodDates::periodByAction( QAction *action )
     result.second = QDate( QDate::currentDate().year()-2, 12, 1 );
     result.second = QDate( QDate::currentDate().year()-2, 12, result.second.daysInMonth() );
   }
-
-  if ( QDate::currentDate() >= result.first && QDate::currentDate() <= result.second )
-    action->setIcon( m__P->m__Icon );
-  else action->setIcon( QIcon() );
 
   return result;
 }
