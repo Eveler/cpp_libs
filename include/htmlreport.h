@@ -5,12 +5,7 @@
 #include <QAbstractItemModel>
 #include <QHash>
 #include <QStringList>
-
-#ifdef HTMLREPORT_LIBRARY
-#define HTMLREPORTSHARED_EXPORT Q_DECL_EXPORT
-#else
-#define HTMLREPORTSHARED_EXPORT Q_DECL_IMPORT
-#endif
+#include "htmlreport_export.h"
 
 /* <!--section "file_name"--> - добавляет секцию - данные из файла file_name,
  * которые обрабатываются отдельно в процессе просчёта отчёта, заполняются

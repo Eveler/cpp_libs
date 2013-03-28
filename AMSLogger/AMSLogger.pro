@@ -14,7 +14,8 @@ TEMPLATE = lib
 DEFINES += AMSLOGGER_BUILD
 
 INCLUDEPATH += ./ \
-    ../include/
+    ../include/ \
+    ../include/export
 
 SOURCES += \
     smtp.cpp \

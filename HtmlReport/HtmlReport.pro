@@ -16,7 +16,8 @@ SOURCES += htmlreport.cpp
 HEADERS += ../include/htmlreport.h
 
 INCLUDEPATH += ./ \
-    ../include/
+    ../include/ \
+    ../include/export
 
 unix:!symbian {
     maemo5 {
