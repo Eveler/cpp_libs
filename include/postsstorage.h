@@ -3,20 +3,26 @@
 
 #include "abstractsimplestorage.h"
 
-#include "lib_export.h"
-
 
 class EXPORT PostsStorage : public AbstractSimpleStorage
 {
   Q_OBJECT
+
+
 public:
   static PostsStorage * instance();
+
+  QList<AbstractSimpleObject *> findByName( QList<AbstractSimpleObject *> objects, QString name );
 
 
 signals:
 
 
 public slots:
+
+
+protected:
+  AbstractSimpleObject * createObject( QVariant id );
 
 
 private:

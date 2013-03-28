@@ -1,17 +1,13 @@
 #ifndef MFCCORE_H
 #define MFCCORE_H
 
+#include "lib_export.h"
+
 #include <QAbstractItemModel>
 #include <QDateTime>
 #include <QAuthenticator>
 #include <QProcess>
 #include <QFile>
-
-#ifdef MFCCORE_LIBRARY
-#define MFCCORE_EXPORT Q_DECL_EXPORT
-#else
-#define MFCCORE_EXPORT Q_DECL_IMPORT
-#endif
 
 
 class QSettings;
@@ -23,7 +19,7 @@ typedef struct
   QString lastname;
 } StructName;
 
-class MFCCORE_EXPORT MFCCore : public QObject
+class EXPORT MFCCore : public QObject
 {
   Q_OBJECT
 

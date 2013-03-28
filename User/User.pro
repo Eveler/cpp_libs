@@ -32,8 +32,9 @@ unix:!symbian {
 }
 
 LIB_LIST = \
-    -lAMSLogger \
     -lMFCCore \
+    -lPost \
+    -lDepartment \
     -lGroup \
     -lOffice
 
@@ -74,13 +75,13 @@ CONFIG(debug, debug|release){
 
 HEADERS += \
     ../include/user.h \
-    ../include/usersstorage.h
+    ../include/usersstorage.h \
+    User/user_p.h
 
 SOURCES += \
     User/user.cpp \
-    UsersStorage/usersstorage.cpp
-
-include(./UserStorages/UserStorages.pri)
+    UsersStorage/usersstorage.cpp \
+    User/user_p.cpp
 
 
 

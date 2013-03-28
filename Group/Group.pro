@@ -10,8 +10,7 @@ DEFINES += EXPORT_LIBRARY
 
 INCLUDEPATH += ./ \
     ../include/ \
-    ../Abstraction/AbstractSimpleObject/ \
-    ../Abstraction/AbstractSimpleStorage/ \
+    ./Group/ \
     ./GroupsStorage/
 
 symbian {
@@ -34,7 +33,6 @@ unix:!symbian {
 }
 
 LIB_LIST = \
-    -lAMSLogger \
     -lMFCCore \
 
 greaterThan(QT_MAJOR_VERSION, 4) {
@@ -73,13 +71,13 @@ CONFIG(debug, debug|release){
 }
 
 HEADERS += \
-    ../include/groupsstorage.h \
-    ../include/abstractsimplestorage.h \
-    ../include/abstractsimpleobject.h
+    ../include/group.h \
+    Group/group_p.h \
+    ../include/groupsstorage.h
 
 SOURCES += \
-    ../Abstraction/AbstractSimpleObject/abstractsimpleobject.cpp \
-    ../Abstraction/AbstractSimpleStorage/abstractsimplestorage.cpp \
+    Group/group.cpp \
+    Group/group_p.cpp \
     GroupsStorage/groupsstorage.cpp
 
 

@@ -1,6 +1,6 @@
 QT       += gui
 
-TARGET = Office
+TARGET = Department
 CONFIG(debug, debug|release): TARGET = $${TARGET}d
 CONFIG += create_prl
 
@@ -10,8 +10,8 @@ DEFINES += EXPORT_LIBRARY
 
 INCLUDEPATH += ./ \
     ../include/ \
-    ./Office/ \
-    ./OfficesStorage/
+    ./Department/ \
+    ./DepartmentsStorage/
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
@@ -71,14 +71,14 @@ CONFIG(debug, debug|release){
 }
 
 HEADERS += \
-    ../include/office.h \
-    Office/office_p.h \
-    ../include/officesstorage.h
+    ../include/department.h \
+    Department/department_p.h \
+    ../include/departmentsstorage.h
 
 SOURCES += \
-    Office/office.cpp \
-    Office/office_p.cpp \
-    OfficesStorage/officesstorage.cpp
+    Department/department.cpp \
+    Department/department_p.cpp \
+    DepartmentsStorage/departmentsstorage.cpp
 
 
 

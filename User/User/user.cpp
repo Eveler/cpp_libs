@@ -1,102 +1,116 @@
 #include "user.h"
 
+#include "user_p.h"
+
+
 User::~User()
 {
-  clear();
+  delete p;
+  p = NULL;
 }
 
-const QVariant & User::id() const
+const QString & User::surname() const
 {
-  return m__Value.m__Id;
+  return p->m__Surname;
 }
 
-const StructName & User::name() const
+const QString & User::firstname() const
 {
-  return m__Value.m__Name;
+  return p->m__Firstname;
 }
 
-AbstractSimpleObject * User::post() const
+const QString & User::lastname() const
 {
-  return m__Value.m__Post;
+  return p->m__Lastname;
 }
 
-AbstractSimpleObject * User::department() const
+Post * User::post() const
 {
-  return m__Value.m__Department;
+  return p->m__Post;
+}
+
+Department * User::department() const
+{
+  return p->m__Department;
 }
 
 bool User::active() const
 {
-  return m__Value.m__Active;
+  return p->m__Active;
 }
 
 bool User::dismissed() const
 {
-  return m__Value.m__Dismissed;
+  return p->m__Dismissed;
 }
 
-AbstractSimpleObject * User::office() const
+Office * User::office() const
 {
-  return m__Value.m__Office;
+  return p->m__Office;
 }
 
-void User::setName( StructName value )
+Group * User::group() const
 {
-  m__Value.m__Name = value;
-  emit nameChanged();
+  return p->m__Group;
 }
 
-void User::setPost( AbstractSimpleObject *value )
+void User::setSurname( const QString &surname )
 {
-  m__Value.m__Post = value;
+  p->m__Surname = surname;
+  emit surnameChanged();
+}
+
+void User::setFirstname( const QString &firstname )
+{
+  p->m__Firstname = firstname;
+  emit firstnameChanged();
+}
+
+void User::setLastname( const QString &lastname )
+{
+  p->m__Lastname = lastname;
+  emit lastnameChanged();
+}
+
+void User::setPost( Post *post )
+{
+  p->m__Post = post;
   emit postChaged();
 }
 
-void User::setDepartment( AbstractSimpleObject *value )
+void User::setDepartment( Department *department )
 {
-  m__Value.m__Department = value;
+  p->m__Department = department;
   emit departmentChanged();
 }
 
-void User::setActive( bool value )
+void User::setActive( bool active )
 {
-  m__Value.m__Active = value;
+  p->m__Active = active;
   emit activeChanged();
 }
 
 void User::setDismissed( bool value )
 {
-  m__Value.m__Dismissed = value;
+  p->m__Dismissed = value;
   emit dismissedChanged();
 }
 
-void User::setOffice( AbstractSimpleObject *value )
+void User::setOffice( Office *office )
 {
-  m__Value.m__Office = value;
+  p->m__Office = office;
   emit officeChanged();
 }
 
+void User::setGroup( Group *group )
+{
+  p->m__Group = group;
+  emit groupChanged();
+}
+
 User::User( QVariant id, QObject *parent ) :
-    QObject(parent)
+  AbstractSimpleObject(id, parent)
 {
-  clear();
-  setId( id );
-}
-
-void User::clear()
-{
-  StructName sName = {QString(), QString(), QString()};
-  setId( QVariant() );
-  setName( sName );
-  setPost( NULL );
-  setDepartment( NULL );
-  setActive( false );
-  setDismissed( false );
-  setOffice( NULL );
-}
-
-void User::setId( QVariant value )
-{
-  m__Value.m__Id = value;
+  p = new User_P( this );
 }
 

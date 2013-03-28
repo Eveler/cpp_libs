@@ -7,20 +7,28 @@
 class EXPORT GroupsStorage : public AbstractSimpleStorage
 {
   Q_OBJECT
+
+
 public:
-  static GroupsStorage * EXPORT instance();
+  static GroupsStorage * instance();
+
+  QList<AbstractSimpleObject *> findByName( QList<AbstractSimpleObject *> objects, QString name );
+
 
 signals:
 
+
 public slots:
 
-private:
-  static GroupsStorage * EXPORT m__Instance;
 
-  QList<AbstractSimpleObject *> m__Groups;
+protected:
+  AbstractSimpleObject * createObject( QVariant id );
+
+
+private:
+  static GroupsStorage * m__Instance;
 
   explicit GroupsStorage(QObject *parent = 0);
-
 };
 
 #endif // GROUPSSTORAGE_H

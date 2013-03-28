@@ -13,37 +13,10 @@ UsersStorage * UsersStorage::instance()
   return m__Instance;
 }
 
-User * UsersStorage::addUser( QVariant id )
+QList<AbstractSimpleObject *> UsersStorage::findBySurname(
+    const QList<AbstractSimpleObject *> &objects, const QString &surname ) const
 {
-  QList<User *> objs = findById( users(), id );
-  if ( !objs.isEmpty() ) return objs.first();
-  else
-  {
-    User *user = new User( id, this );
-    connect( user, SIGNAL(destroyed(QObject*)), SLOT(userDestroyed(QObject*)) );
-    m__Users << user;
-    return user;
-  }
-}
-
-const QList<User *> & UsersStorage::users() const
-{
-  return m__Users;
-}
-
-QList<User *> UsersStorage::findById( QList<User *> objs, QVariant value ) const
-{
-  QList<User *> result = QList<User *>();
-
-  foreach ( User *user, objs )
-    if ( user->id() == value ) result << user;
-
-  return result;
-}
-
-QList<User *> UsersStorage::findByName( QList<User *> objs, StructName value ) const
-{
-  QList<User *> result = QList<User *>();
+  QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
 
   foreach ( User *user, objs )
   {
@@ -56,54 +29,64 @@ QList<User *> UsersStorage::findByName( QList<User *> objs, StructName value ) c
   return result;
 }
 
-QList<User *> UsersStorage::findByPost( QList<User *> objs, AbstractSimpleObject *value ) const
+QList<AbstractSimpleObject *> UsersStorage::findByPost(
+    QList<AbstractSimpleObject *> objects, Post *post ) const
 {
-  QList<User *> result = QList<User *>();
+  QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
 
   foreach ( User *user, objs )
-    if ( user->post() == value ) result << user;
+    if ( user->post() == post ) result << user;
 
   return result;
 }
 
-QList<User *> UsersStorage::findByDepartment( QList<User *> objs, AbstractSimpleObject *value ) const
+QList<AbstractSimpleObject *> UsersStorage::findByDepartment(
+    QList<AbstractSimpleObject *> objects, Department *department ) const
 {
-  QList<User *> result = QList<User *>();
+  QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
 
   foreach ( User *user, objs )
-    if ( user->department() == value ) result << user;
+    if ( user->department() == department ) result << user;
 
   return result;
 }
 
-QList<User *> UsersStorage::findByActive( QList<User *> objs, bool value ) const
+QList<AbstractSimpleObject *> UsersStorage::findByActive(
+    QList<AbstractSimpleObject *> objects, bool active ) const
 {
-  QList<User *> result = QList<User *>();
+  QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
 
   foreach ( User *user, objs )
-    if ( user->active() == value ) result << user;
+    if ( user->active() == active ) result << user;
 
   return result;
 }
 
-QList<User *> UsersStorage::findByDismissed( QList<User *> objs, bool value ) const
+QList<AbstractSimpleObject *> UsersStorage::findByDismissed(
+    QList<AbstractSimpleObject *> objects, bool dismissed ) const
 {
-  QList<User *> result = QList<User *>();
+  QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
 
   foreach ( User *user, objs )
-    if ( user->dismissed() == value ) result << user;
+    if ( user->dismissed() == dismissed ) result << user;
 
   return result;
 }
 
-QList<User *> UsersStorage::findByOffice( QList<User *> objs, AbstractSimpleObject *value ) const
+QList<AbstractSimpleObject *> UsersStorage::findByOffice(
+    QList<AbstractSimpleObject *> objects, Office *office ) const
 {
-  QList<User *> result = QList<User *>();
+  QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
 
   foreach ( User *user, objs )
-    if ( user->office() == value ) result << user;
+    if ( user->office() == office ) result << user;
 
   return result;
+}
+
+AbstractSimpleObject * UsersStorage::createObject( QVariant id )
+{
+  return new User( id, this );
 }
 
 UsersStorage::UsersStorage(QObject *parent) :
@@ -111,12 +94,3 @@ UsersStorage::UsersStorage(QObject *parent) :
 {
 }
 
-UsersStorage::~UsersStorage()
-{
-}
-
-void UsersStorage::userDestroyed( QObject *obj )
-{
-  User *user = (User *)obj;
-  m__Users.removeOne( user );
-}

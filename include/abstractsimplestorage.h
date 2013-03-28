@@ -1,8 +1,12 @@
 #ifndef ABSTRACTSIMPLESTORAGE_H
 #define ABSTRACTSIMPLESTORAGE_H
 
-#include "abstractsimpleobject.h"
+#include <QObject>
 
+#include "lib_export.h"
+
+
+class AbstractSimpleObject;
 
 class EXPORT AbstractSimpleStorage : public QObject
 {
@@ -14,15 +18,11 @@ public:
   ~AbstractSimpleStorage();
 
   AbstractSimpleObject * addObject( QVariant id );
-
   const QList<AbstractSimpleObject *> & objects() const;
+  void clear();
 
-  QList<AbstractSimpleObject *> find(
-      QList<AbstractSimpleObject *> objs, QVariant id ) const;
-  QList<AbstractSimpleObject *> find(
-      QList<AbstractSimpleObject *> objs, QString name,
-      Qt::MatchFlag flag = Qt::MatchFixedString,
-      Qt::CaseSensitivity cs = Qt::CaseSensitive ) const;
+  QList<AbstractSimpleObject *> findById(
+      QList<AbstractSimpleObject *> objects, QVariant id ) const;
 
 
 signals:
@@ -31,12 +31,16 @@ signals:
 public slots:
 
 
+protected:
+  virtual AbstractSimpleObject * createObject( QVariant id ) = 0;
+
+
 private:
   QList<AbstractSimpleObject *> m__Objects;
 
 
 private slots:
-  void objectDestroyed( QObject *obj );
+  void objectDestroyed( QObject *object );
 };
 
 #endif // ABSTRACTSIMPLESTORAGE_H

@@ -14,11 +14,13 @@ CONFIG(debug, debug|release): TARGET = $${TARGET}d
 
 TEMPLATE = lib
 
-DEFINES += MFCCORE_LIBRARY
+DEFINES += EXPORT_LIBRARY
 
 INCLUDEPATH += ./ \
     ../bin/ \
-    ../include/
+    ../include/ \
+    ./Abstraction/AbstractSimpleObject/ \
+    ./Abstraction/AbstractSimpleStorage/
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
@@ -69,13 +71,17 @@ CONFIG(debug, debug|release){
 }
 
 HEADERS += \
-    ../include/mfccore.h
+    ../include/mfccore.h \
+    ../include/abstractsimpleobject.h \
+    ../include/abstractsimplestorage.h
 
 SOURCES += \
-    mfccore.cpp
+    mfccore.cpp \
+    Abstraction/AbstractSimpleObject/abstractsimpleobject.cpp \
+    Abstraction/AbstractSimpleStorage/abstractsimplestorage.cpp
 
-greaterThan( QT_MAJOR_VERSION, 4 ) {
-  LIBS += -L../bin_qt5/ \
-      -lAMSLogger
-}
+#greaterThan( QT_MAJOR_VERSION, 4 ) {
+#  LIBS += -L../bin_qt5/ \
+#      -lAMSLogger
+#}
 

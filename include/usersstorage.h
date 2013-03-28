@@ -3,10 +3,15 @@
 
 #include <QObject>
 
-#include "user.h"
+#include "abstractsimplestorage.h"
 
 
-class EXPORT UsersStorage : public QObject
+class Post;
+class Department;
+class Office;
+class Group;
+
+class EXPORT UsersStorage : public AbstractSimpleStorage
 {
     Q_OBJECT
 
@@ -14,17 +19,24 @@ class EXPORT UsersStorage : public QObject
 public:
   static UsersStorage * instance();
 
-  User * addUser( QVariant id );
-
-  const QList<User *> & users() const;
-
-  QList<User *> findById( QList<User *> objs, QVariant value ) const;
-  QList<User *> findByName( QList<User *> objs, StructName value ) const;
-  QList<User *> findByPost( QList<User *> objs, AbstractSimpleObject *value ) const;
-  QList<User *> findByDepartment( QList<User *> objs, AbstractSimpleObject *value ) const;
-  QList<User *> findByActive( QList<User *> objs, bool value ) const;
-  QList<User *> findByDismissed( QList<User *> objs, bool value ) const;
-  QList<User *> findByOffice( QList<User *> objs, AbstractSimpleObject *value ) const;
+  QList<AbstractSimpleObject *> findBySurname(
+      const QList<AbstractSimpleObject *> &objects, const QString &surname ) const;
+  QList<AbstractSimpleObject *> findByFirstname(
+      const QList<AbstractSimpleObject *> &objects, const QString &firstname ) const;
+  QList<AbstractSimpleObject *> findByLastname(
+      QList<AbstractSimpleObject *> objects, const QString &lastname ) const;
+  QList<AbstractSimpleObject *> findByPost(
+      QList<AbstractSimpleObject *> objects, Post *post ) const;
+  QList<AbstractSimpleObject *> findByDepartment(
+      QList<AbstractSimpleObject *> objects, Department *department ) const;
+  QList<AbstractSimpleObject *> findByActive(
+      QList<AbstractSimpleObject *> objects, bool active ) const;
+  QList<AbstractSimpleObject *> findByDismissed(
+      QList<AbstractSimpleObject *> objects, bool dismissed ) const;
+  QList<AbstractSimpleObject *> findByOffice(
+      QList<AbstractSimpleObject *> objects, Office *office ) const;
+  QList<AbstractSimpleObject *> findByGroup(
+      QList<AbstractSimpleObject *> objects, Office *group ) const;
 
 
 signals:
@@ -33,17 +45,14 @@ signals:
 public slots:
 
 
+protected:
+  AbstractSimpleObject * createObject( QVariant id );
+
+
 private:
   static UsersStorage *m__Instance;
 
-  QList<User *> m__Users;
-
   explicit UsersStorage(QObject *parent = 0);
-  ~UsersStorage();
-
-
-private slots:
-  void userDestroyed( QObject *obj );
 };
 
 #endif // USERSSTORAGE_H

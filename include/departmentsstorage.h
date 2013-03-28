@@ -3,8 +3,6 @@
 
 #include "abstractsimplestorage.h"
 
-#include "lib_export.h"
-
 
 class EXPORT DepartmentsStorage : public AbstractSimpleStorage
 {
@@ -14,11 +12,17 @@ class EXPORT DepartmentsStorage : public AbstractSimpleStorage
 public:
   static DepartmentsStorage * instance();
 
+  QList<AbstractSimpleObject *> findByName( QList<AbstractSimpleObject *> objects, QString name );
+
 
 signals:
 
 
 public slots:
+
+
+protected:
+  AbstractSimpleObject * createObject( QVariant id );
 
 
 private:
