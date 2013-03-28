@@ -37,7 +37,7 @@ public:
 
   static bool matches( const QString &arg1, const QString &arg2, Qt::MatchFlag flag = Qt::MatchExactly );
 
-  static int findColumn( QAbstractItemModel *model, const QString &name );
+  static int findColumn(const QAbstractItemModel *model, const QString &name );
   static QList<QModelIndex> findIndexes( QAbstractItemModel *model, const QString &value,
                                          int column = 0, Qt::MatchFlag flag = Qt::MatchExactly );
 

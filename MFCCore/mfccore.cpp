@@ -56,7 +56,7 @@ bool MFCCore::matches( const QString &arg1, const QString &arg2, Qt::MatchFlag f
   else return ( arg1 == arg2 );
 }
 
-int MFCCore::findColumn( QAbstractItemModel *model, const QString &name )
+int MFCCore::findColumn( const QAbstractItemModel *model, const QString &name )
 {
   if ( model == NULL ) return -1;
 
