@@ -33,7 +33,7 @@ public:
 
   static bool matches( const QString &arg1, const QString &arg2, Qt::MatchFlag flag = Qt::MatchExactly );
 
-  static int findColumn( QAbstractItemModel *model, const QString &name );
+  static int findColumn(const QAbstractItemModel *model, const QString &name );
   static QList<QModelIndex> findIndexes( QAbstractItemModel *model, const QString &value,
                                          int column = 0, Qt::MatchFlag flag = Qt::MatchExactly );
 
@@ -72,6 +72,10 @@ public:
   static QString execFile(const QString &fName, const bool block_ui=true);
   static QString execFile(const QByteArray &buf, const QString &extension,
                           const bool block_ui=true);
+  static QString execFile(const QString &buf, const QString extension,
+                          const bool block_ui=true) {
+    return execFile(buf.toLocal8Bit(),extension,block_ui);
+  }
 
 private:
   static MFCCore *m__Core;

@@ -8,7 +8,7 @@
 #include <QUuid>
 #include <QDir>
 
-#include <QDebug>
+#include "amslogger.h"
 
 MFCCore *MFCCore::m__Core = NULL;
 QSettings *MFCCore::m__Settings = NULL;
@@ -56,7 +56,7 @@ bool MFCCore::matches( const QString &arg1, const QString &arg2, Qt::MatchFlag f
   else return ( arg1 == arg2 );
 }
 
-int MFCCore::findColumn( QAbstractItemModel *model, const QString &name )
+int MFCCore::findColumn( const QAbstractItemModel *model, const QString &name )
 {
   if ( model == NULL ) return -1;
 
@@ -169,6 +169,7 @@ bool MFCCore::authenticatorExists( const QString &key )
 }
 
 QString MFCCore::execFile(const QString &fName, const bool block_ui){
+  LogDebug()<<tr("About to execute \"%1\"").arg(fName);
   if(!m__Core && !block_ui) m__Core=new MFCCore;
   if(!ext_proc){
     ext_proc=new QProcess(m__Core);
@@ -183,13 +184,17 @@ QString MFCCore::execFile(const QString &fName, const bool block_ui){
 
   QString fileName=fName;
   if(block_ui){
+#ifdef Q_OS_WIN
     fileName.replace("/","\\");
-    int res=ext_proc->execute(tr("cmd /C %1").arg(fileName));
+    int res=ext_proc->execute(tr("cmd /C \"%1\"").arg(fileName));
+#else
+    int res=ext_proc->execute(tr("xdg-open \"%1\"").arg(fileName));
+#endif
     if(res==-2){
       errStr=tr("Нет возможности запустить дочерний процесс: %1: %2")
                .arg(fileName).arg(ext_proc->errorString());
     }else if(res==-1){
-      errStr=tr("Дочерний процесс внезапно завершился: %1: %2")
+      errStr=tr("Дочерний процесс внезапно (o_O) завершился: %1: %2")
                .arg(fileName).arg(ext_proc->errorString());
     }else if(!ext_proc->errorString().isEmpty() &&
              ext_proc->errorString()!="Unknown error")
@@ -201,9 +206,19 @@ QString MFCCore::execFile(const QString &fName, const bool block_ui){
 
     ext_proc->deleteLater();
     ext_proc=NULL;
+    if(ext_proc_file){
+      ext_proc_file->remove();
+      ext_proc_file->deleteLater();
+      ext_proc_file=NULL;
+    }
     return errStr;
   }else{
+#ifdef Q_OS_WIN
+    fileName.replace("/","\\");
     ext_proc->start(tr("cmd /C %1").arg(fileName));
+#else
+    ext_proc->start(tr("xdg-open %1").arg(fileName));
+#endif
     if(!ext_proc->waitForStarted()){
       errStr=tr("Истекло время ожидания запуска процесса: %1")
           .arg(ext_proc->errorString());
@@ -220,14 +235,16 @@ QString MFCCore::execFile(const QByteArray &buf, const QString &extension,
   QUuid uuid=QUuid::createUuid();
   QString fileName=uuid.toString();
   fileName=QDir::tempPath()+tr("/exec%1.%2").arg(
-        fileName.mid(1,fileName.length()-1)).arg(extension);
-  qDebug()<<fileName;
+        fileName.mid(1,fileName.length()-2)).arg(extension);
   if(!m__Core && !block_ui) m__Core=new MFCCore;
   QString errStr;
 
   if(!ext_proc_file){
     ext_proc_file=new QFile(fileName,m__Core);
+  }else{
+    return tr("Файл \"%1\" уже открыт").arg(ext_proc_file->fileName());
   }
+
   if(!ext_proc_file->open(QFile::WriteOnly)){
     errStr=tr("Ошибка создания временного файла: %1: %2")
         .arg(fileName).arg(ext_proc_file->errorString());

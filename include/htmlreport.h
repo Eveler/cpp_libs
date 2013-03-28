@@ -94,6 +94,7 @@ private:
   int insertedSections;
 
   QString getFirstSectionName(QString data);
+  QByteArray replaceMeta(const QByteArray &msg, QTextCodec *to);
 };
 
 #endif // HTMLREPORT_H
