@@ -7,7 +7,7 @@
 #include <QCoreApplication>
 #include <QTextStream>
 #include "smtp.h"
-#include "amslogger_export.h"
+#include "export/amslogger_export.h"
 
 /** \brief Выводит сообщения, передаваемые при помощи qDebug(), qWarning() и т.д.
   либо прямых вызов методов данного класса на консоль и/или файл. При выводе в
