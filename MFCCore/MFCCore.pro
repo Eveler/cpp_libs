@@ -81,8 +81,8 @@ SOURCES += \
     Abstraction/AbstractSimpleObject/abstractsimpleobject.cpp \
     Abstraction/AbstractSimpleStorage/abstractsimplestorage.cpp
 
-#greaterThan( QT_MAJOR_VERSION, 4 ) {
-#  LIBS += -L../bin_qt5/ \
-#      -lAMSLogger
-#}
+greaterThan( QT_MAJOR_VERSION, 4 ) {
+  LIBS += -L../bin_qt5/ \
+      -lAMSLogger
+}
 

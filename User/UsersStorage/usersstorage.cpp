@@ -1,8 +1,7 @@
 #include "usersstorage.h"
 
-#include "postsstorage.h"
-#include "departmentsstorage.h"
-#include "officesstorage.h"
+#include "user.h"
+
 
 UsersStorage *UsersStorage::m__Instance = NULL;
 
@@ -18,68 +17,132 @@ QList<AbstractSimpleObject *> UsersStorage::findBySurname(
 {
   QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
 
-  foreach ( User *user, objs )
+  foreach ( AbstractSimpleObject *object, objects )
   {
-    if ( user->name().surname == value.surname &&
-         user->name().firstname == value.firstname &&
-         user->name().lastname == value.lastname )
-      result << user;
+    User *user = qobject_cast<User *>( object );
+    if ( user->surname() == surname )
+      result << object;
+  }
+
+  return result;
+}
+
+QList<AbstractSimpleObject *> UsersStorage::findByFirstname(
+    const QList<AbstractSimpleObject *> &objects, const QString &firstname ) const
+{
+  QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
+
+  foreach ( AbstractSimpleObject *object, objects )
+  {
+    User *user = qobject_cast<User *>( object );
+    if ( user->firstname() == firstname )
+      result << object;
+  }
+
+  return result;
+}
+
+QList<AbstractSimpleObject *> UsersStorage::findByLastname(
+    const QList<AbstractSimpleObject *> &objects, const QString &lastname ) const
+{
+  QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
+
+  foreach ( AbstractSimpleObject *object, objects )
+  {
+    User *user = qobject_cast<User *>( object );
+    if ( user->lastname() == lastname )
+      result << object;
   }
 
   return result;
 }
 
 QList<AbstractSimpleObject *> UsersStorage::findByPost(
-    QList<AbstractSimpleObject *> objects, Post *post ) const
+    const QList<AbstractSimpleObject *> &objects, Post *post ) const
 {
   QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
 
-  foreach ( User *user, objs )
-    if ( user->post() == post ) result << user;
+  foreach ( AbstractSimpleObject *object, objects )
+  {
+    User *user = qobject_cast<User *>( object );
+    if ( user->post() == post )
+      result << object;
+  }
 
   return result;
 }
 
 QList<AbstractSimpleObject *> UsersStorage::findByDepartment(
-    QList<AbstractSimpleObject *> objects, Department *department ) const
+    const QList<AbstractSimpleObject *> &objects, Department *department ) const
 {
   QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
 
-  foreach ( User *user, objs )
-    if ( user->department() == department ) result << user;
+  foreach ( AbstractSimpleObject *object, objects )
+  {
+    User *user = qobject_cast<User *>( object );
+    if ( user->department() == department )
+      result << object;
+  }
 
   return result;
 }
 
 QList<AbstractSimpleObject *> UsersStorage::findByActive(
-    QList<AbstractSimpleObject *> objects, bool active ) const
+    const QList<AbstractSimpleObject *> &objects, bool active ) const
 {
   QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
 
-  foreach ( User *user, objs )
-    if ( user->active() == active ) result << user;
+  foreach ( AbstractSimpleObject *object, objects )
+  {
+    User *user = qobject_cast<User *>( object );
+    if ( user->active() == active )
+      result << object;
+  }
 
   return result;
 }
 
 QList<AbstractSimpleObject *> UsersStorage::findByDismissed(
-    QList<AbstractSimpleObject *> objects, bool dismissed ) const
+    const QList<AbstractSimpleObject *> &objects, bool dismissed ) const
 {
   QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
 
-  foreach ( User *user, objs )
-    if ( user->dismissed() == dismissed ) result << user;
+  foreach ( AbstractSimpleObject *object, objects )
+  {
+    User *user = qobject_cast<User *>( object );
+    if ( user->dismissed() == dismissed )
+      result << object;
+  }
 
   return result;
 }
 
 QList<AbstractSimpleObject *> UsersStorage::findByOffice(
-    QList<AbstractSimpleObject *> objects, Office *office ) const
+    const QList<AbstractSimpleObject *> &objects, Office *office ) const
 {
   QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
 
-  foreach ( User *user, objs )
-    if ( user->office() == office ) result << user;
+  foreach ( AbstractSimpleObject *object, objects )
+  {
+    User *user = qobject_cast<User *>( object );
+    if ( user->office() == office )
+      result << object;
+  }
+
+  return result;
+}
+
+QList<AbstractSimpleObject *> UsersStorage::findByGroup(
+    const QList<AbstractSimpleObject *> &objects, Group *group ) const
+{
+  QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
+
+  foreach ( AbstractSimpleObject *object, objects )
+  {
+    User *user = qobject_cast<User *>( object );
+    if ( user->group() == group )
+      result << object;
+  }
 
   return result;
 }
@@ -90,7 +153,7 @@ AbstractSimpleObject * UsersStorage::createObject( QVariant id )
 }
 
 UsersStorage::UsersStorage(QObject *parent) :
-    QObject(parent)
+    AbstractSimpleStorage(parent)
 {
 }
 

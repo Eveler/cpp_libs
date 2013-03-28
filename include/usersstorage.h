@@ -24,19 +24,19 @@ public:
   QList<AbstractSimpleObject *> findByFirstname(
       const QList<AbstractSimpleObject *> &objects, const QString &firstname ) const;
   QList<AbstractSimpleObject *> findByLastname(
-      QList<AbstractSimpleObject *> objects, const QString &lastname ) const;
+      const QList<AbstractSimpleObject *> &objects, const QString &lastname ) const;
   QList<AbstractSimpleObject *> findByPost(
-      QList<AbstractSimpleObject *> objects, Post *post ) const;
+      const QList<AbstractSimpleObject *> &objects, Post *post ) const;
   QList<AbstractSimpleObject *> findByDepartment(
-      QList<AbstractSimpleObject *> objects, Department *department ) const;
+      const QList<AbstractSimpleObject *> &objects, Department *department ) const;
   QList<AbstractSimpleObject *> findByActive(
-      QList<AbstractSimpleObject *> objects, bool active ) const;
+      const QList<AbstractSimpleObject *> &objects, bool active ) const;
   QList<AbstractSimpleObject *> findByDismissed(
-      QList<AbstractSimpleObject *> objects, bool dismissed ) const;
+      const QList<AbstractSimpleObject *> &objects, bool dismissed ) const;
   QList<AbstractSimpleObject *> findByOffice(
-      QList<AbstractSimpleObject *> objects, Office *office ) const;
+      const QList<AbstractSimpleObject *> &objects, Office *office ) const;
   QList<AbstractSimpleObject *> findByGroup(
-      QList<AbstractSimpleObject *> objects, Office *group ) const;
+      const QList<AbstractSimpleObject *> &objects, Group *group ) const;
 
 
 signals:

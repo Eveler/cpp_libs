@@ -1,4 +1,4 @@
-QT       += gui
+QT       +=
 
 TARGET = Department
 CONFIG(debug, debug|release): TARGET = $${TARGET}d

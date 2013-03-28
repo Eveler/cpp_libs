@@ -16,6 +16,15 @@ class EXPORT User : public AbstractSimpleObject
   Q_OBJECT
   friend class User_P;
   friend class UsersStorage;
+  Q_PROPERTY(QString surname READ surname WRITE setSurname NOTIFY surnameChanged)
+  Q_PROPERTY(QString firstname READ firstname WRITE setFirstname NOTIFY firstnameChanged)
+  Q_PROPERTY(QString lastname READ lastname WRITE setLastname NOTIFY lastnameChanged)
+  Q_PROPERTY(Post * post READ post WRITE setPost NOTIFY postChaged)
+//  Q_PROPERTY(QString surname READ surname WRITE setSurname NOTIFY surnameChanged)
+//  Q_PROPERTY(QString surname READ surname WRITE setSurname NOTIFY surnameChanged)
+//  Q_PROPERTY(QString surname READ surname WRITE setSurname NOTIFY surnameChanged)
+//  Q_PROPERTY(QString surname READ surname WRITE setSurname NOTIFY surnameChanged)
+//  Q_PROPERTY(QString surname READ surname WRITE setSurname NOTIFY surnameChanged)
 
 
 public:
