@@ -8,7 +8,7 @@ QT       -= gui
 
 TARGET = PropertiesLink
 #CONFIG += staticlib
-CONFIG += create_prl
+#CONFIG += create_prl
 
 CONFIG(debug, debug|release): TARGET = $${TARGET}d
 

@@ -8,7 +8,7 @@ QT       += gui sql network
 
 TARGET = StorageEditor
 CONFIG(debug, debug|release): TARGET = $${TARGET}d
-CONFIG += create_prl
+#CONFIG += create_prl
 
 TEMPLATE = lib
 
