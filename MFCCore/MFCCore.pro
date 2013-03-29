@@ -14,10 +14,11 @@ CONFIG(debug, debug|release): TARGET = $${TARGET}d
 
 TEMPLATE = lib
 
-DEFINES += EXPORT_LIBRARY
+DEFINES += EXPORT_LIB_MFCCORE
 
 INCLUDEPATH += ./ \
     ../bin/ \
+    ../bin_qt5/ \
     ../include/ \
     ./Abstraction/AbstractSimpleObject/ \
     ./Abstraction/AbstractSimpleStorage/
@@ -46,7 +47,8 @@ greaterThan(QT_MAJOR_VERSION, 4) {
   DLLDESTDIR = ../bin_qt5
 
   LIBS += -L../bin_qt5/ \
-      -lmuCalculator
+      -lmuCalculator \
+      -lAMSLogger
 }
 
 lessThan(QT_MAJOR_VERSION, 5) {
@@ -72,6 +74,7 @@ CONFIG(debug, debug|release){
 }
 
 HEADERS += \
+    ../include/export/mfccore_export_lib.h \
     ../include/mfccore.h \
     ../include/abstractsimpleobject.h \
     ../include/abstractsimplestorage.h
@@ -80,9 +83,4 @@ SOURCES += \
     mfccore.cpp \
     Abstraction/AbstractSimpleObject/abstractsimpleobject.cpp \
     Abstraction/AbstractSimpleStorage/abstractsimplestorage.cpp
-
-greaterThan( QT_MAJOR_VERSION, 4 ) {
-  LIBS += -L../bin_qt5/ \
-      -lAMSLogger
-}
 

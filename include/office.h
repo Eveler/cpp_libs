@@ -3,16 +3,17 @@
 
 #include "abstractsimpleobject.h"
 
+#include "export/office_export_lib.h"
+
 
 class Office_P;
 class OfficesStorage;
 
-class EXPORT Office : public AbstractSimpleObject
+class EXPORT_OFFICE Office : public AbstractSimpleObject
 {
   Q_OBJECT
   friend class Office_P;
   friend class OfficesStorage;
-  Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
 
 
 public:

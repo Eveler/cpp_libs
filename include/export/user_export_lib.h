@@ -1,0 +1,10 @@
+#ifndef USER_EXPORT_LIB_H
+#define USER_EXPORT_LIB_H
+
+#ifdef EXPORT_LIB_USER
+#define EXPORT_USER Q_DECL_EXPORT
+#else
+#define EXPORT_USER Q_DECL_IMPORT
+#endif
+
+#endif // USER_EXPORT_LIB_H

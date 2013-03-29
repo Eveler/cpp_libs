@@ -12,10 +12,15 @@ OfficesStorage * OfficesStorage::instance()
   return m__Instance;
 }
 
-QList<AbstractSimpleObject *> OfficesStorage::findByName(
-    QList<AbstractSimpleObject *> objects, QString name )
+const OfficeList & OfficesStorage::offices() const
 {
-  QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
+  return *((OfficeList *)(&objects()));
+}
+
+AbstractSimpleObjectList OfficesStorage::findByName(
+    AbstractSimpleObjectList objects, QString name )
+{
+  AbstractSimpleObjectList result = AbstractSimpleObjectList();
   foreach ( AbstractSimpleObject *object, objects )
   {
     Office *office = qobject_cast<Office *>( object );

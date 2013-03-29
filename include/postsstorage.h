@@ -3,8 +3,14 @@
 
 #include "abstractsimplestorage.h"
 
+#include "export/post_export_lib.h"
 
-class EXPORT PostsStorage : public AbstractSimpleStorage
+
+class Post;
+
+typedef QList<Post *> PostList;
+
+class EXPORT_POST PostsStorage : public AbstractSimpleStorage
 {
   Q_OBJECT
 
@@ -12,7 +18,9 @@ class EXPORT PostsStorage : public AbstractSimpleStorage
 public:
   static PostsStorage * instance();
 
-  QList<AbstractSimpleObject *> findByName( QList<AbstractSimpleObject *> objects, QString name );
+  const PostList & posts() const;
+
+  AbstractSimpleObjectList findByName( AbstractSimpleObjectList objects, QString name );
 
 
 signals:

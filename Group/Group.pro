@@ -6,7 +6,7 @@ CONFIG += create_prl
 
 TEMPLATE = lib
 
-DEFINES += EXPORT_LIBRARY
+DEFINES += EXPORT_LIB_GROUP
 
 INCLUDEPATH += ./ \
     ../include/ \
@@ -71,6 +71,7 @@ CONFIG(debug, debug|release){
 }
 
 HEADERS += \
+    ../include/export/group_export_lib.h \
     ../include/group.h \
     Group/group_p.h \
     ../include/groupsstorage.h

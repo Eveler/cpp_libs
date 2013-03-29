@@ -1,12 +1,12 @@
-QT       +=
+QT       += core
 
 TARGET = Department
 CONFIG(debug, debug|release): TARGET = $${TARGET}d
-CONFIG += create_prl
+#CONFIG += create_prl
 
 TEMPLATE = lib
 
-DEFINES += EXPORT_LIBRARY
+DEFINES += EXPORT_LIB_DEPARTMENT
 
 INCLUDEPATH += ./ \
     ../include/ \
@@ -71,6 +71,7 @@ CONFIG(debug, debug|release){
 }
 
 HEADERS += \
+    ../include/export/department_export_lib.h \
     ../include/department.h \
     Department/department_p.h \
     ../include/departmentsstorage.h

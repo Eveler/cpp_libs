@@ -3,16 +3,17 @@
 
 #include "abstractsimpleobject.h"
 
+#include "export/group_export_lib.h"
+
 
 class Group_P;
 class GroupsStorage;
 
-class EXPORT Group : public AbstractSimpleObject
+class EXPORT_GROUP Group : public AbstractSimpleObject
 {
   Q_OBJECT
   friend class Group_P;
   friend class GroupsStorage;
-  Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
 
 
 public:

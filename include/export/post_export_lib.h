@@ -1,0 +1,10 @@
+#ifndef POST_EXPORT_LIB_H
+#define POST_EXPORT_LIB_H
+
+#ifdef EXPORT_LIB_POST
+#define EXPORT_POST Q_DECL_EXPORT
+#else
+#define EXPORT_POST Q_DECL_IMPORT
+#endif
+
+#endif // POST_EXPORT_LIB_H

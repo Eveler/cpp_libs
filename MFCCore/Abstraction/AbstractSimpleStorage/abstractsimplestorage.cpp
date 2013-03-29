@@ -27,7 +27,7 @@ AbstractSimpleObject * AbstractSimpleStorage::addObject( QVariant id )
   }
 }
 
-const QList<AbstractSimpleObject *> & AbstractSimpleStorage::objects() const
+const AbstractSimpleObjectList &AbstractSimpleStorage::objects() const
 {
   return m__Objects;
 }

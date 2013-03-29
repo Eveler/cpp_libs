@@ -6,7 +6,7 @@ CONFIG += create_prl
 
 TEMPLATE = lib
 
-DEFINES += EXPORT_LIBRARY
+DEFINES += EXPORT_LIB_USER
 
 INCLUDEPATH += ./ \
     ../include/ \
@@ -74,6 +74,7 @@ CONFIG(debug, debug|release){
 }
 
 HEADERS += \
+    ../include/export/user_export_lib.h \
     ../include/user.h \
     ../include/usersstorage.h \
     User/user_p.h

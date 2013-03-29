@@ -3,8 +3,14 @@
 
 #include "abstractsimplestorage.h"
 
+#include "export/group_export_lib.h"
 
-class EXPORT GroupsStorage : public AbstractSimpleStorage
+
+class Group;
+
+typedef QList<Group *> GroupList;
+
+class EXPORT_GROUP GroupsStorage : public AbstractSimpleStorage
 {
   Q_OBJECT
 
@@ -12,7 +18,9 @@ class EXPORT GroupsStorage : public AbstractSimpleStorage
 public:
   static GroupsStorage * instance();
 
-  QList<AbstractSimpleObject *> findByName( QList<AbstractSimpleObject *> objects, QString name );
+  const GroupList & groups() const;
+
+  AbstractSimpleObjectList findByName( AbstractSimpleObjectList objects, QString name );
 
 
 signals:

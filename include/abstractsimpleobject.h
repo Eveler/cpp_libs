@@ -3,13 +3,13 @@
 
 #include <QObject>
 
-#include "lib_export.h"
+#include "export/mfccore_export_lib.h"
 
 #include <QString>
 #include <QVariant>
 
 
-class EXPORT AbstractSimpleObject : public QObject
+class EXPORT_MFCCORE AbstractSimpleObject : public QObject
 {
   Q_OBJECT
 

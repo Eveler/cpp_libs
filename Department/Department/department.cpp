@@ -2,6 +2,8 @@
 
 #include "department_p.h"
 
+#include <QVariant>
+
 
 Department::~Department()
 {

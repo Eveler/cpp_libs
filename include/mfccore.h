@@ -1,7 +1,7 @@
 #ifndef MFCCORE_H
 #define MFCCORE_H
 
-#include "lib_export.h"
+#include "export/mfccore_export_lib.h"
 
 #include <QAbstractItemModel>
 #include <QDateTime>
@@ -19,7 +19,7 @@ typedef struct
   QString lastname;
 } StructName;
 
-class EXPORT MFCCore : public QObject
+class EXPORT_MFCCORE MFCCore : public QObject
 {
   Q_OBJECT
 

@@ -3,16 +3,17 @@
 
 #include "abstractsimpleobject.h"
 
+#include "export/post_export_lib.h"
+
 
 class Post_P;
 class PostsStorage;
 
-class EXPORT Post : public AbstractSimpleObject
+class EXPORT_POST Post : public AbstractSimpleObject
 {
   Q_OBJECT
   friend class Post_P;
   friend class PostsStorage;
-  Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
 
 
 public:

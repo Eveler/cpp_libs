@@ -3,8 +3,14 @@
 
 #include "abstractsimplestorage.h"
 
+#include "export/department_export_lib.h"
 
-class EXPORT DepartmentsStorage : public AbstractSimpleStorage
+
+class Department;
+
+typedef QList<Department *> DepartmentList;
+
+class EXPORT_DEPARTMENT DepartmentsStorage : public AbstractSimpleStorage
 {
   Q_OBJECT
 
@@ -12,7 +18,9 @@ class EXPORT DepartmentsStorage : public AbstractSimpleStorage
 public:
   static DepartmentsStorage * instance();
 
-  QList<AbstractSimpleObject *> findByName( QList<AbstractSimpleObject *> objects, QString name );
+  const DepartmentList & departments() const;
+
+  AbstractSimpleObjectList findByName( AbstractSimpleObjectList objects, QString name );
 
 
 signals:

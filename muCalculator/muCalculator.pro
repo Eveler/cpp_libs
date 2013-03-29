@@ -11,7 +11,7 @@ TEMPLATE = lib
 
 greaterThan( QT_MAJOR_VERSION, 4 ) QT += widgets
 
-DEFINES += EXPORT_LIBRARY
+DEFINES += EXPORT_LIB_MUCALCULATOR
 
 
 INCLUDEPATH += ./ \
@@ -58,7 +58,8 @@ SOURCES += \
     QMathParser_1_0/muParser/muParser.cpp \
     mucalculator.cpp
 
-HEADERS  += ../include/lib_export.h \
+HEADERS  += \
+    ../include/export/mucalculator_export_lib.h \
     QMathParser_1_0/muParser/muParserTokenReader.h \
     QMathParser_1_0/muParser/muParserToken.h \
     QMathParser_1_0/muParser/muParserTest.h \

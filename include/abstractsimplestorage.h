@@ -3,12 +3,14 @@
 
 #include <QObject>
 
-#include "lib_export.h"
+#include "export/mfccore_export_lib.h"
 
 
 class AbstractSimpleObject;
 
-class EXPORT AbstractSimpleStorage : public QObject
+typedef QList<AbstractSimpleObject *> AbstractSimpleObjectList;
+
+class EXPORT_MFCCORE AbstractSimpleStorage : public QObject
 {
   Q_OBJECT
 
@@ -18,7 +20,7 @@ public:
   ~AbstractSimpleStorage();
 
   AbstractSimpleObject * addObject( QVariant id );
-  const QList<AbstractSimpleObject *> & objects() const;
+  const AbstractSimpleObjectList & objects() const;
   void clear();
 
   QList<AbstractSimpleObject *> findById(
@@ -36,7 +38,7 @@ protected:
 
 
 private:
-  QList<AbstractSimpleObject *> m__Objects;
+  AbstractSimpleObjectList m__Objects;
 
 
 private slots:

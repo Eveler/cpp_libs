@@ -2,6 +2,8 @@
 
 #include "department.h"
 
+#include <QVariant>
+
 
 DepartmentsStorage *DepartmentsStorage::m__Instance = NULL;
 
@@ -12,10 +14,15 @@ DepartmentsStorage * DepartmentsStorage::instance()
   return m__Instance;
 }
 
-QList<AbstractSimpleObject *> DepartmentsStorage::findByName(
-    QList<AbstractSimpleObject *> objects, QString name )
+const DepartmentList & DepartmentsStorage::departments() const
 {
-  QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
+  return *((DepartmentList *)(&objects()));
+}
+
+AbstractSimpleObjectList DepartmentsStorage::findByName(
+    AbstractSimpleObjectList objects, QString name )
+{
+  AbstractSimpleObjectList result = AbstractSimpleObjectList();
   foreach ( AbstractSimpleObject *object, objects )
   {
     Department *department = qobject_cast<Department *>( object );

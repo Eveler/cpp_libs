@@ -6,7 +6,7 @@ CONFIG += create_prl
 
 TEMPLATE = lib
 
-DEFINES += EXPORT_LIBRARY
+DEFINES += EXPORT_LIB_POST
 
 INCLUDEPATH += ./ \
     ../include/ \
@@ -71,6 +71,7 @@ CONFIG(debug, debug|release){
 }
 
 HEADERS += \
+    ../include/export/post_export_lib.h \
     ../include/post.h \
     Post/post_p.h \
     ../include/postsstorage.h

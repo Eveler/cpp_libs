@@ -12,10 +12,15 @@ UsersStorage * UsersStorage::instance()
   return m__Instance;
 }
 
-QList<AbstractSimpleObject *> UsersStorage::findBySurname(
-    const QList<AbstractSimpleObject *> &objects, const QString &surname ) const
+const UserList & UsersStorage::users() const
 {
-  QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
+  return *((UserList *)(&objects()));
+}
+
+AbstractSimpleObjectList UsersStorage::findBySurname(
+    const AbstractSimpleObjectList &objects, const QString &surname ) const
+{
+  AbstractSimpleObjectList result = AbstractSimpleObjectList();
 
   foreach ( AbstractSimpleObject *object, objects )
   {
@@ -27,10 +32,10 @@ QList<AbstractSimpleObject *> UsersStorage::findBySurname(
   return result;
 }
 
-QList<AbstractSimpleObject *> UsersStorage::findByFirstname(
-    const QList<AbstractSimpleObject *> &objects, const QString &firstname ) const
+AbstractSimpleObjectList UsersStorage::findByFirstname(
+    const AbstractSimpleObjectList &objects, const QString &firstname ) const
 {
-  QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
+  AbstractSimpleObjectList result = AbstractSimpleObjectList();
 
   foreach ( AbstractSimpleObject *object, objects )
   {
@@ -42,10 +47,10 @@ QList<AbstractSimpleObject *> UsersStorage::findByFirstname(
   return result;
 }
 
-QList<AbstractSimpleObject *> UsersStorage::findByLastname(
-    const QList<AbstractSimpleObject *> &objects, const QString &lastname ) const
+AbstractSimpleObjectList UsersStorage::findByLastname(
+    const AbstractSimpleObjectList &objects, const QString &lastname ) const
 {
-  QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
+  AbstractSimpleObjectList result = AbstractSimpleObjectList();
 
   foreach ( AbstractSimpleObject *object, objects )
   {
@@ -57,10 +62,10 @@ QList<AbstractSimpleObject *> UsersStorage::findByLastname(
   return result;
 }
 
-QList<AbstractSimpleObject *> UsersStorage::findByPost(
-    const QList<AbstractSimpleObject *> &objects, Post *post ) const
+AbstractSimpleObjectList UsersStorage::findByPost(
+    const AbstractSimpleObjectList &objects, Post *post ) const
 {
-  QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
+  AbstractSimpleObjectList result = AbstractSimpleObjectList();
 
   foreach ( AbstractSimpleObject *object, objects )
   {
@@ -72,10 +77,10 @@ QList<AbstractSimpleObject *> UsersStorage::findByPost(
   return result;
 }
 
-QList<AbstractSimpleObject *> UsersStorage::findByDepartment(
-    const QList<AbstractSimpleObject *> &objects, Department *department ) const
+AbstractSimpleObjectList UsersStorage::findByDepartment(
+    const AbstractSimpleObjectList &objects, Department *department ) const
 {
-  QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
+  AbstractSimpleObjectList result = AbstractSimpleObjectList();
 
   foreach ( AbstractSimpleObject *object, objects )
   {
@@ -87,10 +92,10 @@ QList<AbstractSimpleObject *> UsersStorage::findByDepartment(
   return result;
 }
 
-QList<AbstractSimpleObject *> UsersStorage::findByActive(
-    const QList<AbstractSimpleObject *> &objects, bool active ) const
+AbstractSimpleObjectList UsersStorage::findByActive(
+    const AbstractSimpleObjectList &objects, bool active ) const
 {
-  QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
+  AbstractSimpleObjectList result = AbstractSimpleObjectList();
 
   foreach ( AbstractSimpleObject *object, objects )
   {
@@ -102,10 +107,10 @@ QList<AbstractSimpleObject *> UsersStorage::findByActive(
   return result;
 }
 
-QList<AbstractSimpleObject *> UsersStorage::findByDismissed(
-    const QList<AbstractSimpleObject *> &objects, bool dismissed ) const
+AbstractSimpleObjectList UsersStorage::findByDismissed(
+    const AbstractSimpleObjectList &objects, bool dismissed ) const
 {
-  QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
+  AbstractSimpleObjectList result = AbstractSimpleObjectList();
 
   foreach ( AbstractSimpleObject *object, objects )
   {
@@ -117,10 +122,10 @@ QList<AbstractSimpleObject *> UsersStorage::findByDismissed(
   return result;
 }
 
-QList<AbstractSimpleObject *> UsersStorage::findByOffice(
-    const QList<AbstractSimpleObject *> &objects, Office *office ) const
+AbstractSimpleObjectList UsersStorage::findByOffice(
+    const AbstractSimpleObjectList &objects, Office *office ) const
 {
-  QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
+  AbstractSimpleObjectList result = AbstractSimpleObjectList();
 
   foreach ( AbstractSimpleObject *object, objects )
   {
@@ -132,10 +137,10 @@ QList<AbstractSimpleObject *> UsersStorage::findByOffice(
   return result;
 }
 
-QList<AbstractSimpleObject *> UsersStorage::findByGroup(
-    const QList<AbstractSimpleObject *> &objects, Group *group ) const
+AbstractSimpleObjectList UsersStorage::findByGroup(
+    const AbstractSimpleObjectList &objects, Group *group ) const
 {
-  QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
+  AbstractSimpleObjectList result = AbstractSimpleObjectList();
 
   foreach ( AbstractSimpleObject *object, objects )
   {

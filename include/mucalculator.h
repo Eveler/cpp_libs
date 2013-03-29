@@ -1,12 +1,12 @@
 #ifndef MUCALCULATOR_H
 #define MUCALCULATOR_H
 
-#include "lib_export.h"
+#include "export/mucalculator_export_lib.h"
 
 #include <QVariant>
 
 
-class EXPORT muCalculator
+class EXPORT_MUCALCULATOR muCalculator
 {
 public:
   muCalculator();

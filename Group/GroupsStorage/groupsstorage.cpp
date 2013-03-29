@@ -12,10 +12,15 @@ GroupsStorage * GroupsStorage::instance()
   return m__Instance;
 }
 
-QList<AbstractSimpleObject *> GroupsStorage::findByName(
-    QList<AbstractSimpleObject *> objects, QString name )
+const GroupList & GroupsStorage::groups() const
 {
-  QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
+  return *((GroupList *)(&objects()));
+}
+
+AbstractSimpleObjectList GroupsStorage::findByName(
+    AbstractSimpleObjectList objects, QString name )
+{
+  AbstractSimpleObjectList result = AbstractSimpleObjectList();
   foreach ( AbstractSimpleObject *object, objects )
   {
     Group *group = qobject_cast<Group *>( object );

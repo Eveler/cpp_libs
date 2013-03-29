@@ -1,42 +1,47 @@
 #ifndef USERSSTORAGE_H
 #define USERSSTORAGE_H
 
-#include <QObject>
-
 #include "abstractsimplestorage.h"
+
+#include "export/user_export_lib.h"
 
 
 class Post;
 class Department;
 class Office;
 class Group;
+class User;
 
-class EXPORT UsersStorage : public AbstractSimpleStorage
+typedef QList<User *> UserList;
+
+class EXPORT_USER UsersStorage : public AbstractSimpleStorage
 {
-    Q_OBJECT
+  Q_OBJECT
 
 
 public:
   static UsersStorage * instance();
 
-  QList<AbstractSimpleObject *> findBySurname(
-      const QList<AbstractSimpleObject *> &objects, const QString &surname ) const;
-  QList<AbstractSimpleObject *> findByFirstname(
-      const QList<AbstractSimpleObject *> &objects, const QString &firstname ) const;
-  QList<AbstractSimpleObject *> findByLastname(
-      const QList<AbstractSimpleObject *> &objects, const QString &lastname ) const;
-  QList<AbstractSimpleObject *> findByPost(
-      const QList<AbstractSimpleObject *> &objects, Post *post ) const;
-  QList<AbstractSimpleObject *> findByDepartment(
-      const QList<AbstractSimpleObject *> &objects, Department *department ) const;
-  QList<AbstractSimpleObject *> findByActive(
-      const QList<AbstractSimpleObject *> &objects, bool active ) const;
-  QList<AbstractSimpleObject *> findByDismissed(
-      const QList<AbstractSimpleObject *> &objects, bool dismissed ) const;
-  QList<AbstractSimpleObject *> findByOffice(
-      const QList<AbstractSimpleObject *> &objects, Office *office ) const;
-  QList<AbstractSimpleObject *> findByGroup(
-      const QList<AbstractSimpleObject *> &objects, Group *group ) const;
+  const UserList & users() const;
+
+  AbstractSimpleObjectList findBySurname(
+      const AbstractSimpleObjectList &objects, const QString &surname ) const;
+  AbstractSimpleObjectList findByFirstname(
+      const AbstractSimpleObjectList &objects, const QString &firstname ) const;
+  AbstractSimpleObjectList findByLastname(
+      const AbstractSimpleObjectList &objects, const QString &lastname ) const;
+  AbstractSimpleObjectList findByPost(
+      const AbstractSimpleObjectList &objects, Post *post ) const;
+  AbstractSimpleObjectList findByDepartment(
+      const AbstractSimpleObjectList &objects, Department *department ) const;
+  AbstractSimpleObjectList findByActive(
+      const AbstractSimpleObjectList &objects, bool active ) const;
+  AbstractSimpleObjectList findByDismissed(
+      const AbstractSimpleObjectList &objects, bool dismissed ) const;
+  AbstractSimpleObjectList findByOffice(
+      const AbstractSimpleObjectList &objects, Office *office ) const;
+  AbstractSimpleObjectList findByGroup(
+      const AbstractSimpleObjectList &objects, Group *group ) const;
 
 
 signals:

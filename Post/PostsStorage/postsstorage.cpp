@@ -12,10 +12,15 @@ PostsStorage * PostsStorage::instance()
   return m__Instance;
 }
 
-QList<AbstractSimpleObject *> PostsStorage::findByName(
-    QList<AbstractSimpleObject *> objects, QString name )
+const PostList & PostsStorage::posts() const
 {
-  QList<AbstractSimpleObject *> result = QList<AbstractSimpleObject *>();
+  return *((PostList *)(&objects()));
+}
+
+AbstractSimpleObjectList PostsStorage::findByName(
+    AbstractSimpleObjectList objects, QString name )
+{
+  AbstractSimpleObjectList result = AbstractSimpleObjectList();
   foreach ( AbstractSimpleObject *object, objects )
   {
     Post *post = qobject_cast<Post *>( object );

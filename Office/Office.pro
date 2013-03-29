@@ -6,7 +6,7 @@ CONFIG += create_prl
 
 TEMPLATE = lib
 
-DEFINES += EXPORT_LIBRARY
+DEFINES += EXPORT_LIB_OFFICE
 
 INCLUDEPATH += ./ \
     ../include/ \
@@ -71,6 +71,7 @@ CONFIG(debug, debug|release){
 }
 
 HEADERS += \
+    ../include/export/office_export_lib.h \
     ../include/office.h \
     Office/office_p.h \
     ../include/officesstorage.h
