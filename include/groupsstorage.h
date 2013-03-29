@@ -3,12 +3,8 @@
 
 #include "abstractsimplestorage.h"
 
-#include "export/group_export_lib.h"
+#include "group.h"
 
-
-class Group;
-
-typedef QList<Group *> GroupList;
 
 class EXPORT_GROUP GroupsStorage : public AbstractSimpleStorage
 {

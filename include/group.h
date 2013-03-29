@@ -6,8 +6,11 @@
 #include "export/group_export_lib.h"
 
 
+class Group;
 class Group_P;
 class GroupsStorage;
+
+typedef QList<Group *> GroupList;
 
 class EXPORT_GROUP Group : public AbstractSimpleObject
 {
@@ -22,9 +25,16 @@ public:
   void setName( const QString &name );
   const QString & name() const;
 
+  bool addChildGroup( Group *childGroup );
+  void removeChildGroup( Group *childGroup );
+  const GroupList & parentGroups() const;
+  const GroupList & childGroups() const;
+
 
 signals:
   void nameChanged();
+  void childGroupAdded( Group *childGroup );
+  void childGroupRemoved( Group *childGroup );
 
 
 public slots:
