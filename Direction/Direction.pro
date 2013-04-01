@@ -1,32 +1,24 @@
-QT       += gui core network
+QT       += gui
 
-greaterThan( QT_MAJOR_VERSION, 4 ) QT += widgets
-
-TARGET = MFCWidgets
+TARGET = Direction
 CONFIG(debug, debug|release): TARGET = $${TARGET}d
 #CONFIG += create_prl
 
 TEMPLATE = lib
 
-DEFINES += EXPORT_LIB_MWIDGETS
-
-LIB_LIST = \
-    -lAMSLogger
+DEFINES += EXPORT_LIB_DIRECTION
 
 INCLUDEPATH += ./ \
-    ../bin/ \
-    ../bin_qt5/ \
     ../include/ \
-    ./MainWindow/ \
-    ./Widget/
-
+    ./Direction/ \
+    ./DirectionsStorage/
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
     TARGET.UID3 = 0xE279790D
     TARGET.CAPABILITY =
     TARGET.EPOCALLOWDLLDATA = 1
-    addFiles.sources = FTPEngine.dll
+    addFiles.sources = Group.dll
     addFiles.path = !:/sys/bin
     DEPLOYMENT += addFiles
 }
@@ -40,14 +32,25 @@ unix:!symbian {
     INSTALLS += target
 }
 
-greaterThan( QT_MAJOR_VERSION, 4 ) {
+LIB_LIST = \
+    -lMFCCore \
+    -lDepartment
+
+greaterThan(QT_MAJOR_VERSION, 4) {
+  INCLUDEPATH += \
+      ../bin_qt5
+
   DESTDIR = ../bin_qt5
   DLLDESTDIR = ../bin_qt5
 
   LIBS += -L../bin_qt5/ \
       $$LIB_LIST
 }
-lessThan( QT_MAJOR_VERSION, 5 ) {
+
+lessThan(QT_MAJOR_VERSION, 5) {
+  INCLUDEPATH += \
+      ../bin
+
   DESTDIR = ../bin
   DLLDESTDIR = ../bin
 
@@ -69,14 +72,21 @@ CONFIG(debug, debug|release){
 }
 
 HEADERS += \
-    ../include/lib_export.h \
-    ../include/mfcwidgets.h \
-    ../include/export/mwidgets_export_lib.h
+    ../include/export/direction_export_lib.h \
+    Direction/direction_p.h \
+    ../include/direction.h \
+    ../include/directionsstorage.h
+
+SOURCES += \
+    Direction/direction.cpp \
+    Direction/direction_p.cpp \
+    DirectionsStorage/directionsstorage.cpp
 
 
-include(./MWidgetsCore/MWidgetsCore.pri)
-include(./Widget_Treelist/Widget_Treelist.pri)
-include(./Menu_PeriodDates/Menu_PeriodDates.pri)
+
+
+
+
 
 
 

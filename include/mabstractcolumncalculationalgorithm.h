@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "lib_export.h"
+#include "export/mmodels_export_lib.h"
 
 #include <QVariant>
 
@@ -12,7 +12,7 @@ class MAbstractColumnCalculationAlgorithmPrivate;
 class MCalculationalColumn;
 class MCalculationalModel;
 
-class EXPORT MAbstractColumnCalculationAlgorithm : public QObject
+class EXPORT_MMODELS MAbstractColumnCalculationAlgorithm : public QObject
 {
   friend class MCalculationalModel;
   Q_OBJECT

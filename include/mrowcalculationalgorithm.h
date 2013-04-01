@@ -3,12 +3,12 @@
 
 #include "mabstractrowcalculationalgorithm.h"
 
-#include "lib_export.h"
+#include "export/mmodels_export_lib.h"
 
 
 class MRowCalculationAlgorithmPrivate;
 
-class EXPORT MRowCalculationAlgorithm : public MAbstractRowCalculationAlgorithm
+class EXPORT_MMODELS MRowCalculationAlgorithm : public MAbstractRowCalculationAlgorithm
 {
 public:
   explicit MRowCalculationAlgorithm( MCalculationalRow *writableRow );

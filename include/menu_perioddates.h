@@ -3,14 +3,14 @@
 
 #include <QMenu>
 
-#include "lib_export.h"
+#include "export/mwidgets_export_lib.h"
 
 #include <QDate>
 
 
 class Menu_PeriodDatesPrivate;
 
-class EXPORT Menu_PeriodDates : public QMenu
+class EXPORT_MWIDGETS Menu_PeriodDates : public QMenu
 {
   friend class Menu_PeriodDatesPrivate;
 

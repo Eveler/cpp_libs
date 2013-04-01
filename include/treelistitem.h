@@ -5,14 +5,14 @@
 #include <QColor>
 #include <QFont>
 
-#include "lib_export.h"
+#include "export/mwidgets_export_lib.h"
 
 
 class TreelistItemPrivate;
 class Widget_Treelist;
 class QTreeWidgetItem;
 
-class EXPORT TreelistItem : public QObject
+class EXPORT_MWIDGETS TreelistItem : public QObject
 {
   friend class TreelistItemPrivate;
   friend class Widget_Treelist;

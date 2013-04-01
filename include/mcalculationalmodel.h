@@ -3,7 +3,7 @@
 
 #include <QAbstractItemModel>
 
-#include "lib_export.h"
+#include "export/mmodels_export_lib.h"
 
 
 class MCalculationalColumn;
@@ -12,7 +12,7 @@ class MAbstractRowCalculationAlgorithm;
 class MAbstractColumnCalculationAlgorithm;
 class MCalculationalModelPrivate;
 
-class EXPORT MCalculationalModel : public QAbstractItemModel
+class EXPORT_MMODELS MCalculationalModel : public QAbstractItemModel
 {
   friend class MAbstractRowCalculationAlgorithm;
   friend class MAbstractColumnCalculationAlgorithm;

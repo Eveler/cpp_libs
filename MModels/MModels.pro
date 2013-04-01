@@ -6,7 +6,7 @@ CONFIG(debug, debug|release): TARGET = $${TARGET}d
 
 TEMPLATE = lib
 
-DEFINES += EXPORT_LIBRARY
+DEFINES += EXPORT_LIB_MMODELS
 
 LIB_LIST = \
     -lAMSLogger
@@ -69,7 +69,8 @@ CONFIG(debug, debug|release){
 }
 
 HEADERS += \
-    ../include/lib_export.h
+    ../include/lib_export.h \
+    ../include/export/mmodels_export_lib.h
 
 
 

@@ -16,7 +16,9 @@ public:
 
   const GroupList & groups() const;
 
-  AbstractSimpleObjectList findByName( AbstractSimpleObjectList objects, QString name );
+  AbstractSimpleObjectList findByName( const AbstractSimpleObjectList &objects, QString name );
+  AbstractSimpleObjectList findByParent( const AbstractSimpleObjectList &objects, Group *parentGroup );
+  AbstractSimpleObjectList findByChild( const AbstractSimpleObjectList &objects, Group *childGroup );
 
 
 signals:
