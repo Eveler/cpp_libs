@@ -1,28 +1,25 @@
-#ifndef USERSSTORAGE_H
-#define USERSSTORAGE_H
+#ifndef MEMBERSSTORAGE_H
+#define MEMBERSSTORAGE_H
 
 #include "abstractsimplestorage.h"
 
-#include "export/user_export_lib.h"
+#include "export/member_export_lib.h"
+#include "member.h"
 
 
 class Post;
-class Department;
-class Office;
 class Group;
-class User;
+class Member;
 
-typedef QList<User *> UserList;
-
-class EXPORT_USER UsersStorage : public AbstractSimpleStorage
+class EXPORT_MEMBER MembersStorage : public AbstractSimpleStorage
 {
   Q_OBJECT
 
 
 public:
-  static UsersStorage * instance();
+  static MembersStorage * instance();
 
-  const UserList & users() const;
+  const MemberList & members() const;
 
   AbstractSimpleObjectList findBySurname(
       const AbstractSimpleObjectList &objects, const QString &surname ) const;
@@ -32,14 +29,10 @@ public:
       const AbstractSimpleObjectList &objects, const QString &lastname ) const;
   AbstractSimpleObjectList findByPost(
       const AbstractSimpleObjectList &objects, Post *post ) const;
-  AbstractSimpleObjectList findByDepartment(
-      const AbstractSimpleObjectList &objects, Department *department ) const;
   AbstractSimpleObjectList findByActive(
       const AbstractSimpleObjectList &objects, bool active ) const;
   AbstractSimpleObjectList findByDismissed(
       const AbstractSimpleObjectList &objects, bool dismissed ) const;
-  AbstractSimpleObjectList findByOffice(
-      const AbstractSimpleObjectList &objects, Office *office ) const;
   AbstractSimpleObjectList findByGroup(
       const AbstractSimpleObjectList &objects, Group *group ) const;
 
@@ -55,9 +48,9 @@ protected:
 
 
 private:
-  static UsersStorage *m__Instance;
+  static MembersStorage *m__Instance;
 
-  explicit UsersStorage(QObject *parent = 0);
+  explicit MembersStorage(QObject *parent = 0);
 };
 
-#endif // USERSSTORAGE_H
+#endif // MEMBERSSTORAGE_H

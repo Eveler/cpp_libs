@@ -1,36 +1,35 @@
-#ifndef USER_H
-#define USER_H
+#ifndef MEMBER_H
+#define MEMBER_H
 
 #include "abstractsimpleobject.h"
 
-#include "export/user_export_lib.h"
+#include "export/member_export_lib.h"
 
 
-class User_P;
-class UsersStorage;
+class Member;
+class Member_P;
+class MembersStorage;
 class Post;
-class Department;
-class Office;
 class Group;
 
-class EXPORT_USER User : public AbstractSimpleObject
+typedef QList<Member *> MemberList;
+
+class EXPORT_MEMBER Member : public AbstractSimpleObject
 {
   Q_OBJECT
-  friend class User_P;
-  friend class UsersStorage;
+  friend class Member_P;
+  friend class MembersStorage;
 
 
 public:
-  ~User();
+  ~Member();
 
   const QString & surname() const;
   const QString & firstname() const;
   const QString & lastname() const;
   Post * post() const;
-  Department * department() const;
   bool active() const;
   bool dismissed() const;
-  Office * office() const;
   Group * group() const;
 
 
@@ -39,10 +38,8 @@ signals:
   void firstnameChanged();
   void lastnameChanged();
   void postChaged();
-  void departmentChanged();
   void activeChanged();
   void dismissedChanged();
-  void officeChanged();
   void groupChanged();
 
 
@@ -51,17 +48,15 @@ public slots:
   void setFirstname( const QString &firstname );
   void setLastname( const QString &lastname );
   void setPost( Post *post );
-  void setDepartment( Department *department );
   void setActive( bool active );
   void setDismissed( bool dismissed );
-  void setOffice( Office *office );
   void setGroup( Group *group );
 
 
 private:
-  User_P *p;
+  Member_P *p;
 
-  explicit User( QVariant id, QObject *parent = 0 );
+  explicit Member( QVariant id, QObject *parent = 0 );
 };
 
-#endif // USER_H
+#endif // MEMBER_H

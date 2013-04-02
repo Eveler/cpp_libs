@@ -1,24 +1,23 @@
-QT       += gui
+QT       += gui network
 
-TARGET = Office
+TARGET = Member
 CONFIG(debug, debug|release): TARGET = $${TARGET}d
 #CONFIG += create_prl
 
 TEMPLATE = lib
 
-DEFINES += EXPORT_LIB_OFFICE
+DEFINES += EXPORT_LIB_MEMBER
 
 INCLUDEPATH += ./ \
     ../include/ \
-    ./Office/ \
-    ./OfficesStorage/
+    ./Member/
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
     TARGET.UID3 = 0xE279790D
     TARGET.CAPABILITY =
     TARGET.EPOCALLOWDLLDATA = 1
-    addFiles.sources = Office.dll
+    addFiles.sources = User.dll
     addFiles.path = !:/sys/bin
     DEPLOYMENT += addFiles
 }
@@ -34,6 +33,8 @@ unix:!symbian {
 
 LIB_LIST = \
     -lMFCCore \
+    -lPost \
+    -lGroup \
 
 greaterThan(QT_MAJOR_VERSION, 4) {
   INCLUDEPATH += \
@@ -71,21 +72,15 @@ CONFIG(debug, debug|release){
 }
 
 HEADERS += \
-    ../include/export/office_export_lib.h \
-    ../include/office.h \
-    Office/office_p.h \
-    ../include/officesstorage.h
+    Member/member_p.h \
+    ../include/membersstorage.h \
+    ../include/member.h \
+    ../include/export/member_export_lib.h
 
 SOURCES += \
-    Office/office.cpp \
-    Office/office_p.cpp \
-    OfficesStorage/officesstorage.cpp
-
-
-
-
-
-
+    Member/member.cpp \
+    Member/member_p.cpp \
+    MembersStorage/membersstorage.cpp
 
 
 

@@ -20,6 +20,17 @@ const QString & Post::name() const
   return p->m__Name;
 }
 
+void Post::setDirection( Direction *direction )
+{
+  p->setDirection( direction );
+  emit directionChanged();
+}
+
+Direction * Post::direction() const
+{
+  return p->m__Direction;
+}
+
 Post::Post( QVariant id, QObject *parent ) :
   AbstractSimpleObject(id, parent)
 {

@@ -24,7 +24,7 @@ public:
   const QString & name() const;
 
   void setDirection( Direction *direction );
-  Direction *direction() const;
+  Direction * direction() const;
 
 
 signals:
