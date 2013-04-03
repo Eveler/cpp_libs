@@ -1,7 +1,7 @@
-DBC_INTERFACES = D:/devel/Libs/__dev__/DBCatalog/
+DBC_INTERFACES = ../DBCatalogPlugins/
 
-DBC_DEST_DIR = D:/devel/Libs/__dev__/DBCatalog/bin/
-DBC_PLUGINS_DIR = $${DBC_DEST_DIR}plugins/
+DBC_LIBS_BIN = ../../bin/
+DBC_LIBS_INCLUDE = ../../include/
 
-HEADERS *= \
-    $${DBC_INTERFACES}/dbcatalog_interface.h
+DBC_DEST_DIR = ../DBCatalog/bin/
+DBC_PLUGINS_DIR = $${DBC_DEST_DIR}/plugins/

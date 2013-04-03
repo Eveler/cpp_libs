@@ -20,8 +20,10 @@ LIB_LIST = \
     -lMFCCore
 
 INCLUDEPATH += \
-    &&{DBC_INTERFACES} \
-    &&{DBC_DEST_DIR}
+    $${DBC_INTERFACES} \
+    $${DBC_DEST_DIR}
+
+message( $${DBC_INTERFACES} )
 
 DESTDIR = $${DBC_DEST_DIR}
 DLLDESTDIR = $${DBC_DEST_DIR}
