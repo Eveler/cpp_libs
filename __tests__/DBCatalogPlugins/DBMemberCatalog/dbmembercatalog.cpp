@@ -11,7 +11,14 @@ QStringList DBMemberCatalog::categories() const
   return ( QStringList() << tr( "Пользователи" ) );
 }
 
-QWidget * DBMemberCatalog::createWidget( QWidget *parentWidget )
+QWidget * DBMemberCatalog::createMainWidget( QWidget *parentWidget )
+{
+//  Widget_ProcessReport *result = new Widget_ProcessReport( parentWidget );
+//  addWidget( result );
+  return NULL;
+}
+
+QWidget * DBMemberCatalog::createConfWidget( QWidget *parentWidget )
 {
 //  Widget_ProcessReport *result = new Widget_ProcessReport( parentWidget );
 //  addWidget( result );

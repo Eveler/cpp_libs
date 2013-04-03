@@ -14,27 +14,42 @@ class DBCatalog_Interface: public QObject
 public:
   explicit DBCatalog_Interface()
   {
-    m__Widget = NULL;
+    m__MainWidget = NULL;
   }
 
   ~DBCatalog_Interface()
   {
-    delete m__Widget;
-    disconnect( m__Widget, SIGNAL(destroyed()), this, SLOT(widgetDestroyed()) );
-    m__Widget = NULL;
+    disconnect( m__MainWidget, SIGNAL(destroyed()), this, SLOT(mainWidgetDestroyed()) );
+    delete m__MainWidget;
+    m__MainWidget = NULL;
+
+    disconnect( m__ConfWidget, SIGNAL(destroyed()), this, SLOT(confWidgetDestroyed()) );
+    delete m__ConfWidget;
+    m__ConfWidget = NULL;
   }
 
   virtual QStringList categories() const = 0;
 
-  QWidget * widget( QWidget *parentWidget = 0 )
+  QWidget * mainWidget( QWidget *parentWidget = 0 )
   {
-    if ( m__Widget == NULL )
+    if ( m__MainWidget == NULL )
     {
-      m__Widget = createWidget( parentWidget );
-      connect( m__Widget, SIGNAL(destroyed(QObject*)), SLOT(widgetDestroyed(QObject*)) );
+      m__MainWidget = createMainWidget( parentWidget );
+      connect( m__MainWidget, SIGNAL(destroyed()), SLOT(mainWidgetDestroyed()) );
     }
 
-    return m__Widget;
+    return m__MainWidget;
+  }
+
+  QWidget * configurationWidget( QWidget *parentWidget = 0 )
+  {
+    if ( m__ConfWidget == NULL )
+    {
+      m__ConfWidget = createMainWidget( parentWidget );
+      connect( m__ConfWidget, SIGNAL(destroyed()), SLOT(confWidgetDestroyed()) );
+    }
+
+    return m__ConfWidget;
   }
 
 
@@ -42,15 +57,22 @@ public slots:
 
 
 private:
-  QWidget *m__Widget;
+  QWidget *m__MainWidget;
+  QWidget *m__ConfWidget;
 
-  virtual QWidget * createWidget( QWidget *parentWidget ) = 0;
+  virtual QWidget * createMainWidget( QWidget *parentWidget ) = 0;
+  virtual QWidget * createConfWidget( QWidget *parentWidget ) = 0;
 
 
 private slots:
-  void widgetDestroyed()
+  void mainWidgetDestroyed()
   {
-    m__Widget = NULL;
+    m__MainWidget = NULL;
+  }
+
+  void confWidgetDestroyed()
+  {
+    m__ConfWidget = NULL;
   }
 };
 

@@ -21,7 +21,6 @@ LIB_LIST = \
     -lMFCCore
 
 INCLUDEPATH += \
-    ../$${DBC_LIBS_BIN} \
     ../$${DBC_LIBS_INCLUDE} \
     ../$${DBC_DEST_DIR} \
     ../

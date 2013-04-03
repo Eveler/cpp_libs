@@ -24,7 +24,8 @@ public slots:
 
 
 private:
-  QWidget * createWidget( QWidget *parentWidget );
+  QWidget * createMainWidget( QWidget *parentWidget );
+  QWidget * createConfWidget( QWidget *parentWidget );
 };
 
 #endif // DBMEMBERCATALOG_H

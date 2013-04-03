@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -17,13 +17,14 @@ include(./dbcatalog_config.pri)
 
 LIB_LIST = \
     -lAMSLogger \
-    -lMFCCore
+    -lMFCCore \
+    -lMFCWidgets
 
 INCLUDEPATH += \
     $${DBC_INTERFACES} \
-    $${DBC_DEST_DIR}
-
-message( $${DBC_INTERFACES} )
+    $${DBC_DEST_DIR} \
+    $${DBC_LIBS_INCLUDE} \
+    ./Configuration/
 
 DESTDIR = $${DBC_DEST_DIR}
 DLLDESTDIR = $${DBC_DEST_DIR}
@@ -41,11 +42,24 @@ CONFIG(debug, debug|release){
   UI_DIR = ./temp/$$TARGET/debug
 }
 
+LIBS += -L$${DBC_LIBS_BIN} \
+    $$LIB_LIST
+
 SOURCES += main.cpp\
-    dbcatalog.cpp
+    dbcatalog.cpp \
+    dbcatalog_p.cpp \
+    Configuration/widget_configuration.cpp \
+    Configuration/configuration_p.cpp
 
-HEADERS  += dbcatalog.h
+HEADERS  += dbcatalog.h \
+    dbcatalog_p.h \
+    Configuration/widget_configuration.h \
+    Configuration/configuration_p.h
 
-FORMS    += dbcatalog.ui
+FORMS    += dbcatalog.ui \
+    Configuration/widget_configuration.ui
 
 RC_FILE = myapp.rc
+
+RESOURCES += \
+    Configuration/Configuration_icons.qrc
