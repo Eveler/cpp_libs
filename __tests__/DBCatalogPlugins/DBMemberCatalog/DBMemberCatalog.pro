@@ -13,7 +13,7 @@ TEMPLATE = lib
 
 
 #-------------------------------------------------
-include(../../DBCatalog/dbcatalog_config.pri)
+include(../dbcatalogplugins_config.pri)
 
 #-------------------------------------------------
 LIB_LIST = \

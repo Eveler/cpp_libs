@@ -5,12 +5,17 @@
 #include "dbcatalog_interface.h"
 #include "amslogger.h"
 #include "mwidgetscore.h"
+#include "mfccore.h"
 
+#include <QMainWindow>
 #include <QFileInfoList>
 #include <QDir>
 #include <QPluginLoader>
 #include <QMenu>
 
+
+#define KEY__PLUGIN_SOURCES tr( "PLUGINS/Sources" )
+#define KEY__PLUGIN_INSTALL tr( "PLUGINS/Install" )
 
 #define PLUGINS_PATH qApp->applicationDirPath()+tr( "/plugins" )
 
@@ -20,15 +25,17 @@ Configuration_P::Configuration_P( QMenu *menuPlugins, Widget_Configuration *pare
 {
   m__MenuPlugins = menuPlugins;
 
+  loadConfiguration();
+
   updatePlugins();
 }
 
 Configuration_P::~Configuration_P()
 {
-  m__MenuPlugins = NULL;
-
   while ( !m__Plugins.isEmpty() )
     unloadPlugin( m__Plugins.first() );
+
+  m__MenuPlugins = NULL;
 }
 
 Widget_Configuration * Configuration_P::p_dptr() const
@@ -79,6 +86,28 @@ void Configuration_P::unloadPlugin( QPluginLoader *pl )
   }
 }
 
+void Configuration_P::loadConfiguration()
+{
+  QSettings *settings = MFCCore::appSettings();
+
+  if ( !settings->contains( KEY__PLUGIN_SOURCES ) )
+    settings->setValue( KEY__PLUGIN_SOURCES, QStringList() );
+  QStringList plugSources = settings->value( KEY__PLUGIN_SOURCES, QStringList() ).toStringList();
+
+  if ( !settings->contains( KEY__PLUGIN_INSTALL ) )
+    settings->setValue( KEY__PLUGIN_INSTALL, tr( "%1/plugins" ).arg( qApp->applicationDirPath() ) );
+  QString plugInstall = settings->value( KEY__PLUGIN_INSTALL ).toString();
+  p_dptr()->ui->lEdit_PluginsPath->setText( plugInstall );
+}
+
+void Configuration_P::saveConfiguration()
+{
+  QSettings *settings = MFCCore::appSettings();
+
+  settings->setValue( KEY__PLUGIN_SOURCES, QStringList() );
+  settings->setValue( KEY__PLUGIN_INSTALL, p_dptr()->ui->lEdit_PluginsPath->text() );
+}
+
 void Configuration_P::updatePlugins()
 {
   QDir d( PLUGINS_PATH );
@@ -95,4 +124,11 @@ void Configuration_P::createPluginWidget()
 {
   QAction *action = qobject_cast<QAction *>( sender() );
   p_dptr()->afterPluginWidgetCreated( m__PluginActivator[action]->mainWidget() );
+}
+
+void Configuration_P::addPluginSource( const QUrl &source )
+{
+//  QListWidgetItem *lwi_PluginsSource = new QListWidgetItem(
+//        QIcon( ":/Configuration_icons/preview.png" ), source.toString() );
+//  p_dptr()->ui->listWgt_PluginSources->addItem( lwi_PluginsSource );
 }

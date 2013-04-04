@@ -5,6 +5,7 @@
 
 #include <QHash>
 #include <QFileInfo>
+#include <QUrl>
 
 
 class Widget_Configuration;
@@ -42,10 +43,17 @@ private:
   void loadPlugin( const QFileInfo &fileInfo );
   void unloadPlugin( QPluginLoader *pl );
 
+  bool isValidSource( const QUrl &source );
+
 
 private slots:
+  void loadConfiguration();
+  void saveConfiguration();
+
   void updatePlugins();
   void createPluginWidget();
+
+  void addPluginSource( const QUrl &source );
 };
 
 #endif // CONFIGURATION_P_H

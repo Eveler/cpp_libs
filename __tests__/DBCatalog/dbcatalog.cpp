@@ -11,7 +11,7 @@ DBCatalog::DBCatalog(QWidget *parent) :
   ui->setupUi(this);
 
   p = new DBCatalog_P( this );
-  connect( ui->action_Update, SIGNAL(triggered()), p, SLOT(updatePlugins()) );
+  connect( ui->action_Configuration, SIGNAL(triggered()), p , SLOT(showConfiguration()) );
 }
 
 DBCatalog::~DBCatalog()

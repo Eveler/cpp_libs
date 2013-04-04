@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network
+QT       += core gui network xml
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -24,7 +24,8 @@ INCLUDEPATH += \
     $${DBC_INTERFACES} \
     $${DBC_DEST_DIR} \
     $${DBC_LIBS_INCLUDE} \
-    ./Configuration/
+    ./Configuration/ \
+    ./Configuration/PluginsSourceLoader/
 
 DESTDIR = $${DBC_DEST_DIR}
 DLLDESTDIR = $${DBC_DEST_DIR}
@@ -49,17 +50,23 @@ SOURCES += main.cpp\
     dbcatalog.cpp \
     dbcatalog_p.cpp \
     Configuration/widget_configuration.cpp \
-    Configuration/configuration_p.cpp
+    Configuration/configuration_p.cpp \
+    Configuration/PluginsSourceLoader/widget_pluginssourceloader.cpp \
+    Configuration/PluginsSourceLoader/pluginssourceloader_p.cpp
 
 HEADERS  += dbcatalog.h \
     dbcatalog_p.h \
     Configuration/widget_configuration.h \
-    Configuration/configuration_p.h
+    Configuration/configuration_p.h \
+    Configuration/PluginsSourceLoader/widget_pluginssourceloader.h \
+    Configuration/PluginsSourceLoader/pluginssourceloader_p.h
 
 FORMS    += dbcatalog.ui \
-    Configuration/widget_configuration.ui
+    Configuration/widget_configuration.ui \
+    Configuration/PluginsSourceLoader/widget_pluginssourceloader.ui
 
 RC_FILE = myapp.rc
 
 RESOURCES += \
-    Configuration/Configuration_icons.qrc
+    Configuration/Configuration_icons.qrc \
+    Configuration/PluginsSourceLoader/PluginsSourceLoader_icons.qrc

@@ -19,13 +19,19 @@ public:
 
   ~DBCatalog_Interface()
   {
-    disconnect( m__MainWidget, SIGNAL(destroyed()), this, SLOT(mainWidgetDestroyed()) );
-    delete m__MainWidget;
-    m__MainWidget = NULL;
+    if ( m__MainWidget != NULL )
+    {
+      disconnect( m__MainWidget, SIGNAL(destroyed()), this, SLOT(mainWidgetDestroyed()) );
+      delete m__MainWidget;
+      m__MainWidget = NULL;
+    }
 
-    disconnect( m__ConfWidget, SIGNAL(destroyed()), this, SLOT(confWidgetDestroyed()) );
-    delete m__ConfWidget;
-    m__ConfWidget = NULL;
+    if ( m__ConfWidget != NULL )
+    {
+      disconnect( m__ConfWidget, SIGNAL(destroyed()), this, SLOT(confWidgetDestroyed()) );
+      delete m__ConfWidget;
+      m__ConfWidget = NULL;
+    }
   }
 
   virtual QStringList categories() const = 0;

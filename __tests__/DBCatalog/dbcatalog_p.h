@@ -34,6 +34,7 @@ private:
 
 
 private slots:
+  void showConfiguration();
   void showPluginWidget( QWidget *widget );
 };
 
