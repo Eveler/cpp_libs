@@ -89,13 +89,15 @@ void Configuration_P::unloadPlugin( QPluginLoader *pl )
 void Configuration_P::loadConfiguration()
 {
   QSettings *settings = MFCCore::appSettings();
+  settings->sync();
 
   if ( !settings->contains( KEY__PLUGIN_SOURCES ) )
     settings->setValue( KEY__PLUGIN_SOURCES, QStringList() );
-  QStringList plugSources = settings->value( KEY__PLUGIN_SOURCES, QStringList() ).toStringList();
+  QStringList pluginSources = settings->value( KEY__PLUGIN_SOURCES, QStringList() ).toStringList();
+  p_dptr()->ui->wgt_PluginsSourceLoader->setPluginsSourceList( pluginSources );
 
   if ( !settings->contains( KEY__PLUGIN_INSTALL ) )
-    settings->setValue( KEY__PLUGIN_INSTALL, tr( "%1/plugins" ).arg( qApp->applicationDirPath() ) );
+    settings->setValue( KEY__PLUGIN_INSTALL, PLUGINS_PATH );
   QString plugInstall = settings->value( KEY__PLUGIN_INSTALL ).toString();
   p_dptr()->ui->lEdit_PluginsPath->setText( plugInstall );
 }
@@ -104,13 +106,14 @@ void Configuration_P::saveConfiguration()
 {
   QSettings *settings = MFCCore::appSettings();
 
-  settings->setValue( KEY__PLUGIN_SOURCES, QStringList() );
+  settings->setValue( KEY__PLUGIN_SOURCES, p_dptr()->ui->wgt_PluginsSourceLoader->pluginsSourceList() );
   settings->setValue( KEY__PLUGIN_INSTALL, p_dptr()->ui->lEdit_PluginsPath->text() );
+  settings->sync();
 }
 
 void Configuration_P::updatePlugins()
 {
-  QDir d( PLUGINS_PATH );
+  QDir d( p_dptr()->ui->lEdit_PluginsPath->text() );
   QFileInfoList fil = d.entryInfoList( QStringList() << tr( "*.dll" ), QDir::Files, QDir::Name );
   foreach ( QFileInfo fi, fil )
   {
@@ -124,11 +127,4 @@ void Configuration_P::createPluginWidget()
 {
   QAction *action = qobject_cast<QAction *>( sender() );
   p_dptr()->afterPluginWidgetCreated( m__PluginActivator[action]->mainWidget() );
-}
-
-void Configuration_P::addPluginSource( const QUrl &source )
-{
-//  QListWidgetItem *lwi_PluginsSource = new QListWidgetItem(
-//        QIcon( ":/Configuration_icons/preview.png" ), source.toString() );
-//  p_dptr()->ui->listWgt_PluginSources->addItem( lwi_PluginsSource );
 }

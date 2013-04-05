@@ -22,10 +22,32 @@ Widget_PluginsSourceLoader::~Widget_PluginsSourceLoader()
   ui = NULL;
 }
 
-void Widget_PluginsSourceLoader::setPluginsSources( const QStringList &sources )
+void Widget_PluginsSourceLoader::setPluginsSourceList( const QStringList &sourceList )
 {
+  ui->listWgt_PluginSources->clear();
   p->m__PluginPaths.clear();
-  foreach ( QString source, sources ) p->addPluginSource( QUrl( source ) );
+  p->m__FullUpdate = true;
+  foreach ( QString source, sourceList ) p->addPluginSource( QUrl( source ) );
+}
+
+QStringList Widget_PluginsSourceLoader::pluginsSourceList() const
+{
+  QStringList result = QStringList();
+  for ( int index = 0; index < ui->listWgt_PluginSources->count(); index++ )
+    result << ui->listWgt_PluginSources->item( index )->text();
+  return result;
+}
+
+const QStringList & Widget_PluginsSourceLoader::plugins() const
+{
+  return p->m__PluginPaths;
+}
+
+const QByteArray & Widget_PluginsSourceLoader::pluginHash( const QString &plugin ) const
+{
+  if ( p->m__PluginHash.contains( plugin ) )
+    return p->m__PluginHash[plugin];
+  return p->nullHash;
 }
 
 void Widget_PluginsSourceLoader::on_tBt_AddSource_clicked()
@@ -39,12 +61,20 @@ void Widget_PluginsSourceLoader::on_tBt_AddSource_clicked()
   sourceInput->setCancelButtonText( tr( "Отмена" ) );
   QUrl source = QUrl();
   int res = (int)QDialog::Accepted;
+  bool repeat = false;
   do
   {
     sourceInput->setTextValue( source.toString() );
     res = sourceInput->exec();
     source.setUrl( sourceInput->textValue() );
-  } while ( res == (int)QDialog::Accepted && !p->addPluginSource( source ) );
+    repeat = false;
+    if ( res == (int)QDialog::Accepted )
+    {
+      QListWidgetItem *lwi = p->addPluginSource( source );
+      if ( lwi == NULL ) repeat = true;
+      else ui->listWgt_PluginSources->setCurrentItem( lwi );
+    }
+  } while ( repeat );
   delete sourceInput;
   sourceInput = NULL;
 }

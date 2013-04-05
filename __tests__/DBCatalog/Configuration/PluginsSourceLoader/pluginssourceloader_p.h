@@ -32,8 +32,10 @@ private:
   QNetworkAccessManager *m__NetworkAM;
   QStringList m__PluginPaths;
   QHash<QString, QByteArray> m__PluginHash;
+  QByteArray nullHash;
 
   QPair<QListWidgetItem *, QByteArray> currentUpdate;
+  bool isNewSource;
   bool m__FullUpdate;
 
   explicit PluginsSourceLoader_P( Widget_PluginsSourceLoader *parent );
@@ -41,7 +43,7 @@ private:
 
   Widget_PluginsSourceLoader * p_dptr() const;
 
-  bool addPluginSource( const QUrl &source );
+  QListWidgetItem * addPluginSource( const QUrl &source, bool newPluginsNotify = false );
   void updatePluginSource( QListWidgetItem *pluginSource );
 
   void parseXML( const QByteArray &xml );

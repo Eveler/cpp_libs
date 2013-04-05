@@ -11,6 +11,7 @@ DBCatalog_P::DBCatalog_P( DBCatalog *parent ) :
   QObject(parent)
 {
   m__Configuration = new Widget_Configuration( parent->ui->menu_Tools, parent );
+  m__Configuration->setFixedSize( 900, 600 );
 //  m__Configuration->setWindowFlags( Qt::Window );
 //  m__Configuration->setWindowModality( Qt::WindowModal );
   connect( m__Configuration, SIGNAL(pluginWidgetCreated(QWidget*)), SLOT(showPluginWidget(QWidget*)) );

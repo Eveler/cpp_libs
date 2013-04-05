@@ -20,8 +20,15 @@ public:
   explicit Widget_PluginsSourceLoader(QWidget *parent = 0);
   ~Widget_PluginsSourceLoader();
 
-  void setPluginsSources( const QStringList &sources );
+  void setPluginsSourceList( const QStringList &sourceList );
+  QStringList pluginsSourceList() const;
 
+  const QStringList & plugins() const;
+  const QByteArray & pluginHash( const QString &plugin ) const;
+
+
+signals:
+  void newPlugins( QHash<QString, QByteArray> pluginsHash );
 
 
 private:

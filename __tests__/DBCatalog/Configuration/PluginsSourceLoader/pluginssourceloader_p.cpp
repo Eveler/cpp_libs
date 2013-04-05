@@ -16,12 +16,14 @@ PluginsSourceLoader_P::PluginsSourceLoader_P( Widget_PluginsSourceLoader *parent
   QObject(parent),
   m__PluginPaths(QStringList()),
   m__PluginHash(QHash<QString, QByteArray>()),
+  nullHash(QByteArray()),
   m__FullUpdate(false)
 {
   currentUpdate.first = NULL;
   currentUpdate.second = QByteArray();
   m__NetworkAM = new QNetworkAccessManager( this );
   connect( m__NetworkAM, SIGNAL(finished(QNetworkReply*)), SLOT(replyFinished(QNetworkReply*)) );
+  parent->ui->progressBar->setVisible( false );
 }
 
 PluginsSourceLoader_P::~PluginsSourceLoader_P()
@@ -38,26 +40,32 @@ Widget_PluginsSourceLoader * PluginsSourceLoader_P::p_dptr() const
   return qobject_cast<Widget_PluginsSourceLoader *>( parent() );
 }
 
-bool PluginsSourceLoader_P::addPluginSource( const QUrl &source )
+QListWidgetItem * PluginsSourceLoader_P::addPluginSource( const QUrl &source, bool newPluginsNotify )
 {
-  if ( !source.isValid() || source.scheme().isEmpty() ) return false;
-
-  if ( !p_dptr()->ui->progressBar->isVisible() )
-    p_dptr()->ui->progressBar->setVisible( true );
+  if ( !source.isValid() || source.scheme().isEmpty() ||
+       !p_dptr()->ui->listWgt_PluginSources->findItems(
+         source.toString(), Qt::MatchFixedString ).isEmpty() ) return NULL;
 
   QListWidgetItem *lwi_PluginsSource = new QListWidgetItem(
         QIcon( ":/PluginsSourceLoader_icons/preview_disabled.png" ), source.toString() );
   p_dptr()->ui->listWgt_PluginSources->addItem( lwi_PluginsSource );
-  p_dptr()->ui->listWgt_PluginSources->setCurrentItem( lwi_PluginsSource );
-  qApp->processEvents();
+
+  if ( newPluginsNotify ) isNewSource = true;
+
+  if ( !p_dptr()->ui->progressBar->isVisible() )
+    p_dptr()->ui->progressBar->setVisible( true );
 
   updatePluginSource( lwi_PluginsSource );
 
-  return true;
+  return lwi_PluginsSource;
 }
 
 void PluginsSourceLoader_P::updatePluginSource( QListWidgetItem *pluginSource )
 {
+  p_dptr()->ui->tBt_CheckUpdate->setDisabled( true );
+  p_dptr()->ui->tBt_AddSource->setDisabled( true );
+  p_dptr()->ui->tBt_RemoveSource->setDisabled( true );
+
   currentUpdate.first = pluginSource;
   p_dptr()->ui->progressBar->setRange( 0, 0 );
 
@@ -74,12 +82,23 @@ void PluginsSourceLoader_P::parseXML( const QByteArray &xml )
   QDomDocument doc;
   doc.setContent( xml );
 
-  QDomElement element = doc.documentElement();
-  for( QDomNode fileNode = element.firstChild();
+  QHash<QString, QByteArray> newPlugins = QHash<QString, QByteArray>();
+  for( QDomNode fileNode = doc.documentElement().firstChild();
        !fileNode.isNull(); fileNode = fileNode.nextSibling() )
-    for( QDomNode fileAttr = fileNode.toElement().firstChild();
-         !fileAttr.isNull(); fileAttr = fileAttr.nextSibling() )
-      LogDebug() << fileAttr.toElement().text();
+  {
+    QString plugPath = fileNode.namedItem( tr( "path" ) ).toElement().attribute( tr( "value" ) );
+    QString plugHash = fileNode.namedItem( tr( "hash" ) ).toElement().attribute( tr( "value" ) );
+    if ( !m__PluginPaths.contains( plugPath ) )
+    {
+      m__PluginPaths << plugPath;
+      m__PluginHash[plugPath] = plugHash.toLocal8Bit();
+      newPlugins[plugPath] = m__PluginHash[plugPath];
+    }
+  }
+  if ( isNewSource )
+  {
+    isNewSource = false;
+  }
 }
 
 void PluginsSourceLoader_P::nextPluginSource()
@@ -92,6 +111,7 @@ void PluginsSourceLoader_P::nextPluginSource()
   else
   {
     currentUpdate.first = NULL;
+    m__FullUpdate = false;
     p_dptr()->ui->progressBar->setVisible( false );
   }
 }
@@ -99,8 +119,13 @@ void PluginsSourceLoader_P::nextPluginSource()
 void PluginsSourceLoader_P::replyFinished( QNetworkReply *reply )
 {
   reply->deleteLater();
+  reply = NULL;
 
   parseXML( currentUpdate.second );
+
+  p_dptr()->ui->tBt_CheckUpdate->setEnabled( true );
+  p_dptr()->ui->tBt_AddSource->setEnabled( true );
+  p_dptr()->ui->tBt_RemoveSource->setEnabled( true );
 
   nextPluginSource();
 }

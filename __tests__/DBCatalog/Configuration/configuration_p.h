@@ -43,8 +43,6 @@ private:
   void loadPlugin( const QFileInfo &fileInfo );
   void unloadPlugin( QPluginLoader *pl );
 
-  bool isValidSource( const QUrl &source );
-
 
 private slots:
   void loadConfiguration();
@@ -52,8 +50,6 @@ private slots:
 
   void updatePlugins();
   void createPluginWidget();
-
-  void addPluginSource( const QUrl &source );
 };
 
 #endif // CONFIGURATION_P_H
