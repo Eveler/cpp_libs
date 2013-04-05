@@ -23,12 +23,15 @@ public:
   void setPluginsSourceList( const QStringList &sourceList );
   QStringList pluginsSourceList() const;
 
+  void setInstallPath( const QString &installPath = QString() );
+  const QString & installPath() const;
+
   const QStringList & plugins() const;
   const QByteArray & pluginHash( const QString &plugin ) const;
 
 
 signals:
-  void newPlugins( QHash<QString, QByteArray> pluginsHash );
+  void pluginsSourceListChanged();
 
 
 private:
@@ -39,6 +42,7 @@ private:
 
 private slots:
   void on_tBt_AddSource_clicked();
+  void on_tabWidget_currentChanged( int index );
 };
 
 #endif // WIDGET_PLUGINSSOURCELOADER_H

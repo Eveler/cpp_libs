@@ -17,13 +17,14 @@
 #define KEY__PLUGIN_SOURCES tr( "PLUGINS/Sources" )
 #define KEY__PLUGIN_INSTALL tr( "PLUGINS/Install" )
 
-#define PLUGINS_PATH qApp->applicationDirPath()+tr( "/plugins" )
-
 
 Configuration_P::Configuration_P( QMenu *menuPlugins, Widget_Configuration *parent ) :
   QObject(parent)
 {
   m__MenuPlugins = menuPlugins;
+
+  connect( parent->ui->wgt_PluginsSourceLoader, SIGNAL(pluginsSourceListChanged()),
+           SLOT(savePluginsSources()) );
 
   loadConfiguration();
 
@@ -97,23 +98,32 @@ void Configuration_P::loadConfiguration()
   p_dptr()->ui->wgt_PluginsSourceLoader->setPluginsSourceList( pluginSources );
 
   if ( !settings->contains( KEY__PLUGIN_INSTALL ) )
-    settings->setValue( KEY__PLUGIN_INSTALL, PLUGINS_PATH );
+    settings->setValue( KEY__PLUGIN_INSTALL, QString() );
   QString plugInstall = settings->value( KEY__PLUGIN_INSTALL ).toString();
-  p_dptr()->ui->lEdit_PluginsPath->setText( plugInstall );
+  p_dptr()->ui->wgt_PluginsSourceLoader->setInstallPath( plugInstall );
+  LogDebug() << p_dptr()->ui->wgt_PluginsSourceLoader->installPath();
+}
+
+void Configuration_P::savePluginsSources()
+{
+  QSettings *settings = MFCCore::appSettings();
+  settings->setValue( KEY__PLUGIN_SOURCES, p_dptr()->ui->wgt_PluginsSourceLoader->pluginsSourceList() );
 }
 
 void Configuration_P::saveConfiguration()
 {
   QSettings *settings = MFCCore::appSettings();
 
-  settings->setValue( KEY__PLUGIN_SOURCES, p_dptr()->ui->wgt_PluginsSourceLoader->pluginsSourceList() );
-  settings->setValue( KEY__PLUGIN_INSTALL, p_dptr()->ui->lEdit_PluginsPath->text() );
+  savePluginsSources();
+  settings->setValue( KEY__PLUGIN_INSTALL, p_dptr()->ui->wgt_PluginsSourceLoader->installPath() );
   settings->sync();
 }
 
 void Configuration_P::updatePlugins()
 {
-  QDir d( p_dptr()->ui->lEdit_PluginsPath->text() );
+//  LogDebug() << p_dptr()->ui->wgt_PluginsSourceLoader->installPath();
+  QDir d( p_dptr()->ui->wgt_PluginsSourceLoader->installPath() );
+  qDebug() << d;
   QFileInfoList fil = d.entryInfoList( QStringList() << tr( "*.dll" ), QDir::Files, QDir::Name );
   foreach ( QFileInfo fi, fil )
   {

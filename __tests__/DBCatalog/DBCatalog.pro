@@ -25,7 +25,8 @@ INCLUDEPATH += \
     $${DBC_DEST_DIR} \
     $${DBC_LIBS_INCLUDE} \
     ./Configuration/ \
-    ./Configuration/PluginsSourceLoader/
+    ./Configuration/PluginsSourceLoader/ \
+    ./Configuration/PluginsSourceLoader/NewPlugins/
 
 DESTDIR = $${DBC_DEST_DIR}
 DLLDESTDIR = $${DBC_DEST_DIR}
@@ -52,18 +53,21 @@ SOURCES += main.cpp\
     Configuration/widget_configuration.cpp \
     Configuration/configuration_p.cpp \
     Configuration/PluginsSourceLoader/widget_pluginssourceloader.cpp \
-    Configuration/PluginsSourceLoader/pluginssourceloader_p.cpp
+    Configuration/PluginsSourceLoader/pluginssourceloader_p.cpp \
+    Configuration/PluginsSourceLoader/NewPlugins/dialog_newplugins.cpp
 
 HEADERS  += dbcatalog.h \
     dbcatalog_p.h \
     Configuration/widget_configuration.h \
     Configuration/configuration_p.h \
     Configuration/PluginsSourceLoader/widget_pluginssourceloader.h \
-    Configuration/PluginsSourceLoader/pluginssourceloader_p.h
+    Configuration/PluginsSourceLoader/pluginssourceloader_p.h \
+    Configuration/PluginsSourceLoader/NewPlugins/dialog_newplugins.h
 
 FORMS    += dbcatalog.ui \
     Configuration/widget_configuration.ui \
-    Configuration/PluginsSourceLoader/widget_pluginssourceloader.ui
+    Configuration/PluginsSourceLoader/widget_pluginssourceloader.ui \
+    Configuration/PluginsSourceLoader/NewPlugins/dialog_newplugins.ui
 
 RC_FILE = myapp.rc
 

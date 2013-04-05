@@ -12,6 +12,7 @@
 class Widget_PluginsSourceLoader;
 class QNetworkAccessManager;
 class QListWidgetItem;
+class Dialog_NewPlugins;
 
 class PluginsSourceLoader_P : public QObject
 {
@@ -38,6 +39,8 @@ private:
   bool isNewSource;
   bool m__FullUpdate;
 
+  Dialog_NewPlugins *m__DialogNewPlugins;
+
   explicit PluginsSourceLoader_P( Widget_PluginsSourceLoader *parent );
   ~PluginsSourceLoader_P();
 
@@ -55,6 +58,7 @@ private slots:
   void readyReadData();
   void downloadProgress( qint64 current, qint64 overall );
   void downloadError( QNetworkReply::NetworkError );
+  void newPluginsSelected();
 };
 
 #endif // PLUGINSSOURCELOADER_P_H

@@ -46,6 +46,7 @@ private:
 
 private slots:
   void loadConfiguration();
+  void savePluginsSources();
   void saveConfiguration();
 
   void updatePlugins();

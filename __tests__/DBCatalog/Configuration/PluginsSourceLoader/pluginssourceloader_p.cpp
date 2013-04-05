@@ -2,6 +2,8 @@
 
 #include "widget_pluginssourceloader.h"
 #include "ui_widget_pluginssourceloader.h"
+#include "dialog_newplugins.h"
+#include "mfccore.h"
 
 #include <QByteArray>
 #include <QNetworkAccessManager>
@@ -17,6 +19,7 @@ PluginsSourceLoader_P::PluginsSourceLoader_P( Widget_PluginsSourceLoader *parent
   m__PluginPaths(QStringList()),
   m__PluginHash(QHash<QString, QByteArray>()),
   nullHash(QByteArray()),
+  isNewSource(false),
   m__FullUpdate(false)
 {
   currentUpdate.first = NULL;
@@ -24,6 +27,10 @@ PluginsSourceLoader_P::PluginsSourceLoader_P( Widget_PluginsSourceLoader *parent
   m__NetworkAM = new QNetworkAccessManager( this );
   connect( m__NetworkAM, SIGNAL(finished(QNetworkReply*)), SLOT(replyFinished(QNetworkReply*)) );
   parent->ui->progressBar->setVisible( false );
+  m__DialogNewPlugins = new Dialog_NewPlugins( p_dptr() );
+  m__DialogNewPlugins->setFixedSize( 350, 450 );
+  m__DialogNewPlugins->setWindowTitle( tr( "Новый инструментарий" ) );
+  connect( m__DialogNewPlugins, SIGNAL(accepted()), SLOT(newPluginsSelected()) );
 }
 
 PluginsSourceLoader_P::~PluginsSourceLoader_P()
@@ -63,6 +70,8 @@ QListWidgetItem * PluginsSourceLoader_P::addPluginSource( const QUrl &source, bo
 void PluginsSourceLoader_P::updatePluginSource( QListWidgetItem *pluginSource )
 {
   p_dptr()->ui->tBt_CheckUpdate->setDisabled( true );
+  p_dptr()->ui->tabWidget->setTabEnabled(
+        p_dptr()->ui->tabWidget->indexOf( p_dptr()->ui->tab_PluginList ), false );
   p_dptr()->ui->tBt_AddSource->setDisabled( true );
   p_dptr()->ui->tBt_RemoveSource->setDisabled( true );
 
@@ -82,23 +91,26 @@ void PluginsSourceLoader_P::parseXML( const QByteArray &xml )
   QDomDocument doc;
   doc.setContent( xml );
 
-  QHash<QString, QByteArray> newPlugins = QHash<QString, QByteArray>();
   for( QDomNode fileNode = doc.documentElement().firstChild();
        !fileNode.isNull(); fileNode = fileNode.nextSibling() )
   {
-    QString plugPath = fileNode.namedItem( tr( "path" ) ).toElement().attribute( tr( "value" ) );
+    QString plugPath = fileNode.namedItem(
+          tr( "path" ) ).toElement().attribute( tr( "value" ) ).replace( "\\", "/" );
+    QString plugName = plugPath.split( "/" ).last();
     QString plugHash = fileNode.namedItem( tr( "hash" ) ).toElement().attribute( tr( "value" ) );
-    if ( !m__PluginPaths.contains( plugPath ) )
+    QAbstractItemModel *absMdl = p_dptr()->ui->tableWidget->model();
+    if ( MFCCore::findIndexes( absMdl, plugName ).isEmpty() )
     {
       m__PluginPaths << plugPath;
       m__PluginHash[plugPath] = plugHash.toLocal8Bit();
-      newPlugins[plugPath] = m__PluginHash[plugPath];
+      absMdl->insertRow( absMdl->rowCount() );
+      absMdl->setData( absMdl->index( absMdl->rowCount()-1, 0 ), plugName );
+      absMdl->setData( absMdl->index( absMdl->rowCount()-1, 1 ), tr( "Новый" ) );
+      if ( isNewSource )
+        m__DialogNewPlugins->addPluginName( plugName );
     }
   }
-  if ( isNewSource )
-  {
-    isNewSource = false;
-  }
+  if ( isNewSource ) isNewSource = false;
 }
 
 void PluginsSourceLoader_P::nextPluginSource()
@@ -124,6 +136,8 @@ void PluginsSourceLoader_P::replyFinished( QNetworkReply *reply )
   parseXML( currentUpdate.second );
 
   p_dptr()->ui->tBt_CheckUpdate->setEnabled( true );
+  p_dptr()->ui->tabWidget->setTabEnabled(
+        p_dptr()->ui->tabWidget->indexOf( p_dptr()->ui->tab_PluginList ), true );
   p_dptr()->ui->tBt_AddSource->setEnabled( true );
   p_dptr()->ui->tBt_RemoveSource->setEnabled( true );
 
@@ -153,4 +167,9 @@ void PluginsSourceLoader_P::downloadError( QNetworkReply::NetworkError )
 {
   currentUpdate.first->setIcon( QIcon( ":/PluginsSourceLoader_icons/preview_disabled.png" ) );
   nextPluginSource();
+}
+
+void PluginsSourceLoader_P::newPluginsSelected()
+{
+  m__DialogNewPlugins->clear();
 }
