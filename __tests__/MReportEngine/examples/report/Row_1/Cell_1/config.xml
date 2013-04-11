@@ -1,0 +1,14 @@
+<body>
+	<destination name="report"/>
+	<file name="main.html"/>
+	<foreign_keys>
+		<foreign_key name="$F_K_1$"/>
+	</foreign_keys>
+	<keys>
+		<key name="$K_1$">
+			<key_type name="SQL"/>
+			<key_data_type value="Integer"/>
+			<key_data value="SELECT $F_K_1$"/>
+		</key>
+	</keys>
+</body>
