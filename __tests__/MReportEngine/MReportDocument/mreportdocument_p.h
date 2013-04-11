@@ -3,8 +3,8 @@
 
 #include <QObject>
 
+#include "mreportdocument.h"
 
-class MReportDocument;
 
 class MReportDocument_P : public QObject
 {
@@ -13,7 +13,6 @@ class MReportDocument_P : public QObject
 
 
 public:
-  explicit MReportDocument_P( MReportDocument *parent );
 
 
 signals:
@@ -22,7 +21,20 @@ public slots:
 
 
 private:
+  QString m__FileName;
+
+  MReportDocument *m__ParentDocument;
+  MReportDocumentList m__ChildDocuments;
+
+  QList<MReportParameter *> m__Parameters;
+
   QString m__LastError;
+
+  explicit MReportDocument_P( const QString &fileName, MReportDocument *parent );
+  ~MReportDocument_P();
+
+  QString filePath() const;
+  QString alias() const;
 
   MReportDocument * p_dptr() const;
 };

@@ -1,11 +1,56 @@
 #include "mreportdocument_p.h"
 
-#include "mreportdocument.h"
+#include <QFileInfo>
 
 
-MReportDocument_P::MReportDocument_P(MReportDocument *parent) :
-  QObject(parent)
+MReportDocument_P::MReportDocument_P (const QString &fileName, MReportDocument *parent ) :
+  QObject(parent),
+  m__ParentDocument(qobject_cast<MReportDocument *>( parent->parent() )),
+  m__ChildDocuments(MReportDocumentList()),
+  m__Parameters(QList<MReportParameter *>()),
+  m__LastError(tr( "none" ))
 {
+  m__FileName = QString();
+  QFileInfo fi( fileName );
+  if ( fi.exists() ) m__FileName = fi.absoluteFilePath();
+  else
+  {
+    QFile f( fileName );
+    if ( f.open( QFile::WriteOnly ) ) m__FileName = fi.absoluteFilePath();
+    else m__LastError = tr( "Can't create report file" );
+    f.close();
+  }
+}
+
+MReportDocument_P::~MReportDocument_P()
+{
+  m__FileName.clear();
+  m__ParentDocument = NULL;
+  while ( !m__ChildDocuments.isEmpty() )
+  {
+    MReportDocument *reportDocument = m__ChildDocuments.takeFirst();
+    delete reportDocument;
+    reportDocument = NULL;
+  }
+  while ( !m__Parameters.isEmpty() )
+  {
+    MReportParameter *reportParameter = m__Parameters.takeFirst();
+    delete reportParameter;
+    reportParameter = NULL;
+  }
+  m__LastError.clear();
+}
+
+QString MReportDocument_P::filePath() const
+{
+  QFileInfo fi( m__FileName );
+  return fi.path();
+}
+
+QString MReportDocument_P::alias() const
+{
+  QFileInfo fi( m__FileName );
+  return fi.baseName();
 }
 
 MReportDocument * MReportDocument_P::p_dptr() const

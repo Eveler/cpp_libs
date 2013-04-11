@@ -64,9 +64,13 @@ CONFIG(debug, debug|release){
 HEADERS += \
     include/export/mreport_engine_export.h \
     include/mreportdocument.h \
-    MReportDocument/mreportdocument_p.h
+    MReportDocument/mreportdocument_p.h \
+    include/mreportparameter.h \
+    MReportDocument/MReportParameter/mreportparameter_p.h
 
 SOURCES += \
     MReportDocument/mreportdocument.cpp \
-    MReportDocument/mreportdocument_p.cpp
+    MReportDocument/mreportdocument_p.cpp \
+    MReportDocument/MReportParameter/mreportparameter.cpp \
+    MReportDocument/MReportParameter/mreportparameter_p.cpp
 
