@@ -8,6 +8,7 @@
 
 class MReportDocument;
 class MReportDocument_P;
+class MReportLoader;
 class MReportParameter;
 
 typedef QList<MReportDocument *> MReportDocumentList;
@@ -16,13 +17,20 @@ class EXPORT_MREPORTENGINE MReportDocument : public QObject
 {
   Q_OBJECT
   friend class MReportDocument_P;
+  friend class MReportLoader;
 
 
 public:
+  /** Конструктор создает экземпляр класса MReportDocument из файла конфигурации отчета.
+  ВНИМАНИЕ: в случае возникновения ошибки при чтении файла конфигурации отчета,
+  вы можете вызвать функцию errorDocument, а за тем lastError, для получения текста ошибки.*/
   explicit MReportDocument( const QString &fileName = QString(), QObject *parent = 0 );
   ~MReportDocument();
 
+  /** Файл конфигурации отчета.*/
   const QString & fileName() const;
+
+  void setBody( const QString &body );
 
   /** Документ, для которого неудалось загрузить файл конфигурации отчета.
   В случае отсутствия ошибки будет возвращен NULL.*/

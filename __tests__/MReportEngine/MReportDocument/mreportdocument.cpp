@@ -2,6 +2,7 @@
 
 #include "mreportdocument_p.h"
 #include "mreportparameter.h"
+#include "mreportloader.h"
 
 #include <QFile>
 
@@ -10,6 +11,10 @@ MReportDocument::MReportDocument( const QString &fileName, QObject *parent ) :
   QObject(parent)
 {
   p = new MReportDocument_P( fileName, this );
+
+  QString err_text = MReportLoader::load( this );
+  if ( !err_text.isEmpty() )
+    p->m__LastError = err_text;
 }
 
 MReportDocument::~MReportDocument()
@@ -21,6 +26,17 @@ MReportDocument::~MReportDocument()
 const QString & MReportDocument::fileName() const
 {
   return p->m__FileName;
+}
+
+void MReportDocument::setBody( const QString &body )
+{
+  p->m__Body = body;
+  QFile f( tr( "%1/main.html" ).arg( p->filePath() ) );
+  if ( f.exists() )
+    if ( !f.remove() ) return;
+  f.open( QFile::WriteOnly | QFile::Text );
+  f.write( body.toLocal8Bit() );
+  f.close();
 }
 
 MReportDocument * MReportDocument::errorDocument() const
@@ -43,7 +59,7 @@ const QString & MReportDocument::lastError() const
 
 MReportDocument * MReportDocument::addReportDocument( const QString &alias )
 {
-  if ( errorDocument() != NULL || reportDocument( alias ) != NULL ) return NULL;
+  if ( !p->m__FileName.isEmpty() || reportDocument( alias ) != NULL ) return NULL;
 
   MReportDocument *reportDocument = new MReportDocument(
         this, tr( "%1%2/%2.xml" ).arg( p->filePath(), alias ) );
@@ -67,7 +83,9 @@ MReportDocument * MReportDocument::reportDocument( const QString &alias ) const
 
 MReportParameter * MReportDocument::addReportParameter( const QString &name )
 {
-  if ( errorDocument() != NULL || reportParameter( name ) != NULL ) return NULL;
+  if ( name.contains( " " ) || !p->m__FileName.isEmpty() ||
+       reportParameter( name ) != NULL )
+    return NULL;
 
   MReportParameter * rp = new MReportParameter( name, this );
   p->m__Parameters << rp;

@@ -22,6 +22,7 @@ public slots:
 
 private:
   QString m__FileName;
+  QString m__Body;
 
   MReportDocument *m__ParentDocument;
   MReportDocumentList m__ChildDocuments;

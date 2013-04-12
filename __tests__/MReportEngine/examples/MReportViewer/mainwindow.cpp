@@ -13,7 +13,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
   MReportDocument *report = new MReportDocument(
         tr( "D:/devel/Libs/__tests__/MReportEngine/examples/report/config.xml" ), this );
-  LogDebug() << report->fileName();
+//  MReportDocument *report = new MReportDocument(
+//        tr( "./config.xml" ), this );
+  MReportDocument *errorDocument = report->errorDocument();
+  if ( errorDocument != NULL )
+    LogDebug() << report->lastError();
 }
 
 MainWindow::~MainWindow()

@@ -11,6 +11,7 @@ MReportDocument_P::MReportDocument_P (const QString &fileName, MReportDocument *
   m__LastError(tr( "none" ))
 {
   m__FileName = QString();
+  m__Body = QString();
   QFileInfo fi( fileName );
   if ( fi.exists() ) m__FileName = fi.absoluteFilePath();
   else
@@ -18,6 +19,19 @@ MReportDocument_P::MReportDocument_P (const QString &fileName, MReportDocument *
     QFile f( fileName );
     if ( f.open( QFile::WriteOnly ) ) m__FileName = fi.absoluteFilePath();
     else m__LastError = tr( "Can't create report file" );
+    f.close();
+  }
+
+  if ( !m__FileName.isEmpty() )
+  {
+    QFile f( tr( "%1/main.html" ).arg( filePath() ) );
+    if ( !f.exists() )
+      f.open( QFile::WriteOnly | QFile::Text );
+    else
+    {
+      f.open( QFile::ReadOnly | QFile::Text );
+      m__Body = f.readAll();
+    }
     f.close();
   }
 }

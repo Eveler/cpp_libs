@@ -1,4 +1,4 @@
-QT       += core
+QT       += core xml
 
 TARGET = MReportEngine
 CONFIG(debug, debug|release): TARGET = $${TARGET}d
@@ -10,7 +10,10 @@ DEFINES += EXPORT_LIB_MREPORTENGINE
 
 INCLUDEPATH += ./ \
     ./bin/ \
-    ./include/
+    ./include/ \
+    ./MReportDocument/ \
+    ./MReportDocument/MReportParameter/ \
+    ./MReportDocument/MReportLoader/
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
@@ -66,11 +69,13 @@ HEADERS += \
     include/mreportdocument.h \
     MReportDocument/mreportdocument_p.h \
     include/mreportparameter.h \
-    MReportDocument/MReportParameter/mreportparameter_p.h
+    MReportDocument/MReportParameter/mreportparameter_p.h \
+    MReportDocument/MReportLoader/mreportloader.h
 
 SOURCES += \
     MReportDocument/mreportdocument.cpp \
     MReportDocument/mreportdocument_p.cpp \
     MReportDocument/MReportParameter/mreportparameter.cpp \
-    MReportDocument/MReportParameter/mreportparameter_p.cpp
+    MReportDocument/MReportParameter/mreportparameter_p.cpp \
+    MReportDocument/MReportLoader/mreportloader.cpp
 

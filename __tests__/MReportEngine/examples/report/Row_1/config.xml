@@ -1,9 +1,10 @@
 <body>
-	<destination name="report"/>
-	<file name="main.html"/>
-	<foreign_parameters>
-		<foreign_parameter name="$F_K_1$"/>
-	</foreign_parameters>
+	<parameters>
+		<parameter name="$P_1$">
+			<parameter_type name="Foreign parameter"/>
+			<parameter_data value="$A_P_1$"/>
+		</parameter>
+	</parameters>
 	<keys>
 		<key name="$K_1$">
 			<key_type name="SQL"/>
@@ -13,9 +14,9 @@
 		<key name="$K_2$">
 			<key_type name="Attachment - single"/>
 			<attachment name="Cell_1/config.xml">
-				<attachment_parameter name="$A_K_1$">
-					<attachment_parameter_type name="Foreign key"/>
-					<attachment_parameter_data value="$F_K_1$"/>
+				<attachment_parameter name="$A_P_1$">
+					<attachment_parameter_type name="Parameter"/>
+					<attachment_parameter_data value="$P_1$"/>
 				</attachment_parameter>
 			</attachment>
 		</key>

@@ -1,6 +1,11 @@
 <body>
-	<destination name="report"/>
-	<file name="main.html"/>
+	<parameters>
+		<parameter name="$P_1$">
+			<parameter_type name="Request"/>
+			<parameter_data_type name="DatePeriod"/>
+			<parameter_request_parameter value="Period:Random;Daily;Weakly;Monthly;Quarterly;Semiannual;Yearly"/>
+		</parameter>
+	</parameters>
 	<keys>
 		<key name="$K_1$">
 			<key_type name="SQL"/>
@@ -15,8 +20,8 @@
 			<key_ype name="Attachment - repeating"/>
 			<attachment name="./Row_1/config.xml">
 				<attachment_parameter name="$A_K_1$">
-					<attachment_parameter_type name="Request"/>
-					<attachment_parameter_data_type name="Date/period"/>
+					<attachment_parameter_type name="Parameter"/>
+					<attachment_parameter_data value="$P_1$"/>
 				</attachment_parameter>
 			</attachment>
 		</key>
