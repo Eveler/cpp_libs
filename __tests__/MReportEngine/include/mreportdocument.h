@@ -3,7 +3,6 @@
 
 #include <QObject>
 
-#include <export/mreport_engine_export.h>
 #include "mreportparameter.h"
 
 
@@ -22,6 +21,8 @@ class EXPORT_MREPORTENGINE MReportDocument : public QObject
 public:
   explicit MReportDocument( const QString &fileName = QString(), QObject *parent = 0 );
   ~MReportDocument();
+
+  const QString & fileName() const;
 
   /** Документ, для которого неудалось загрузить файл конфигурации отчета.
   В случае отсутствия ошибки будет возвращен NULL.*/

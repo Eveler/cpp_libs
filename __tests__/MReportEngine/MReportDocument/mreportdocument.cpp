@@ -18,6 +18,11 @@ MReportDocument::~MReportDocument()
   p = NULL;
 }
 
+const QString & MReportDocument::fileName() const
+{
+  return p->m__FileName;
+}
+
 MReportDocument * MReportDocument::errorDocument() const
 {
   if ( p->m__LastError != tr( "none" ) ) return p->p_dptr();

@@ -43,10 +43,10 @@ unix:!symbian {
 DESTDIR = ./bin
 DLLDESTDIR = ./bin
 
-LIB_LIST
+#LIB_LIST =
 
-LIBS += -L./bin/ \
-    $${LIB_LIST}
+#LIBS += -L./bin/ \
+#    $${LIB_LIST}
 
 CONFIG(release, debug|release){
   OBJECTS_DIR = ./temp/$$TARGET/release
