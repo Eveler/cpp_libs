@@ -57,6 +57,12 @@ const QString & MReportDocument::lastError() const
   return p->m__LastError;
 }
 
+MReportDocument * MReportDocument::mainDocument() const
+{
+  if ( p->m__ParentDocument == NULL ) return p->p_dptr();
+  else return p->m__ParentDocument->mainDocument();
+}
+
 MReportDocument * MReportDocument::addReportDocument( const QString &alias )
 {
   if ( !p->m__FileName.isEmpty() || reportDocument( alias ) != NULL ) return NULL;
@@ -79,6 +85,11 @@ MReportDocument * MReportDocument::reportDocument( const QString &alias ) const
   }
 
   return NULL;
+}
+
+MReportDocument * MReportDocument::parentDocument() const
+{
+  return p->m__ParentDocument;
 }
 
 MReportParameter * MReportDocument::addReportParameter( const QString &name )

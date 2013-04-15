@@ -62,8 +62,32 @@ QString MReportLoader::parameters( const QDomNode &tagParameters, MReportDocumen
           QObject::tr( "параметр с именем %1 уже существует" ).arg( parameterName );
       continue;
     }
+    QString parameterType = tagParameter.namedItem(
+          QObject::tr( "parameter_type" ) ).toElement().attribute( QObject::tr( "name" ) );
+    QString parameterDataType = tagParameter.namedItem(
+          QObject::tr( "parameter_data_type" ) ).toElement().attribute( QObject::tr( "name" ) );
+    QString parameterDataSource = tagParameter.namedItem(
+          QObject::tr( "parameter_data_source" ) ).toElement().attribute( QObject::tr( "value" ) );
+    if ( parameterType == QObject::tr( "Request" ) )
+    {
+      rp->setParameterType( MReportParameter::PT_Request );
+      if ( parameterDataType == QObject::tr( "DatePeriod" ) )
+        rp->setDataType( MReportParameter::DT_DatePeriod );
+    }
+    else if ( parameterType == QObject::tr( "Foreign parameter" ) )
+    {
+      rp->setParameterType( MReportParameter::PT_ForeignParameter );
+      rp->setDataSource( parameterDataSource );
+    }
+    else if ( parameterType == QObject::tr( "Foreign key" ) )
+    {
+      rp->setParameterType( MReportParameter::PT_ForeignKey );
+      rp->setDataSource( parameterDataSource );
+    }
+    else
+      result += ( !result.isEmpty() ? "\n" : "" )+
+          QObject::tr( "параметр с именем %1 имеет неверный формат" ).arg( parameterName );
   }
 
   return QString();
-
 }

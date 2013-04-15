@@ -39,8 +39,10 @@ public:
   В случае отсутствия ошибки будет возвращен none*/
   const QString & lastError() const;
 
+  MReportDocument * mainDocument() const;
   MReportDocument * addReportDocument( const QString &alias );
   MReportDocument * reportDocument( const QString &alias ) const;
+  MReportDocument * parentDocument() const;
 
   /** Добавление параметра в документ. ВНИМАНИЕ: если в дереве документов параметр с
   таким именем уже существует, то функция вернет NULL!*/

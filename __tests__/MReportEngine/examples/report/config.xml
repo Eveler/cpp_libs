@@ -17,13 +17,8 @@
 			<attachment name="./Table_1/config.xml"/>
 		</key>
 		<key name="$K_3$">
-			<key_ype name="Attachment - repeating"/>
-			<attachment name="./Row_1/config.xml">
-				<attachment_parameter name="$A_K_1$">
-					<attachment_parameter_type name="Parameter"/>
-					<attachment_parameter_data value="$P_1$"/>
-				</attachment_parameter>
-			</attachment>
+			<key_type name="Attachment - repeating"/>
+			<attachment name="./Row_1/config.xml"/>
 		</key>
 	</keys>
 </body>

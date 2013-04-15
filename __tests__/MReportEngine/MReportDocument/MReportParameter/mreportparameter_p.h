@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include "mreportparameter.h"
+#include "QVariant"
 
 
 class MReportParameter_P : public QObject
@@ -22,6 +23,10 @@ public slots:
 
 private:
   QString m__Name;
+  MReportParameter::ParameterType m__PT;
+  MReportParameter::DataType m__DT;
+  QString m__DataSource;
+  QVariant m__Data;
 
   MReportParameter * p_dptr() const;
 };

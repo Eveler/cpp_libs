@@ -2,7 +2,7 @@
 	<parameters>
 		<parameter name="$P_1$">
 			<parameter_type name="Foreign parameter"/>
-			<parameter_data value="$A_P_1$"/>
+			<parameter_data_source value="$P_1$"/>
 		</parameter>
 	</parameters>
 	<keys>
