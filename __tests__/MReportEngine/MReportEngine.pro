@@ -13,6 +13,7 @@ INCLUDEPATH += ./ \
     ./include/ \
     ./MReportDocument/ \
     ./MReportDocument/MReportParameter/ \
+    ./MReportDocument/MReportKey/ \
     ./MReportDocument/MReportLoader/
 
 symbian {
@@ -70,6 +71,8 @@ HEADERS += \
     MReportDocument/mreportdocument_p.h \
     include/mreportparameter.h \
     MReportDocument/MReportParameter/mreportparameter_p.h \
+    include/mreportkey.h \
+    MReportDocument/MReportKey/mreportkey_p.h \
     MReportDocument/MReportLoader/mreportloader.h
 
 SOURCES += \
@@ -77,5 +80,7 @@ SOURCES += \
     MReportDocument/mreportdocument_p.cpp \
     MReportDocument/MReportParameter/mreportparameter.cpp \
     MReportDocument/MReportParameter/mreportparameter_p.cpp \
+    MReportDocument/MReportKey/mreportkey.cpp \
+    MReportDocument/MReportKey/mreportkey_p.cpp \
     MReportDocument/MReportLoader/mreportloader.cpp
 

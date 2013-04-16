@@ -17,9 +17,10 @@ class EXPORT_MREPORTENGINE MReportParameter : public QObject
 
 
 public:
-  enum ParameterType {PT_Undefined = -1, PT_Request,
+  enum ParameterType {PT_Undefined = -1, PT_PlainData,
+                      PT_InputData, PT_SQL, PT_Repeater,
                       PT_ForeignParameter, PT_ForeignKey};
-  enum DataType {DT_Undefined = -1, DT_DatePeriod, DT_Date};
+  enum DataType {DT_Undefined = -1, DT_Date, DT_DatePeriod};
 
   ~MReportParameter();
 
@@ -36,7 +37,7 @@ public:
   void setDataSource( const QString &dataSource );
   const QString & dataSource() const;
 
-  void setData( const QVariant &data );
+  bool setData( const QVariant &data );
   const QVariant & data() const;
 
 
@@ -54,6 +55,9 @@ private:
   MReportParameter_P *p;
 
   explicit MReportParameter( const QString &name, MReportDocument *parent );
+
+  bool hasNext() const;
+  void next() const;
 };
 
 #endif // MREPORTPARAMETER_H

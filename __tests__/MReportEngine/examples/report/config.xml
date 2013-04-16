@@ -1,7 +1,7 @@
 <body>
 	<parameters>
 		<parameter name="$P_1$">
-			<parameter_type name="Request"/>
+			<parameter_type name="InputData"/>
 			<parameter_data_type name="DatePeriod"/>
 			<parameter_request_parameter value="Period:Random;Daily;Weakly;Monthly;Quarterly;Semiannual;Yearly"/>
 		</parameter>
@@ -13,11 +13,11 @@
 			<key_data value="SELECT now()"/>
 		</key>
 		<key name="$K_2$">
-			<key_type name="Attachment - single"/>
+			<key_type name="Attachment"/>
 			<attachment name="./Table_1/config.xml"/>
 		</key>
 		<key name="$K_3$">
-			<key_type name="Attachment - repeating"/>
+			<key_type name="Attachment"/>
 			<attachment name="./Row_1/config.xml"/>
 		</key>
 	</keys>

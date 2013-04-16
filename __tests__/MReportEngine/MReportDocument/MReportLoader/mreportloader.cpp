@@ -68,9 +68,9 @@ QString MReportLoader::parameters( const QDomNode &tagParameters, MReportDocumen
           QObject::tr( "parameter_data_type" ) ).toElement().attribute( QObject::tr( "name" ) );
     QString parameterDataSource = tagParameter.namedItem(
           QObject::tr( "parameter_data_source" ) ).toElement().attribute( QObject::tr( "value" ) );
-    if ( parameterType == QObject::tr( "Request" ) )
+    if ( parameterType == QObject::tr( "InputData" ) )
     {
-      rp->setParameterType( MReportParameter::PT_Request );
+      rp->setParameterType( MReportParameter::PT_InputData );
       if ( parameterDataType == QObject::tr( "DatePeriod" ) )
         rp->setDataType( MReportParameter::DT_DatePeriod );
     }

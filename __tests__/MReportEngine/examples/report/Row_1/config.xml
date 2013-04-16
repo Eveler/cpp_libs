@@ -1,24 +1,19 @@
 <body>
 	<parameters>
-		<parameter name="$P_1$">
-			<parameter_type name="Foreign parameter"/>
+		<parameter name="$P_2$">
+			<parameter_type name="Repeater"/>
 			<parameter_data_source value="$P_1$"/>
 		</parameter>
 	</parameters>
 	<keys>
-		<key name="$K_1$">
+		<key name="$K_4$">
 			<key_type name="SQL"/>
 			<key_data_type value="DateTime"/>
 			<key_data value="SELECT now()"/>
 		</key>
-		<key name="$K_2$">
-			<key_type name="Attachment - single"/>
-			<attachment name="Cell_1/config.xml">
-				<attachment_parameter name="$A_P_1$">
-					<attachment_parameter_type name="Parameter"/>
-					<attachment_parameter_data value="$P_1$"/>
-				</attachment_parameter>
-			</attachment>
+		<key name="$K_5$">
+			<key_type name="Attachment"/>
+			<attachment name="Cell_1/config.xml"/>
 		</key>
 	</keys>
 </body>

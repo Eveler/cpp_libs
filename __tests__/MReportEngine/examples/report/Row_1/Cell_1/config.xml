@@ -1,14 +1,20 @@
 <body>
-	<destination name="report"/>
-	<file name="main.html"/>
-	<foreign_keys>
-		<foreign_key name="$F_K_1$"/>
-	</foreign_keys>
+	<parameters>
+		<parameter name="$P_3$">
+			<parameter_type name="Foreign parameter"/>
+			<parameter_data_source value="$P_2$"/>
+		</parameter>
+	</parameters>
 	<keys>
-		<key name="$K_1$">
+		<key name="$K_6$">
 			<key_type name="SQL"/>
-			<key_data_type value="Integer"/>
-			<key_data value="SELECT $F_K_1$"/>
+			<key_data_type value="Date"/>
+			<key_data value="$P_3$"/>
+		</key>
+		<key name="$K_7$">
+			<key_type name="SQL"/>
+			<key_data_type value="Text"/>
+			<key_data value="SELECT $P_3$::text"/>
 		</key>
 	</keys>
 </body>

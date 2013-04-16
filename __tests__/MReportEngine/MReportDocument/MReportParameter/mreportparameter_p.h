@@ -27,6 +27,7 @@ private:
   MReportParameter::DataType m__DT;
   QString m__DataSource;
   QVariant m__Data;
+  QListIterator<QVariant> m__DataIterator;
 
   MReportParameter * p_dptr() const;
 };

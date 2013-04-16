@@ -63,17 +63,35 @@ const QString & MReportParameter::dataSource() const
   return p->m__DataSource;
 }
 
-void MReportParameter::setData( const QVariant &data )
+bool MReportParameter::setData( const QVariant &data )
 {
-  if ( p->m__PT != PT_Request ) return;
-  if ( p->m__DT == DT_Date && data.type() != QVariant::Date )
+  if ( p->m__PT != PT_InputData ) return false;
+  if ( p->m__DT == DT_Date && data.type() != QVariant::Date ) return false;
+  if ( p->m__DT == DT_DatePeriod )
+  {
+    if ( data.type() != QVariant::List ) return false;
+    else
+      foreach ( QVariant value, data.toList() )
+        if ( value.type() != QVariant::Date ) return false;
+  }
 
   p->m__Data = data;
+  return true;
 }
 
 const QVariant & MReportParameter::data() const
 {
-  if ( p->m__PT == PT_ForeignParameter && reportDocument()->parentDocument() != NULL )
+  if ( p->m__PT == PT_Repeater && reportDocument()->parentDocument() != NULL )
+  {
+    if ( !hasNext() )
+      foreach ( MReportParameter *rp, reportDocument()->parentDocument()->reportParameters() )
+        if ( rp->name() == p->m__DataSource )
+        {
+          p->m__DataIterator = QListIterator<QVariant>( rp->data().toList() );
+          next();
+        }
+  }
+  else if ( p->m__PT == PT_ForeignParameter && reportDocument()->parentDocument() != NULL )
     foreach ( MReportParameter *rp, reportDocument()->parentDocument()->reportParameters() )
       if ( rp->name() == p->m__DataSource ) return rp->data();
   else if ( p->m__PT == PT_ForeignKey && reportDocument()->parentDocument() != NULL )
@@ -92,4 +110,16 @@ MReportParameter::MReportParameter( const QString &name, MReportDocument *parent
   QObject(parent)
 {
   p = new MReportParameter_P( name, this );
+}
+
+bool MReportParameter::hasNext() const
+{
+  return p->m__DataIterator.hasNext();
+}
+
+void MReportParameter::next() const
+{
+  if ( hasNext() )
+    p->m__Data = p->m__DataIterator.next();
+  else p->m__Data = QVariant();
 }
