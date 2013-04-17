@@ -14,11 +14,11 @@
 		</key>
 		<key name="$K_2$">
 			<key_type name="Attachment"/>
-			<attachment name="./Table_1/config.xml"/>
+			<attachment name="./Table_1/Table_1.mrc"/>
 		</key>
 		<key name="$K_3$">
 			<key_type name="Attachment"/>
-			<attachment name="./Row_1/config.xml"/>
+			<attachment name="./Row_1/Row_1.mrc"/>
 		</key>
 	</keys>
 </body>

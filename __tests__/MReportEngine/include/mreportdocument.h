@@ -4,12 +4,14 @@
 #include <QObject>
 
 #include "mreportparameter.h"
+#include "mreportkey.h"
+
+#include <QSqlDatabase>
 
 
 class MReportDocument;
 class MReportDocument_P;
 class MReportLoader;
-class MReportParameter;
 
 typedef QList<MReportDocument *> MReportDocumentList;
 
@@ -47,11 +49,20 @@ public:
   /** Добавление параметра в документ. ВНИМАНИЕ: если в дереве документов параметр с
   таким именем уже существует, то функция вернет NULL!*/
   MReportParameter * addReportParameter( const QString &name );
-  /** Список параметров в документа. ВНИМАНИЕ: функция не возвращает списки параметров
+  /** Список параметров документа. ВНИМАНИЕ: функция не возвращает списки параметров
   вложенных документов!*/
-  const QList<MReportParameter *> & reportParameters() const;
+  const MReportParameterList & reportParameters() const;
   /** Поиск параметра по его имени во всем дереве документов.*/
   MReportParameter * reportParameter( const QString &name ) const;
+
+  /** Добавление ключа в документ. ВНИМАНИЕ: если в дереве документов ключ с
+  таким именем уже существует, то функция вернет NULL!*/
+  MReportKey * addReportKey( const QString &name );
+  /** Список ключей документа. ВНИМАНИЕ: функция не возвращает списки ключей
+  вложенных документов!*/
+  const MReportKeyList & reportKeys() const;
+  /** Поиск ключа по его имени во всем дереве документов.*/
+  MReportKey * reportKey( const QString &name ) const;
 
   QVariant sqlResult( const QString &query ) const;
 

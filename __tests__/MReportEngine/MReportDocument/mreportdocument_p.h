@@ -24,10 +24,13 @@ private:
   QString m__FileName;
   QString m__Body;
 
+  QSqlDatabase m__DB;
+
   MReportDocument *m__ParentDocument;
   MReportDocumentList m__ChildDocuments;
 
-  QList<MReportParameter *> m__Parameters;
+  MReportParameterList m__Parameters;
+  MReportKeyList m__Keys;
 
   QString m__LastError;
 

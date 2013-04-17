@@ -1,4 +1,4 @@
-QT       += core xml
+QT       += core xml sql
 
 TARGET = MReportEngine
 CONFIG(debug, debug|release): TARGET = $${TARGET}d

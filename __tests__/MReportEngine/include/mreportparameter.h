@@ -8,8 +8,11 @@
 #include <QVariant>
 
 
+class MReportParameter;
 class MReportParameter_P;
 class MReportDocument;
+
+typedef QList<MReportParameter *> MReportParameterList;
 
 class EXPORT_MREPORTENGINE MReportParameter : public QObject
 {

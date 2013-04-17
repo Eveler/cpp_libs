@@ -39,6 +39,9 @@ MReportDocument_P::MReportDocument_P (const QString &fileName, MReportDocument *
 MReportDocument_P::~MReportDocument_P()
 {
   m__FileName.clear();
+
+  m__DB.removeDatabase( m__DB.databaseName() );
+
   m__ParentDocument = NULL;
   while ( !m__ChildDocuments.isEmpty() )
   {
@@ -46,12 +49,21 @@ MReportDocument_P::~MReportDocument_P()
     delete reportDocument;
     reportDocument = NULL;
   }
+
   while ( !m__Parameters.isEmpty() )
   {
     MReportParameter *reportParameter = m__Parameters.takeFirst();
     delete reportParameter;
     reportParameter = NULL;
   }
+
+  while ( !m__Keys.isEmpty() )
+  {
+    MReportKey *reportKey = m__Keys.takeFirst();
+    delete reportKey;
+    reportKey = NULL;
+  }
+
   m__LastError.clear();
 }
 

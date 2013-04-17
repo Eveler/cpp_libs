@@ -8,8 +8,11 @@
 #include <QVariant>
 
 
+class MReportKey;
 class MReportKey_P;
 class MReportDocument;
+
+typedef QList<MReportKey *> MReportKeyList;
 
 class EXPORT_MREPORTENGINE MReportKey : public QObject
 {
