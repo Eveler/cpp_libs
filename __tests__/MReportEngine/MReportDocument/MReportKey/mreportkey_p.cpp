@@ -3,7 +3,10 @@
 
 MReportKey_P::MReportKey_P( const QString &name, MReportKey *parent ) :
   QObject(parent),
-  m__Name(name)
+  m__Name(name),
+  m__KT(MReportKey::KT_Undefined),
+  m__DT(MReportKey::DT_Undefined),
+  m__DataSource(QString())
 {
 }
 

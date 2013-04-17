@@ -4,7 +4,6 @@
 #include <QObject>
 
 #include "mreportparameter.h"
-#include "QVariant"
 
 
 class MReportParameter_P : public QObject

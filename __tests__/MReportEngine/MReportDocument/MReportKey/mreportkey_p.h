@@ -22,6 +22,9 @@ public slots:
 
 private:
   QString m__Name;
+  MReportKey::KeyType m__KT;
+  MReportKey::DataType m__DT;
+  QString m__DataSource;
 
   MReportKey * p_dptr() const;
 };

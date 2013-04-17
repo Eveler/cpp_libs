@@ -5,6 +5,8 @@
 
 #include "export/mreport_engine_export.h"
 
+#include <QVariant>
+
 
 class MReportKey_P;
 class MReportDocument;
@@ -17,13 +19,28 @@ class EXPORT_MREPORTENGINE MReportKey : public QObject
 
 
 public:
-  enum KeyType {KT_Undefined = -1, KT_PlainData,
-                KT_ForeignParameter, KT_Attachment};
+  enum KeyType {KT_Undefined = -1, KT_Parameter,
+                KT_SQL, KT_SQLWithParameters, KT_Attachment};
   enum DataType {DT_Undefined = -1, DT_Text,
-                 DT_Date, DT_DatePeriod,
-                 DT_DateTime, DT_Time};
+                 DT_Date, DT_DateTime, DT_Time,
+                 DT_Integer, DT_Double};
 
   ~MReportKey();
+
+  MReportDocument *reportDocument() const;
+
+  const QString & name() const;
+
+  void setKeyType( KeyType keyType );
+  KeyType keyType() const;
+
+  void setDataType( DataType dataType );
+  DataType dataType() const;
+
+  void setDataSource( const QString &dataSource );
+  const QString & dataSource() const;
+
+  QString data() const;
 
 
 signals:

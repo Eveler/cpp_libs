@@ -123,6 +123,16 @@ MReportParameter * MReportDocument::reportParameter( const QString &name ) const
   return NULL;
 }
 
+QVariant MReportDocument::sqlResult( const QString &query ) const
+{
+  return QVariant();
+}
+
+QString MReportDocument::exec()
+{
+  return QString();
+}
+
 MReportDocument::MReportDocument( MReportDocument *parent , const QString &fileName ) :
   QObject(parent)
 {

@@ -5,6 +5,8 @@
 
 #include "export/mreport_engine_export.h"
 
+#include <QVariant>
+
 
 class MReportParameter_P;
 class MReportDocument;

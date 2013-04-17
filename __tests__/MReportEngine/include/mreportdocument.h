@@ -53,6 +53,10 @@ public:
   /** Поиск параметра по его имени во всем дереве документов.*/
   MReportParameter * reportParameter( const QString &name ) const;
 
+  QVariant sqlResult( const QString &query ) const;
+
+  QString exec();
+
 
 signals:
 

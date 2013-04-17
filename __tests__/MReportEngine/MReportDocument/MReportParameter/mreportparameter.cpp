@@ -43,19 +43,23 @@ MReportParameter::DataType MReportParameter::dataType() const
 void MReportParameter::setDataSource( const QString &dataSource )
 {
   if ( p->m__PT == PT_ForeignParameter && reportDocument()->parentDocument() != NULL )
+  {
     foreach ( MReportParameter *rp, reportDocument()->parentDocument()->reportParameters() )
       if ( rp->name() == dataSource )
       {
         p->m__DataSource = dataSource;
         return;
       }
+  }
   else if ( p->m__PT == PT_ForeignKey && reportDocument()->parentDocument() != NULL )
+  {
     foreach ( MReportParameter *rp, reportDocument()->parentDocument()->reportParameters() )
       if ( rp->name() == dataSource )
       {
         p->m__DataSource = dataSource;
         return;
       }
+  }
 }
 
 const QString & MReportParameter::dataSource() const
@@ -92,11 +96,15 @@ const QVariant & MReportParameter::data() const
         }
   }
   else if ( p->m__PT == PT_ForeignParameter && reportDocument()->parentDocument() != NULL )
+  {
     foreach ( MReportParameter *rp, reportDocument()->parentDocument()->reportParameters() )
       if ( rp->name() == p->m__DataSource ) return rp->data();
+  }
   else if ( p->m__PT == PT_ForeignKey && reportDocument()->parentDocument() != NULL )
+  {
     foreach ( MReportParameter *rp, reportDocument()->parentDocument()->reportParameters() )
       if ( rp->name() == p->m__DataSource ) return rp->data();
+  }
 
   return p->m__Data;
 }
