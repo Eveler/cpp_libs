@@ -14,8 +14,10 @@ public:
 
 
 private:
+  static void addError( const QString &error, QStringList &errors );
   static QString parse( const QByteArray &data, MReportDocument *reportDocument );
-  static QString parameters( const QDomNode &tagParameters, MReportDocument *reportDocument );
+  static QString parameters( const QDomNode &tag, MReportDocument *reportDocument );
+  static QString keys( const QDomNode &tag, MReportDocument *reportDocument );
 };
 
 #endif // MREPORTLOADER_H

@@ -8,7 +8,7 @@
 	<keys>
 		<key name="$K_4$">
 			<key_type name="SQL"/>
-			<key_data_type value="DateTime"/>
+			<key_data_type name="DateTime"/>
 			<key_data_source value="SELECT now()"/>
 		</key>
 		<key name="$K_5$">
