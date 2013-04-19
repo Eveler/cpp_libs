@@ -71,10 +71,10 @@ MReportDocument * MReportDocument::mainDocument() const
 
 MReportDocument * MReportDocument::addReportDocument( const QString &alias )
 {
-  if ( !p->m__FileName.isEmpty() || reportDocument( alias ) != NULL ) return NULL;
+  if ( p->m__FileName.isEmpty() || reportDocument( alias ) != NULL ) return NULL;
 
   MReportDocument *reportDocument = new MReportDocument(
-        this, tr( "%1%2/%2.mrc" ).arg( p->filePath(), alias ) );
+        this, tr( "%1/%2/%2.mrc" ).arg( p->filePath(), alias ) );
   p->m__ChildDocuments << reportDocument;
 
   return reportDocument;
@@ -174,5 +174,12 @@ MReportDocument::MReportDocument( MReportDocument *parent , const QString &fileN
   QObject(parent)
 {
   p = new MReportDocument_P( fileName, this );
+
+  if ( p->m__LastError.isEmpty() )
+  {
+    QString err_text = MReportLoader::load( this );
+    if ( !err_text.isEmpty() )
+      p->m__LastError = err_text;
+  }
 }
 

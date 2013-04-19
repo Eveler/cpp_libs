@@ -7,7 +7,7 @@
 #include <QDomDocument>
 #include <QStringList>
 
-//#include <QDebug>
+#include <QDebug>
 
 
 QString MReportLoader::load( MReportDocument *reportDocument )
@@ -63,13 +63,13 @@ QString MReportLoader::parameters( const QDomNode &tag, MReportDocument *reportD
     QString parameterName = tagKey.toElement().attribute( QObject::tr( "name" ) );
     if ( parameterName.isEmpty() || parameterName.contains( " " ) )
     {
-      addError( QObject::tr( "имя параметра имеет неверный формат" ), result );
+      addError( QObject::tr( "имя параметра '%1' имеет неверный формат" ).arg( parameterName ), result );
       continue;
     }
     MReportParameter *rp = reportDocument->addReportParameter( parameterName );
     if ( rp == NULL )
     {
-      addError( QObject::tr( "параметр с именем %1 уже существует" ).arg( parameterName ), result );
+      addError( QObject::tr( "параметр %1 уже существует" ).arg( parameterName ), result );
       continue;
     }
     QString parameterType = tagKey.namedItem(
@@ -100,7 +100,7 @@ QString MReportLoader::parameters( const QDomNode &tag, MReportDocument *reportD
       rp->setDataSource( parameterDataSource );
     }
     else
-      addError( QObject::tr( "параметр с именем %1 имеет неверный формат" ).arg(
+      addError( QObject::tr( "параметр '%1' имеет неверный формат" ).arg(
                   parameterName ), result );
   }
 
@@ -121,13 +121,13 @@ QString MReportLoader::keys( const QDomNode &tag, MReportDocument *reportDocumen
     QString keyName = tagKey.toElement().attribute( QObject::tr( "name" ) );
     if ( keyName.isEmpty() || keyName.contains( " " ) )
     {
-      addError( QObject::tr( "имя ключа имеет неверный формат" ), result );
+      addError( QObject::tr( "имя ключа '%1' имеет неверный формат" ).arg( keyName ), result );
       continue;
     }
     MReportKey *rk = reportDocument->addReportKey( keyName );
     if ( rk == NULL )
     {
-      addError( QObject::tr( "ключ с именем %1 уже существует" ).arg( keyName ), result );
+      addError( QObject::tr( "ключ '%1' уже существует" ).arg( keyName ), result );
       continue;
     }
     QString keyType = tagKey.namedItem(
@@ -145,8 +145,8 @@ QString MReportLoader::keys( const QDomNode &tag, MReportDocument *reportDocumen
     else if ( keyType == QObject::tr( "SQL with parameters" ) ) kt = MReportKey::KT_SQLWithParameters;
     else if ( keyType == QObject::tr( "Attachment" ) ) kt = MReportKey::KT_Attachment;
     else
-      addError( QObject::tr( "ключ с именем %1 имеет неверный формат" ).arg(
-                  keyName ), result );
+      addError( QObject::tr( "ключ '%1' имеет неверный тип [%2]" ).arg(
+                  keyName, keyType ), result );
 
     if ( keyDataType == QObject::tr( "Text" ) ) dt = MReportKey::DT_Text;
     else if ( keyDataType == QObject::tr( "Date" ) ) dt = MReportKey::DT_Date;
@@ -155,8 +155,8 @@ QString MReportLoader::keys( const QDomNode &tag, MReportDocument *reportDocumen
     else if ( keyDataType == QObject::tr( "Integer" ) ) dt = MReportKey::DT_Integer;
     else if ( keyDataType == QObject::tr( "Double" ) ) dt = MReportKey::DT_Double;
     else if ( kt != MReportKey::KT_Parameter && kt != MReportKey::KT_Attachment )
-      addError( QObject::tr( "ключ с именем %1 имеет неверный формат" ).arg(
-                  keyName ), result );
+      addError( QObject::tr( "ключ '%1'::%2 имеет неверный тип данных [%3]" ).arg(
+                  keyName, keyType, keyDataType ), result );
 
     rk->setKeyType( kt );
     rk->setDataType( dt );

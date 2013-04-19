@@ -14,11 +14,11 @@
 		</key>
 		<key name="$K_2$">
 			<key_type name="Attachment"/>
-			<attachment name="Table_1"/>
+			<key_data_source value="Table_1"/>
 		</key>
 		<key name="$K_3$">
 			<key_type name="Attachment"/>
-			<attachment name="Row_1"/>
+			<key_data_source value="Row_1"/>
 		</key>
 	</keys>
 </body>
