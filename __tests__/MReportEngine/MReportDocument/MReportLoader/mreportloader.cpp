@@ -3,6 +3,7 @@
 #include "mreportdocument.h"
 
 #include <QFile>
+#include <QFileInfo>
 #include <QDomDocument>
 #include <QStringList>
 
@@ -135,30 +136,34 @@ QString MReportLoader::keys( const QDomNode &tag, MReportDocument *reportDocumen
           QObject::tr( "key_data_type" ) ).toElement().attribute( QObject::tr( "name" ) );
     QString keyDataSource = tagKey.namedItem(
           QObject::tr( "key_data_source" ) ).toElement().attribute( QObject::tr( "value" ) );
-    if ( keyType == QObject::tr( "InputData" ) )
-    {
-      rk->setKeyType( MReportParameter::PT_InputData );
-      if ( keyDataType == QObject::tr( "DatePeriod" ) )
-        rk->setDataType( MReportParameter::DT_DatePeriod );
-    }
-    else if ( keyType == QObject::tr( "Repeater" ) )
-    {
-      rk->setKeyType( MReportParameter::PT_Repeater );
-      rk->setDataSource( keyDataSource );
-    }
-    else if ( keyType == QObject::tr( "Foreign parameter" ) )
-    {
-      rk->setKeyType( MReportParameter::PT_ForeignParameter );
-      rk->setDataSource( keyDataSource );
-    }
-    else if ( keyType == QObject::tr( "Foreign key" ) )
-    {
-      rk->setKeyType( MReportParameter::PT_ForeignKey );
-      rk->setDataSource( keyDataSource );
-    }
+
+    MReportKey::KeyType kt = MReportKey::KT_Undefined;
+    MReportKey::DataType dt = MReportKey::DT_Undefined;
+
+    if ( keyType == QObject::tr( "Parameter" ) ) kt = MReportKey::KT_Parameter;
+    else if ( keyType == QObject::tr( "SQL" ) ) kt = MReportKey::KT_SQL;
+    else if ( keyType == QObject::tr( "SQL with parameters" ) ) kt = MReportKey::KT_SQLWithParameters;
+    else if ( keyType == QObject::tr( "Attachment" ) ) kt = MReportKey::KT_Attachment;
     else
       addError( QObject::tr( "ключ с именем %1 имеет неверный формат" ).arg(
                   keyName ), result );
+
+    if ( keyDataType == QObject::tr( "Text" ) ) dt = MReportKey::DT_Text;
+    else if ( keyDataType == QObject::tr( "Date" ) ) dt = MReportKey::DT_Date;
+    else if ( keyDataType == QObject::tr( "DateTime" ) ) dt = MReportKey::DT_DateTime;
+    else if ( keyDataType == QObject::tr( "Time" ) ) dt = MReportKey::DT_Time;
+    else if ( keyDataType == QObject::tr( "Integer" ) ) dt = MReportKey::DT_Integer;
+    else if ( keyDataType == QObject::tr( "Double" ) ) dt = MReportKey::DT_Double;
+    else if ( kt != MReportKey::KT_Parameter && kt != MReportKey::KT_Attachment )
+      addError( QObject::tr( "ключ с именем %1 имеет неверный формат" ).arg(
+                  keyName ), result );
+
+    rk->setKeyType( kt );
+    rk->setDataType( dt );
+    rk->setDataSource( keyDataSource );
+
+    if ( kt == MReportKey::KT_Attachment )
+      reportDocument->addReportDocument( keyDataSource );
   }
 
   return result.join( "\n" );

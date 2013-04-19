@@ -13,7 +13,7 @@
 		</key>
 		<key name="$K_5$">
 			<key_type name="Attachment"/>
-			<attachment name="Cell_1/Cell_1.mrc"/>
+			<attachment name="Cell_1"/>
 		</key>
 	</keys>
 </body>

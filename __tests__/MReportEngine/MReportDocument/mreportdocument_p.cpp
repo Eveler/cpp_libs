@@ -7,18 +7,21 @@ MReportDocument_P::MReportDocument_P (const QString &fileName, MReportDocument *
   QObject(parent),
   m__ParentDocument(qobject_cast<MReportDocument *>( parent->parent() )),
   m__ChildDocuments(MReportDocumentList()),
-  m__Parameters(QList<MReportParameter *>()),
-  m__LastError(tr( "none" ))
+  m__Parameters(QList<MReportParameter *>())
 {
   m__FileName = QString();
   m__Body = QString();
+  m__LastError = QString();
+
   QFileInfo fi( fileName );
-  if ( fi.exists() ) m__FileName = fi.absoluteFilePath();
-  else
+  if ( fi.suffix() != tr( "mrc" ) )
+    m__LastError = tr( "не верный формат файла конфигурации отчета" );
+  else if ( fi.exists() ) m__FileName = fi.absoluteFilePath();
+  else if ( fi.suffix() == tr( "mrc" ) )
   {
     QFile f( fileName );
     if ( f.open( QFile::WriteOnly ) ) m__FileName = fi.absoluteFilePath();
-    else m__LastError = tr( "Can't create report file" );
+    else m__LastError = tr( "невозможно создать файл конфигурации отчета" );
     f.close();
   }
 

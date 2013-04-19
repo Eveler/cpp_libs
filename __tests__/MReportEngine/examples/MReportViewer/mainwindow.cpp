@@ -12,9 +12,7 @@ MainWindow::MainWindow(QWidget *parent) :
   ui->setupUi(this);
 
   MReportDocument *report = new MReportDocument(
-        tr( "D:/devel/Libs/__tests__/MReportEngine/examples/report/config.xml" ), this );
-//  MReportDocument *report = new MReportDocument(
-//        tr( "./config.xml" ), this );
+        tr( "D:/devel/Libs/__tests__/MReportEngine/examples/report/main.mrc" ), this );
   MReportDocument *errorDocument = report->errorDocument();
   if ( errorDocument != NULL )
     LogDebug() << report->lastError();
