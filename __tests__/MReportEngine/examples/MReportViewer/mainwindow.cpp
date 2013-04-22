@@ -4,6 +4,7 @@
 #include "amslogger.h"
 #include "mreportdocument.h"
 
+
 MReportDocument *report;
 
 MainWindow::MainWindow(QWidget *parent) :
