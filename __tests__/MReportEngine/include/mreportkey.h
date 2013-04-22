@@ -43,6 +43,7 @@ public:
   void setDataSource( const QString &dataSource );
   const QString & dataSource() const;
 
+  void setData( QVariant data );
   QString data() const;
 
 

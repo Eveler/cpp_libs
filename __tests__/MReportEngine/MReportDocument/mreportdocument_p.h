@@ -24,7 +24,7 @@ private:
   QString m__FileName;
   QString m__Body;
 
-  QSqlDatabase m__DB;
+  QList<QSqlDatabase> m__DBs;
 
   MReportDocument *m__ParentDocument;
   MReportDocumentList m__ChildDocuments;

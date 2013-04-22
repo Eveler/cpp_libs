@@ -34,6 +34,10 @@ public:
 
   void setBody( const QString &body );
 
+  void addDatabase( QSqlDatabase db );
+  void removeDatabase( QSqlDatabase db );
+  const QList<QSqlDatabase> & databases() const;
+
   /** Документ, для которого неудалось загрузить файл конфигурации отчета.
   В случае отсутствия ошибки будет возвращен NULL.*/
   MReportDocument * errorDocument() const;

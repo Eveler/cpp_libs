@@ -93,6 +93,7 @@ const QVariant & MReportParameter::data() const
         {
           p->m__DataIterator = QListIterator<QVariant>( rp->data().toList() );
           next();
+          break;
         }
   }
   else if ( p->m__PT == PT_ForeignParameter && reportDocument()->parentDocument() != NULL )

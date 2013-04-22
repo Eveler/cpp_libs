@@ -5,6 +5,7 @@
 
 MReportDocument_P::MReportDocument_P (const QString &fileName, MReportDocument *parent ) :
   QObject(parent),
+  m__DBs(QList<QSqlDatabase>()),
   m__ParentDocument(qobject_cast<MReportDocument *>( parent->parent() )),
   m__ChildDocuments(MReportDocumentList()),
   m__Parameters(QList<MReportParameter *>())
@@ -43,7 +44,11 @@ MReportDocument_P::~MReportDocument_P()
 {
   m__FileName.clear();
 
-  m__DB.removeDatabase( m__DB.databaseName() );
+  while ( !m__DBs.isEmpty() )
+  {
+    QSqlDatabase db = m__DBs.takeFirst();
+    db.removeDatabase( db.databaseName() );
+  }
 
   m__ParentDocument = NULL;
   while ( !m__ChildDocuments.isEmpty() )

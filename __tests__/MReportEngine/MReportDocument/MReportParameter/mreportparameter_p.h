@@ -13,9 +13,10 @@ class MReportParameter_P : public QObject
 
 
 public:
-  explicit MReportParameter_P( const QString &name, MReportParameter *parent );
+
 
 signals:
+
 
 public slots:
 
@@ -27,6 +28,8 @@ private:
   QString m__DataSource;
   QVariant m__Data;
   QListIterator<QVariant> m__DataIterator;
+
+  explicit MReportParameter_P( const QString &name, MReportParameter *parent );
 
   MReportParameter * p_dptr() const;
 };

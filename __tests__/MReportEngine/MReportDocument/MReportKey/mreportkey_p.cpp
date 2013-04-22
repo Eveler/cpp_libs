@@ -6,7 +6,8 @@ MReportKey_P::MReportKey_P( const QString &name, MReportKey *parent ) :
   m__Name(name),
   m__KT(MReportKey::KT_Undefined),
   m__DT(MReportKey::DT_Undefined),
-  m__DataSource(QString())
+  m__DataSource(QString()),
+  m__Data(QVariant())
 {
 }
 

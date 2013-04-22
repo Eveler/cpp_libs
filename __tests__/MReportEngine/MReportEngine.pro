@@ -1,4 +1,4 @@
-QT       += core xml sql
+QT       += core xml sql network
 
 TARGET = MReportEngine
 CONFIG(debug, debug|release): TARGET = $${TARGET}d
@@ -14,7 +14,8 @@ INCLUDEPATH += ./ \
     ./MReportDocument/ \
     ./MReportDocument/MReportParameter/ \
     ./MReportDocument/MReportKey/ \
-    ./MReportDocument/MReportLoader/
+    ./MReportDocument/MReportLoader/ \
+    ../../include/
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
@@ -47,10 +48,11 @@ unix:!symbian {
 DESTDIR = ./bin
 DLLDESTDIR = ./bin
 
-#LIB_LIST =
+LIB_LIST = \
+    -lMFCCore
 
-#LIBS += -L./bin/ \
-#    $${LIB_LIST}
+LIBS += -L./bin/ \
+    $${LIB_LIST}
 
 CONFIG(release, debug|release){
   OBJECTS_DIR = ./temp/$$TARGET/release
@@ -69,6 +71,8 @@ HEADERS += \
     include/export/mreport_engine_export.h \
     include/mreportdocument.h \
     MReportDocument/mreportdocument_p.h \
+    include/mreportsource.h \
+    MReportDocument/MReportSource/mreportsource_p.h \
     include/mreportparameter.h \
     MReportDocument/MReportParameter/mreportparameter_p.h \
     include/mreportkey.h \
@@ -78,6 +82,8 @@ HEADERS += \
 SOURCES += \
     MReportDocument/mreportdocument.cpp \
     MReportDocument/mreportdocument_p.cpp \
+    MReportDocument/MReportSource/mreportsource.cpp \
+    MReportDocument/MReportSource/mreportsource_p.cpp \
     MReportDocument/MReportParameter/mreportparameter.cpp \
     MReportDocument/MReportParameter/mreportparameter_p.cpp \
     MReportDocument/MReportKey/mreportkey.cpp \

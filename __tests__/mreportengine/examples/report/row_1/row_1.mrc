@@ -9,7 +9,7 @@
 		<key name="$K_4$">
 			<key_type name="SQL"/>
 			<key_data_type name="DateTime"/>
-			<key_data_source value="SELECT now()"/>
+			<key_data_source value="SELECT now()" source="$S_1$"/>
 		</key>
 		<key name="$K_5$">
 			<key_type name="Attachment"/>

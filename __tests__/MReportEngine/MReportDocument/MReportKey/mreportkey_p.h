@@ -13,9 +13,10 @@ class MReportKey_P : public QObject
 
 
 public:
-  explicit MReportKey_P( const QString &name, MReportKey *parent );
+
 
 signals:
+
 
 public slots:
 
@@ -25,6 +26,9 @@ private:
   MReportKey::KeyType m__KT;
   MReportKey::DataType m__DT;
   QString m__DataSource;
+  QVariant m__Data;
+
+  explicit MReportKey_P( const QString &name, MReportKey *parent );
 
   MReportKey * p_dptr() const;
 };

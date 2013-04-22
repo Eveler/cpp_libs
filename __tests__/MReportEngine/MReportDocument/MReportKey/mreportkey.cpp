@@ -2,6 +2,7 @@
 
 #include "mreportkey_p.h"
 #include "mreportdocument.h"
+#include "mfccore.h"
 
 #include <QDate>
 #include <QStringList>
@@ -56,8 +57,13 @@ void MReportKey::setDataSource( const QString &dataSource )
         return;
       }
   }
-  else if ( p->m__KT == KT_SQL || p->m__KT == KT_SQLWithParameters )
-    p->m__DataSource = dataSource;
+  else if ( p->m__KT == KT_SQLWithParameters )
+  {
+    QStringList params = QStringList();
+    foreach ( MReportParameter *rp, reportDocument()->reportParameters() ) params << rp->name();
+    QStringList notExists = MFCCore::notExists( params, dataSource.split( ";" ) );
+    if ( !notExists.isEmpty() ) p->m__DataSource = dataSource;
+  }
   else if ( p->m__KT == KT_Attachment )
   {
     if ( reportDocument()->mainDocument()->reportDocument(
@@ -79,6 +85,13 @@ const QString & MReportKey::dataSource() const
     }
   }
   return p->m__DataSource;
+}
+
+void MReportKey::setData( QVariant data )
+{
+//  if ( p->m__KT != KT_SQL && p->m__KT != KT_SQLWithParameters )
+//  {
+
 }
 
 QString MReportKey::data() const
