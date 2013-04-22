@@ -12,6 +12,7 @@ INCLUDEPATH += ./ \
     ./bin/ \
     ./include/ \
     ./MReportDocument/ \
+    ./MReportDocument/MReportSource/ \
     ./MReportDocument/MReportParameter/ \
     ./MReportDocument/MReportKey/ \
     ./MReportDocument/MReportLoader/ \

@@ -29,6 +29,7 @@ private:
   MReportDocument *m__ParentDocument;
   MReportDocumentList m__ChildDocuments;
 
+  MReportSourceList m__Sources;
   MReportParameterList m__Parameters;
   MReportKeyList m__Keys;
 

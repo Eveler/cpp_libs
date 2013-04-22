@@ -8,7 +8,9 @@ MReportDocument_P::MReportDocument_P (const QString &fileName, MReportDocument *
   m__DBs(QList<QSqlDatabase>()),
   m__ParentDocument(qobject_cast<MReportDocument *>( parent->parent() )),
   m__ChildDocuments(MReportDocumentList()),
-  m__Parameters(QList<MReportParameter *>())
+  m__Sources(MReportSourceList()),
+  m__Parameters(MReportParameterList()),
+  m__Keys(MReportKeyList())
 {
   m__FileName = QString();
   m__Body = QString();

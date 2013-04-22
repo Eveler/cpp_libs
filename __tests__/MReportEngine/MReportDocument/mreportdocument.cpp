@@ -45,23 +45,6 @@ void MReportDocument::setBody( const QString &body )
   f.close();
 }
 
-void MReportDocument::addDatabase( QSqlDatabase db )
-{
-  if ( p->m__DBs.contains( db ) ) return;
-
-  p->m__DBs << db;
-}
-
-void MReportDocument::removeDatabase( QSqlDatabase db )
-{
-  p->m__DBs.removeOne( db );
-}
-
-const QList<QSqlDatabase> & MReportDocument::databases() const
-{
-  return p->m__DBs;
-}
-
 MReportDocument * MReportDocument::errorDocument() const
 {
   if ( !p->m__LastError.isEmpty() ) return p->p_dptr();
@@ -113,6 +96,22 @@ MReportDocument * MReportDocument::reportDocument( const QString &alias ) const
 MReportDocument * MReportDocument::parentDocument() const
 {
   return p->m__ParentDocument;
+}
+
+MReportSource * MReportDocument::addReportSource( const QString &name )
+{
+  foreach ( MReportSource *source, p->m__Sources )
+    if ( source->name() == name ) return source;
+
+  MReportSource *source = new MReportSource( name, this );
+  p->m__Sources << source;
+
+  return source;
+}
+
+const MReportSourceList & MReportDocument::reportSources() const
+{
+  return p->m__Sources;
 }
 
 MReportParameter * MReportDocument::addReportParameter( const QString &name )

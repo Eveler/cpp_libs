@@ -30,7 +30,7 @@ private:
   QString m__DriverName;
   QString m__Host;
   int m__Port;
-  QString m__DbName;
+  QString m__DatabaseName;
   QString m__UserName;
   QString m__Password;
 
@@ -38,6 +38,8 @@ private:
 
   MReportSource * p_dptr() const;
   MReportDocument * reportDocument() const;
+  bool exists( const QString &driverName, const QString &host,
+               int port, const QString &dbName, const QString &userName );
 };
 
 #endif // MREPORTSOURCE_P_H

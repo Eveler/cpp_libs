@@ -3,6 +3,7 @@
 
 #include <QObject>
 
+#include "mreportsource.h"
 #include "mreportparameter.h"
 #include "mreportkey.h"
 
@@ -34,10 +35,6 @@ public:
 
   void setBody( const QString &body );
 
-  void addDatabase( QSqlDatabase db );
-  void removeDatabase( QSqlDatabase db );
-  const QList<QSqlDatabase> & databases() const;
-
   /** Документ, для которого неудалось загрузить файл конфигурации отчета.
   В случае отсутствия ошибки будет возвращен NULL.*/
   MReportDocument * errorDocument() const;
@@ -49,6 +46,9 @@ public:
   MReportDocument * addReportDocument( const QString &alias );
   MReportDocument * reportDocument( const QString &alias ) const;
   MReportDocument * parentDocument() const;
+
+  MReportSource * addReportSource( const QString &name );
+  const MReportSourceList & reportSources() const;
 
   /** Добавление параметра в документ. ВНИМАНИЕ: если в дереве документов параметр с
   таким именем уже существует, то функция вернет NULL!*/

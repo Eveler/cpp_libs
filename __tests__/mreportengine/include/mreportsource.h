@@ -22,7 +22,7 @@ class EXPORT_MREPORTENGINE MReportSource : public QObject
 
 
 public:
-  enum SourceType {ST_Undefined = -1, ST_SQL}
+  enum SourceType {ST_Undefined = -1, ST_SQL};
 
   ~MReportSource();
 
@@ -38,16 +38,19 @@ public:
   const QString & host() const;
 
   bool setPort( int port );
-  int m__Port() const;
+  int port() const;
 
-  bool setDbName( const QString & dbName );
-  const QString & dbName() const;
+  bool setDatabaseName( const QString & databaseName );
+  const QString & databaseName() const;
 
   bool setUserName( const QString & userName );
   const QString & userName() const;
 
-  bool setPassword( const QString & password );
+  void setPassword( const QString & password );
   const QString & password() const;
+
+  QVariant executeQuery( const QString &query );
+
 
 signals:
 
@@ -62,7 +65,7 @@ protected:
 private:
   MReportSource_P *p;
 
-  explicit MReportSource( const QString &name, MReportDocument *parent = 0 );
+  explicit MReportSource( const QString &name, MReportDocument *parent );
 };
 
 #endif // MREPORTSOURCE_H

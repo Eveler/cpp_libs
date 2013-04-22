@@ -1,8 +1,8 @@
 <body>
 	<sources>
 		<source name="$S_1$">
-			<source_type name="SQL">
-			<source_params driver="PSQL" host="192.168.91.60" port="5432" database="MFCs">
+			<source_type name="SQL"/>
+			<source_params driver="QPSQL" host="192.168.91.60" port="5432" database="MFCs"/>
 		</source>
 	</sources>
 	<parameters>

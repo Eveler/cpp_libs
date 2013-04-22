@@ -43,8 +43,50 @@ QString MReportLoader::parse( const QByteArray &data, MReportDocument *reportDoc
   addError( err_text, result );
 
   QDomElement mainElement = document.documentElement();
+  addError( sources( mainElement.namedItem( QObject::tr( "sources" ) ), reportDocument ), result );
   addError( parameters( mainElement.namedItem( QObject::tr( "parameters" ) ), reportDocument ), result );
   addError( keys( mainElement.namedItem( QObject::tr( "keys" ) ), reportDocument ), result );
+
+  return result.join( "\n" );
+}
+
+QString MReportLoader::sources( const QDomNode &tag, MReportDocument *reportDocument )
+{
+  QStringList result = QStringList();
+
+  if ( tag.isNull() ) return QString();
+  if ( tag.childNodes().isEmpty() )
+    return QObject::tr( "тэг keys пуст" );
+
+  for ( QDomNode tagSource = tag.firstChild();
+        !tagSource.isNull(); tagSource = tagSource.nextSibling() )
+  {
+    QString sourceName = tagSource.toElement().attribute( QObject::tr( "name" ) );
+    if ( sourceName.isEmpty() || sourceName.contains( " " ) )
+    {
+      addError( QObject::tr( "имя источника '%1' имеет неверный формат" ).arg( sourceName ), result );
+      continue;
+    }
+    MReportSource *rs = reportDocument->addReportSource( sourceName );
+    if ( rs == NULL )
+    {
+      addError( QObject::tr( "источник %1 уже существует" ).arg( sourceName ), result );
+      continue;
+    }
+    QString sourceType = tagSource.namedItem(
+          QObject::tr( "source_type" ) ).toElement().attribute( QObject::tr( "name" ) );
+    QDomElement elemParams = tagSource.namedItem( QObject::tr( "source_params" ) ).toElement();
+    QString driver = elemParams.attribute( QObject::tr( "driver" ) );
+    QString host = elemParams.attribute( QObject::tr( "host" ) );
+    QString port = elemParams.attribute( QObject::tr( "port" ) );
+    QString database = elemParams.attribute( QObject::tr( "database" ) );
+
+    if ( sourceType == QObject::tr( "SQL" ) ) rs->setSourceType( MReportSource::ST_SQL );
+    rs->setDriverName( driver );
+    rs->setHost( host );
+    rs->setPort( port.toInt() );
+    rs->setDatabaseName( database );
+  }
 
   return result.join( "\n" );
 }
