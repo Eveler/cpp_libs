@@ -35,6 +35,7 @@ public:
   const QString & fileName() const;
 
   void setBody( const QString &body );
+  const QString & body() const;
 
   /** Документ, для которого неудалось загрузить файл конфигурации отчета.
   В случае отсутствия ошибки будет возвращен NULL.*/
@@ -44,7 +45,7 @@ public:
   const QString & lastError() const;
 
   MReportDocument * mainDocument() const;
-  MReportDocument * addReportDocument( const QString &alias );
+  MReportDocument * addReportDocument( const QString &alias, MReportKey *reportKey );
   MReportDocument * reportDocument( const QString &alias ) const;
   MReportDocument * parentDocument() const;
 

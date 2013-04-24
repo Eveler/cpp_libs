@@ -40,12 +40,14 @@ MainWindow::MainWindow(QWidget *parent) :
            parameter->dataType() == MReportParameter::DT_DatePeriod )
       {
         QList<QVariant> dates = QList<QVariant>();
-        dates << QDate( 2013, 4, 15 );
-        dates << QDate( 2013, 4, 16 );
-        dates << QDate( 2013, 4, 17 );
-        dates << QDate( 2013, 4, 18 );
-        dates << QDate( 2013, 4, 19 );
-        dates << QDate( 2013, 4, 20 );
+        QDate date( 2012, 12, 31 );
+//        LogDebug() << tr( "TYT" );
+        for ( int i = 0; i < 7; i++ )
+        {
+          date = date.addDays( 1 );
+          dates << date;
+        }
+//        LogDebug() << tr( "TYT" );
         parameter->setData( dates );
       }
   }

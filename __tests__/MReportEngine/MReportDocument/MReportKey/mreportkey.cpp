@@ -111,20 +111,20 @@ QString MReportKey::data() const
   QString s = source();
   QString ds = dataSource();
 
-//  qDebug() << p->m__KT << p->m__DT << s << ds;
-
   if ( p->m__KT == KT_Parameter )
   {
     foreach ( MReportParameter *rp, reportDocument()->reportParameters() )
       if ( rp->name() == s ) data = rp->data();
   }
   else if ( p->m__KT == KT_SQL )
+  {
     foreach ( MReportSource *rs, reportDocument()->mainDocument()->reportSources() )
       if ( rs->name() == s )
       {
         data = rs->executeQuery( ds );
         break;
       }
+  }
   else if ( p->m__KT == KT_SQLWithParameters )
   {
     QString query = ds;
@@ -189,6 +189,21 @@ QString MReportKey::data() const
     result = QString::number( data.toInt() );
   else if ( p->m__DT == DT_Double )
     result = QString::number( data.toDouble() );
+  else
+  {
+    if ( data.type() == QVariant::String )
+      result = data.toString();
+    else if ( data.type() == QVariant::Date )
+      result = data.toDate().toString( tr( "dd.MM.yyyy" ) );
+    else if ( data.type() == QVariant::DateTime )
+      result = data.toDateTime().toString( tr( "dd.MM.yyyy hh:mm:ss" ) );
+    else if ( data.type() == QVariant::Time )
+      result = data.toTime().toString( tr( "hh:mm:ss" ) );
+    else if ( data.type() == QVariant::Int )
+      result = QString::number( data.toInt() );
+    else if ( data.type() == QVariant::Double )
+      result = QString::number( data.toDouble() );
+  }
 
   return result;
 }

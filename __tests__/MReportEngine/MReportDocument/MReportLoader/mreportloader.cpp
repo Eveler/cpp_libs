@@ -187,10 +187,14 @@ QString MReportLoader::keys( const QDomNode &tag, MReportDocument *reportDocumen
     MReportKey::KeyType kt = MReportKey::KT_Undefined;
     MReportKey::DataType dt = MReportKey::DT_Undefined;
 
-    if ( keySourceType == QObject::tr( "Parameter" ) ) kt = MReportKey::KT_Parameter;
-    else if ( keySourceType == QObject::tr( "SQL" ) ) kt = MReportKey::KT_SQL;
-    else if ( keySourceType == QObject::tr( "SQL with parameters" ) ) kt = MReportKey::KT_SQLWithParameters;
-    else if ( keySourceType == QObject::tr( "Attachment" ) ) kt = MReportKey::KT_Attachment;
+    if ( keySourceType == QObject::tr( "Parameter" ) ) kt
+        = MReportKey::KT_Parameter;
+    else if ( keySourceType == QObject::tr( "SQL" ) )
+      kt = MReportKey::KT_SQL;
+    else if ( keySourceType == QObject::tr( "SQL with parameters" ) )
+      kt = MReportKey::KT_SQLWithParameters;
+    else if ( keySourceType == QObject::tr( "Attachment" ) )
+      kt = MReportKey::KT_Attachment;
     else
       addError( QObject::tr( "ключ '%1' имеет неверный тип [%2]" ).arg(
                   keyName, keySourceType ), result );
@@ -211,7 +215,7 @@ QString MReportLoader::keys( const QDomNode &tag, MReportDocument *reportDocumen
     rk->setDataSource( keyDataSource );
 
     if ( kt == MReportKey::KT_Attachment )
-      reportDocument->addReportDocument( keySource );
+      reportDocument->addReportDocument( keySource, rk );
   }
 
   return result.join( "\n" );

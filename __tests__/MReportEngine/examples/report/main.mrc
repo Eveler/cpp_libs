@@ -16,8 +16,8 @@
 		<key name="$K_1$">
 			<key_source_type name="SQL"/>
 			<key_source name="$S_1$"/>
-			<key_data_type name="DateTime"/>
-			<key_data_source value="SELECT now()"/>
+			<key_data_type name="Date"/>
+			<key_data_source value="SELECT now()::date"/>
 		</key>
 		<key name="$K_2$">
 			<key_source_type name="Attachment"/>

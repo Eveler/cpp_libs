@@ -5,6 +5,7 @@
 #include "mreportloader.h"
 
 #include <QFile>
+#include <QStringList>
 
 #include <QDebug>
 
@@ -44,6 +45,11 @@ void MReportDocument::setBody( const QString &body )
   f.close();
 }
 
+const QString & MReportDocument::body() const
+{
+  return p->m__Body;
+}
+
 MReportDocument * MReportDocument::errorDocument() const
 {
   if ( !p->m__LastError.isEmpty() ) return p->p_dptr();
@@ -68,13 +74,17 @@ MReportDocument * MReportDocument::mainDocument() const
   else return p->m__ParentDocument->mainDocument();
 }
 
-MReportDocument * MReportDocument::addReportDocument( const QString &alias )
+MReportDocument * MReportDocument::addReportDocument( const QString &alias , MReportKey *reportKey )
 {
-  if ( p->m__FileName.isEmpty() || reportDocument( alias ) != NULL ) return NULL;
+  if ( p->m__FileName.isEmpty() ||
+       reportDocument( alias ) != NULL ||
+       reportKey->reportDocument() != this )
+    return NULL;
 
   MReportDocument *reportDocument = new MReportDocument(
         this, tr( "%1/%2/%2.mrc" ).arg( p->filePath(), alias ) );
   p->m__ChildDocuments << reportDocument;
+  p->m__DocumentKey[reportDocument] = reportKey;
 
   return reportDocument;
 }
@@ -177,7 +187,7 @@ MReportKey * MReportDocument::reportKey( const QString &name ) const
 
 QString MReportDocument::exec()
 {
-  QString result = QString();
+  QStringList result = QStringList();
   MReportParameter *firstParameter = NULL;
   if ( !reportParameters().isEmpty() )
   {
@@ -189,20 +199,22 @@ QString MReportDocument::exec()
 
   do
   {
+    QString html = body();
     if ( firstParameter != NULL ) firstParameter->next();
     foreach ( MReportKey *key, p->m__Keys )
     {
-      QString res = p->alias()+" "+key->data()+"\n";
-      result += res;
+      if ( key->keyType() != MReportKey::KT_Attachment )
+        html = html.replace( key->name(), key->data() );
     }
     foreach ( MReportDocument *document, p->m__ChildDocuments )
     {
-      QString res = document->exec()+"\n";
-      result += res;
+      MReportKey *key = p->m__DocumentKey[document];
+      html = html.replace( key->name(), document->exec() );
     }
+    result << html;
   } while ( firstParameter != NULL && firstParameter->hasNext() );
 
-  return result;
+  return result.join( "\n" );
 }
 
 MReportDocument::MReportDocument( MReportDocument *parent, const QString &fileName ) :

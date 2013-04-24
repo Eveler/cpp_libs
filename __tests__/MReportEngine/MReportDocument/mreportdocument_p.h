@@ -31,6 +31,8 @@ private:
   MReportParameterList m__Parameters;
   MReportKeyList m__Keys;
 
+  QHash<MReportDocument *, MReportKey *> m__DocumentKey;
+
   QString m__LastError;
 
   explicit MReportDocument_P( const QString &fileName, MReportDocument *parent );
