@@ -40,10 +40,12 @@ public:
   void setDataType( DataType dataType );
   DataType dataType() const;
 
+  void setSource( const QString &source );
+  const QString & source() const;
+
   void setDataSource( const QString &dataSource );
   const QString & dataSource() const;
 
-  void setData( QVariant data );
   QString data() const;
 
 

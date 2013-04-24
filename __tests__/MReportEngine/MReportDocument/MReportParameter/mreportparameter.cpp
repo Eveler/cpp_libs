@@ -3,6 +3,8 @@
 #include "mreportparameter_p.h"
 #include "mreportdocument.h"
 
+#include <QDebug>
+
 
 MReportParameter::~MReportParameter()
 {
@@ -42,7 +44,8 @@ MReportParameter::DataType MReportParameter::dataType() const
 
 void MReportParameter::setDataSource( const QString &dataSource )
 {
-  if ( p->m__PT == PT_ForeignParameter && reportDocument()->parentDocument() != NULL )
+  if ( ( p->m__PT == PT_ForeignParameter || p->m__PT == PT_Repeater ) &&
+       reportDocument()->parentDocument() != NULL )
   {
     foreach ( MReportParameter *rp, reportDocument()->parentDocument()->reportParameters() )
       if ( rp->name() == dataSource )
@@ -53,8 +56,8 @@ void MReportParameter::setDataSource( const QString &dataSource )
   }
   else if ( p->m__PT == PT_ForeignKey && reportDocument()->parentDocument() != NULL )
   {
-    foreach ( MReportParameter *rp, reportDocument()->parentDocument()->reportParameters() )
-      if ( rp->name() == dataSource )
+    foreach ( MReportKey *rk, reportDocument()->parentDocument()->reportKeys() )
+      if ( rk->name() == dataSource )
       {
         p->m__DataSource = dataSource;
         return;
@@ -85,18 +88,7 @@ bool MReportParameter::setData( const QVariant &data )
 
 const QVariant & MReportParameter::data() const
 {
-  if ( p->m__PT == PT_Repeater && reportDocument()->parentDocument() != NULL )
-  {
-    if ( !hasNext() )
-      foreach ( MReportParameter *rp, reportDocument()->parentDocument()->reportParameters() )
-        if ( rp->name() == p->m__DataSource )
-        {
-          p->m__DataIterator = QListIterator<QVariant>( rp->data().toList() );
-          next();
-          break;
-        }
-  }
-  else if ( p->m__PT == PT_ForeignParameter && reportDocument()->parentDocument() != NULL )
+  if ( p->m__PT == PT_ForeignParameter && reportDocument()->parentDocument() != NULL )
   {
     foreach ( MReportParameter *rp, reportDocument()->parentDocument()->reportParameters() )
       if ( rp->name() == p->m__DataSource ) return rp->data();
@@ -121,6 +113,19 @@ MReportParameter::MReportParameter( const QString &name, MReportDocument *parent
   p = new MReportParameter_P( name, this );
 }
 
+bool MReportParameter::toFront() const
+{
+  if ( p->m__PT == PT_Repeater && reportDocument()->parentDocument() != NULL )
+    foreach ( MReportParameter *rp, reportDocument()->parentDocument()->reportParameters() )
+      if ( rp->name() == p->m__DataSource )
+      {
+        p->m__DataIterator = QListIterator<QVariant>( rp->data().toList() );
+        return true;
+        break;
+      }
+  return false;
+}
+
 bool MReportParameter::hasNext() const
 {
   return p->m__DataIterator.hasNext();
@@ -128,7 +133,5 @@ bool MReportParameter::hasNext() const
 
 void MReportParameter::next() const
 {
-  if ( hasNext() )
-    p->m__Data = p->m__DataIterator.next();
-  else p->m__Data = QVariant();
+  p->m__Data = p->m__DataIterator.next();
 }

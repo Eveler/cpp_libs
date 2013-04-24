@@ -61,6 +61,7 @@ private:
 
   explicit MReportParameter( const QString &name, MReportDocument *parent );
 
+  bool toFront() const;
   bool hasNext() const;
   void next() const;
 };

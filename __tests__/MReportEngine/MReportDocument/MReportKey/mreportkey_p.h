@@ -25,8 +25,8 @@ private:
   QString m__Name;
   MReportKey::KeyType m__KT;
   MReportKey::DataType m__DT;
+  QString m__Source;
   QString m__DataSource;
-  QVariant m__Data;
 
   explicit MReportKey_P( const QString &name, MReportKey *parent );
 

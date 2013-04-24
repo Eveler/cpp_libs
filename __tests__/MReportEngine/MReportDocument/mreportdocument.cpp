@@ -5,9 +5,8 @@
 #include "mreportloader.h"
 
 #include <QFile>
-#include <QSqlQuery>
-#include <QSqlRecord>
-#include <QSqlError>
+
+#include <QDebug>
 
 
 MReportDocument::MReportDocument( const QString &fileName, QObject *parent ) :
@@ -176,19 +175,37 @@ MReportKey * MReportDocument::reportKey( const QString &name ) const
   return NULL;
 }
 
-QVariant MReportDocument::sqlResult( const QString &query ) const
-{
-//  QSqlDatabase
-
-  return QVariant();
-}
-
 QString MReportDocument::exec()
 {
-  return QString();
+  QString result = QString();
+  MReportParameter *firstParameter = NULL;
+  if ( !reportParameters().isEmpty() )
+  {
+    firstParameter = reportParameters().first();
+    if ( firstParameter->parameterType() != MReportParameter::PT_Repeater )
+      firstParameter = NULL;
+    else firstParameter->toFront();
+  }
+
+  do
+  {
+    if ( firstParameter != NULL ) firstParameter->next();
+    foreach ( MReportKey *key, p->m__Keys )
+    {
+      QString res = p->alias()+" "+key->data()+"\n";
+      result += res;
+    }
+    foreach ( MReportDocument *document, p->m__ChildDocuments )
+    {
+      QString res = document->exec()+"\n";
+      result += res;
+    }
+  } while ( firstParameter != NULL && firstParameter->hasNext() );
+
+  return result;
 }
 
-MReportDocument::MReportDocument( MReportDocument *parent , const QString &fileName ) :
+MReportDocument::MReportDocument( MReportDocument *parent, const QString &fileName ) :
   QObject(parent)
 {
   p = new MReportDocument_P( fileName, this );

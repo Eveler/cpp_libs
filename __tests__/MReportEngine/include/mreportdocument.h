@@ -24,7 +24,8 @@ class EXPORT_MREPORTENGINE MReportDocument : public QObject
 
 
 public:
-  /** Конструктор создает экземпляр класса MReportDocument из файла конфигурации отчета.
+  /** Конструктор класса MReportDocument создает его экземпляр из файла конфигурации отчета
+  (*.mra {m-report archive}).
   ВНИМАНИЕ: в случае возникновения ошибки при чтении файла конфигурации отчета,
   вы можете вызвать функцию errorDocument, а за тем lastError, для получения текста ошибки.*/
   explicit MReportDocument( const QString &fileName = QString(), QObject *parent = 0 );
@@ -68,8 +69,6 @@ public:
   /** Поиск ключа по его имени во всем дереве документов.*/
   MReportKey * reportKey( const QString &name ) const;
 
-  QVariant sqlResult( const QString &query ) const;
-
   QString exec();
 
 
@@ -82,6 +81,10 @@ public slots:
 private:
   MReportDocument_P *p;
 
+  /** Конструктор класса MReportDocument создает его экземпляр из файла конфигурации отчета
+  (*.mrc {m-report config}).
+  ВНИМАНИЕ: в случае возникновения ошибки при чтении файла конфигурации отчета,
+  вы можете вызвать функцию errorDocument, а за тем lastError, для получения текста ошибки.*/
   explicit MReportDocument( MReportDocument *parent, const QString &fileName );
 };
 

@@ -7,6 +7,8 @@
 #include <QDate>
 #include <QStringList>
 
+#include <QDebug>
+
 
 MReportKey::~MReportKey()
 {
@@ -44,54 +46,61 @@ MReportKey::DataType MReportKey::dataType() const
   return p->m__DT;
 }
 
-void MReportKey::setDataSource( const QString &dataSource )
+void MReportKey::setSource( const QString &source )
 {
-  p->m__DataSource = QString();
+  p->m__Source = QString();
 
   if ( p->m__KT == KT_Parameter )
   {
     foreach ( MReportParameter *rp, reportDocument()->reportParameters() )
-      if ( rp->name() == dataSource )
+      if ( rp->name() == source )
       {
-        p->m__DataSource = dataSource;
+        p->m__Source = source;
         return;
       }
   }
-  else if ( p->m__KT == KT_SQLWithParameters )
+  else if ( p->m__KT == KT_SQL || p->m__KT == KT_SQLWithParameters )
   {
-    QStringList params = QStringList();
-    foreach ( MReportParameter *rp, reportDocument()->reportParameters() ) params << rp->name();
-    QStringList notExists = MFCCore::notExists( params, dataSource.split( ";" ) );
-    if ( !notExists.isEmpty() ) p->m__DataSource = dataSource;
+    foreach ( MReportSource *rs, reportDocument()->mainDocument()->reportSources() )
+      if ( rs->name() == source )
+      {
+        p->m__Source = source;
+        return;
+      }
   }
   else if ( p->m__KT == KT_Attachment )
   {
     if ( reportDocument()->mainDocument()->reportDocument(
-           dataSource.split( "/" ).last().split( tr( ".mrc" ) ).first() ) == NULL )
-      p->m__DataSource = dataSource;
+           source.split( "/" ).last().split( tr( ".mrc" ) ).first() ) == NULL )
+      p->m__Source = source;
   }
 }
 
-const QString & MReportKey::dataSource() const
+const QString & MReportKey::source() const
 {
   if ( p->m__KT == KT_Attachment )
   {
     MReportDocument *attachment = reportDocument()->reportDocument(
-          p->m__DataSource.split( "/" ).last().split( tr( ".mrc" ) ).first() );
+          p->m__Source.split( "/" ).last().split( tr( ".mrc" ) ).first() );
     if ( attachment == NULL )
     {
-      p->m__DataSource = QString();
-      return p->m__DataSource;
+      p->m__Source = QString();
+      return p->m__Source;
     }
   }
-  return p->m__DataSource;
+  return p->m__Source;
 }
 
-void MReportKey::setData( QVariant data )
+void MReportKey::setDataSource( const QString &dataSource )
 {
-//  if ( p->m__KT != KT_SQL && p->m__KT != KT_SQLWithParameters )
-//  {
+  if ( p->m__KT != KT_SQL && p->m__KT != KT_SQLWithParameters ) return;
 
+  p->m__DataSource = dataSource;
+}
+
+const QString & MReportKey::dataSource() const
+{
+  return p->m__DataSource;
 }
 
 QString MReportKey::data() const
@@ -99,15 +108,23 @@ QString MReportKey::data() const
   QString result = QString();
   QVariant data = QVariant();
 
+  QString s = source();
   QString ds = dataSource();
+
+//  qDebug() << p->m__KT << p->m__DT << s << ds;
 
   if ( p->m__KT == KT_Parameter )
   {
     foreach ( MReportParameter *rp, reportDocument()->reportParameters() )
-      if ( rp->name() == ds ) data = rp->data();
+      if ( rp->name() == s ) data = rp->data();
   }
   else if ( p->m__KT == KT_SQL )
-    data = reportDocument()->mainDocument()->sqlResult( ds );
+    foreach ( MReportSource *rs, reportDocument()->mainDocument()->reportSources() )
+      if ( rs->name() == s )
+      {
+        data = rs->executeQuery( ds );
+        break;
+      }
   else if ( p->m__KT == KT_SQLWithParameters )
   {
     QString query = ds;
@@ -118,9 +135,9 @@ QString MReportKey::data() const
       if ( data.type() == QVariant::Date )
         value = data.toDate().toString( tr( "dd.MM.yyyy" ) );
       else if ( data.type() == QVariant::DateTime )
-        value = data.toDate().toString( tr( "dd.MM.yyyy hh:mm:ss" ) );
+        value = data.toDateTime().toString( tr( "dd.MM.yyyy hh:mm:ss" ) );
       else if ( data.type() == QVariant::Time )
-        value = data.toDate().toString( tr( "hh:mm:ss" ) );
+        value = data.toTime().toString( tr( "hh:mm:ss" ) );
       else if ( data.type() == QVariant::Int )
         value = QString::number( data.toInt() );
       else if ( data.type() == QVariant::UInt )
@@ -133,12 +150,17 @@ QString MReportKey::data() const
         value = QString::number( data.toULongLong() );
       query = query.replace( rp->name(), value );
     }
-    data = reportDocument()->mainDocument()->sqlResult( query );
+    foreach ( MReportSource *rs, reportDocument()->mainDocument()->reportSources() )
+      if ( rs->name() == s )
+      {
+        data = rs->executeQuery( query );
+        break;
+      }
   }
-  else if ( p->m__KT == KT_Attachment && !ds.isEmpty() )
+  else if ( p->m__KT == KT_Attachment && !s.isEmpty() )
   {
     MReportDocument *attachment = reportDocument()->reportDocument(
-          ds.split( "/" ).last().split( tr( ".mrc" ) ).first() );
+          s.split( "/" ).last().split( tr( ".mrc" ) ).first() );
     if ( attachment != NULL ) return attachment->exec();
   }
 
@@ -154,13 +176,14 @@ QString MReportKey::data() const
   }
   else if ( p->m__DT == DT_DateTime )
   {
+//    qDebug() << data;
     if ( data.type() == QVariant::DateTime )
-      result = data.toDate().toString( tr( "dd.MM.yyyy hh:mm:ss" ) );
+      result = data.toDateTime().toString( tr( "dd.MM.yyyy hh:mm:ss" ) );
   }
   else if ( p->m__DT == DT_Time )
   {
     if ( data.type() == QVariant::Time )
-      result = data.toDate().toString( tr( "hh:mm:ss" ) );
+      result = data.toTime().toString( tr( "hh:mm:ss" ) );
   }
   else if ( p->m__DT == DT_Integer )
     result = QString::number( data.toInt() );

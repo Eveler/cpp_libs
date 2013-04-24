@@ -13,7 +13,6 @@
 QString MReportLoader::load( MReportDocument *reportDocument )
 {
   QFile f( reportDocument->fileName() );
-//  qDebug() << f.fileName();
   if ( !f.open( QFile::ReadOnly | QFile::Text ) )
     return QObject::tr( "невозможно открыть файл конфигурации '%1'" ).arg( reportDocument->fileName() );
 
@@ -38,7 +37,7 @@ QString MReportLoader::parse( const QByteArray &data, MReportDocument *reportDoc
   int err_line = 0;
   int err_column = 0;
   if ( !document.setContent( data, &err_text, &err_line, &err_column ) )
-    return QObject::tr( "%1 [строка: %2 позиция: %3]" ).arg(
+    err_text = QObject::tr( "%1 [строка: %2 позиция: %3]" ).arg(
           err_text ).arg( err_line ).arg( err_column );
   addError( err_text, result );
 
@@ -46,6 +45,10 @@ QString MReportLoader::parse( const QByteArray &data, MReportDocument *reportDoc
   addError( sources( mainElement.namedItem( QObject::tr( "sources" ) ), reportDocument ), result );
   addError( parameters( mainElement.namedItem( QObject::tr( "parameters" ) ), reportDocument ), result );
   addError( keys( mainElement.namedItem( QObject::tr( "keys" ) ), reportDocument ), result );
+
+  if ( !result.isEmpty() )
+    result.prepend( QObject::tr( "%1 ошибок в файле %2" ).arg(
+                      result.count() ).arg( reportDocument->fileName() ) );
 
   return result.join( "\n" );
 }
@@ -172,8 +175,10 @@ QString MReportLoader::keys( const QDomNode &tag, MReportDocument *reportDocumen
       addError( QObject::tr( "ключ '%1' уже существует" ).arg( keyName ), result );
       continue;
     }
-    QString keyType = tagKey.namedItem(
-          QObject::tr( "key_type" ) ).toElement().attribute( QObject::tr( "name" ) );
+    QString keySourceType = tagKey.namedItem(
+          QObject::tr( "key_source_type" ) ).toElement().attribute( QObject::tr( "name" ) );
+    QString keySource = tagKey.namedItem(
+          QObject::tr( "key_source" ) ).toElement().attribute( QObject::tr( "name" ) );
     QString keyDataType = tagKey.namedItem(
           QObject::tr( "key_data_type" ) ).toElement().attribute( QObject::tr( "name" ) );
     QString keyDataSource = tagKey.namedItem(
@@ -182,13 +187,13 @@ QString MReportLoader::keys( const QDomNode &tag, MReportDocument *reportDocumen
     MReportKey::KeyType kt = MReportKey::KT_Undefined;
     MReportKey::DataType dt = MReportKey::DT_Undefined;
 
-    if ( keyType == QObject::tr( "Parameter" ) ) kt = MReportKey::KT_Parameter;
-    else if ( keyType == QObject::tr( "SQL" ) ) kt = MReportKey::KT_SQL;
-    else if ( keyType == QObject::tr( "SQL with parameters" ) ) kt = MReportKey::KT_SQLWithParameters;
-    else if ( keyType == QObject::tr( "Attachment" ) ) kt = MReportKey::KT_Attachment;
+    if ( keySourceType == QObject::tr( "Parameter" ) ) kt = MReportKey::KT_Parameter;
+    else if ( keySourceType == QObject::tr( "SQL" ) ) kt = MReportKey::KT_SQL;
+    else if ( keySourceType == QObject::tr( "SQL with parameters" ) ) kt = MReportKey::KT_SQLWithParameters;
+    else if ( keySourceType == QObject::tr( "Attachment" ) ) kt = MReportKey::KT_Attachment;
     else
       addError( QObject::tr( "ключ '%1' имеет неверный тип [%2]" ).arg(
-                  keyName, keyType ), result );
+                  keyName, keySourceType ), result );
 
     if ( keyDataType == QObject::tr( "Text" ) ) dt = MReportKey::DT_Text;
     else if ( keyDataType == QObject::tr( "Date" ) ) dt = MReportKey::DT_Date;
@@ -198,14 +203,15 @@ QString MReportLoader::keys( const QDomNode &tag, MReportDocument *reportDocumen
     else if ( keyDataType == QObject::tr( "Double" ) ) dt = MReportKey::DT_Double;
     else if ( kt != MReportKey::KT_Parameter && kt != MReportKey::KT_Attachment )
       addError( QObject::tr( "ключ '%1'::%2 имеет неверный тип данных [%3]" ).arg(
-                  keyName, keyType, keyDataType ), result );
+                  keyName, keySourceType, keyDataType ), result );
 
     rk->setKeyType( kt );
+    rk->setSource( keySource );
     rk->setDataType( dt );
     rk->setDataSource( keyDataSource );
 
     if ( kt == MReportKey::KT_Attachment )
-      reportDocument->addReportDocument( keyDataSource );
+      reportDocument->addReportDocument( keySource );
   }
 
   return result.join( "\n" );

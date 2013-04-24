@@ -43,6 +43,8 @@ public:
   bool setDatabaseName( const QString & databaseName );
   const QString & databaseName() const;
 
+  bool isValid() const;
+
   bool setUserName( const QString & userName );
   const QString & userName() const;
 

@@ -3,9 +3,10 @@
 #include "mreportsource_p.h"
 
 #include <QStringList>
-#include <QUuid>
 #include <QSqlQuery>
 #include <QSqlError>
+
+#include <QDebug>
 
 
 MReportSource::~MReportSource()
@@ -91,6 +92,12 @@ const QString & MReportSource::databaseName() const
   return p->m__DatabaseName;
 }
 
+bool MReportSource::isValid() const
+{
+  return ( !p->m__DriverName.isEmpty() && !p->m__Host.isEmpty() &&
+           p->m__Port > 0 && !p->m__DatabaseName.isEmpty() );
+}
+
 bool MReportSource::setUserName( const QString & userName )
 {
   if ( p->exists( p->m__DriverName, p->m__Host, p->m__Port, p->m__DatabaseName, userName ) )
@@ -120,21 +127,26 @@ QVariant MReportSource::executeQuery( const QString &query )
 {
   QVariant result = QVariant();
 
-  QSqlDatabase db = QSqlDatabase::addDatabase( p->m__DriverName, QUuid::createUuid().toString() );
-  db.setHostName( p->m__Host );
-  db.setPort( p->m__Port );
-  db.setDatabaseName( p->m__DatabaseName );
-  db.setUserName( p->m__UserName );
-  db.setPassword( p->m__Password );
-  if ( !db.open() ) return result;
-
-  QSqlQuery qry = db.exec( query );
-  if ( db.lastError().isValid() ) return result;
-  if ( qry.lastError().isValid() || !qry.next() ) return result;
-
-  result = qry.value( 0 );
-  db.close();
-  db.removeDatabase( db.connectionName() );
+  if ( QSqlDatabase::contains( p->m__Uuid ) )
+    qDebug() << "Connection exists!";
+  {
+    QSqlDatabase db = QSqlDatabase::addDatabase( p->m__DriverName, p->m__Uuid );
+    db.setHostName( p->m__Host );
+    db.setPort( p->m__Port );
+    db.setDatabaseName( p->m__DatabaseName );
+    db.setUserName( p->m__UserName );
+    db.setPassword( p->m__Password );
+    if ( db.open() )
+    {
+      QSqlQuery qry = db.exec( query );
+      if ( !db.lastError().isValid() &&
+           !qry.lastError().isValid() &&
+           qry.next() )
+        result = qry.value( 0 );
+      db.close();
+    }
+  }
+  QSqlDatabase::removeDatabase( p->m__Uuid );
 
   return result;
 }

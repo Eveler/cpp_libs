@@ -24,6 +24,7 @@ public slots:
 
 private:
   QString m__Name;
+  QString m__Uuid;
 
   MReportSource::SourceType m__ST;
 
@@ -40,6 +41,7 @@ private:
   MReportDocument * reportDocument() const;
   bool exists( const QString &driverName, const QString &host,
                int port, const QString &dbName, const QString &userName );
+  bool exists( const QString &uuid );
 };
 
 #endif // MREPORTSOURCE_P_H

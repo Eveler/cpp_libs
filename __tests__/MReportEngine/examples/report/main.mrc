@@ -14,17 +14,18 @@
 	</parameters>
 	<keys>
 		<key name="$K_1$">
-			<key_type name="SQL"/>
+			<key_source_type name="SQL"/>
+			<key_source name="$S_1$"/>
 			<key_data_type name="DateTime"/>
 			<key_data_source value="SELECT now()"/>
 		</key>
 		<key name="$K_2$">
-			<key_type name="Attachment"/>
-			<key_data_source value="Table_1"/>
+			<key_source_type name="Attachment"/>
+			<key_source name="Table_1"/>
 		</key>
 		<key name="$K_3$">
-			<key_type name="Attachment"/>
-			<key_data_source value="Row_1"/>
+			<key_source_type name="Attachment"/>
+			<key_source name="Row_1"/>
 		</key>
 	</keys>
 </body>

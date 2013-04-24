@@ -7,13 +7,14 @@
 	</parameters>
 	<keys>
 		<key name="$K_4$">
-			<key_type name="SQL"/>
+			<key_source_type name="SQL"/>
+			<key_source name="$S_1$"/>
 			<key_data_type name="DateTime"/>
-			<key_data_source value="SELECT now()" source="$S_1$"/>
+			<key_data_source value="SELECT now()"/>
 		</key>
 		<key name="$K_5$">
-			<key_type name="Attachment"/>
-			<key_data_source value="Cell_1"/>
+			<key_source_type name="Attachment"/>
+			<key_source name="Cell_1"/>
 		</key>
 	</keys>
 </body>
