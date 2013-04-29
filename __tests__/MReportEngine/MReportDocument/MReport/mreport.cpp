@@ -13,31 +13,35 @@
 #include <QDebug>
 
 
-MReportDocument * MReport::load( const QString &filePath, QObject *parent )
+MReportDocument * MReport::load( const QString &filePath, QString *errorStr, QObject *parent )
 {
   QFileInfo fi( filePath );
   if ( fi.suffix() != QObject::tr( "mrf" ) )
   {
-    qDebug() << QObject::tr( "Неверный формат файла отчета!" );
+    *errorStr = QObject::tr( "Неверный формат файла отчета!" );
     return NULL;
   }
   if ( !fi.exists() )
   {
-    qDebug() << QObject::tr( "Файл отчета не найден!" );
+    *errorStr = QObject::tr( "Файл отчета не найден!" );
     return NULL;
   }
 
   QDir workDir( fi.absolutePath() );
   if ( workDir.exists( fi.baseName() ) )
   {
-    qDebug() << QObject::tr( "Файл отчета уже используется!" );
+    *errorStr = QObject::tr( "Файл отчета уже используется!" );
     return NULL;
   }
   workDir.mkdir( fi.baseName() );
   QDir dir = QDir( QObject::tr( "%1/%2" ).arg( fi.absolutePath(), fi.baseName() ) );
 
   QuaZip zipF( filePath );
-  if ( !zipF.open( QuaZip::mdUnzip ) ) return NULL;
+  if ( !zipF.open( QuaZip::mdUnzip ) )
+  {
+    *errorStr = QObject::tr( "Zip error №%1" ).arg( zipF.getZipError() );
+    return NULL;
+  }
 
   QuaZipFile zObject( &zipF );
   for( bool more = zipF.goToFirstFile(); more; more = zipF.goToNextFile() )

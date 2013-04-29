@@ -1,7 +1,7 @@
 #include "mreportsource_p.h"
 
 #include <QUuid>
-
+#include <QSqlDatabase>
 
 MReportSource_P::MReportSource_P(const QString &name, MReportSource *parent) :
   QObject(parent),

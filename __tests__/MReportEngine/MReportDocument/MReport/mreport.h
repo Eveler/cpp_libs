@@ -11,7 +11,7 @@ class MReportDocument;
 class MReport
 {
 public:
-  static MReportDocument * load( const QString &filePath, QObject *parent );
+  static MReportDocument * load( const QString &filePath, QString *errorStr, QObject *parent );
   static MReportDocument * create( const QString &alias , const QString &dirPath, QObject *parent );
   static bool save( MReportDocument *reportDocument );
 

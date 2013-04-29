@@ -7,8 +7,6 @@
 #include "mreportparameter.h"
 #include "mreportkey.h"
 
-#include <QSqlDatabase>
-
 
 class MReportDocument;
 class MReportDocument_P;
@@ -26,7 +24,8 @@ class EXPORT_MREPORTENGINE MReportDocument : public QObject
 public:
   ~MReportDocument();
 
-  static MReportDocument * load(const QString &filePath, QObject *parent = NULL );
+  static MReportDocument * load(const QString &filePath, QString *errorStr = NULL,
+                                QObject *parent = NULL );
   static MReportDocument * create(
       const QString &alias, const QString &dirPath = QString(), QObject *parent = NULL );
   static bool save( MReportDocument *reportDocument );

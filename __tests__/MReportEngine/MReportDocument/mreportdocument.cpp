@@ -16,9 +16,9 @@ MReportDocument::~MReportDocument()
   p = NULL;
 }
 
-MReportDocument * MReportDocument::load( const QString &filePath, QObject *parent )
+MReportDocument * MReportDocument::load( const QString &filePath, QString *errorStr, QObject *parent )
 {
-  return MReport::load( filePath, parent );
+  return MReport::load( filePath, errorStr, parent );
 }
 
 MReportDocument * MReportDocument::create(

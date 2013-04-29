@@ -4,9 +4,9 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network sql
+QT       += core gui network webkit
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets webkitwidgets
 
 TARGET = MReportViewer
 TEMPLATE = app
@@ -61,8 +61,13 @@ CONFIG(debug, debug|release){
 }
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    mreportviewer.cpp \
+    mreportviewer_p.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    ../../include/mreportviewer.h \
+    mreportviewer_p.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    mreportviewer.ui
