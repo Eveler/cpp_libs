@@ -48,7 +48,8 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 
   LIBS += -L../bin_qt5/ \
       -lmuCalculator \
-      -lAMSLogger
+      -lAMSLogger \
+      -lQZip
 }
 
 lessThan(QT_MAJOR_VERSION, 5) {

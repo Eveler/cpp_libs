@@ -11,34 +11,9 @@ MReportDocument_P::MReportDocument_P (const QString &fileName, MReportDocument *
   m__Parameters(MReportParameterList()),
   m__Keys(MReportKeyList())
 {
-  m__FileName = QString();
+  m__FileName = fileName;
   m__Body = QString();
   m__LastError = QString();
-
-  QFileInfo fi( fileName );
-  if ( fi.suffix() != tr( "mrc" ) )
-    m__LastError = tr( "не верный формат файла конфигурации отчета" );
-  else if ( fi.exists() ) m__FileName = fi.absoluteFilePath();
-  else if ( fi.suffix() == tr( "mrc" ) )
-  {
-    QFile f( fileName );
-    if ( f.open( QFile::WriteOnly ) ) m__FileName = fi.absoluteFilePath();
-    else m__LastError = tr( "невозможно создать файл конфигурации отчета" );
-    f.close();
-  }
-
-  if ( !m__FileName.isEmpty() )
-  {
-    QFile f( tr( "%1/main.html" ).arg( filePath() ) );
-    if ( !f.exists() )
-      f.open( QFile::WriteOnly | QFile::Text );
-    else
-    {
-      f.open( QFile::ReadOnly | QFile::Text );
-      m__Body = f.readAll();
-    }
-    f.close();
-  }
 }
 
 MReportDocument_P::~MReportDocument_P()

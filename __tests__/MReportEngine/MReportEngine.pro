@@ -6,7 +6,8 @@ CONFIG(debug, debug|release): TARGET = $${TARGET}d
 
 TEMPLATE = lib
 
-DEFINES += EXPORT_LIB_MREPORTENGINE
+DEFINES += \
+    EXPORT_LIB_MREPORTENGINE
 
 INCLUDEPATH += ./ \
     ./bin/ \
@@ -15,8 +16,9 @@ INCLUDEPATH += ./ \
     ./MReportDocument/MReportSource/ \
     ./MReportDocument/MReportParameter/ \
     ./MReportDocument/MReportKey/ \
-    ./MReportDocument/MReportLoader/ \
-    ../../include/
+    ./MReportDocument/MReport/ \
+    ../../include/ \
+    ../../3dparty/quazip/quazip/
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
@@ -50,7 +52,8 @@ DESTDIR = ./bin
 DLLDESTDIR = ./bin
 
 LIB_LIST = \
-    -lMFCCore
+    -lMFCCore \
+    -lquazip
 
 LIBS += -L./bin/ \
     $${LIB_LIST}
@@ -78,7 +81,7 @@ HEADERS += \
     MReportDocument/MReportParameter/mreportparameter_p.h \
     include/mreportkey.h \
     MReportDocument/MReportKey/mreportkey_p.h \
-    MReportDocument/MReportLoader/mreportloader.h
+    MReportDocument/MReport/mreport.h
 
 SOURCES += \
     MReportDocument/mreportdocument.cpp \
@@ -89,5 +92,5 @@ SOURCES += \
     MReportDocument/MReportParameter/mreportparameter_p.cpp \
     MReportDocument/MReportKey/mreportkey.cpp \
     MReportDocument/MReportKey/mreportkey_p.cpp \
-    MReportDocument/MReportLoader/mreportloader.cpp
+    MReportDocument/MReport/mreport.cpp
 

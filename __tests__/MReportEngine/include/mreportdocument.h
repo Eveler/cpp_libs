@@ -12,7 +12,7 @@
 
 class MReportDocument;
 class MReportDocument_P;
-class MReportLoader;
+class MReport;
 
 typedef QList<MReportDocument *> MReportDocumentList;
 
@@ -20,16 +20,16 @@ class EXPORT_MREPORTENGINE MReportDocument : public QObject
 {
   Q_OBJECT
   friend class MReportDocument_P;
-  friend class MReportLoader;
+  friend class MReport;
 
 
 public:
-  /** Конструктор класса MReportDocument создает его экземпляр из файла конфигурации отчета
-  (*.mra {m-report archive}).
-  ВНИМАНИЕ: в случае возникновения ошибки при чтении файла конфигурации отчета,
-  вы можете вызвать функцию errorDocument, а за тем lastError, для получения текста ошибки.*/
-  explicit MReportDocument( const QString &fileName = QString(), QObject *parent = 0 );
   ~MReportDocument();
+
+  static MReportDocument * load(const QString &filePath, QObject *parent = NULL );
+  static MReportDocument * create(
+      const QString &alias, const QString &dirPath = QString(), QObject *parent = NULL );
+  static bool save( MReportDocument *reportDocument );
 
   /** Файл конфигурации отчета.*/
   const QString & fileName() const;
@@ -83,10 +83,18 @@ private:
   MReportDocument_P *p;
 
   /** Конструктор класса MReportDocument создает его экземпляр из файла конфигурации отчета
+  (*.mra {m-report archive}).
+  ВНИМАНИЕ: в случае возникновения ошибки при чтении файла конфигурации отчета,
+  вы можете вызвать функцию errorDocument, а за тем lastError, для получения текста ошибки.*/
+  explicit MReportDocument( const QString &fileName, QObject *parent = 0 );
+
+  /** Конструктор класса MReportDocument создает его экземпляр из файла конфигурации отчета
   (*.mrc {m-report config}).
   ВНИМАНИЕ: в случае возникновения ошибки при чтении файла конфигурации отчета,
   вы можете вызвать функцию errorDocument, а за тем lastError, для получения текста ошибки.*/
   explicit MReportDocument( MReportDocument *parent, const QString &fileName );
+
+  void setLastError( const QString &lastError );
 };
 
 #endif // MREPORTDOCUMENT_H

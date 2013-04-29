@@ -1,4 +1,3 @@
-<body>
-	<destination name="report"/>
+<report>
 	<file name="main.html"/>
-</body>
+</report>

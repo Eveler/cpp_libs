@@ -1,4 +1,4 @@
-<body>
+<report>
 	<parameters>
 		<parameter name="$P_2$">
 			<parameter_type name="Repeater"/>
@@ -17,4 +17,4 @@
 			<key_source name="Cell_1"/>
 		</key>
 	</keys>
-</body>
+</report>

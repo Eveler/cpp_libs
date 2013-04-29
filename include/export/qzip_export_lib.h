@@ -1,0 +1,10 @@
+#ifndef QZIP_EXPORT_LIB_H
+#define QZIP_EXPORT_LIB_H
+
+#ifdef EXPORT_LIB_QZIP
+#define EXPORT_QZIP Q_DECL_EXPORT
+#else
+#define EXPORT_QZIP Q_DECL_IMPORT
+#endif
+
+#endif // QZIP_EXPORT_LIB_H

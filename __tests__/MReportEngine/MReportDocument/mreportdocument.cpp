@@ -2,7 +2,7 @@
 
 #include "mreportdocument_p.h"
 #include "mreportparameter.h"
-#include "mreportloader.h"
+#include "mreport.h"
 
 #include <QFile>
 #include <QStringList>
@@ -10,23 +10,26 @@
 #include <QDebug>
 
 
-MReportDocument::MReportDocument( const QString &fileName, QObject *parent ) :
-  QObject(parent)
-{
-  p = new MReportDocument_P( fileName, this );
-
-  if ( p->m__LastError.isEmpty() )
-  {
-    QString err_text = MReportLoader::load( this );
-    if ( !err_text.isEmpty() )
-      p->m__LastError = err_text;
-  }
-}
-
 MReportDocument::~MReportDocument()
 {
   delete p;
   p = NULL;
+}
+
+MReportDocument * MReportDocument::load( const QString &filePath, QObject *parent )
+{
+  return MReport::load( filePath, parent );
+}
+
+MReportDocument * MReportDocument::create(
+    const QString &alias, const QString &dirPath, QObject *parent )
+{
+  return MReport::create( alias, dirPath, parent );
+}
+
+bool MReportDocument::save( MReportDocument *reportDocument )
+{
+  return MReport::save( reportDocument );
 }
 
 const QString & MReportDocument::fileName() const
@@ -82,7 +85,7 @@ MReportDocument * MReportDocument::addReportDocument( const QString &alias , MRe
     return NULL;
 
   MReportDocument *reportDocument = new MReportDocument(
-        this, tr( "%1/%2/%2.mrc" ).arg( p->filePath(), alias ) );
+        tr( "%1/%2/%2.mrc" ).arg( p->filePath(), alias ), this );
   p->m__ChildDocuments << reportDocument;
   p->m__DocumentKey[reportDocument] = reportKey;
 
@@ -217,16 +220,13 @@ QString MReportDocument::exec()
   return result.join( "\n" );
 }
 
-MReportDocument::MReportDocument( MReportDocument *parent, const QString &fileName ) :
+MReportDocument::MReportDocument( const QString &fileName, QObject *parent ) :
   QObject(parent)
 {
   p = new MReportDocument_P( fileName, this );
-
-  if ( p->m__LastError.isEmpty() )
-  {
-    QString err_text = MReportLoader::load( this );
-    if ( !err_text.isEmpty() )
-      p->m__LastError = err_text;
-  }
 }
 
+void MReportDocument::setLastError( const QString &lastError )
+{
+  p->m__LastError = lastError;
+}

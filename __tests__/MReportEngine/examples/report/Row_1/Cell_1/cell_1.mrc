@@ -1,4 +1,4 @@
-<body>
+<report>
 	<parameters>
 		<parameter name="$P_3$">
 			<parameter_type name="Foreign parameter"/>
@@ -17,4 +17,4 @@
 			<key_data_source value="SELECT '$P_3$'::text"/>
 		</key>
 	</keys>
-</body>
+</report>
