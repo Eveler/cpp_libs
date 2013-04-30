@@ -5,6 +5,8 @@
 
 #include "mreportviewer.h"
 
+#include <QWebElement>
+
 
 class MReportViewer_P : public QObject
 {

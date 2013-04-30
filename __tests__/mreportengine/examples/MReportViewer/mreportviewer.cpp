@@ -48,4 +48,5 @@ void MReportViewer::exec( MReportDocument *reportDocument )
   if ( reportDocument == NULL ) return;
 
   ui->webView->setHtml( reportDocument->exec() );
+  ui->webView->page()->setContentEditable( true );
 }
