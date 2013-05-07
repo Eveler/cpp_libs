@@ -3,13 +3,13 @@
 
 #include <QObject>
 
-#include "lib_export.h"
+#include "export/mwidgets_export_lib.h"
 
 
 class QAction;
 class QMenu;
 
-class EXPORT MWidgetsCore : public QObject
+class EXPORT_MWIDGETS MWidgetsCore : public QObject
 {
   Q_OBJECT
 

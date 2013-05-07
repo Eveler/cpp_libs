@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Configuration_icons/advancedsettings.png</file>
+        <file>Configuration_icons/preferences-plugin.png</file>
+        <file>Configuration_icons/keditbookmarks.png</file>
+    </qresource>
+</RCC>

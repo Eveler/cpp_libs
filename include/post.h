@@ -8,6 +8,7 @@
 
 class Post_P;
 class PostsStorage;
+class Direction;
 
 class EXPORT_POST Post : public AbstractSimpleObject
 {
@@ -22,9 +23,13 @@ public:
   void setName( const QString &name );
   const QString & name() const;
 
+  void setDirection( Direction *direction );
+  Direction * direction() const;
+
 
 signals:
   void nameChanged();
+  void directionChanged();
 
 
 public slots:

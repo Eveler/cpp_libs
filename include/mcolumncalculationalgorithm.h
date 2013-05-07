@@ -3,12 +3,12 @@
 
 #include "mabstractcolumncalculationalgorithm.h"
 
-#include "lib_export.h"
+#include "export/mmodels_export_lib.h"
 
 
 class MColumnCalculationAlgorithmPrivate;
 
-class EXPORT MColumnCalculationAlgorithm : public MAbstractColumnCalculationAlgorithm
+class EXPORT_MMODELS MColumnCalculationAlgorithm : public MAbstractColumnCalculationAlgorithm
 {
 public:
   explicit MColumnCalculationAlgorithm( MCalculationalColumn *writableColumn );

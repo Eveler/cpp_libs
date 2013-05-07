@@ -77,6 +77,16 @@ public:
     return execFile(buf.toLocal8Bit(),extension,block_ui);
   }
 
+#if QT_VERSION >= 0x050000
+  /** Создание архива с именем archiveName. В archivePath содержится путь к файлу архива.
+  Функция архивирует файл или директорию указанную в filePath*/
+  static bool zip( const QString &archiveName, const QString &filePath,
+                   const QString &archivePath = QString() );
+  /** Создание архива с именем archiveName. В archivePath содержится путь к файлу архива.
+  Функция архивирует файл или директорию указанную в filePath*/
+  static bool unzip( const QString &archiveName, const QString &unzipPath = QString() );
+#endif
+
 private:
   static MFCCore *m__Core;
   static QSettings *m__Settings;

@@ -8,7 +8,7 @@ CONFIG(debug, debug|release): TARGET = $${TARGET}d
 
 TEMPLATE = lib
 
-DEFINES += EXPORT_LIBRARY
+DEFINES += EXPORT_LIB_MWIDGETS
 
 LIB_LIST = \
     -lAMSLogger
@@ -71,6 +71,7 @@ CONFIG(debug, debug|release){
 HEADERS += \
     ../include/lib_export.h \
     ../include/mfcwidgets.h \
+    ../include/export/mwidgets_export_lib.h
 
 
 include(./MWidgetsCore/MWidgetsCore.pri)

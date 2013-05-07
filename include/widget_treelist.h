@@ -3,7 +3,7 @@
 
 #include <QWidget>
 
-#include "lib_export.h"
+#include "export/mwidgets_export_lib.h"
 
 
 namespace Ui {
@@ -15,7 +15,7 @@ class TreelistItemPrivate;
 class QTreeWidget;
 class QTreeWidgetItem;
 
-class EXPORT Widget_Treelist : public QWidget
+class EXPORT_MWIDGETS Widget_Treelist : public QWidget
 {
   friend class TreelistItem;
   friend class TreelistItemPrivate;

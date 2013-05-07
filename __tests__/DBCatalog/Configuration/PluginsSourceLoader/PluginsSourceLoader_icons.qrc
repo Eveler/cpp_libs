@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>PluginsSourceLoader_icons/preview.png</file>
+        <file>PluginsSourceLoader_icons/preview_disabled.png</file>
+    </qresource>
+</RCC>

@@ -34,6 +34,7 @@ unix:!symbian {
 
 LIB_LIST = \
     -lMFCCore \
+    -lDirection
 
 greaterThan(QT_MAJOR_VERSION, 4) {
   INCLUDEPATH += \
