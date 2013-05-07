@@ -23,9 +23,9 @@ class EXPORT_MREPORTENGINE MReportParameter : public QObject
 
 public:
   enum ParameterType {PT_Undefined = -1, PT_PlainData,
-                      PT_InputData, PT_SQL, PT_Repeater,
+                      PT_InputData, PT_SQL, PT_SQLWithParameters, PT_Repeater,
                       PT_ForeignParameter, PT_ForeignKey};
-  enum DataType {DT_Undefined = -1, DT_Date, DT_DatePeriod};
+  enum DataType {DT_Undefined = -1, DT_String, DT_StringList, DT_Date, DT_DateList};
 
   ~MReportParameter();
 
@@ -39,11 +39,14 @@ public:
   void setDataType( DataType dataType );
   DataType dataType() const;
 
+  void setSource( const QString &source );
+  const QString & source() const;
+
   void setDataSource( const QString &dataSource );
   const QString & dataSource() const;
 
   bool setData( const QVariant &data );
-  const QVariant & data() const;
+  QVariant data() const;
 
 
 signals:

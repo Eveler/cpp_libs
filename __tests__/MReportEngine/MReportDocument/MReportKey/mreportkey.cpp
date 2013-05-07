@@ -148,6 +148,7 @@ QString MReportKey::data() const
         value = QString::number( data.toLongLong() );
       else if ( data.type() == QVariant::ULongLong )
         value = QString::number( data.toULongLong() );
+      else value = data.toString();
       query = query.replace( rp->name(), value );
     }
     foreach ( MReportSource *rs, reportDocument()->mainDocument()->reportSources() )
@@ -164,7 +165,7 @@ QString MReportKey::data() const
     if ( attachment != NULL ) return attachment->exec();
   }
 
-  if ( p->m__DT == DT_Text )
+  if ( p->m__DT == DT_String )
   {
     if ( data.type() == QVariant::String )
       result = data.toString();

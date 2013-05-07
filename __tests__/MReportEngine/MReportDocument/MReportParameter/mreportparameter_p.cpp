@@ -6,6 +6,7 @@ MReportParameter_P::MReportParameter_P( const QString &name, MReportParameter *p
   m__Name(name),
   m__PT(MReportParameter::PT_Undefined),
   m__DT(MReportParameter::DT_Undefined),
+  m__Source(QString()),
   m__DataSource(QString()),
   m__Data(QVariant()),
   m__DataIterator(QListIterator<QVariant>( QList<QVariant>() ))

@@ -203,7 +203,7 @@ QString MReportDocument::exec()
   do
   {
     QString html = body();
-    if ( firstParameter != NULL ) firstParameter->next();
+    if ( firstParameter != NULL && firstParameter->hasNext() ) firstParameter->next();
     foreach ( MReportKey *key, p->m__Keys )
     {
       if ( key->keyType() != MReportKey::KT_Attachment )

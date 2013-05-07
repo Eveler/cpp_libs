@@ -8,6 +8,8 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
+#include <QDomDocument>
+
 
 MReportDocument *report;
 
@@ -51,19 +53,9 @@ void MainWindow::on_action_OpenReport_triggered()
   }
   if ( !reportDocument->reportParameters().isEmpty() )
   {
-    foreach ( MReportParameter *parameter, reportDocument->reportParameters() )
-      if ( parameter->parameterType() == MReportParameter::PT_InputData &&
-           parameter->dataType() == MReportParameter::DT_DatePeriod )
-      {
-        QList<QVariant> dates = QList<QVariant>();
-        QDate date( 2012, 12, 31 );
-        for ( int i = 0; i < 30; i++ )
-        {
-          date = date.addDays( 1 );
-          dates << date;
-        }
-        parameter->setData( dates );
-      }
+    MReportParameterList parameters = reportDocument->reportParameters();
+    parameters[0]->setData( QDate( 2013, 04, 29 ) );
+    parameters[1]->setData( QDate( 2013, 05, 04 ) );
   }
 
   QTime startTime;

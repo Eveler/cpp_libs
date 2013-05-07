@@ -138,11 +138,19 @@ QVariant MReportSource::executeQuery( const QString &query )
     db.setPassword( p->m__Password );
     if ( db.open() )
     {
+      QList<QVariant> buf = QList<QVariant>();
       QSqlQuery qry = db.exec( query );
       if ( !db.lastError().isValid() &&
-           !qry.lastError().isValid() &&
-           qry.next() )
-        result = qry.value( 0 );
+           !qry.lastError().isValid() )
+        while ( qry.next() )
+          buf << qry.value( 0 );
+      else
+      {
+        qDebug() << db.lastError().text();
+        qDebug() << qry.lastError().text();
+      }
+      if ( buf.count() == 1 ) result = buf.first();
+      else if ( buf.count() > 1 ) result = buf;
       db.close();
     }
   }

@@ -25,6 +25,7 @@ private:
   QString m__Name;
   MReportParameter::ParameterType m__PT;
   MReportParameter::DataType m__DT;
+  QString m__Source;
   QString m__DataSource;
   QVariant m__Data;
   QListIterator<QVariant> m__DataIterator;

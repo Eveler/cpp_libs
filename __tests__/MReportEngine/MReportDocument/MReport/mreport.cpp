@@ -247,15 +247,30 @@ QString MReport::parameters( const QDomNode &tag, MReportDocument *reportDocumen
     }
     QString parameterType = tagKey.namedItem(
           QObject::tr( "parameter_type" ) ).toElement().attribute( QObject::tr( "name" ) );
+    QString parameterSource = tagKey.namedItem(
+          QObject::tr( "parameter_source" ) ).toElement().attribute( QObject::tr( "name" ) );
     QString parameterDataType = tagKey.namedItem(
           QObject::tr( "parameter_data_type" ) ).toElement().attribute( QObject::tr( "name" ) );
     QString parameterDataSource = tagKey.namedItem(
-          QObject::tr( "parameter_data_source" ) ).toElement().attribute( QObject::tr( "value" ) );
+          QObject::tr( "parameter_data_source" ) ).firstChild().toCDATASection().nodeValue();
     if ( parameterType == QObject::tr( "InputData" ) )
     {
       rp->setParameterType( MReportParameter::PT_InputData );
-      if ( parameterDataType == QObject::tr( "DatePeriod" ) )
-        rp->setDataType( MReportParameter::DT_DatePeriod );
+      if ( parameterDataType == QObject::tr( "DateList" ) )
+        rp->setDataType( MReportParameter::DT_DateList );
+    }
+    else if ( parameterType == QObject::tr( "SQL" ) )
+    {
+      rp->setParameterType( MReportParameter::PT_SQL );
+      if ( parameterDataType == QObject::tr( "String" ) )
+        rp->setDataType( MReportParameter::DT_String );
+      else if ( parameterDataType == QObject::tr( "StringList" ) )
+        rp->setDataType( MReportParameter::DT_StringList );
+      else if ( parameterDataType == QObject::tr( "Date" ) )
+        rp->setDataType( MReportParameter::DT_Date );
+      else if ( parameterDataType == QObject::tr( "DateList" ) )
+        rp->setDataType( MReportParameter::DT_DateList );
+      rp->setDataSource( parameterDataSource );
     }
     else if ( parameterType == QObject::tr( "Repeater" ) )
     {
@@ -275,6 +290,9 @@ QString MReport::parameters( const QDomNode &tag, MReportDocument *reportDocumen
     else
       addError( QObject::tr( "параметр '%1' имеет неверный формат" ).arg(
                   parameterName ), result );
+
+    rp->setSource( parameterSource );
+//    qDebug() << __FILE__ << __LINE__ << rp->name() << rp->source();
   }
 
   return result.join( "\n" );
@@ -310,7 +328,7 @@ QString MReport::keys( const QDomNode &tag, MReportDocument *reportDocument )
     QString keyDataType = tagKey.namedItem(
           QObject::tr( "key_data_type" ) ).toElement().attribute( QObject::tr( "name" ) );
     QString keyDataSource = tagKey.namedItem(
-          QObject::tr( "key_data_source" ) ).toElement().attribute( QObject::tr( "value" ) );
+          QObject::tr( "key_data_source" ) ).firstChild().toCDATASection().nodeValue();
 
     MReportKey::KeyType kt = MReportKey::KT_Undefined;
     MReportKey::DataType dt = MReportKey::DT_Undefined;
@@ -327,7 +345,8 @@ QString MReport::keys( const QDomNode &tag, MReportDocument *reportDocument )
       addError( QObject::tr( "ключ '%1' имеет неверный тип [%2]" ).arg(
                   keyName, keySourceType ), result );
 
-    if ( keyDataType == QObject::tr( "Text" ) ) dt = MReportKey::DT_Text;
+    if ( keyDataType == QObject::tr( "String" ) ) dt = MReportKey::DT_String;
+    else if ( keyDataType == QObject::tr( "StringList" ) ) dt = MReportKey::DT_StringList;
     else if ( keyDataType == QObject::tr( "Date" ) ) dt = MReportKey::DT_Date;
     else if ( keyDataType == QObject::tr( "DateTime" ) ) dt = MReportKey::DT_DateTime;
     else if ( keyDataType == QObject::tr( "Time" ) ) dt = MReportKey::DT_Time;
