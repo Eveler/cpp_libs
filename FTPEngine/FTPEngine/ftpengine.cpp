@@ -257,13 +257,22 @@ bool FTPEngine::mkDir( QString name , bool ignoreError )
   if ( !isConnected() ) return false;
   if ( !FTPCommand::canAdd( FTPCommand::Type_Mkd, name ) ) return false;
 
-  QString fileName = name;
-//#ifdef Q_OS_WIN32
-//  fileName = QTextCodec::codecForName( "Windows-1251" )->fromUnicode( fileName ).data();
-//#endif
-
-  m__Commands << new FTPCommandsPool(
-                   new FTPCommand( FTPCommand::Type_Mkd, fileName, ignoreError ) );
+  QString fileName = name.replace( "\\", "/" );
+  //#ifdef Q_OS_WIN32
+  //  fileName = QTextCodec::codecForName( "Windows-1251" )->fromUnicode( fileName ).data();
+  //#endif
+  if ( fileName.contains( "/" ) )
+  {
+    foreach ( QString fName, fileName.split( "/" ) )
+      if ( !fName.isEmpty() ){
+        m__Commands << new FTPCommandsPool(
+                         new FTPCommand( FTPCommand::Type_Mkd, fName, ignoreError ) );
+        m__Commands<<new FTPCommandsPool(new FTPCommand(FTPCommand::Type_Cwd,fName));
+      }
+  }
+  else
+    m__Commands << new FTPCommandsPool(
+                     new FTPCommand( FTPCommand::Type_Mkd, fileName, ignoreError ) );
 
   nextCommand();
 

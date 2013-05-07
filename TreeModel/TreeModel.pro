@@ -1,4 +1,5 @@
 QT       += gui
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = TreeModel
 CONFIG(debug, debug|release): TARGET = $${TARGET}d
@@ -33,8 +34,16 @@ unix:!symbian {
     INSTALLS += target
 }
 
-DESTDIR = ../bin
-DLLDESTDIR = ../bin
+greaterThan(QT_MAJOR_VERSION, 4) {
+  DESTDIR = ../bin_qt5
+  DLLDESTDIR = ../bin_qt5
+}
+
+lessThan(QT_MAJOR_VERSION, 5) {
+  DESTDIR = ../bin
+  DLLDESTDIR = ../bin
+}
+
 CONFIG(release, debug|release){
   OBJECTS_DIR = ../temp/$$TARGET/release
   MOC_DIR = ../temp/$$TARGET/release

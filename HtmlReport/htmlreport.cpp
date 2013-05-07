@@ -143,7 +143,7 @@ void HtmlReport::assign(QAbstractItemModel *model){
   repModel=model;
 }
 
-bool HtmlReport::assign(const QString &key, const QString &fieldName){
+bool HtmlReport::assign2field(const QString &key, const QString &fieldName){
   if(!repModel){
     setError(tr("Модель данных отчёта не определена"));
     return false;
@@ -187,7 +187,7 @@ bool HtmlReport::assign(const QString &section, QAbstractItemModel *model){
   return true;
 }
 
-bool HtmlReport::assign(const QString &section, const QString &key,
+bool HtmlReport::assign2field(const QString &section, const QString &key,
                         const QString &fieldName){
   if(!repSections.contains(section)){
     setError(tr("Секция %1 отсутствует в отчёте").arg(section));
@@ -292,11 +292,10 @@ bool HtmlReport::parse(const QString &sectionName){
 
   // собираем ключи
   QString data=(sectionName.isEmpty()?repData:repSections.value(sectionName));
-//  ReportKeys keys=(sectionName.isEmpty()?repKeys:sectionsKeys[sectionName]);
 
   while(data.contains("$")){
     data.remove(0,data.indexOf("$")+1);
-    if(data.at(1)=='$'){
+    if(data.at(0)=='$'){
       data.remove(0,1);
       continue;
     }
