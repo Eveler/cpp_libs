@@ -44,7 +44,7 @@ public:
   /// Указывает модель с данными для отчёта
   void assign(QAbstractItemModel *model);
   /// Сопоставляет ключ с полем модели для подстановки значения
-  bool assign(const QString &key,const QString &fieldName);
+  bool assign2field(const QString &key,const QString &fieldName);
   /// Указывает значение ключа
   bool assign(const QString &key,const QVariant &val);
   /// Указывает модель с данными для секции \param section
@@ -52,7 +52,7 @@ public:
   /** Сопоставляет ключ с полем модели для подстановки значения для секции
    * \param section
    */
-  bool assign(const QString &section,const QString &key,
+  bool assign2field(const QString &section,const QString &key,
               const QString &fieldName);
   bool assign(const QString &section,const QString &key,const QVariant &val);
 
