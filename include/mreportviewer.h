@@ -3,6 +3,7 @@
 
 #include <QWidget>
 
+#include "export/mwidgets_export_lib.h"
 #include "mreportdocument.h"
 
 
@@ -12,7 +13,7 @@ class MReportViewer;
 
 class MReportViewer_P;
 
-class MReportViewer : public QWidget
+class EXPORT_MWIDGETS MReportViewer : public QWidget
 {
   Q_OBJECT
   friend class MReportViewer_P;

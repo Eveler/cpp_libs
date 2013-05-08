@@ -46,17 +46,12 @@ void MainWindow::on_action_OpenReport_triggered()
     return;
   }
 
-  if ( !reportDocument->reportSources().isEmpty() )
-  {
-    reportDocument->reportSources().first()->setUserName( tr( "postgres" ) );
-    reportDocument->reportSources().first()->setPassword( tr( "me2db4con" ) );
-  }
-  if ( !reportDocument->reportParameters().isEmpty() )
-  {
-    MReportParameterList parameters = reportDocument->reportParameters();
-    parameters[0]->setData( QDate( 2013, 04, 29 ) );
-    parameters[1]->setData( QDate( 2013, 05, 04 ) );
-  }
+//  if ( !reportDocument->reportParameters().isEmpty() )
+//  {
+//    MReportParameterList parameters = reportDocument->reportParameters();
+//    parameters[0]->setData( QDate( 2013, 04, 29 ) );
+//    parameters[1]->setData( QDate( 2013, 05, 04 ) );
+//  }
 
   QTime startTime;
   startTime.start();

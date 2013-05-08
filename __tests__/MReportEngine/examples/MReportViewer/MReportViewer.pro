@@ -15,7 +15,8 @@ TEMPLATE = app
 INCLUDEPATH += ./ \
     ./bin/ \
     ../../include/ \
-    ../../../../include/
+    ../../../../include/ \
+    ./MDateDialog/
 
 
 symbian {
@@ -42,7 +43,8 @@ DLLDESTDIR = ./bin
 
 LIB_LIST = \
     -lAMSLogger \
-    -lMReportEngine
+    -lMReportEngine \
+    -lMWidgets
 
 LIBS += -L./bin/ \
     $${LIB_LIST}
@@ -63,11 +65,17 @@ CONFIG(debug, debug|release){
 SOURCES += main.cpp\
         mainwindow.cpp \
     mreportviewer.cpp \
-    mreportviewer_p.cpp
+    mreportviewer_p.cpp \
+    MDateDialog/mdatedialog.cpp
 
 HEADERS  += mainwindow.h \
     ../../include/mreportviewer.h \
-    mreportviewer_p.h
+    mreportviewer_p.h \
+    MDateDialog/mdatedialog.h
 
 FORMS    += mainwindow.ui \
-    mreportviewer.ui
+    mreportviewer.ui \
+    MDateDialog/mdatedialog.ui
+
+RESOURCES += \
+    MDateDialog/MDateDialog_Icons.qrc

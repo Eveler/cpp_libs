@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>MLoginDialog_Icons/login.png</file>
+    </qresource>
+</RCC>

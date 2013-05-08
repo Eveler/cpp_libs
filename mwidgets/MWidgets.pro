@@ -1,34 +1,33 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2012-11-12T14:45:29
-#
-#-------------------------------------------------
+QT       += gui core
 
-QT       += gui network
+greaterThan( QT_MAJOR_VERSION, 4 ) QT += widgets
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-
-TARGET = MFCCore
+TARGET = MWidgets
 CONFIG(debug, debug|release): TARGET = $${TARGET}d
 #CONFIG += create_prl
 
 TEMPLATE = lib
 
-DEFINES += EXPORT_LIB_MFCCORE
+DEFINES += EXPORT_LIB_MWIDGETS
+
+LIB_LIST =
+
+include(./MLoginDialog/MLoginDialog.pri)
+include(./MReportViewer/MReportViewer.pri)
 
 INCLUDEPATH += ./ \
     ../bin/ \
     ../bin_qt5/ \
     ../include/ \
-    ./Abstraction/AbstractSimpleObject/ \
-    ./Abstraction/AbstractSimpleStorage/
+    ./MLoginDialog/
+
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
     TARGET.UID3 = 0xE279790D
     TARGET.CAPABILITY =
     TARGET.EPOCALLOWDLLDATA = 1
-    addFiles.sources = MFCCore.dll
+    addFiles.sources = MWidgets.dll
     addFiles.path = !:/sys/bin
     DEPLOYMENT += addFiles
 }
@@ -42,22 +41,19 @@ unix:!symbian {
     INSTALLS += target
 }
 
-greaterThan(QT_MAJOR_VERSION, 4) {
+greaterThan( QT_MAJOR_VERSION, 4 ) {
   DESTDIR = ../bin_qt5
   DLLDESTDIR = ../bin_qt5
 
   LIBS += -L../bin_qt5/ \
-      -lmuCalculator \
-      -lAMSLogger
+      $$LIB_LIST
 }
-
-lessThan(QT_MAJOR_VERSION, 5) {
+lessThan( QT_MAJOR_VERSION, 5 ) {
   DESTDIR = ../bin
   DLLDESTDIR = ../bin
 
   LIBS += -L../bin/ \
-      -lmuCalculator \
-      -lAMSLogger
+      $$LIB_LIST
 }
 
 CONFIG(release, debug|release){
@@ -73,14 +69,7 @@ CONFIG(debug, debug|release){
   UI_DIR = ../temp/$$TARGET/debug
 }
 
-HEADERS += \
-    ../include/export/mfccore_export_lib.h \
-    ../include/mfccore.h \
-    ../include/abstractsimpleobject.h \
-    ../include/abstractsimplestorage.h
 
-SOURCES += \
-    mfccore.cpp \
-    Abstraction/AbstractSimpleObject/abstractsimpleobject.cpp \
-    Abstraction/AbstractSimpleStorage/abstractsimplestorage.cpp
+
+
 

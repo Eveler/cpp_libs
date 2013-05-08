@@ -247,6 +247,10 @@ QString MReport::parameters( const QDomNode &tag, MReportDocument *reportDocumen
     }
     QString parameterType = tagKey.namedItem(
           QObject::tr( "parameter_type" ) ).toElement().attribute( QObject::tr( "name" ) );
+    QString parameterLabelTitle = tagKey.namedItem(
+          QObject::tr( "parameter_label" ) ).toElement().attribute( QObject::tr( "title" ) );
+    QString parameterLabelText = tagKey.namedItem(
+          QObject::tr( "parameter_label" ) ).toElement().attribute( QObject::tr( "text" ) );
     QString parameterSource = tagKey.namedItem(
           QObject::tr( "parameter_source" ) ).toElement().attribute( QObject::tr( "name" ) );
     QString parameterDataType = tagKey.namedItem(
@@ -256,7 +260,13 @@ QString MReport::parameters( const QDomNode &tag, MReportDocument *reportDocumen
     if ( parameterType == QObject::tr( "InputData" ) )
     {
       rp->setParameterType( MReportParameter::PT_InputData );
-      if ( parameterDataType == QObject::tr( "DateList" ) )
+      if ( parameterDataType == QObject::tr( "String" ) )
+        rp->setDataType( MReportParameter::DT_String );
+      else if ( parameterDataType == QObject::tr( "StringList" ) )
+        rp->setDataType( MReportParameter::DT_StringList );
+      else if ( parameterDataType == QObject::tr( "Date" ) )
+        rp->setDataType( MReportParameter::DT_Date );
+      else if ( parameterDataType == QObject::tr( "DateList" ) )
         rp->setDataType( MReportParameter::DT_DateList );
     }
     else if ( parameterType == QObject::tr( "SQL" ) )
@@ -291,6 +301,8 @@ QString MReport::parameters( const QDomNode &tag, MReportDocument *reportDocumen
       addError( QObject::tr( "параметр '%1' имеет неверный формат" ).arg(
                   parameterName ), result );
 
+    rp->setDialogTitle( parameterLabelTitle );
+    rp->setDialogText( parameterLabelText );
     rp->setSource( parameterSource );
 //    qDebug() << __FILE__ << __LINE__ << rp->name() << rp->source();
   }

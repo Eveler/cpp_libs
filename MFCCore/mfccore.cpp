@@ -2,10 +2,6 @@
 
 #include "math.h"
 #include "mucalculator.h"
-#if QT_VERSION >= 0x050000
-#include "qzipreader_p.h"
-#include "qzipwriter_p.h"
-#endif
 
 #include <QStringList>
 #include <QSettings>

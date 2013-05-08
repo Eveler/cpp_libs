@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>MDateDialog_Icons/date_time.png</file>
+    </qresource>
+</RCC>
