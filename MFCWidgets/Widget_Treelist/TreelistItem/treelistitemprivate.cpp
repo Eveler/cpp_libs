@@ -3,8 +3,6 @@
 #include "treelistitem.h"
 #include "widget_treelist.h"
 
-#include "amslogger.h"
-
 
 TreelistItemPrivate::TreelistItemPrivate( TreelistItem *parent, Widget_Treelist *parentTreelist ) :
   m__Parent(parent),

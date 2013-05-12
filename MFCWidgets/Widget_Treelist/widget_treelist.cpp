@@ -3,8 +3,6 @@
 
 #include "treelistitem.h"
 
-#include "amslogger.h"
-
 
 Widget_Treelist::Widget_Treelist(QWidget *parent) :
   QWidget(parent),

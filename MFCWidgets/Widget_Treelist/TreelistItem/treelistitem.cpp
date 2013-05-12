@@ -3,8 +3,6 @@
 #include "treelistitemprivate.h"
 #include "widget_treelist.h"
 
-#include "amslogger.h"
-
 TreelistItem::TreelistItem( Widget_Treelist *treeList ) :
   QObject(treeList),
   m__P(new TreelistItemPrivate( this, treeList ))
