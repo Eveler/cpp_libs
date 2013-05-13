@@ -200,6 +200,12 @@ QString MReportDocument::exec()
     else firstParameter->toFront();
   }
 
+  p->m__BufProgress = 0.;
+  p->m__Progress = 0.;
+  int repCount = 1;
+  if ( firstParameter != NULL ) repCount = firstParameter->count();
+  p->m__Units = repCount*p->m__Keys.count();
+
   do
   {
     QString html = body();
@@ -207,7 +213,10 @@ QString MReportDocument::exec()
     foreach ( MReportKey *key, p->m__Keys )
     {
       if ( key->keyType() != MReportKey::KT_Attachment )
+      {
         html = html.replace( key->name(), key->data() );
+        p->increaseProgressValue();
+      }
     }
     foreach ( MReportDocument *document, p->m__ChildDocuments )
     {
@@ -229,4 +238,11 @@ MReportDocument::MReportDocument( const QString &fileName, QObject *parent ) :
 void MReportDocument::setLastError( const QString &lastError )
 {
   p->m__LastError = lastError;
+}
+
+void MReportDocument::emitProgress()
+{
+  MReportDocument *reportDocument = parentDocument();
+  if ( reportDocument == NULL ) emit progress( (int)p->m__Progress, 10000 );
+  else reportDocument->p->increaseProgressValue( p->m__Progress );
 }

@@ -73,6 +73,7 @@ private:
   bool toFront() const;
   bool hasNext() const;
   void next() const;
+  int count() const;
 };
 
 #endif // MREPORTPARAMETER_H

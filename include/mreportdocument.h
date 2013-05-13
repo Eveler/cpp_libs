@@ -73,6 +73,7 @@ public:
 
 
 signals:
+  void progress( int current, int overall );
 
 
 public slots:
@@ -94,6 +95,8 @@ private:
   explicit MReportDocument( MReportDocument *parent, const QString &fileName );
 
   void setLastError( const QString &lastError );
+
+  void emitProgress();
 };
 
 #endif // MREPORTDOCUMENT_H

@@ -17,6 +17,7 @@ public:
 
 signals:
 
+
 public slots:
 
 
@@ -35,6 +36,10 @@ private:
 
   QString m__LastError;
 
+  double m__BufProgress;
+  double m__Progress;
+  int m__Units;
+
   explicit MReportDocument_P( const QString &fileName, MReportDocument *parent );
   ~MReportDocument_P();
 
@@ -42,6 +47,8 @@ private:
   QString alias() const;
 
   MReportDocument * p_dptr() const;
+
+  void increaseProgressValue( double progress = 10000. );
 };
 
 #endif // MREPORTDOCUMENT_P_H

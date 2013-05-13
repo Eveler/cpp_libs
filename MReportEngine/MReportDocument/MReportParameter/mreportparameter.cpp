@@ -244,7 +244,9 @@ bool MReportParameter::toFront() const
 //      qDebug() << __FILE__ << __LINE__ << rp->name() << p->m__Source;
       if ( rp->name() == p->m__Source )
       {
-        p->m__DataIterator = QListIterator<QVariant>( rp->data().toList() );
+        QList<QVariant> d = rp->data().toList();
+        p->m__Count = d.count();
+        p->m__DataIterator = QListIterator<QVariant>( d );
 //        qDebug() << __FILE__ << __LINE__ << rp->data().toList();
         return true;
         break;
@@ -261,4 +263,9 @@ bool MReportParameter::hasNext() const
 void MReportParameter::next() const
 {
   p->m__Data = p->m__DataIterator.next();
+}
+
+int MReportParameter::count() const
+{
+  return p->m__Count;
 }
