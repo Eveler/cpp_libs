@@ -169,8 +169,32 @@ QVariant MReportParameter::data() const
   else if ( p->m__PT == PT_SQLWithParameters )
   {
     QString query = ds;
-    foreach ( MReportParameter *rp, reportDocument()->parentDocument()->reportParameters() )
+    if ( reportDocument()->parentDocument() != NULL )
+      foreach ( MReportParameter *rp, reportDocument()->parentDocument()->reportParameters() )
+      {
+        QVariant data = rp->data();
+        QString value = QString();
+        if ( data.type() == QVariant::Date )
+          value = data.toDate().toString( tr( "dd.MM.yyyy" ) );
+        else if ( data.type() == QVariant::DateTime )
+          value = data.toDateTime().toString( tr( "dd.MM.yyyy hh:mm:ss" ) );
+        else if ( data.type() == QVariant::Time )
+          value = data.toTime().toString( tr( "hh:mm:ss" ) );
+        else if ( data.type() == QVariant::Int )
+          value = QString::number( data.toInt() );
+        else if ( data.type() == QVariant::UInt )
+          value = QString::number( data.toUInt() );
+        else if ( data.type() == QVariant::Double )
+          value = QString::number( data.toDouble() );
+        else if ( data.type() == QVariant::LongLong )
+          value = QString::number( data.toLongLong() );
+        else if ( data.type() == QVariant::ULongLong )
+          value = QString::number( data.toULongLong() );
+        query = query.replace( rp->name(), value );
+      }
+    foreach ( MReportParameter *rp, reportDocument()->reportParameters() )
     {
+      if ( rp == this ) continue;
       QVariant data = rp->data();
       QString value = QString();
       if ( data.type() == QVariant::Date )
@@ -191,6 +215,7 @@ QVariant MReportParameter::data() const
         value = QString::number( data.toULongLong() );
       query = query.replace( rp->name(), value );
     }
+
     foreach ( MReportSource *rs, reportDocument()->mainDocument()->reportSources() )
       if ( rs->name() == s )
       {

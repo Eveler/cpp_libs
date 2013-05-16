@@ -151,6 +151,7 @@ QString MReportKey::data() const
       else value = data.toString();
       query = query.replace( rp->name(), value );
     }
+
     foreach ( MReportSource *rs, reportDocument()->mainDocument()->reportSources() )
       if ( rs->name() == s )
       {
@@ -205,6 +206,8 @@ QString MReportKey::data() const
     else if ( data.type() == QVariant::Double )
       result = QString::number( data.toDouble() );
   }
+
+//  qDebug() << __FILE__ << __LINE__ << name() << result;
 
   return result;
 }

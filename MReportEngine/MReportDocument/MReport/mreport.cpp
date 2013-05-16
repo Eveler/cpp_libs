@@ -18,19 +18,22 @@ MReportDocument * MReport::load( const QString &filePath, QString *errorStr, QOb
   QFileInfo fi( filePath );
   if ( fi.suffix() != QObject::tr( "mrf" ) )
   {
-    *errorStr = QObject::tr( "Неверный формат файла отчета!" );
+    if ( errorStr != NULL )
+      *errorStr = QObject::tr( "Неверный формат файла отчета!" );
     return NULL;
   }
   if ( !fi.exists() )
   {
-    *errorStr = QObject::tr( "Файл отчета не найден!" );
+    if ( errorStr != NULL )
+      *errorStr = QObject::tr( "Файл отчета не найден!" );
     return NULL;
   }
 
   QDir workDir( fi.absolutePath() );
   if ( workDir.exists( fi.baseName() ) )
   {
-    *errorStr = QObject::tr( "Файл отчета уже используется!" );
+    if ( errorStr != NULL )
+      *errorStr = QObject::tr( "Файл отчета уже используется!" );
     return NULL;
   }
   workDir.mkdir( fi.baseName() );
@@ -39,7 +42,8 @@ MReportDocument * MReport::load( const QString &filePath, QString *errorStr, QOb
   QuaZip zipF( filePath );
   if ( !zipF.open( QuaZip::mdUnzip ) )
   {
-    *errorStr = QObject::tr( "Zip error №%1" ).arg( zipF.getZipError() );
+    if ( errorStr != NULL )
+      *errorStr = QObject::tr( "Zip error №%1" ).arg( zipF.getZipError() );
     return NULL;
   }
 
@@ -260,6 +264,7 @@ QString MReport::parameters( const QDomNode &tag, MReportDocument *reportDocumen
     if ( parameterType == QObject::tr( "InputData" ) )
     {
       rp->setParameterType( MReportParameter::PT_InputData );
+
       if ( parameterDataType == QObject::tr( "String" ) )
         rp->setDataType( MReportParameter::DT_String );
       else if ( parameterDataType == QObject::tr( "StringList" ) )
@@ -269,9 +274,14 @@ QString MReport::parameters( const QDomNode &tag, MReportDocument *reportDocumen
       else if ( parameterDataType == QObject::tr( "DateList" ) )
         rp->setDataType( MReportParameter::DT_DateList );
     }
-    else if ( parameterType == QObject::tr( "SQL" ) )
+    else if ( parameterType == QObject::tr( "SQL" ) ||
+              parameterType == QObject::tr( "SQL with parameters" ) )
     {
-      rp->setParameterType( MReportParameter::PT_SQL );
+      if ( parameterType == QObject::tr( "SQL" ) )
+        rp->setParameterType( MReportParameter::PT_SQL );
+      else
+        rp->setParameterType( MReportParameter::PT_SQLWithParameters );
+
       if ( parameterDataType == QObject::tr( "String" ) )
         rp->setDataType( MReportParameter::DT_String );
       else if ( parameterDataType == QObject::tr( "StringList" ) )
