@@ -231,9 +231,15 @@ QVariant MReportParameter::data() const
   }
   else if ( p->m__DT == DT_StringList )
   {
-    foreach ( QVariant vd, result.toList() )
-      if ( vd.type() != QVariant::String )
-        result = QVariant();
+    if ( result.type() == QVariant::List )
+    {
+      foreach ( QVariant vd, result.toList() )
+        if ( vd.type() != QVariant::String )
+          result = QVariant();
+    }
+    else if ( result.type() == QVariant::String )
+      result = QList<QVariant>() << result;
+    else result = QVariant();
   }
   else if ( p->m__DT == DT_Date )
   {
@@ -242,9 +248,15 @@ QVariant MReportParameter::data() const
   }
   else if ( p->m__DT == DT_DateList )
   {
-    foreach ( QVariant vd, result.toList() )
-      if ( vd.type() != QVariant::Date )
-        result = QVariant();
+    if ( result.type() == QVariant::List )
+    {
+      foreach ( QVariant vd, result.toList() )
+        if ( vd.type() != QVariant::Date )
+          result = QVariant();
+    }
+    else if ( result.type() == QVariant::Date )
+      result = QList<QVariant>() << result;
+    else result = QVariant();
   }
 
   return result;
