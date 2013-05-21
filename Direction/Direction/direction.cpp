@@ -48,17 +48,6 @@ const DirectionList & Direction::childDirections() const
   return p->m__ChildDirections;
 }
 
-void Direction::setDepartment( Department *department )
-{
-  p->setDepartment( department );
-  emit departmentChanged();
-}
-
-Department * Direction::department() const
-{
-  return p->m__Department;
-}
-
 Direction::Direction( QVariant id, QObject *parent ) :
   AbstractSimpleObject(id, parent)
 {

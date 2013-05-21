@@ -21,8 +21,6 @@ public:
       const AbstractSimpleObjectList &objects, Direction *parentDirection );
   AbstractSimpleObjectList findByChild(
       const AbstractSimpleObjectList &objects, Direction *childDirection );
-  AbstractSimpleObjectList findByDepartment(
-      const AbstractSimpleObjectList &objects, Department *department );
 
 
 signals:

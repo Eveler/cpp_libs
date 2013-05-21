@@ -1,24 +1,23 @@
-QT       += gui
+QT       += core gui sql
 
-TARGET = Direction
+TARGET = MFCGuideLoader
 CONFIG(debug, debug|release): TARGET = $${TARGET}d
 #CONFIG += create_prl
 
 TEMPLATE = lib
 
-DEFINES += EXPORT_LIB_DIRECTION
+DEFINES += EXPORT_LIB_MFCGUIDELOADER
 
 INCLUDEPATH += ./ \
     ../include/ \
-    ./Direction/ \
-    ./DirectionsStorage/
+    ./MFCGuideLoader/
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
     TARGET.UID3 = 0xE279790D
     TARGET.CAPABILITY =
     TARGET.EPOCALLOWDLLDATA = 1
-    addFiles.sources = Group.dll
+    addFiles.sources = MFCGuideLoader.dll
     addFiles.path = !:/sys/bin
     DEPLOYMENT += addFiles
 }
@@ -33,7 +32,9 @@ unix:!symbian {
 }
 
 LIB_LIST = \
-    -lMFCCore
+    -lMFCCore \
+    -lDirection \
+    -lPost
 
 greaterThan(QT_MAJOR_VERSION, 4) {
   INCLUDEPATH += \
@@ -71,15 +72,11 @@ CONFIG(debug, debug|release){
 }
 
 HEADERS += \
-    ../include/export/direction_export_lib.h \
-    Direction/direction_p.h \
-    ../include/direction.h \
-    ../include/directionsstorage.h
+    ../include/export/mfcguideloader_export_lib.h \
+    ../include/mfcguideloader.h
 
 SOURCES += \
-    Direction/direction.cpp \
-    Direction/direction_p.cpp \
-    DirectionsStorage/directionsstorage.cpp
+    MFCGuideLoader/mfcguideloader.cpp
 
 
 

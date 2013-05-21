@@ -59,20 +59,6 @@ AbstractSimpleObjectList DirectionsStorage::findByChild(
   return result;
 }
 
-AbstractSimpleObjectList DirectionsStorage::findByDepartment(
-    const AbstractSimpleObjectList &objects, Department *department )
-{
-  AbstractSimpleObjectList result = AbstractSimpleObjectList();
-  foreach ( AbstractSimpleObject *object, objects )
-  {
-    Direction *direction = qobject_cast<Direction *>( object );
-    if ( direction->department() == department )
-      result << object;
-  }
-
-  return result;
-}
-
 AbstractSimpleObject * DirectionsStorage::createObject( QVariant id )
 {
   return new Direction( id, this );
