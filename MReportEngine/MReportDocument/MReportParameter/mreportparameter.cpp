@@ -146,12 +146,17 @@ QVariant MReportParameter::data() const
   if ( p->m__PT == PT_ForeignParameter && reportDocument()->parentDocument() != NULL )
   {
     foreach ( MReportParameter *rp, reportDocument()->parentDocument()->reportParameters() )
-      if ( rp->name() == p->m__Source ) return rp->data();
+      if ( rp->name() == p->m__Source )
+      {
+//        if ( name() == tr( "$P_ATTACH_LASTDATE$" ) )
+//          qDebug() << __FILE__ << __LINE__ << rp->data();
+        return rp->data();
+      }
   }
   else if ( p->m__PT == PT_ForeignKey && reportDocument()->parentDocument() != NULL )
   {
-    foreach ( MReportParameter *rp, reportDocument()->parentDocument()->reportParameters() )
-      if ( rp->name() == p->m__Source ) return rp->data();
+    foreach ( MReportKey *rk, reportDocument()->parentDocument()->reportKeys() )
+      if ( rk->name() == p->m__Source ) return rk->data();
   }
   else if ( p->m__PT == PT_Repeater ) return result;
   else if ( p->m__PT == PT_SQL )
@@ -224,6 +229,9 @@ QVariant MReportParameter::data() const
       }
   }
 
+//  if ( name() == tr( "$P_MAIN_SERVICES$" ) )
+//    qDebug() << __FILE__ << __LINE__ << result;
+
   if ( p->m__DT == DT_String )
   {
     if ( result.type() != QVariant::String )
@@ -255,6 +263,23 @@ QVariant MReportParameter::data() const
           result = QVariant();
     }
     else if ( result.type() == QVariant::Date )
+      result = QList<QVariant>() << result;
+    else result = QVariant();
+  }
+  else if ( p->m__DT == DT_Integer )
+  {
+    if ( result.type() != QVariant::Int )
+      result = QVariant();
+  }
+  else if ( p->m__DT == DT_IntegerList )
+  {
+    if ( result.type() == QVariant::List )
+    {
+      foreach ( QVariant vd, result.toList() )
+        if ( vd.type() != QVariant::Int )
+          result = QVariant();
+    }
+    else if ( result.type() == QVariant::Int )
       result = QList<QVariant>() << result;
     else result = QVariant();
   }

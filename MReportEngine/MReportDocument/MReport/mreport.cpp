@@ -273,6 +273,10 @@ QString MReport::parameters( const QDomNode &tag, MReportDocument *reportDocumen
         rp->setDataType( MReportParameter::DT_Date );
       else if ( parameterDataType == QObject::tr( "DateList" ) )
         rp->setDataType( MReportParameter::DT_DateList );
+      else if ( parameterDataType == QObject::tr( "Integer" ) )
+        rp->setDataType( MReportParameter::DT_Integer );
+      else if ( parameterDataType == QObject::tr( "IntegerList" ) )
+        rp->setDataType( MReportParameter::DT_IntegerList );
     }
     else if ( parameterType == QObject::tr( "SQL" ) ||
               parameterType == QObject::tr( "SQL with parameters" ) )
@@ -290,6 +294,10 @@ QString MReport::parameters( const QDomNode &tag, MReportDocument *reportDocumen
         rp->setDataType( MReportParameter::DT_Date );
       else if ( parameterDataType == QObject::tr( "DateList" ) )
         rp->setDataType( MReportParameter::DT_DateList );
+      else if ( parameterDataType == QObject::tr( "Integer" ) )
+        rp->setDataType( MReportParameter::DT_Integer );
+      else if ( parameterDataType == QObject::tr( "IntegerList" ) )
+        rp->setDataType( MReportParameter::DT_IntegerList );
       rp->setDataSource( parameterDataSource );
     }
     else if ( parameterType == QObject::tr( "Repeater" ) )

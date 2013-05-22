@@ -165,8 +165,11 @@ QVariant MReportSource::executeQuery( const QString &query )
           buf << qry.value( 0 );
       else
       {
+        qDebug() << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++";
         qDebug() << db.lastError().text();
         qDebug() << qry.lastError().text();
+        qDebug() << query;
+        qDebug() << "================================================================================";
       }
       if ( buf.count() == 1 ) result = buf.first();
       else if ( buf.count() > 1 ) result = buf;

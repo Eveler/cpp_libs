@@ -25,7 +25,8 @@ public:
   enum ParameterType {PT_Undefined = -1, PT_PlainData,
                       PT_InputData, PT_SQL, PT_SQLWithParameters, PT_Repeater,
                       PT_ForeignParameter, PT_ForeignKey};
-  enum DataType {DT_Undefined = -1, DT_String, DT_StringList, DT_Date, DT_DateList};
+  enum DataType {DT_Undefined = -1, DT_String, DT_StringList,
+                 DT_Date, DT_DateList, DT_Integer, DT_IntegerList};
 
   ~MReportParameter();
 

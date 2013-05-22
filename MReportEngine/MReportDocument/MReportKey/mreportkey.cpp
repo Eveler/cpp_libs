@@ -158,6 +158,12 @@ QString MReportKey::data() const
         data = rs->executeQuery( query );
         break;
       }
+
+//    if ( name() == tr( "$COL_3$" ) )
+//    {
+//      qDebug() << __FILE__ << __LINE__ << query;
+//      qDebug() << __FILE__ << __LINE__ << data;
+//    }
   }
   else if ( p->m__KT == KT_Attachment && !s.isEmpty() )
   {
