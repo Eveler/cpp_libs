@@ -23,7 +23,8 @@ class EXPORT_MREPORTENGINE MReportKey : public QObject
 
 public:
   enum KeyType {KT_Undefined = -1, KT_Parameter,
-                KT_SQL, KT_SQLWithParameters, KT_Attachment};
+                KT_SQL, KT_SQLWithParameters,
+                KT_Attachment, KT_RepeaterIndex};
   enum DataType {DT_Undefined = -1, DT_String, DT_StringList,
                  DT_Date, DT_DateTime, DT_Time,
                  DT_Integer, DT_Double};
@@ -45,6 +46,9 @@ public:
 
   void setDataSource( const QString &dataSource );
   const QString & dataSource() const;
+
+  void setDataFormat( const QString &dataFormat );
+  const QString & dataFormat() const;
 
   QString data() const;
 

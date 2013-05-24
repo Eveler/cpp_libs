@@ -157,6 +157,26 @@ MReportParameter * MReportDocument::reportParameter( const QString &name ) const
   return NULL;
 }
 
+MReportParameter * MReportDocument::repeater() const
+{
+  if ( reportParameters().isEmpty() ||
+       reportParameters().first()->parameterType() != MReportParameter::PT_Repeater ) return NULL;
+
+  return reportParameters().first();
+}
+
+MReportParameter * MReportDocument::parentDocumentRepeater() const
+{
+  MReportParameter *result = NULL;
+
+  if ( parentDocument() == NULL ) return result;
+  result = parentDocument()->repeater();
+  if ( result == NULL )
+    result = parentDocument()->parentDocumentRepeater();
+
+  return result;
+}
+
 MReportKey * MReportDocument::addReportKey( const QString &name )
 {
   if ( name.contains( " " ) || p->m__FileName.isEmpty() ||
@@ -191,14 +211,9 @@ MReportKey * MReportDocument::reportKey( const QString &name ) const
 QString MReportDocument::exec()
 {
   QStringList result = QStringList();
-  MReportParameter *firstParameter = NULL;
-  if ( !reportParameters().isEmpty() )
-  {
-    firstParameter = reportParameters().first();
-    if ( firstParameter->parameterType() != MReportParameter::PT_Repeater )
-      firstParameter = NULL;
-    else firstParameter->toFront();
-  }
+  MReportParameter *firstParameter = repeater();
+  if ( firstParameter != NULL )
+    firstParameter->toFront();
 
   p->m__BufProgress = 0.;
   p->m__Progress = 0.;
@@ -246,3 +261,4 @@ void MReportDocument::emitProgress()
   if ( reportDocument == NULL ) emit progress( (int)p->m__Progress, 10000 );
   else reportDocument->p->increaseProgressValue( p->m__Progress );
 }
+

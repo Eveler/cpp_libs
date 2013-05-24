@@ -59,6 +59,8 @@ public:
   const MReportParameterList & reportParameters() const;
   /** Поиск параметра по его имени во всем дереве документов.*/
   MReportParameter * reportParameter( const QString &name ) const;
+  MReportParameter *repeater() const;
+  MReportParameter * parentDocumentRepeater() const;
 
   /** Добавление ключа в документ. ВНИМАНИЕ: если в дереве документов ключ с
   таким именем уже существует, то функция вернет NULL!*/

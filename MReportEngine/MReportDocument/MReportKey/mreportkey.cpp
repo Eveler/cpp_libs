@@ -29,6 +29,8 @@ const QString & MReportKey::name() const
 void MReportKey::setKeyType( KeyType keyType )
 {
   p->m__KT = keyType;
+  if ( keyType == KT_RepeaterIndex )
+    setDataType( DT_String );
 }
 
 MReportKey::KeyType MReportKey::keyType() const
@@ -38,6 +40,10 @@ MReportKey::KeyType MReportKey::keyType() const
 
 void MReportKey::setDataType( DataType dataType )
 {
+  if ( keyType() == KT_RepeaterIndex &&
+       dataType != DT_String )
+    return;
+
   p->m__DT = dataType;
 }
 
@@ -103,6 +109,16 @@ const QString & MReportKey::dataSource() const
   return p->m__DataSource;
 }
 
+void MReportKey::setDataFormat( const QString &dataFormat )
+{
+  p->m__DataFormat = dataFormat;
+}
+
+const QString & MReportKey::dataFormat() const
+{
+  return p->m__DataFormat;
+}
+
 QString MReportKey::data() const
 {
   QString result = QString();
@@ -110,6 +126,7 @@ QString MReportKey::data() const
 
   QString s = source();
   QString ds = dataSource();
+  QString df = dataFormat();
 
   if ( p->m__KT == KT_Parameter )
   {
@@ -170,6 +187,15 @@ QString MReportKey::data() const
     MReportDocument *attachment = reportDocument()->reportDocument(
           s.split( "/" ).last().split( tr( ".mrc" ) ).first() );
     if ( attachment != NULL ) return attachment->exec();
+  }
+  else if ( p->m__KT == KT_RepeaterIndex )
+  {
+    QList<int> data = reportDocument()->repeater()->repeaterIndex();
+    QStringList pIndexs = QStringList();
+    QString cIndex = QString();
+    for ( int i = 0; i < data.count(); i++ ) pIndexs << QString::number( data[i] );
+    if ( !data.isEmpty() ) cIndex = QString::number( data.last() );
+    result = df.replace( tr( "PN" ), pIndexs.join( "." ) ).replace( tr( "CN" ), cIndex );
   }
 
   if ( p->m__DT == DT_String )

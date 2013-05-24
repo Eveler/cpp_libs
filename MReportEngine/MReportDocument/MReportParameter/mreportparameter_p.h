@@ -31,6 +31,7 @@ private:
   QString m__DataSource;
   QVariant m__Data;
   QListIterator<QVariant> m__DataIterator;
+  int m__ListIndex;
   int m__Count;
 
   explicit MReportParameter_P( const QString &name, MReportParameter *parent );

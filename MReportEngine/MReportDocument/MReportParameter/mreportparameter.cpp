@@ -287,6 +287,20 @@ QVariant MReportParameter::data() const
   return result;
 }
 
+QList<int> MReportParameter::repeaterIndex() const
+{
+  QList<int> result = QList<int>();
+
+  MReportParameter *parentDocumentRepeater = reportDocument()->parentDocumentRepeater();
+  if ( parentDocumentRepeater != NULL )
+    result << parentDocumentRepeater->repeaterIndex();
+
+  if ( p->m__ListIndex > 0 )
+    result << p->m__ListIndex;
+
+  return result;
+}
+
 void MReportParameter::setParent( QObject *parent )
 {
   QObject::setParent( parent );
@@ -310,6 +324,7 @@ bool MReportParameter::toFront() const
         p->m__Count = d.count();
         p->m__DataIterator = QListIterator<QVariant>( d );
 //        qDebug() << __FILE__ << __LINE__ << rp->data().toList();
+        p->m__ListIndex = 0;
         return true;
         break;
       }
@@ -325,6 +340,7 @@ bool MReportParameter::hasNext() const
 void MReportParameter::next() const
 {
   p->m__Data = p->m__DataIterator.next();
+  p->m__ListIndex++;
 }
 
 int MReportParameter::count() const

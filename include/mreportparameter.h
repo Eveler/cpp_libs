@@ -55,6 +55,8 @@ public:
   bool setData( const QVariant &data );
   QVariant data() const;
 
+  QList<int> repeaterIndex() const;
+
 
 signals:
 

@@ -359,6 +359,8 @@ QString MReport::keys( const QDomNode &tag, MReportDocument *reportDocument )
           QObject::tr( "key_data_type" ) ).toElement().attribute( QObject::tr( "name" ) );
     QString keyDataSource = tagKey.namedItem(
           QObject::tr( "key_data_source" ) ).firstChild().toCDATASection().nodeValue();
+    QString keyDataFormat = tagKey.namedItem(
+          QObject::tr( "key_data_format" ) ).toElement().attribute( QObject::tr( "value" ) );
 
     MReportKey::KeyType kt = MReportKey::KT_Undefined;
     MReportKey::DataType dt = MReportKey::DT_Undefined;
@@ -371,6 +373,8 @@ QString MReport::keys( const QDomNode &tag, MReportDocument *reportDocument )
       kt = MReportKey::KT_SQLWithParameters;
     else if ( keySourceType == QObject::tr( "Attachment" ) )
       kt = MReportKey::KT_Attachment;
+    else if ( keySourceType == QObject::tr( "RepeaterIndex" ) )
+      kt = MReportKey::KT_RepeaterIndex;
     else
       addError( QObject::tr( "ключ '%1' имеет неверный тип [%2]" ).arg(
                   keyName, keySourceType ), result );
@@ -382,7 +386,9 @@ QString MReport::keys( const QDomNode &tag, MReportDocument *reportDocument )
     else if ( keyDataType == QObject::tr( "Time" ) ) dt = MReportKey::DT_Time;
     else if ( keyDataType == QObject::tr( "Integer" ) ) dt = MReportKey::DT_Integer;
     else if ( keyDataType == QObject::tr( "Double" ) ) dt = MReportKey::DT_Double;
-    else if ( kt != MReportKey::KT_Parameter && kt != MReportKey::KT_Attachment )
+    else if ( kt != MReportKey::KT_Parameter &&
+              kt != MReportKey::KT_Attachment &&
+              kt != MReportKey::KT_RepeaterIndex )
       addError( QObject::tr( "ключ '%1'::%2 имеет неверный тип данных [%3]" ).arg(
                   keyName, keySourceType, keyDataType ), result );
 
@@ -390,6 +396,7 @@ QString MReport::keys( const QDomNode &tag, MReportDocument *reportDocument )
     rk->setSource( keySource );
     rk->setDataType( dt );
     rk->setDataSource( keyDataSource );
+    rk->setDataFormat( keyDataFormat );
 
     if ( kt == MReportKey::KT_Attachment )
       load( reportDocument->addReportDocument( keySource, rk ) );
