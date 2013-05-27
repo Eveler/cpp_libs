@@ -6,6 +6,7 @@
 #include "export/mreport_engine_export.h"
 
 #include <QVariant>
+#include <QStringList>
 
 
 class MReportSource;
@@ -50,6 +51,9 @@ public:
 
   void setPassword( const QString & password );
   const QString & password() const;
+
+  void setUserList( const QStringList & userList );
+  const QStringList & userList() const;
 
   bool check() const;
 

@@ -37,7 +37,7 @@ bool MReportViewer_P::populate( MReportDocument *reportDocument ) const
     bool authd = false;
     if ( !reportSource->userName().isEmpty() &&
          reportSource->password().isEmpty() )
-      logIn->setNames( QStringList() << reportSource->userName() );
+      logIn->setNames( reportSource->userList() );
     authd = ( !reportSource->userName().isEmpty() &&
               !reportSource->password().isEmpty() );
     if ( authd ) authd = reportSource->check();

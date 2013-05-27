@@ -322,6 +322,7 @@ bool MReportParameter::toFront() const
       {
         QList<QVariant> d = rp->data().toList();
         p->m__Count = d.count();
+        p->m__Data = QVariant();
         p->m__DataIterator = QListIterator<QVariant>( d );
 //        qDebug() << __FILE__ << __LINE__ << rp->data().toList();
         p->m__ListIndex = 0;

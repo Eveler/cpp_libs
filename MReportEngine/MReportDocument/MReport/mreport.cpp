@@ -215,12 +215,14 @@ QString MReport::sources( const QDomNode &tag, MReportDocument *reportDocument )
     QString host = elemParams.attribute( QObject::tr( "host" ) );
     QString port = elemParams.attribute( QObject::tr( "port" ) );
     QString database = elemParams.attribute( QObject::tr( "database" ) );
+    QStringList userlist = elemParams.attribute( QObject::tr( "userlist" ) ).split( "; " );
 
     if ( sourceType == QObject::tr( "SQL" ) ) rs->setSourceType( MReportSource::ST_SQL );
     rs->setDriverName( driver );
     rs->setHost( host );
     rs->setPort( port.toInt() );
     rs->setDatabaseName( database );
+    rs->setUserList( userlist );
   }
 
   return result.join( "\n" );

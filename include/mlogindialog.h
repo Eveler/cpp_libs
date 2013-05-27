@@ -25,6 +25,9 @@ public:
   void setNames( const QStringList &names );
   const QStringList & names() const;
 
+  void setNameEditable( bool editable );
+  bool isNameEditable() const;
+
   QString selectedName() const;
   QString selectedPassword() const;
 

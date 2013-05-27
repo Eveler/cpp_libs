@@ -221,10 +221,51 @@ QString MReportDocument::exec()
   if ( firstParameter != NULL ) repCount = firstParameter->count();
   p->m__Units = repCount*p->m__Keys.count();
 
-  do
+//  do
+//  {
+//    QString html = body();
+//    if ( firstParameter != NULL && firstParameter->hasNext() ) firstParameter->next();
+//    foreach ( MReportKey *key, p->m__Keys )
+//    {
+//      if ( key->keyType() != MReportKey::KT_Attachment )
+//      {
+//        html = html.replace( key->name(), key->data() );
+//        p->increaseProgressValue();
+//      }
+//    }
+//    foreach ( MReportDocument *document, p->m__ChildDocuments )
+//    {
+//      MReportKey *key = p->m__DocumentKey[document];
+//      html = html.replace( key->name(), document->exec() );
+//    }
+//    result << html;
+//  } while ( firstParameter != NULL && firstParameter->hasNext() );
+
+  if ( firstParameter != NULL )
+  {
+    while ( firstParameter->hasNext() )
+    {
+      firstParameter->next();
+      QString html = body();
+      foreach ( MReportKey *key, p->m__Keys )
+      {
+        if ( key->keyType() != MReportKey::KT_Attachment )
+        {
+          html = html.replace( key->name(), key->data() );
+          p->increaseProgressValue();
+        }
+      }
+      foreach ( MReportDocument *document, p->m__ChildDocuments )
+      {
+        MReportKey *key = p->m__DocumentKey[document];
+        html = html.replace( key->name(), document->exec() );
+      }
+      result << html;
+    }
+  }
+  else
   {
     QString html = body();
-    if ( firstParameter != NULL && firstParameter->hasNext() ) firstParameter->next();
     foreach ( MReportKey *key, p->m__Keys )
     {
       if ( key->keyType() != MReportKey::KT_Attachment )
@@ -239,7 +280,7 @@ QString MReportDocument::exec()
       html = html.replace( key->name(), document->exec() );
     }
     result << html;
-  } while ( firstParameter != NULL && firstParameter->hasNext() );
+  }
 
   return result.join( "\n" );
 }

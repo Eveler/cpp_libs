@@ -848,7 +848,7 @@ void FTPEngine::socketConnected()
   m__Transfer->listen( m__Socket->localAddress() );
 
   int code = ftpAnswerCode( answer );
-  emit ftpAnswer( answer, code );
+  emit ftpAnswer( ftpAnswerText( answer ), code );
 
   if ( !checkCode( answer, 220 ) ) return;
 
@@ -867,7 +867,7 @@ void FTPEngine::socketAuthUserReply()
   setDefaultConnect();
 
   int code = ftpAnswerCode( answer );
-  emit ftpAnswer( answer, code );
+  emit ftpAnswer( ftpAnswerText( answer ), code );
 
   if ( !checkCode( answer, 331 ) )
   {
@@ -888,7 +888,7 @@ void FTPEngine::socketAuthPassReply()
   setDefaultConnect();
 
   int code = ftpAnswerCode( answer );
-  emit ftpAnswer( answer, code );
+  emit ftpAnswer( ftpAnswerText( answer ), code );
 
   if ( !checkCode( answer, 230 ) )
   {

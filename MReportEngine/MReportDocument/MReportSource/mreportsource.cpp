@@ -118,6 +118,16 @@ void MReportSource::setPassword( const QString & password )
   p->m__Password = password;
 }
 
+void MReportSource::setUserList( const QStringList & userList )
+{
+  p->m__UserList = userList;
+}
+
+const QStringList & MReportSource::userList() const
+{
+  return p->m__UserList;
+}
+
 bool MReportSource::check() const
 {
   bool result = false;

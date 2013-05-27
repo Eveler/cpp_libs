@@ -36,6 +36,16 @@ const QStringList & MLoginDialog::names() const
   return p->m__Names;
 }
 
+void MLoginDialog::setNameEditable( bool editable )
+{
+  ui->comboBox->setEditable( editable );
+}
+
+bool MLoginDialog::isNameEditable() const
+{
+  return ui->comboBox->isEditable();
+}
+
 QString MLoginDialog::selectedName() const
 {
   return ui->comboBox->currentText();
