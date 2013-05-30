@@ -9,9 +9,9 @@
 #include <QVariant>
 #include "mfcdocumentpages.h"
 #include "docattachments.h"
-#include "export/mfcdocument_export.h"
+#include "export/dossier_export.h"
 
-class MFCDocument : public QObject
+class DOSSIER_EXPORT MFCDocument : public QObject
 {
   Q_OBJECT
   Q_PROPERTY(QString type READ type WRITE setType)

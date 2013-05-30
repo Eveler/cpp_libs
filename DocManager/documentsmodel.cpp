@@ -55,14 +55,14 @@ QVariant DocumentsModel::headerData(int section, Qt::Orientation orientation,
   if(!doc) return QVariant();
   QString pName=propertyName(doc,section);
 
-  if(pName=="type") return tr("Вид");
-  else if(pName=="name") return tr("Наименование\n(крат. содержание)");
-  else if(pName=="series") return tr("Серия");
-  else if(pName=="number") return tr("№");
-  else if(pName=="date") return tr("Дата выдачи");
-  else if(pName=="expires") return tr("Действителен до");
-  else if(pName=="agency") return tr("Выдан");
-  else if(pName=="created") return tr("Создан в базе");
+  if(pName=="type") return tr("Р’РёРґ");
+  else if(pName=="name") return tr("РќР°РёРјРµРЅРѕРІР°РЅРёРµ\n(РєСЂР°С‚. СЃРѕРґРµСЂР¶Р°РЅРёРµ)");
+  else if(pName=="series") return tr("РЎРµСЂРёСЏ");
+  else if(pName=="number") return tr("в„–");
+  else if(pName=="date") return tr("Р”Р°С‚Р° РІС‹РґР°С‡Рё");
+  else if(pName=="expires") return tr("Р”РµР№СЃС‚РІРёС‚РµР»РµРЅ РґРѕ");
+  else if(pName=="agency") return tr("Р’С‹РґР°РЅ");
+  else if(pName=="created") return tr("РЎРѕР·РґР°РЅ РІ Р±Р°Р·Рµ");
   else return pName;
 }
 

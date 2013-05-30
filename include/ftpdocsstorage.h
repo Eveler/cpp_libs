@@ -2,15 +2,14 @@
 #define FTPDOCSSTORAGE_H
 
 #include <QObject>
-//#include <QFtp>
 #include <QStringList>
 #include <QQueue>
 #include <QHash>
-//#include "ftpbrowser.h" // DEPERECATED
 #include "ftpengine.h"
 #include "abstractdocsstorage.h"
+#include "export/dossier_export.h"
 
-class FtpDocsStorage : public AbstractDocsStorage
+class DOSSIER_EXPORT FtpDocsStorage : public AbstractDocsStorage
 {
   Q_OBJECT
 protected:

@@ -35,8 +35,8 @@ unix:!symbian {
     target.path=$$PREFIX/lib
     INSTALLS += headers target
 
-	OBJECTS_DIR=.obj
-	MOC_DIR=.moc
+  OBJECTS_DIR=.obj
+  MOC_DIR=.moc
 
 }
 
@@ -78,7 +78,9 @@ symbian {
 
 greaterThan(QT_MAJOR_VERSION, 4) {
   INCLUDEPATH += \
-      ../../../bin_qt5
+      ../../../bin_qt5 \
+      ../../../include
+  LIBS += -lz
 
   DESTDIR = ../../../bin_qt5
   DLLDESTDIR = ../../../bin_qt5
@@ -86,7 +88,8 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 
 lessThan(QT_MAJOR_VERSION, 5) {
   INCLUDEPATH += \
-      ../../../bin
+      ../../../bin \
+      ../../../include
 #      ../../../bin \
 #      C:/Qt/4.8.4/src/3rdparty/freetype/src/gzip
 
@@ -106,5 +109,3 @@ CONFIG(debug, debug|release){
   RCC_DIR = ../../../temp/$$TARGET/debug
   UI_DIR = ../../../temp/$$TARGET/debug
 }
-
-LIBS += -lz

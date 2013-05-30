@@ -54,7 +54,7 @@ void DocPagesViewer::paintEvent(QPaintEvent *e){
       visibleLabels<<l;
       lastVisibleLabelNum=pNum;
       if((l->pixmap()==0 || l->pixmap()->isNull()) && l->text().isEmpty())
-        l->setText(tr("<h1>Загрузка...</h1>"));
+        l->setText(tr("<h1>Р—Р°РіСЂСѓР·РєР°...</h1>"));
     }
     pNum++;
   }
@@ -199,8 +199,8 @@ void DocPagesViewer::print(QPrinter *printer){
   QPainter painter;
   int count=doc->pages()->count();
 
-  // если на какой либо странице есть выделение - печатаем его
-  // находим коэф масштабирования из размеров DocPageWidget
+  // РµСЃР»Рё РЅР° РєР°РєРѕР№ Р»РёР±Рѕ СЃС‚СЂР°РЅРёС†Рµ РµСЃС‚СЊ РІС‹РґРµР»РµРЅРёРµ - РїРµС‡Р°С‚Р°РµРј РµРіРѕ
+  // РЅР°С…РѕРґРёРј РєРѕСЌС„ РјР°СЃС€С‚Р°Р±РёСЂРѕРІР°РЅРёСЏ РёР· СЂР°Р·РјРµСЂРѕРІ DocPageWidget
   int selectionCount=0;
   foreach(DocPageWidget *l,labels)
     if(l->hasSelection()) selectionCount++;

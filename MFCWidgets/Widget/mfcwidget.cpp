@@ -1,6 +1,6 @@
 #include "mfcwidget.h"
 #include <QEvent>
-#include "macros.h"
+//#include "macros.h"
 
 MFCWidget::MFCWidget(QWidget *parent) :
     QWidget(parent)

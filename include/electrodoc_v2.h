@@ -11,12 +11,13 @@
 #include "mfcdocument.h"
 //#include "macros.h"
 #include "docpagesviewer.h"
+#include "dossier_export.h"
 
 namespace Ui {
 class ElectroDoc_v2;
 }
 
-class ElectroDoc_v2 : public MFCWidget
+class DOSSIER_EXPORT ElectroDoc_v2 : public MFCWidget
 {
   Q_OBJECT
   Q_PROPERTY(bool m_modified READ isModified WRITE setModified)
@@ -25,9 +26,9 @@ public:
   enum Details{Type,Name,Series,Number,Date,ExpiresDate,Agency,CreateDate,Url};
   explicit ElectroDoc_v2(QWidget *parent = 0);
   ~ElectroDoc_v2();
-  /// Наполнение справочников
+  /// РќР°РїРѕР»РЅРµРЅРёРµ СЃРїСЂР°РІРѕС‡РЅРёРєРѕРІ
   void setGuides(const QHash<QString,QStringList> &guides);
-  /// Заполнение реквизитов
+  /// Р—Р°РїРѕР»РЅРµРЅРёРµ СЂРµРєРІРёР·РёС‚РѕРІ
   bool setDetails(const QHash<QString,QVariant> &details);
   bool setDetails(const Details details,const QVariant val=QVariant());
 

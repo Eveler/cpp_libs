@@ -1,23 +1,25 @@
-#include <QSqlQuery>
+#include <QDate>
 #include <QSqlError>
+#include <QSqlQuery>
 #include <QSqlRecord>
-#include "declardocsloader.h"
+#include "clientdocsloader.h"
 #include "ftpdocsstorage.h"
 #include "amslogger.h"
 
-DeclarDocsLoader::DeclarDocsLoader(QSqlDatabase db,QObject *parent) :
+ClientDocsLoader::ClientDocsLoader(QSqlDatabase db,
+                                   QObject *parent) :
   AbstractDocListLoader(db,parent){
 }
 
-DeclarDocsLoader::~DeclarDocsLoader(){
-  LogDebug()<<"~DeclarDocsLoader() BEGIN";
+ClientDocsLoader::~ClientDocsLoader(){
+  LogDebug()<<"~ClientDocsLoader() BEGIN";
   clear();
-  LogDebug()<<"~DeclarDocsLoader() END";
+  LogDebug()<<"~ClientDocsLoader() END";
 }
 
-DocumentsModel *DeclarDocsLoader::load(QVariant foreignID){
+DocumentsModel *ClientDocsLoader::load(QVariant foreignID){
   if(foreignID.isNull()) return NULL;
-  // если docStorage ещё не задан создаём ftpStorage
+  // РµСЃР»Рё docStorage РµС‰С‘ РЅРµ Р·Р°РґР°РЅ СЃРѕР·РґР°С‘Рј ftpStorage
   if(!docStorage){
     setStorage(&FtpDocsStorage::addStorage(
                  foreignID.toString()+"__"+
@@ -31,19 +33,18 @@ DocumentsModel *DeclarDocsLoader::load(QVariant foreignID){
                     "  d.docdate AS date,d.expires,"
                     "  (SELECT name FROM docagency WHERE cod=d.docagency_id) "
                     "    AS agency,"
-                    "  d.created,d.url,dd.documents_id,d.doctype_id,"
-                    "  dd.added AS \"Добавлен\","
-                    "  user_name_initials(dd.responsible) AS \"Ответственный\","
-                    "  dd.initial "
-                    "FROM declar_documents dd,documents d,doctypes dt "
-                    "WHERE dd.declars_id=%1 "
+                    "  d.created,d.url,cd.documents_id,d.doctype_id,"
+                    "  cd.added AS \"Р”РѕР±Р°РІР»РµРЅ\","
+                    "  user_name_initials(cd.responsible) AS \"РћС‚РІРµС‚СЃС‚РІРµРЅРЅС‹Р№\" "
+                    "FROM client_documents cd,documents d,doctypes dt "
+                    "WHERE cd.clients_id=%1 "
                     "  AND (d.expires>=now()::date OR d.expires IS NULL) "
-                    "  AND dd.documents_id=d.id AND d.doctype_id=dt.id "
+                    "  AND cd.documents_id=d.id AND d.doctype_id=dt.id "
                     "ORDER BY d.created DESC")
       .arg(foreignID.toString());
   QSqlQuery qry(DB);
   if(!qry.exec(strQry)){
-    setError(tr("Ошибка загрузки списка документов для дела ID=%1: %2: QUERY: %3")
+    setError(tr("РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё СЃРїРёСЃРєР° РґРѕРєСѓРјРµРЅС‚РѕРІ РґР»СЏ Р·Р°СЏРІРёС‚РµР»СЏ ID=%1: %2: QUERY: %3")
              .arg(foreignID.toString()).arg(qry.lastError().text())
              .arg(qry.lastQuery()));
     return NULL;

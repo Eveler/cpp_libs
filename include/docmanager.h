@@ -8,9 +8,9 @@
 #include "declardocuments.h"
 #include "docpathsdocuments.h"
 #include "mfcdocument.h"
-//#include "abstractdocsstorage.h"
+#include "docmanager_export.h"
 
-class Docmanager : public QObject
+class DOCMANAGER_EXPORT Docmanager : public QObject
 {
   Q_OBJECT
 public:

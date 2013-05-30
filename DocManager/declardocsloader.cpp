@@ -1,23 +1,23 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QSqlRecord>
-#include "docpathsdocsloader.h"
+#include "declardocsloader.h"
 #include "ftpdocsstorage.h"
 #include "amslogger.h"
 
-DocpathsDocsLoader::DocpathsDocsLoader(QSqlDatabase db,QObject *parent) :
+DeclarDocsLoader::DeclarDocsLoader(QSqlDatabase db,QObject *parent) :
   AbstractDocListLoader(db,parent){
 }
 
-DocpathsDocsLoader::~DocpathsDocsLoader(){
-  LogDebug()<<"~DocpathsDocsLoader() BEGIN";
+DeclarDocsLoader::~DeclarDocsLoader(){
+  LogDebug()<<"~DeclarDocsLoader() BEGIN";
   clear();
-  LogDebug()<<"~DocpathsDocsLoader() END";
+  LogDebug()<<"~DeclarDocsLoader() END";
 }
 
-DocumentsModel *DocpathsDocsLoader::load(QVariant foreignID){
+DocumentsModel *DeclarDocsLoader::load(QVariant foreignID){
   if(foreignID.isNull()) return NULL;
-  // åñëè docStorage åù¸ íå çàäàí ñîçäà¸ì ftpStorage
+  // ÐµÑÐ»Ð¸ docStorage ÐµÑ‰Ñ‘ Ð½Ðµ Ð·Ð°Ð´Ð°Ð½ ÑÐ¾Ð·Ð´Ð°Ñ‘Ð¼ ftpStorage
   if(!docStorage){
     setStorage(&FtpDocsStorage::addStorage(
                  foreignID.toString()+"__"+
@@ -32,17 +32,18 @@ DocumentsModel *DocpathsDocsLoader::load(QVariant foreignID){
                     "  (SELECT name FROM docagency WHERE cod=d.docagency_id) "
                     "    AS agency,"
                     "  d.created,d.url,dd.documents_id,d.doctype_id,"
-                    "  dd.added AS \"Äîáàâëåí\","
-                    "  user_name_initials(dd.responsible) AS \"Îòâåòñòâåííûé\" "
-                    "FROM docpaths_documents dd,documents d,doctypes dt "
-                    "WHERE dd.docpaths_id=%1 "
+                    "  dd.added AS \"Ð”Ð¾Ð±Ð°Ð²Ð»ÐµÐ½\","
+                    "  user_name_initials(dd.responsible) AS \"ÐžÑ‚Ð²ÐµÑ‚ÑÑ‚Ð²ÐµÐ½Ð½Ñ‹Ð¹\","
+                    "  dd.initial "
+                    "FROM declar_documents dd,documents d,doctypes dt "
+                    "WHERE dd.declars_id=%1 "
                     "  AND (d.expires>=now()::date OR d.expires IS NULL) "
                     "  AND dd.documents_id=d.id AND d.doctype_id=dt.id "
                     "ORDER BY d.created DESC")
       .arg(foreignID.toString());
   QSqlQuery qry(DB);
   if(!qry.exec(strQry)){
-    setError(tr("Îøèáêà çàãðóçêè ñïèñêà äîêóìåíòîâ äëÿ äåëà ID=%1: %2: QUERY: %3")
+    setError(tr("ÐžÑˆÐ¸Ð±ÐºÐ° Ð·Ð°Ð³Ñ€ÑƒÐ·ÐºÐ¸ ÑÐ¿Ð¸ÑÐºÐ° Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð¾Ð² Ð´Ð»Ñ Ð´ÐµÐ»Ð° ID=%1: %2: QUERY: %3")
              .arg(foreignID.toString()).arg(qry.lastError().text())
              .arg(qry.lastQuery()));
     return NULL;
@@ -52,6 +53,18 @@ DocumentsModel *DocpathsDocsLoader::load(QVariant foreignID){
   while(qry.next()){
     MFCDocument *doc=new MFCDocument(this);
     connectDocument2Loader(doc);
+//    connect(doc,SIGNAL(needBody(QString,MFCDocument*)),
+//            docStorage,SLOT(load(QString,MFCDocument*)));
+
+//    doc->setAgency(qry.record().value("agency").toString());
+//    doc->setCreateDate(qry.record().value("created").toDateTime());
+//    doc->setDate(qry.record().value("docdate").toDate());
+//    doc->setExpiresDate(qry.record().value("expires").toDate());
+//    doc->setName(qry.record().value("docname").toString());
+//    doc->setNumber(qry.record().value("docnum").toString());
+//    doc->setSeries(qry.record().value("docseries").toString());
+//    doc->setType(qry.record().value("aname").toString());
+//    doc->setUrl(qry.record().value("url").toString());
     for(int f=0;f<qry.record().count();f++){
       if(skipNames.contains(qry.record().fieldName(f))) continue;
       doc->setProperty(qry.record().fieldName(f).toLocal8Bit(),qry.value(f));

@@ -60,7 +60,7 @@ QList< MFCDocument* > AbstractDocumentsList::findDocuments(QString doc_type,
                                                          QString doc_agency,
                                                          QDateTime doc_created,
                                                          QDate doc_expires) const{
-  // нужно возвращать сортированный список (как в модели)
+  // РЅСѓР¶РЅРѕ РІРѕР·РІСЂР°С‰Р°С‚СЊ СЃРѕСЂС‚РёСЂРѕРІР°РЅРЅС‹Р№ СЃРїРёСЃРѕРє (РєР°Рє РІ РјРѕРґРµР»Рё)
   QList< MFCDocument* > list;
   foreach(MFCDocument *doc,doclistModel->documents()){
     bool found=false;

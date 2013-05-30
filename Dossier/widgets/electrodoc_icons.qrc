@@ -24,6 +24,6 @@
         <file>icons/old-zoom-original.png</file>
         <file>icons/old-zoom-out.png</file>
         <file>icons/check.png</file>
-        <file>icons/applications-office.png</file>
+        <file>icons/fileprint.png</file>
     </qresource>
 </RCC>
