@@ -92,8 +92,15 @@ MFCDocument *Docmanager::clientDocument(const QModelIndex &index) const{
 }
 
 DocumentsModel *Docmanager::clientDocuments() const{
+  if(!curClientDocs) return NULL;
   if(!curClientDocs->documents()) curClientDocs->load(DB);
   return curClientDocs->documents();
+}
+
+DocumentsModel *Docmanager::docpathsDocuments() const{
+  if(!curDocpathsDocs) return NULL;
+  if(!curDocpathsDocs->documents()) curDocpathsDocs->load(DB);
+  return curDocpathsDocs->documents();
 }
 
 DocumentsModel *Docmanager::declarDocuments() const{
@@ -444,18 +451,30 @@ bool Docmanager::saveDocumentsLists(bool initial){
 void Docmanager::clear(){
   errStr.clear();
   cancelDownload();
+
   if(declarDocs){
     declarDocs->deleteLater();
     declarDocs=NULL;
   }
-  QHashIterator< ClientDocuments*,QVariant > i(clientsDocs);
-  while(i.hasNext()){
-    i.next();
-    i.key()->disconnect();
-    i.key()->deleteLater();
+
+  QHashIterator< ClientDocuments*,QVariant > ci(clientsDocs);
+  while(ci.hasNext()){
+    ci.next();
+    ci.key()->disconnect();
+    ci.key()->deleteLater();
   }
   clientsDocs.clear();
   curClientDocs=NULL;
+
+  QHashIterator< DocpathsDocuments*,QVariant > di(docpathsDocs);
+  while(di.hasNext()){
+    di.next();
+    di.key()->disconnect();
+    di.key()->deleteLater();
+  }
+  docpathsDocs.clear();
+  curDocpathsDocs=NULL;
+
   allDocs->clear();
   newDocs->clear();
 }

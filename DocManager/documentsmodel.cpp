@@ -121,6 +121,7 @@ int DocumentsModel::findColumn(QString name) const{
 
 void DocumentsModel::clear(){
   foreach(MFCDocument *doc,docs){
+    if(!doc) continue;
     doc->disconnect();
     doc->deleteLater();
   }

@@ -30,10 +30,10 @@ SOURCES += \
     document/mfcdocumentpage.cpp \
     widgets/electrodoc_v2.cpp \
     widgets/docpagesviewer.cpp \
-    ../MFCWidgets/Widget/mfcwidget.cpp \
     storages/ftp/ftpdocsstorage.cpp \
     storages/abstractdocsstorage.cpp \
-    widgets/docpagewidget.cpp
+    widgets/docpagewidget.cpp \
+    widgets/mfcwidget.cpp
 
 HEADERS += \
     ../include/mfcdocument.h \

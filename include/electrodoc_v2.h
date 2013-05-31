@@ -11,7 +11,7 @@
 #include "mfcdocument.h"
 //#include "macros.h"
 #include "docpagesviewer.h"
-#include "dossier_export.h"
+#include "export/dossier_export.h"
 
 namespace Ui {
 class ElectroDoc_v2;

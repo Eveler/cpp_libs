@@ -8,7 +8,7 @@
 #include "declardocuments.h"
 #include "docpathsdocuments.h"
 #include "mfcdocument.h"
-#include "docmanager_export.h"
+#include "export/docmanager_export.h"
 
 class DOCMANAGER_EXPORT Docmanager : public QObject
 {
@@ -29,6 +29,7 @@ public:
   QVariant currentClient() const;
   MFCDocument *clientDocument(const QModelIndex &index) const;
   DocumentsModel *clientDocuments() const;
+  DocumentsModel *docpathsDocuments() const;
   DocumentsModel *declarDocuments() const;
 
   void setSaveTime(QDateTime dt);

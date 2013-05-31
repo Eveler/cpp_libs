@@ -3,8 +3,9 @@
 
 #include <QAbstractItemModel>
 #include "mfcdocument.h"
+#include "export/docmanager_export.h"
 
-class DocumentsModel : public QAbstractItemModel
+class DOCMANAGER_EXPORT DocumentsModel : public QAbstractItemModel
 {
   Q_OBJECT
 public:
