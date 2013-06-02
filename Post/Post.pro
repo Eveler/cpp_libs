@@ -81,13 +81,3 @@ SOURCES += \
     Post/post.cpp \
     Post/post_p.cpp \
     PostsStorage/postsstorage.cpp
-
-
-
-
-
-
-
-
-
-

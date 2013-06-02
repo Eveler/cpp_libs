@@ -80,13 +80,3 @@ SOURCES += \
     Direction/direction.cpp \
     Direction/direction_p.cpp \
     DirectionsStorage/directionsstorage.cpp
-
-
-
-
-
-
-
-
-
-
