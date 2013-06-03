@@ -46,15 +46,25 @@ unix:!symbian {
 #      -lAMSLogger
 #}
 
-DESTDIR = ../bin_qt5
-DLLDESTDIR = ../bin_qt5
-
 LIB_LIST = \
     -lMFCCore \
     -lquazip
 
-LIBS += -L../bin_qt5/ \
-    $${LIB_LIST}
+greaterThan( QT_MAJOR_VERSION, 4 ) {
+  DESTDIR = ../bin_qt5
+  DLLDESTDIR = ../bin_qt5
+
+  LIBS += -L../bin_qt5/ \
+      $${LIB_LIST}
+}
+lessThan( QT_MAJOR_VERSION, 5 ) {
+  DESTDIR = ../bin
+  DLLDESTDIR = ../bin
+
+  LIBS += -L../bin/ \
+      $$LIB_LIST
+}
+
 
 CONFIG(release, debug|release){
   OBJECTS_DIR = ./temp/$$TARGET/release

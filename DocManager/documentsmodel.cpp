@@ -120,7 +120,9 @@ int DocumentsModel::findColumn(QString name) const{
 }
 
 void DocumentsModel::clear(){
+  LogDebug()<<"~clear() BEGIN"<<this;
   foreach(MFCDocument *doc,docs){
+    LogDebug()<<"doc ="<<doc;
     if(!doc) continue;
     doc->disconnect();
     doc->deleteLater();
@@ -129,6 +131,7 @@ void DocumentsModel::clear(){
 //  ids.clear();
   newDocs.clear();
   removedIDs.clear();
+  LogDebug()<<"~clear() END"<<this;
 }
 
 QList< MFCDocument* > DocumentsModel::documents() const{
@@ -213,7 +216,7 @@ bool DocumentsModel::addDocument(MFCDocument *doc, const QVariant id,
                                  const bool isNew){
   if(!doc) return false;
   if(docs.values().contains(doc)){
-    LogDebug()<<doc->type()<<"already exists: forbidden!";
+    LogDebug()<<doc->type()<<"(doc ="<<doc<<") already exists: forbidden!";
     return false;
   }
 
@@ -228,8 +231,7 @@ bool DocumentsModel::addDocument(MFCDocument *doc, const QVariant id,
 
   QMap< int,MFCDocument* >::iterator i=docs.insert(rCount,doc);
   doc->setParent(this);
-  connect(doc,SIGNAL(destroyed()),
-          SLOT(documentDestroyed()),Qt::UniqueConnection);
+  connect(doc,SIGNAL(destroyed()),SLOT(documentDestroyed()));
 //  QMap< int,QVariant >::iterator ii=ids.insert(rCount,id);
 //  LogDebug()<<"r ="<<ii.key()<<"ID ="<<ii.value();
 //  LogDebug()<<doc->type()<<"rCount ="<<rCount<<"r ="<<i.key()<<"id ="<<id<<
@@ -267,11 +269,13 @@ bool DocumentsModel::addDocument(const QString doc_type, const QDate doc_date,
 }
 
 bool DocumentsModel::removeDocument(MFCDocument *doc){
+  LogDebug()<<"removeDocument("<<doc<<")"<<this;
   if(!doc) return false;
   QList< int > i=docs.keys(doc);
   if(i.count()<=0) return false;
 
   foreach(int r,i){
+    LogDebug()<<r;
     beginRemoveRows(QModelIndex(),r,r);
     newDocs.removeAll(doc);
 //    QVariant id=ids.take(r);
@@ -301,6 +305,7 @@ bool DocumentsModel::removeDocument(const int row){
 }
 
 void DocumentsModel::documentDestroyed(){
+  LogDebug()<<"documentDestroyed"<<this<<sender();
   MFCDocument *doc=static_cast< MFCDocument* >(sender());
   removeDocument(doc);
 }

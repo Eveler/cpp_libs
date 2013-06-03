@@ -453,6 +453,7 @@ void Docmanager::clear(){
   cancelDownload();
 
   if(declarDocs){
+    declarDocs->disconnect();
     declarDocs->deleteLater();
     declarDocs=NULL;
   }

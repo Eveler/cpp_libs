@@ -11,7 +11,6 @@ DeclarDocsLoader::DeclarDocsLoader(QSqlDatabase db,QObject *parent) :
 
 DeclarDocsLoader::~DeclarDocsLoader(){
   LogDebug()<<"~DeclarDocsLoader() BEGIN";
-  clear();
   LogDebug()<<"~DeclarDocsLoader() END";
 }
 

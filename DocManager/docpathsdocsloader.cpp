@@ -11,7 +11,6 @@ DocpathsDocsLoader::DocpathsDocsLoader(QSqlDatabase db,QObject *parent) :
 
 DocpathsDocsLoader::~DocpathsDocsLoader(){
   LogDebug()<<"~DocpathsDocsLoader() BEGIN";
-  clear();
   LogDebug()<<"~DocpathsDocsLoader() END";
 }
 

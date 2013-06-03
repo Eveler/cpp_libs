@@ -10,7 +10,6 @@ AbstractDocListLoader::AbstractDocListLoader(QSqlDatabase db,
 
 AbstractDocListLoader::~AbstractDocListLoader(){
   LogDebug()<<"~AbstractDocListLoader() BEGIN";
-  clear();
   docListModel->deleteLater();
   emit modelDestroyed();
   if(docStorage) docStorage->disconnect(this);

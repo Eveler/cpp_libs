@@ -68,8 +68,3 @@ CONFIG(debug, debug|release){
   RCC_DIR = ../temp/$$TARGET/debug
   UI_DIR = ../temp/$$TARGET/debug
 }
-
-
-
-
-

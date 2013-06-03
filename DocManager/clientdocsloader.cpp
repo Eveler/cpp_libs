@@ -13,7 +13,6 @@ ClientDocsLoader::ClientDocsLoader(QSqlDatabase db,
 
 ClientDocsLoader::~ClientDocsLoader(){
   LogDebug()<<"~ClientDocsLoader() BEGIN";
-  clear();
   LogDebug()<<"~ClientDocsLoader() END";
 }
 
