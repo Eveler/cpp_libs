@@ -345,6 +345,14 @@ QString ElectroDoc_v2::detailsName(const Details details) const{
   return tr(en.valueToKey(details));
 }
 
+QToolButton *ElectroDoc_v2::tBt_RejectDocument(){
+  return ui->tBt_RejectDocument;
+}
+
+QToolButton *ElectroDoc_v2::tBt_SaveDocument(){
+  return ui->tBt_SaveDocument;
+}
+
 void ElectroDoc_v2::closeEvent(QCloseEvent *e){
   if(isModified() && ui->tBt_SaveDocument->isEnabled() && canJustClose){
     int answer=QMessageBox::question(this,tr("Внимание"),

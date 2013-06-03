@@ -55,6 +55,7 @@ public slots:
 private slots:
   bool removeDocument(const int row);
   void documentDestroyed();
+  void documentDestroyed(QObject *obj);
   void recalc();
 
 private:

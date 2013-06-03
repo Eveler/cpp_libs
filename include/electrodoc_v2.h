@@ -7,6 +7,7 @@
 #include <QPrintPreviewDialog>
 #include <QPrinter>
 #include <QFileSystemWatcher>
+#include <QToolButton>
 #include "mfcwidget.h"
 #include "mfcdocument.h"
 //#include "macros.h"
@@ -46,6 +47,8 @@ public:
   bool isModified();
   void setModified(const bool m);
   QString detailsName(const Details details) const;
+  QToolButton *tBt_RejectDocument();
+  QToolButton *tBt_SaveDocument();
 
 signals:
   void error(QString);

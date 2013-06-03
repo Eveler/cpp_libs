@@ -123,8 +123,7 @@ void DocumentsModel::clear(){
   LogDebug()<<"~clear() BEGIN"<<this;
   foreach(MFCDocument *doc,docs){
     LogDebug()<<"doc ="<<doc;
-    if(!doc) continue;
-    doc->disconnect();
+    doc->disconnect(this);
     doc->deleteLater();
   }
   docs.clear();
@@ -232,6 +231,7 @@ bool DocumentsModel::addDocument(MFCDocument *doc, const QVariant id,
   QMap< int,MFCDocument* >::iterator i=docs.insert(rCount,doc);
   doc->setParent(this);
   connect(doc,SIGNAL(destroyed()),SLOT(documentDestroyed()));
+  connect(doc,SIGNAL(destroyed(QObject*)),SLOT(documentDestroyed(QObject*)));
 //  QMap< int,QVariant >::iterator ii=ids.insert(rCount,id);
 //  LogDebug()<<"r ="<<ii.key()<<"ID ="<<ii.value();
 //  LogDebug()<<doc->type()<<"rCount ="<<rCount<<"r ="<<i.key()<<"id ="<<id<<
@@ -306,8 +306,13 @@ bool DocumentsModel::removeDocument(const int row){
 
 void DocumentsModel::documentDestroyed(){
   LogDebug()<<"documentDestroyed"<<this<<sender();
-  MFCDocument *doc=static_cast< MFCDocument* >(sender());
-  removeDocument(doc);
+  documentDestroyed(sender());
+}
+
+void DocumentsModel::documentDestroyed(QObject *obj){
+  LogDebug()<<"documentDestroyed("<<obj<<")"<<this;
+  MFCDocument *doc=static_cast< MFCDocument* >(obj);
+  if(doc && docs.values().contains(doc)) removeDocument(doc);
 }
 
 void DocumentsModel::recalc(){

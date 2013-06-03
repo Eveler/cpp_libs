@@ -389,16 +389,12 @@ QString FtpDocsStorage::zipErrStr(int errn){
 }
 
 void FtpDocsStorage::putNextFile(){
-//  LogDebug()<<"putNextFile(): HERE";
   if(jobQueue.isEmpty() || !ftpEng->isAuthenticated()) return;
   arc=jobQueue.dequeue();
   ftpEng->beginCommands();
   setRoot();
   QString path=QDate::currentDate().toString("yyyy/MM/dd/");
-//  LogDebug()<<path;
   curPath=rootPath+path+QFileInfo(*arc).fileName();
-//  LogDebug()<<curPath;
-//  LogDebug()<<QFileInfo(*arc).fileName();
   ftpEng->mkDir(path,true);
   if(!arc->isOpen()) arc->open(QFile::ReadOnly);
   ftpEng->putFile(QFileInfo(*arc).fileName(),arc);
@@ -415,7 +411,6 @@ void FtpDocsStorage::ftpTransferProgress(qint64 done, qint64 total){
 }
 
 void FtpDocsStorage::authenticationCompleted(bool res){
-//  LogDebug()<<"res ="<<res<<"; isDownloading ="<<isDownloading;
   if(!res){
     setError(tr("Ошибка подключения к серверу: %1").arg(ftpEng->lastError()));
     cancel();
@@ -431,13 +426,11 @@ void FtpDocsStorage::authenticationCompleted(bool res){
     ftpEng->getFile(file,arc);
     ftpEng->sendCommands();
   }else{
-//    LogDebug()<<"HERE";
     putNextFile();
   }
 }
 
 void FtpDocsStorage::ftpAnswer(FTPEngine::Command cmd, bool res){
-//  LogDebug()<<res<<cmd<<FTPEngine::Command_GetFile<<FTPEngine::Command_PutFile;
   if(!res){
     if(cmd==FTPEngine::Command_GetFile){
       setError(tr("Ошибка загрузки: %1").arg(ftpEng->lastError()));
@@ -457,9 +450,7 @@ void FtpDocsStorage::ftpAnswer(FTPEngine::Command cmd, bool res){
     }
     if(loadZip(arc,curDoc)) emit loaded(curDoc);
     if(arc){
-//    arc->remove();
       QString fileName=arc->fileName();
-//      LogDebug()<<fileName;
       arc->deleteLater();
       arc=NULL;
       QFile::remove(fileName);
@@ -475,7 +466,6 @@ void FtpDocsStorage::ftpAnswer(FTPEngine::Command cmd, bool res){
     putNextFile();
   }
 
-//  LogDebug()<<"isFinished ="<<(ftpEng?ftpEng->isFinished():true);
   if(ftpEng && ftpEng->isFinished()){
     if(jobQueue.isEmpty()) cancel();
     else putNextFile();
@@ -505,11 +495,9 @@ bool FtpDocsStorage::save(MFCDocument *doc, QString declarNumber){
   jobQueue.enqueue(new QFile(arcName));
   docCount=jobQueue.count();
   /// TODO: Check if file exists at the storage
-//  LogDebug()<<"HERE"<<ftpEng;
   if(!ftpEng || !ftpEng->isConnected())
     connectToHost(userName,userPass,ftpHost,ftpPort);
   else if(ftpEng->isFinished()){
-//    LogDebug()<<"HERE";
     putNextFile();
   }
 
