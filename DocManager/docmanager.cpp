@@ -312,11 +312,6 @@ MFCDocument *Docmanager::newDocument(MFCDocument *doc){
   doc->setProperty(tr("Добавлен").toLocal8Bit(),val);
   doc->setProperty(tr("Ответственный").toLocal8Bit(),QVariant(QVariant::String));
   doc->setProperty("initial",QVariant(QVariant::Bool));
-  for(int p=0;p<doc->metaObject()->propertyCount();p++)
-    LogDebug()<<doc->metaObject()->property(p).name()<<"="<<
-                doc->property(doc->metaObject()->property(p).name());
-  foreach(QByteArray p,doc->dynamicPropertyNames())
-    LogDebug()<<p.data()<<"="<<doc->property(p);
 
   if(declarDocs){
     DocumentsModel *dm=declarDocs->documents();
@@ -522,6 +517,19 @@ void Docmanager::allDocsAdd(MFCDocument *doc){
 }
 
 void Docmanager::allDocsRemove(MFCDocument *doc){
+  if(!allDocs->isNew(doc) && declarDocs &&
+     declarDocs->documents()->documents().contains(doc)) return;
+  QHashIterator< ClientDocuments*,QVariant > ci(clientsDocs);
+  while(ci.hasNext()){
+    ci.next();
+    if(ci.key()->documents()->documents().contains(doc)) return;
+  }
+  QHashIterator< DocpathsDocuments*,QVariant > di(docpathsDocs);
+  while(di.hasNext()){
+    di.next();
+    if(di.key()->documents()->documents().contains(doc)) return;
+  }
+
   if(allDocs->documents().contains(doc)) allDocs->removeDocument(doc);
   if(newDocs->documents().contains(doc)) newDocs->removeDocument(doc);
 }
