@@ -15,6 +15,7 @@ public:
   ~AbstractDocListLoader();
   void setStorage(AbstractDocsStorage *s);
   AbstractDocsStorage *storage() const;
+  // FIXME: creating MFCDocument in only one instance thrue all models
   virtual DocumentsModel* load(QVariant foreignID)=0;
   virtual void clear();
 

@@ -261,6 +261,17 @@ bool MFCDocument::isValid(){
   return is;
 }
 
+int MFCDocument::size(){
+  int s=0;
+  if(haveAttachments())
+    for(int a=0;a<attachments()->count();a++)
+      s+=attachments()->getAttachment(a)->device()->size();
+  if(havePages())
+    for(int p=0;p<pages()->count();p++)
+      s+=pages()->getPage(p)->device()->size();
+  return s;
+}
+
 QString MFCDocument::errorString(){
   return errStr;
 }

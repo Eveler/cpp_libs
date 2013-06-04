@@ -59,6 +59,7 @@ public:
   DocAttachments* attachments();
   bool isChanged();
   bool isValid();
+  int size();
 
   QString errorString();
 

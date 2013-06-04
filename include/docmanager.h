@@ -56,6 +56,7 @@ public slots:
   bool setDeclar(const QVariant id);
   void unsetDeclar();
   bool addDocpaths(QVariant id);
+  void unsetCurrentDocpaths();
   void removeDocpaths(QVariant id);
   void setDocpathsCurrent(QVariant id);
   bool nextDocpaths();
@@ -76,7 +77,6 @@ private slots:
   void allDocsRemove(MFCDocument *doc);
   void set_error(QString str,QString file=QString(),int line=0);
   void objectDestroyed();
-  void documentSaved(QString fileName);
   void timeout();
   void updateTimer();
   QVariant documentID(MFCDocument *doc) const;
@@ -96,6 +96,7 @@ private:
 
   QString errStr;
 
+  bool toAdd2All(MFCDocument *doc) const;
 };
 
 #endif // DOCMANAGER_H

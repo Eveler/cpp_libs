@@ -40,7 +40,7 @@ int DocumentsModel::columnCount(const QModelIndex &/*parent*/) const{
 QVariant DocumentsModel::headerData(int section, Qt::Orientation orientation,
                                     int role) const{
   if(rowCount()==0) return QVariant();
-  if(role!=Qt::DisplayRole && role!=Qt::EditRole) return QVariant();
+  if(role!=Qt::DisplayRole/* && role!=Qt::EditRole*/) return QVariant();
 
   if(orientation==Qt::Vertical){
     if(section>=rowCount()) return QVariant();

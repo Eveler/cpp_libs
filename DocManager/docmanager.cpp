@@ -1,6 +1,7 @@
 #include <QApplication>
 #include <QSqlDriver>
 #include <QSqlError>
+#include <QMetaProperty>
 #include "docmanager.h"
 #include "amslogger.h"
 #include "ftpdocsstorage.h"
@@ -131,13 +132,13 @@ bool Docmanager::addClient(QVariant id){
   connect(cd,SIGNAL(error(QString)),SIGNAL(error(QString)));
   connect(cd,SIGNAL(progress(qint64,qint64)),
           SIGNAL(dataTransferProgress(qint64,qint64)));
-//  TODO: connect(cd,SIGNAL(saveDone(bool))
   clientsDocs.insert(cd,id);
   cd->load(DB);
   DocumentsModel *dm=cd->documents();
   if(!dm) return false;
   foreach(MFCDocument *doc,dm->documents()){
-    allDocs->addDocument(doc,dm->documentID(doc),dm->isNew(doc));
+    if(toAdd2All(doc))
+      allDocs->addDocument(doc,dm->documentID(doc),dm->isNew(doc));
   }
   connect(dm,SIGNAL(documentAdded(MFCDocument*)),
           SLOT(allDocsAdd(MFCDocument*)),Qt::UniqueConnection);
@@ -200,13 +201,13 @@ bool Docmanager::setDeclar(const QVariant id){
   DocumentsModel *dm=declarDocs->documents();
   if(!dm) return false;
   foreach(MFCDocument *doc,dm->documents()){
-    allDocs->addDocument(doc,dm->documentID(doc),dm->isNew(doc));
+    if(toAdd2All(doc))
+      allDocs->addDocument(doc,dm->documentID(doc),dm->isNew(doc));
   }
   connect(dm,SIGNAL(documentAdded(MFCDocument*)),
           SLOT(allDocsAdd(MFCDocument*)),Qt::UniqueConnection);
   connect(dm,SIGNAL(documentRemoved(MFCDocument*)),
           SLOT(allDocsRemove(MFCDocument*)),Qt::UniqueConnection);
-//  TODO: connect(declarDocs,SIGNAL(saveDone(bool))
 
   return true;
 
@@ -233,13 +234,13 @@ bool Docmanager::addDocpaths(QVariant id){
   connect(dd,SIGNAL(error(QString)),SIGNAL(error(QString)));
   connect(dd,SIGNAL(progress(qint64,qint64)),
           SIGNAL(dataTransferProgress(qint64,qint64)));
-//  TODO: connect(cd,SIGNAL(saveDone(bool))
   docpathsDocs.insert(dd,id);
   dd->load(DB);
   DocumentsModel *dm=dd->documents();
   if(!dm) return false;
   foreach(MFCDocument *doc,dm->documents()){
-    allDocs->addDocument(doc,dm->documentID(doc),dm->isNew(doc));
+    if(toAdd2All(doc))
+      allDocs->addDocument(doc,dm->documentID(doc),dm->isNew(doc));
   }
   connect(dm,SIGNAL(documentAdded(MFCDocument*)),
           SLOT(allDocsAdd(MFCDocument*)),Qt::UniqueConnection);
@@ -249,6 +250,10 @@ bool Docmanager::addDocpaths(QVariant id){
   if(!curDocpathsDocs) setDocpathsCurrent(id);
 
   return true;
+}
+
+void Docmanager::unsetCurrentDocpaths(){
+  curDocpathsDocs=NULL;
 }
 
 void Docmanager::removeDocpaths(QVariant id){
@@ -303,6 +308,16 @@ bool Docmanager::nextDocpaths(){
 MFCDocument *Docmanager::newDocument(MFCDocument *doc){
   if(!doc) return doc;
 
+  const QVariant val=saveTime.isValid()?saveTime:QDateTime::currentDateTime();
+  doc->setProperty(tr("Добавлен").toLocal8Bit(),val);
+  doc->setProperty(tr("Ответственный").toLocal8Bit(),QVariant(QVariant::String));
+  doc->setProperty("initial",QVariant(QVariant::Bool));
+  for(int p=0;p<doc->metaObject()->propertyCount();p++)
+    LogDebug()<<doc->metaObject()->property(p).name()<<"="<<
+                doc->property(doc->metaObject()->property(p).name());
+  foreach(QByteArray p,doc->dynamicPropertyNames())
+    LogDebug()<<p.data()<<"="<<doc->property(p);
+
   if(declarDocs){
     DocumentsModel *dm=declarDocs->documents();
     if(!dm){
@@ -338,7 +353,7 @@ MFCDocument *Docmanager::newDocument(MFCDocument *doc){
 
 bool Docmanager::loadDocument(MFCDocument *doc){
   if(!doc) return false;
-  if(!allDocs->documents().contains(doc)) return false;
+  if(toAdd2All(doc)) return false;
 
   if(!doc->isValid()){
     timer->start();
@@ -493,13 +508,15 @@ void Docmanager::allDocsAdd(MFCDocument *doc){
   if(!doc) return;
   DocumentsModel *model=qobject_cast< DocumentsModel* >(sender());
   if(!model) return;
+
   if(model->isNew(doc)){
     if(newDocs->documents().contains(doc)) return;
     newDocs->addDocument(doc,model->documentID(doc),true);
     LogDebug()<<"HERE"<<doc->type()<<"added as new";
     emit documentAdded(newDocs);
   }
-  if(allDocs->documents().contains(doc)) return;
+
+  if(!toAdd2All(doc)) return;
   allDocs->addDocument(doc,model->documentID(doc),model->isNew(doc));
   LogDebug()<<doc->type()<<"added to all";
 }
@@ -516,10 +533,6 @@ void Docmanager::set_error(QString str,QString file,int line){
 
 void Docmanager::objectDestroyed(){
 //  if(sender()==stor) stor=NULL;
-}
-
-void Docmanager::documentSaved(QString fileName){
-  // TODO: saving document to storage
 }
 
 void Docmanager::timeout(){
@@ -567,4 +580,20 @@ QVariant Docmanager::documentID(MFCDocument *doc) const{
   }
 
   return QVariant();
+}
+
+bool Docmanager::toAdd2All(MFCDocument *doc) const{
+  bool toAdd=false;
+  if(!allDocs->documents().contains(doc)){
+    toAdd=true;
+    QString type=doc->type();
+    QDate date=doc->date();
+    QDateTime created=doc->createDate();
+    foreach(MFCDocument *d,allDocs->documents())
+      if(d->type()==type && d->date()==date && d->createDate()==created){
+        toAdd=false;
+        break;
+      }
+  }
+  return toAdd;
 }

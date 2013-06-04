@@ -144,7 +144,7 @@ bool FtpDocsStorage::saveZip(MFCDocument* doc,const QString fileName){
     else if(p.type()==QVariant::Date)
       stream<<doc->property(p.name()).toDateTime().toString(
                 "dd.MM.yyyy")<<"\n";
-    else stream<<doc->property(p.name()).toString()<<"\n";
+    else stream<<"\""<<doc->property(p.name()).toString()<<"\"\n";
   }
   if(doc->haveAttachments()){
     DocAttachments *atts=doc->attachments();

@@ -842,6 +842,7 @@ void ElectroDoc_v2::save(){
     QMessageBox::warning(this,tr("Внимание!"),
                          tr("Для сохранения документа необходимо заполнить\n\n")+
                          needFillText);
+    ui->tBt_SaveDocument->setEnabled(true);
     return;
   }
 

@@ -69,6 +69,7 @@ DocumentsModel *ClientDocsLoader::load(QVariant foreignID){
       if(skipNames.contains(qry.record().fieldName(f))) continue;
       doc->setProperty(qry.record().fieldName(f).toLocal8Bit(),qry.value(f));
     }
+    doc->setProperty("initial",QVariant(QVariant::Bool));
 
     docListModel->addDocument(doc,qry.record().value("documents_id"),false);
   }
