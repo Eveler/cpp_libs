@@ -1,7 +1,7 @@
 #include <QApplication>
 #include <QSqlDriver>
 #include <QSqlError>
-#include <QMetaProperty>
+#include <QSqlQuery>
 #include "docmanager.h"
 #include "amslogger.h"
 #include "ftpdocsstorage.h"
@@ -308,10 +308,13 @@ bool Docmanager::nextDocpaths(){
 MFCDocument *Docmanager::newDocument(MFCDocument *doc){
   if(!doc) return doc;
 
-  const QVariant val=saveTime.isValid()?saveTime:QDateTime::currentDateTime();
-  doc->setProperty(tr("Добавлен").toLocal8Bit(),val);
-  doc->setProperty(tr("Ответственный").toLocal8Bit(),QVariant(QVariant::String));
-  doc->setProperty("initial",QVariant(QVariant::Bool));
+  QVariant val=saveTime.isValid()?saveTime:QDateTime::currentDateTime();
+  if(!doc->dynamicPropertyNames().contains(tr("Добавлен").toLocal8Bit()))
+    doc->setProperty(tr("Добавлен").toLocal8Bit(),val);
+  if(!doc->dynamicPropertyNames().contains(tr("Ответственный").toLocal8Bit()))
+    doc->setProperty(tr("Ответственный").toLocal8Bit(),QVariant(QVariant::String));
+  if(!doc->dynamicPropertyNames().contains("initial"))
+    doc->setProperty("initial",QVariant(QVariant::Bool));
 
   if(declarDocs){
     DocumentsModel *dm=declarDocs->documents();
@@ -357,13 +360,13 @@ bool Docmanager::loadDocument(MFCDocument *doc){
   return doc->isValid();
 }
 
-bool Docmanager::save(){
-  bool res=saveDocuments();
+bool Docmanager::save(QString declarNumber){
+  bool res=saveDocuments(declarNumber);
   if(res) res=saveDocumentsLists();
   return res;
 }
 
-bool Docmanager::saveDocuments(){
+bool Docmanager::saveDocuments(QString declarNumber){
   bool canTrans=DB.driver()->hasFeature(QSqlDriver::Transactions);
   if(canTrans)
     if(!DB.transaction()){
@@ -373,7 +376,8 @@ bool Docmanager::saveDocuments(){
   // сохраняем документы из списков declarDocs, clientsDocs, docpathsDocs
   // сначала на ftp, затем в таблицу documents
   if(declarDocs){
-    if(!declarDocs->saveDocuments(DB,declarDocs->id().toString())){
+    if(!declarDocs->saveDocuments(DB,declarNumber.isEmpty()?
+                                  declarDocs->id().toString():declarNumber)){
       if(canTrans) DB.rollback();
       return false;
     }
@@ -419,9 +423,10 @@ bool Docmanager::saveDocumentsLists(bool initial){
       return false;
     }
   // сохраняем документы из списков declarDocs, clientsDocs, docpathsDocs
-  // соответственно в таблицы declars_documents,clients_documents,
+  // соответственно в таблицы declars_documents,client_documents,
   // docpaths_documents
   if(declarDocs){
+    LogDebug()<<"Saving declarDocsList";
     if(!declarDocs->saveDocList(DB,saveTime,initial)){
       if(canTrans) DB.rollback();
       return false;
@@ -429,6 +434,7 @@ bool Docmanager::saveDocumentsLists(bool initial){
   }
 
   QHashIterator< ClientDocuments*,QVariant > ci(clientsDocs);
+  if(ci.hasNext()) LogDebug()<<"Saving clientsDocsList";
   while(ci.hasNext()){
     ci.next();
     if(ci.key()){
@@ -440,6 +446,7 @@ bool Docmanager::saveDocumentsLists(bool initial){
   }
 
   QHashIterator< DocpathsDocuments*,QVariant > di(docpathsDocs);
+  if(di.hasNext()) LogDebug()<<"Saving docpathsDocsList";
   while(di.hasNext()){
     di.next();
     if(di.key()){
@@ -447,6 +454,71 @@ bool Docmanager::saveDocumentsLists(bool initial){
         if(canTrans) DB.rollback();
         return false;
       }
+    }
+  }
+
+  if(canTrans)
+    if(!DB.commit()){
+      setError(tr("Ошибка завершения транзакции: %1").arg(DB.lastError().text()));
+      return false;
+    }
+  return true;
+}
+
+bool Docmanager::saveDeleteDocuments(){
+  bool canTrans=DB.driver()->hasFeature(QSqlDriver::Transactions);
+  if(canTrans)
+    if(!DB.transaction()){
+      setError(tr("Ошибка начала транзакции: %1").arg(DB.lastError().text()));
+      return false;
+    }
+
+  // Удаляем документы из списков declarDocs, clientsDocs, docpathsDocs
+  // соответственно из таблиц declars_documents,client_documents,
+  // docpaths_documents
+  // Проверяем наличие документа хотя бы в одной из данных таблиц
+  // Если отсутствует, удаляем документ из таблицы documents
+  QSqlQuery qry(DB);
+  QString qryStr;
+  QStringList clients_ids;
+  QStringList docpaths_ids;
+
+  QHashIterator< ClientDocuments*,QVariant > ci(clientsDocs);
+  if(ci.hasNext()) LogDebug()<<"Deleting from clientsDocsList";
+  while(ci.hasNext()){
+    ci.next();
+    if(ci.key()){
+      QVariant clients_id=ci.key()->id();
+      clients_ids<<clients_id.toString();
+      if(!ci.key()->saveDeleteDocuments(DB)){
+        if(canTrans) DB.rollback();
+        return false;
+      }
+    }
+  }
+
+  QHashIterator< DocpathsDocuments*,QVariant > di(docpathsDocs);
+  if(di.hasNext()) LogDebug()<<"Deleting from docpathsDocsList";
+  while(di.hasNext()){
+    di.next();
+    if(di.key()){
+      QVariant docpaths_id=di.key()->id();
+      docpaths_ids<<docpaths_id.toString();
+      if(!di.key()->saveDeleteDocuments(DB)){
+        if(canTrans) DB.rollback();
+        return false;
+      }
+    }
+  }
+
+  if(declarDocs){
+    LogDebug()<<"Deleting from declarDocsList";
+    // Если документ есть в clients_documents или docpaths_documents, пропускаем
+    declarDocs->set_clients_ids(clients_ids);
+    declarDocs->set_docpaths_ids(docpaths_ids);
+    if(!declarDocs->saveDeleteDocuments(DB)){
+      if(canTrans) DB.rollback();
+      return false;
     }
   }
 
@@ -517,8 +589,6 @@ void Docmanager::allDocsAdd(MFCDocument *doc){
 }
 
 void Docmanager::allDocsRemove(MFCDocument *doc){
-  if(!allDocs->isNew(doc) && declarDocs &&
-     declarDocs->documents()->documents().contains(doc)) return;
   QHashIterator< ClientDocuments*,QVariant > ci(clientsDocs);
   while(ci.hasNext()){
     ci.next();
@@ -529,6 +599,10 @@ void Docmanager::allDocsRemove(MFCDocument *doc){
     di.next();
     if(di.key()->documents()->documents().contains(doc)) return;
   }
+  if(!doc->property("initial").toBool() && declarDocs && sender()!=declarDocs)
+    declarDocs->documents()->removeDocument(doc);
+  if(!allDocs->isNew(doc) && declarDocs &&
+     declarDocs->documents()->documents().contains(doc)) return;
 
   if(allDocs->documents().contains(doc)) allDocs->removeDocument(doc);
   if(newDocs->documents().contains(doc)) newDocs->removeDocument(doc);

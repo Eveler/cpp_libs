@@ -1,6 +1,8 @@
 #include "abstractdocumentslist.h"
 #include "amslogger.h"
 
+#define setError(str) set_error(str,__FILE__,__LINE__)
+
 AbstractDocumentsList::AbstractDocumentsList(const QVariant Id, QSqlDatabase db,
                                              QObject *parent) :
   QObject(parent),loader(NULL),saver(NULL),ownLoader(true),ownSaver(true),

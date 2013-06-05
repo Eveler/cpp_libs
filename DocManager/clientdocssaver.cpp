@@ -66,3 +66,24 @@ bool ClientDocsSaver::saveDocList(DocumentsModel *docList, QDateTime saveTime,
 
   return true;
 }
+
+bool ClientDocsSaver::saveDeleteDocuments(DocumentsModel *docList){
+  if(!docList) return false;
+  QSqlQuery qry(DB);
+  LogDebug()<<"ClientDocsSaver: deleting"<<
+              docList->removedDocumentsIDs().count()<<"docs";
+  foreach(QVariant id,docList->removedDocumentsIDs()){
+    LogDebug()<<"clients_id ="<<foreign_id<<"documents_id ="<<id;
+    QString qryStr=tr("DELETE FROM client_documents WHERE clients_id=%1"
+                      " AND documents_id=%2")
+        .arg(foreign_id)
+        .arg(id.toString());
+    if(!qry.exec(qryStr)){
+      setError(tr("Ошибка удаления документа заявителя: %1 QUERY: %2")
+               .arg(qry.lastError().text()).arg(qryStr));
+      return false;
+    }
+    if(!removeFromDocuments(id.toString())) return false;
+  }
+  return true;
+}

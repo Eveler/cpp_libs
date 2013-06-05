@@ -44,6 +44,7 @@ public slots:
   virtual bool saveDocList(QSqlDatabase db,
                            QDateTime saveTime=QDateTime::currentDateTime(),
                            bool initial=false)=0;
+  virtual bool saveDeleteDocuments(QSqlDatabase db)=0;
 
 protected slots:
   void objectDestroyed();

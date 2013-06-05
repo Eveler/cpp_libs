@@ -21,6 +21,7 @@ public:
   virtual bool saveDocList(DocumentsModel *docList,
                            QDateTime saveTime=QDateTime::currentDateTime(),
                            bool initial=false)=0;
+  virtual bool saveDeleteDocuments(DocumentsModel *docList)=0;
   virtual void clear();
 
 signals:
@@ -47,6 +48,7 @@ protected:
   QString foreign_id;
 
   void set_error(QString str,QString file,int line);
+  bool removeFromDocuments(QString id);
 
 };
 

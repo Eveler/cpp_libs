@@ -59,6 +59,14 @@ bool DocpathsDocuments::saveDocList(QSqlDatabase db, QDateTime saveTime,
   return saver->saveDocList(doclistModel,saveTime,initial);
 }
 
+bool DocpathsDocuments::saveDeleteDocuments(QSqlDatabase db){
+  if(!saver){
+    setSaver(new DocpathsDocsSaver(db,ID.toString(),this));
+    ownSaver=true;
+  }
+  return saver->saveDeleteDocuments(doclistModel);
+}
+
 void DocpathsDocuments::modelDestroyed(){
   doclistModel=NULL;
 }

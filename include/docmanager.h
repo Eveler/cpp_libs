@@ -65,9 +65,10 @@ public slots:
 
 //  bool loadDocument(MFCRecord *documentRec);
 
-  bool save();
-  bool saveDocuments();
+  bool save(QString declarNumber=QString());
+  bool saveDocuments(QString declarNumber=QString());
   bool saveDocumentsLists(bool initial=false);
+  bool saveDeleteDocuments();
 
   void clear();
   void cancelDownload();

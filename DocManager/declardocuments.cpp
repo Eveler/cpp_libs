@@ -41,6 +41,14 @@ void DeclarDocuments::load(QSqlDatabase db){
   sortedModel->sort(doclistModel->findColumn("created"),Qt::DescendingOrder);
 }
 
+void DeclarDocuments::set_clients_ids(QStringList& ids){
+  clients_ids=ids;
+}
+
+void DeclarDocuments::set_docpaths_ids(QStringList& ids){
+  docpaths_ids=ids;
+}
+
 bool DeclarDocuments::saveDocuments(QSqlDatabase db,QString declar){
   LogDebug()<<"Saving declarDocs:"<<doclistModel->newDocuments().count()<<"docs";
   if(!saver){
@@ -57,6 +65,19 @@ bool DeclarDocuments::saveDocList(QSqlDatabase db, QDateTime saveTime,
     ownSaver=true;
   }
   return saver->saveDocList(doclistModel,saveTime,initial);
+}
+
+bool DeclarDocuments::saveDeleteDocuments(QSqlDatabase db){
+  if(!saver){
+    setSaver(new DeclarDocsSaver(db,ID.toString(),this));
+    ownSaver=true;
+  }
+  DeclarDocsSaver *s=qobject_cast< DeclarDocsSaver* >(saver);
+  if(s){
+    s->set_clients_ids(clients_ids);
+    s->set_docpaths_ids(docpaths_ids);
+  }
+  return saver->saveDeleteDocuments(doclistModel);
 }
 
 void DeclarDocuments::modelDestroyed(){

@@ -22,6 +22,7 @@ public slots:
   bool saveDocList(QSqlDatabase db,
                    QDateTime saveTime=QDateTime::currentDateTime(),
                    bool initial=false);
+  bool saveDeleteDocuments(QSqlDatabase db);
 
 private slots:
   void modelDestroyed();

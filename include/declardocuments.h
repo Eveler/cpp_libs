@@ -13,6 +13,8 @@ public:
   virtual QSortFilterProxyModel* model();
   DocumentsModel* documents();
   void load(QSqlDatabase db);
+  void set_clients_ids(QStringList& ids);
+  void set_docpaths_ids(QStringList& ids);
 
 signals:
 
@@ -21,12 +23,15 @@ public slots:
   bool saveDocList(QSqlDatabase db,
                    QDateTime saveTime=QDateTime::currentDateTime(),
                    bool initial=false);
+  bool saveDeleteDocuments(QSqlDatabase db);
 
 private slots:
   void modelDestroyed();
 
 private:
   QSortFilterProxyModel *sortedModel;
+  QStringList clients_ids;
+  QStringList docpaths_ids;
 
 };
 

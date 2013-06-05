@@ -257,3 +257,28 @@ void AbstractDocListSaver::set_error(QString str, QString file, int line){
   timer->stop();
   emit error(errStr);
 }
+
+bool AbstractDocListSaver::removeFromDocuments(QString id){
+  QSqlQuery qry(DB);
+  QString qryStr=tr("SELECT id FROM client_documents WHERE documents_id=%1 "
+            "UNION SELECT id FROM docpaths_documents WHERE documents_id=%1"
+            "UNION SELECT id FROM declar_documents WHERE documents_id=%1")
+      .arg(id);
+  if(!qry.exec(qryStr)){
+    setError(tr("Ошибка получения информации об использовании документа: %1 "
+                "QUERY: %2").arg(qry.lastError().text()).arg(qryStr));
+    return false;
+  }
+  qry.next();
+  if(qry.size()<1){
+    qry.clear();
+    LogDebug()<<"Deleting from documents, id ="<<id;
+    qryStr=tr("DELETE FROM documents WHERE documents_id=%1").arg(id);
+    if(!qry.exec(qryStr)){
+      setError(tr("Ошибка удаления документа: %1 QUERY: %2")
+               .arg(qry.lastError().text()).arg(qryStr));
+      return false;
+    }
+  }
+  return true;
+}
