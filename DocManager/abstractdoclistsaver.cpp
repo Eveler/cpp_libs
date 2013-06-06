@@ -273,7 +273,7 @@ bool AbstractDocListSaver::removeFromDocuments(QString id){
   if(qry.size()<1){
     qry.clear();
     LogDebug()<<"Deleting from documents, id ="<<id;
-    qryStr=tr("DELETE FROM documents WHERE documents_id=%1").arg(id);
+    qryStr=tr("DELETE FROM documents WHERE id=%1").arg(id);
     if(!qry.exec(qryStr)){
       setError(tr("Ошибка удаления документа: %1 QUERY: %2")
                .arg(qry.lastError().text()).arg(qryStr));

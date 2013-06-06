@@ -599,10 +599,27 @@ void Docmanager::allDocsRemove(MFCDocument *doc){
     di.next();
     if(di.key()->documents()->documents().contains(doc)) return;
   }
-  if(!doc->property("initial").toBool() && declarDocs && sender()!=declarDocs)
-    declarDocs->documents()->removeDocument(doc);
+  if(!doc->property("initial").toBool() && declarDocs && sender()!=declarDocs &&
+     toAdd2All(doc)){
+    QString type=doc->type();
+    QDate date=doc->date();
+    QDateTime created=doc->createDate();
+    MFCDocument *doc1=NULL;
+    foreach(MFCDocument *d,allDocs->documents())
+      if(d->type()==type && d->date()==date && d->createDate()==created &&
+         declarDocs->documents()->documents().contains(d)){
+        doc1=d;
+        break;
+      }
+    LogDebug()<<"remove from declarDocs:"<<doc1->type()<<"id ="<<documentID(doc1)
+                <<doc1;
+    declarDocs->documents()->removeDocument(doc1);
+  }
   if(!allDocs->isNew(doc) && declarDocs &&
-     declarDocs->documents()->documents().contains(doc)) return;
+     declarDocs->documents()->documents().contains(doc)){
+    LogDebug()<<!allDocs->isNew(doc)<<declarDocs->documents()->documents().contains(doc);
+    return;
+  }
 
   if(allDocs->documents().contains(doc)) allDocs->removeDocument(doc);
   if(newDocs->documents().contains(doc)) newDocs->removeDocument(doc);

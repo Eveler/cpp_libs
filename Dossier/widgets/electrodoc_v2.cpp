@@ -216,7 +216,8 @@ bool ElectroDoc_v2::setDocument(MFCDocument *document){
   clear();
 //  m_Document=document;
   originalDocument=document;
-  if(m_Document==NULL) m_Document=new MFCDocument;
+  if(m_Document==NULL) m_Document=MFCDocument::instance(
+        QString(),QDate(),QDateTime());
   m_Document->copyFrom(document);
 
   ui->pBar_Scan->setFormat( tr("Загрузка: %p%") );
@@ -383,7 +384,7 @@ void ElectroDoc_v2::addPage(const QString &pName, const QPixmap &pixmap){
     return;
   }
   if(m_Document==NULL){
-    m_Document=new MFCDocument();
+    m_Document=MFCDocument::instance(QString(),QDate(),QDateTime());
   }
   MFCDocumentPage *pg=new MFCDocumentPage(pName,pixmap);
   m_Document->addPage(*pg);
@@ -401,7 +402,7 @@ void ElectroDoc_v2::addAttachment(const QString fileName,
                                   const QByteArray &fileData){
   if(fileName.isEmpty()) return;
   if(m_Document==NULL){
-    m_Document=new MFCDocument();
+    m_Document=MFCDocument::instance(QString(),QDate(),QDateTime());
   }
 
   if(ui->lstWgt_Attachments->findItems(fileName,Qt::MatchExactly).count()==0){
@@ -891,7 +892,9 @@ void ElectroDoc_v2::save(){
   }
 
   hide();
-  if(originalDocument==NULL) originalDocument=new MFCDocument;
+  if(originalDocument==NULL){
+    originalDocument=MFCDocument::instance(QString(),QDate(),QDateTime());
+  }
   originalDocument->copyFrom(m_Document);
   setModified(false);
   canJustClose=true;
@@ -901,7 +904,7 @@ void ElectroDoc_v2::save(){
 
 void ElectroDoc_v2::confirm(){
   if(originalDocument==NULL){
-    originalDocument=new MFCDocument;
+    originalDocument=MFCDocument::instance(QString(),QDate(),QDateTime());
     originalDocument->copyFrom(m_Document);
   }
   canJustClose=true;

@@ -2,6 +2,7 @@
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QSqlRecord>
+#include <QSqlField>
 #include "clientdocsloader.h"
 #include "ftpdocsstorage.h"
 #include "amslogger.h"
@@ -51,7 +52,10 @@ DocumentsModel *ClientDocsLoader::load(QVariant foreignID){
   QStringList skipNames;
   skipNames<<"id"<<"documents_id"<<"doctype_id";
   while(qry.next()){
-    MFCDocument *doc=new MFCDocument(this);
+    MFCDocument *doc=MFCDocument::instance(
+          qry.record().field("type").value().toString(),
+          qry.record().field("date").value().toDate(),
+          qry.record().field("created").value().toDateTime(),this);
     connectDocument2Loader(doc);
 //    connect(doc,SIGNAL(needBody(QString,MFCDocument*)),
 //            docStorage,SLOT(load(QString,MFCDocument*)));

@@ -11,6 +11,8 @@
 #include "docattachments.h"
 #include "export/dossier_export.h"
 
+// FIXME: to singleton!!!
+
 class DOSSIER_EXPORT MFCDocument : public QObject
 {
   Q_OBJECT
@@ -23,9 +25,15 @@ class DOSSIER_EXPORT MFCDocument : public QObject
   Q_PROPERTY(QString agency READ agency WRITE setAgency)
   Q_PROPERTY(QDateTime created READ createDate WRITE setCreateDate)
   Q_PROPERTY(QString url READ url WRITE setUrl)
-public:
+
+private:
   explicit MFCDocument( QObject *parent = 0 );
   ~MFCDocument();
+
+public:
+  static MFCDocument *instance(QString doc_type, QDate doc_date,
+                               QDateTime doc_createdate, QObject *parent=0);
+  static void remove(MFCDocument *doc);
 
   bool copyFrom(MFCDocument *doc);
   void setType( const QString &doc_type );
@@ -80,6 +88,7 @@ signals:
 public slots:
 
 private:
+  static QHash< MFCDocument*,int > instances;
   QString *m_Type;
   QString *m_Name;
   QString *m_Series;

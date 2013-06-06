@@ -1,4 +1,7 @@
 #include "mfcdocument.h"
+#include "amslogger.h"
+
+QHash< MFCDocument*,int > MFCDocument::instances=QHash< MFCDocument*,int >();
 
 MFCDocument::MFCDocument(QObject *parent) :
     QObject(parent)
@@ -16,6 +19,36 @@ MFCDocument::~MFCDocument()
 //  delete m_File;
   if(m_pages!=NULL) delete m_pages;
   if(m_attachments!=NULL) delete m_attachments;
+}
+
+MFCDocument *MFCDocument::instance(QString doc_type, QDate doc_date,
+                                   QDateTime doc_createdate,QObject *parent){
+  foreach(MFCDocument *doc,instances.keys()){
+    if(doc->type()==doc_type && doc->date()==doc_date
+       && doc->createDate()==doc_createdate){
+      return doc;
+    }
+  }
+
+  MFCDocument *doc=new MFCDocument(parent);
+  doc->setType(doc_type);
+  doc->setDate(doc_date);
+  doc->setCreateDate(doc_createdate);
+  instances.insert(doc,1);
+  LogDebug()<<"Created instance of \""<<doc->type()<<"\" of"<<doc->date()
+           <<"created at"<<doc->createDate();
+  return doc;
+}
+
+void MFCDocument::remove(MFCDocument *doc){
+  if(instances.contains(doc)){
+    instances[doc]-=1;
+    if(instances.value(doc)<=0){
+      LogDebug()<<"Removed instance of \""<<doc->type()<<"\" of"<<doc->date()
+               <<"created at"<<doc->createDate();
+      delete doc;
+    }
+  }
 }
 
 bool MFCDocument::copyFrom(MFCDocument *doc){

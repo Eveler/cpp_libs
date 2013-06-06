@@ -255,15 +255,12 @@ bool DocumentsModel::addDocument(const QString doc_type, const QDate doc_date,
                                  const QString doc_agency,
                                  const QDateTime doc_created,
                                  const QVariant id, const bool isNew){
-  MFCDocument *doc=new MFCDocument(this);
-  doc->setType(doc_type);
-  doc->setDate(doc_date);
+  MFCDocument *doc=MFCDocument::instance(doc_type,doc_date,doc_created,this);
   doc->setName(doc_name);
   doc->setSeries(doc_series);
   doc->setNumber(doc_number);
   doc->setExpiresDate(doc_expires);
   doc->setAgency(doc_agency);
-  doc->setCreateDate(doc_created);
 
   return addDocument(doc,id,isNew);
 }
