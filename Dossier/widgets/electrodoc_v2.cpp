@@ -326,7 +326,7 @@ void ElectroDoc_v2::clear(){
   ui->lWgt_Pages->clear();
   ui->lstWgt_Attachments->clear();
   if(m_Document!=NULL){
-    delete m_Document;
+    MFCDocument::remove(m_Document);
     m_Document=NULL;
   }
   setModified(false);
@@ -905,8 +905,8 @@ void ElectroDoc_v2::save(){
 void ElectroDoc_v2::confirm(){
   if(originalDocument==NULL){
     originalDocument=MFCDocument::instance(QString(),QDate(),QDateTime());
-    originalDocument->copyFrom(m_Document);
   }
+  originalDocument->copyFrom(m_Document);
   canJustClose=true;
   saved=true;
   hide();

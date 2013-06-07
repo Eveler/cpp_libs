@@ -20,7 +20,6 @@ FtpDocsStorage::FtpDocsStorage(const QString storageName,
   AbstractDocsStorage(storageName,parent),curPath()
 {
 //  connected=false;
-//  ftpBrowser=NULL;
 
   dbName=dataBaseName;
   rootPath="/";
@@ -30,11 +29,12 @@ FtpDocsStorage::FtpDocsStorage(const QString storageName,
   isDownloading=false;
   ftpPort=21;
   ftpEng=NULL;
+  arc=NULL;
 }
 
 FtpDocsStorage::~FtpDocsStorage(){
-//  if(ftpBrowser!=NULL) delete ftpBrowser;
-  if(ftpEng) ftpEng->deleteLater();
+//  if(ftpEng) ftpEng->deleteLater();
+  cancel();
 }
 
 FtpDocsStorage &FtpDocsStorage::addStorage(const QString storageName){
@@ -47,7 +47,6 @@ FtpDocsStorage &FtpDocsStorage::addStorage(const QString storageName){
       errStr=tr("Ошибка при получении экземпляра DocsStorage");
       return *storage;
     }
-//    storage->ftpBrowser=NULL;
     storage->setDataBaseName();
     storage->rootPath="/";
     storage->curDoc=NULL;
@@ -99,7 +98,6 @@ void FtpDocsStorage::setRoot(const QString dataBaseName, const QString path){
 #endif
   rootPath="/"+path+"/"+(dbName!=dataBaseName?dataBaseName:dbName);
   rootPath.replace("//","/");
-//  ftpBrowser->cd("/"+path+"/"+(dbName!=dataBaseName?dataBaseName:dbName));
   ftpEng->cd("/"+path+"/"+(dbName!=dataBaseName?dataBaseName:dbName));
 }
 
@@ -418,7 +416,6 @@ void FtpDocsStorage::authenticationCompleted(bool res){
   }
 
   if(isDownloading){
-    isDownloading=true;
     ftpEng->beginCommands();
     QString path=QFileInfo(curPath).path();
     QString file=QFileInfo(curPath).fileName();
@@ -441,6 +438,7 @@ void FtpDocsStorage::ftpAnswer(FTPEngine::Command cmd, bool res){
       cancel();
       return;
     }
+    isDownloading=false;
   }
 
   if(cmd==FTPEngine::Command_GetFile){
@@ -532,7 +530,6 @@ bool FtpDocsStorage::load(QString fileName){
     return false;
   }
   arc=dFile;
-//  ftpBrowser->getFile(fileName,dFile);
   curPath=fileName;
   isDownloading=true;
   if(!ftpEng || !ftpEng->isConnected())
@@ -561,7 +558,6 @@ bool FtpDocsStorage::load(QString fileName, MFCDocument *doc){
 }
 
 void FtpDocsStorage::cancel(){
-//  ftpBrowser->cancelDownload();
   if(ftpEng){
     ftpEng->deleteLater();
     ftpEng=NULL;

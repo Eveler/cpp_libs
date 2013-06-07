@@ -535,7 +535,7 @@ void Docmanager::clear(){
   cancelDownload();
 
   if(declarDocs){
-    declarDocs->disconnect();
+//    declarDocs->disconnect();
     declarDocs->deleteLater();
     declarDocs=NULL;
   }
@@ -543,7 +543,7 @@ void Docmanager::clear(){
   QHashIterator< ClientDocuments*,QVariant > ci(clientsDocs);
   while(ci.hasNext()){
     ci.next();
-    ci.key()->disconnect();
+//    ci.key()->disconnect();
     ci.key()->deleteLater();
   }
   clientsDocs.clear();
@@ -552,7 +552,7 @@ void Docmanager::clear(){
   QHashIterator< DocpathsDocuments*,QVariant > di(docpathsDocs);
   while(di.hasNext()){
     di.next();
-    di.key()->disconnect();
+//    di.key()->disconnect();
     di.key()->deleteLater();
   }
   docpathsDocs.clear();
@@ -566,6 +566,19 @@ void Docmanager::cancelDownload(){
   AbstractDocumentsList *docList=
       qobject_cast< AbstractDocumentsList* >(sender());
   if(docList) docList->cancelDownload();
+  else{
+    if(declarDocs) declarDocs->cancelDownload();
+    QHashIterator< ClientDocuments*,QVariant > ci(clientsDocs);
+    while(ci.hasNext()){
+      ci.next();
+      ci.key()->cancelDownload();
+    }
+    QHashIterator< DocpathsDocuments*,QVariant > di(docpathsDocs);
+    while(di.hasNext()){
+      di.next();
+      di.key()->cancelDownload();
+    }
+  }
 //  if(stor) stor->cancel();
   if(timer->isActive()) timer->stop();
   loop->quit();
@@ -601,19 +614,9 @@ void Docmanager::allDocsRemove(MFCDocument *doc){
   }
   if(!doc->property("initial").toBool() && declarDocs && sender()!=declarDocs &&
      toAdd2All(doc)){
-    QString type=doc->type();
-    QDate date=doc->date();
-    QDateTime created=doc->createDate();
-    MFCDocument *doc1=NULL;
-    foreach(MFCDocument *d,allDocs->documents())
-      if(d->type()==type && d->date()==date && d->createDate()==created &&
-         declarDocs->documents()->documents().contains(d)){
-        doc1=d;
-        break;
-      }
-    LogDebug()<<"remove from declarDocs:"<<doc1->type()<<"id ="<<documentID(doc1)
-                <<doc1;
-    declarDocs->documents()->removeDocument(doc1);
+    LogDebug()<<"remove from declarDocs:"<<doc->type()<<"id ="<<documentID(doc)
+                <<doc;
+    declarDocs->documents()->removeDocument(doc);
   }
   if(!allDocs->isNew(doc) && declarDocs &&
      declarDocs->documents()->documents().contains(doc)){

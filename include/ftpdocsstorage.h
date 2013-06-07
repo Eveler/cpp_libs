@@ -35,7 +35,6 @@ private:
 //  QString arcName;
   QString rootPath;
   QString curPath;
-//  FtpBrowser *ftpBrowser; // DPERECATED
 //  bool connected; // DPERECATED
   QQueue< QFile* > jobQueue;
   bool isDownloading;

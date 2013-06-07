@@ -124,7 +124,8 @@ void DocumentsModel::clear(){
   foreach(MFCDocument *doc,docs){
     LogDebug()<<"doc ="<<doc;
     doc->disconnect(this);
-    doc->deleteLater();
+//    doc->deleteLater();
+    MFCDocument::remove(doc);
   }
   docs.clear();
 //  ids.clear();

@@ -16,7 +16,6 @@ MFCDocument::~MFCDocument()
   delete m_Series;
   delete m_Number;
   delete m_Agency;
-//  delete m_File;
   if(m_pages!=NULL) delete m_pages;
   if(m_attachments!=NULL) delete m_attachments;
 }
@@ -26,6 +25,9 @@ MFCDocument *MFCDocument::instance(QString doc_type, QDate doc_date,
   foreach(MFCDocument *doc,instances.keys()){
     if(doc->type()==doc_type && doc->date()==doc_date
        && doc->createDate()==doc_createdate){
+      instances[doc]++;
+      LogDebug()<<doc->type()<<"("<<doc<<") referenced now"<<instances.value(doc)
+               <<"times";
       return doc;
     }
   }
@@ -35,20 +37,9 @@ MFCDocument *MFCDocument::instance(QString doc_type, QDate doc_date,
   doc->setDate(doc_date);
   doc->setCreateDate(doc_createdate);
   instances.insert(doc,1);
-  LogDebug()<<"Created instance of \""<<doc->type()<<"\" of"<<doc->date()
-           <<"created at"<<doc->createDate();
+  LogDebug()<<"Created instance ("<<doc<<") of \""<<doc->type()<<"\" of"
+           <<doc->date()<<"created at"<<doc->createDate();
   return doc;
-}
-
-void MFCDocument::remove(MFCDocument *doc){
-  if(instances.contains(doc)){
-    instances[doc]-=1;
-    if(instances.value(doc)<=0){
-      LogDebug()<<"Removed instance of \""<<doc->type()<<"\" of"<<doc->date()
-               <<"created at"<<doc->createDate();
-      delete doc;
-    }
-  }
 }
 
 bool MFCDocument::copyFrom(MFCDocument *doc){
@@ -243,19 +234,6 @@ const QString & MFCDocument::agency()
   return *m_Agency;
 }
 
-//const QByteArray & MFCDocument::body()
-//{
-//  DPRINT("DEPRECATED!!!",qApp);
-////  QByteArray *b=new QByteArray();
-//  m_File->seek(0);
-////  b->append(m_File->readAll());
-//  m_Body.clear();
-//  m_Body.append(m_File->readAll());
-//  DPRINT("get: body.size ="<<m_Body.size()<<m_File,qApp);
-//  return m_Body;
-////  return *m_Body;
-//}
-
 const QDateTime & MFCDocument::createDate()
 {
   return m_CreateDate;
@@ -309,6 +287,22 @@ QString MFCDocument::errorString(){
   return errStr;
 }
 
+void MFCDocument::remove(MFCDocument *doc){
+  if(instances.contains(doc)){
+    instances[doc]-=1;
+    if(instances.value(doc)<=0){
+      instances.remove(doc);
+      LogDebug()<<"Removed instance ("<<doc<<") of \""<<doc->type()<<"\" of"
+               <<doc->date()<<"created at"<<doc->createDate();
+      doc->deleteLater();
+    }
+  }
+}
+
+void MFCDocument::remove(){
+  remove(this);
+}
+
 void MFCDocument::init(){
   changed=false;
   m_Type = new QString();
@@ -318,23 +312,12 @@ void MFCDocument::init(){
   m_Date = QDate();
   m_Expires = QDate();
   m_Agency = new QString();
-//  m_Body = new QByteArray();
   m_CreateDate = QDateTime::currentDateTime();
   m_pages=NULL;
   m_attachments=NULL;
   m_url=QString();
-//  initFile();
+  connect(this,SIGNAL(destroyed()),SLOT(remove()));
 }
-
-//void MFCDocument::initFile(){
-//  QDir d=QDir();
-//  d.mkdir("temp");
-//  m_File=new QTemporaryFile(tr("temp/mfc_doc"),this);
-//  if(!m_File->open()){
-//    DPRINT(tr("Error")<<m_File->error()<<":"<<m_File->errorString(),qApp);
-//    exit(-1);
-//  }
-//}
 
 void MFCDocument::error(QString str){
   errStr="MFCDocument: "+str;

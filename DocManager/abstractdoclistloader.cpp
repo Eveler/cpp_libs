@@ -53,8 +53,9 @@ void AbstractDocListLoader::objectDestroyed(){
 
 void AbstractDocListLoader::connectDocument2Loader(MFCDocument *doc){
   if(!doc || !docStorage) return;
+  doc->disconnect(SIGNAL(needBody(QString,MFCDocument*)));
   connect(doc,SIGNAL(needBody(QString,MFCDocument*)),
-          docStorage,SLOT(load(QString,MFCDocument*)));
+          docStorage,SLOT(load(QString,MFCDocument*)),Qt::UniqueConnection);
 }
 
 void AbstractDocListLoader::setError(QString str){
