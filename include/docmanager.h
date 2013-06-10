@@ -2,7 +2,7 @@
 #define DOCMANAGER_H
 
 #include <QObject>
-#include <QStyledItemDelegate>
+//#include <QStyledItemDelegate>
 #include <QEventLoop>
 #include "clientdocuments.h"
 #include "declardocuments.h"

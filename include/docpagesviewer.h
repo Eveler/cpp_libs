@@ -8,7 +8,11 @@
 #include <QPaintEvent>
 #include <QLabel>
 #include <QList>
+//#if QT_VERSION >= 0x050000
+//#include <QtPrintSupport/QPrinter>
+//#else
 #include <QPrinter>
+//#endif
 #include <QPainter>
 #include <QTimer>
 #include "mfcdocument.h"

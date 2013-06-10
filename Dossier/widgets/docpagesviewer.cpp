@@ -137,7 +137,7 @@ void DocPagesViewer::timedOut(){
         l->clear();
         setPixmap(l);
       }
-    }else if(l->pixmap()!=0) l->setPixmap(0);
+    }else if(l->pixmap()!=0) l->setPixmap(QPixmap());
     p++;
   }
 }

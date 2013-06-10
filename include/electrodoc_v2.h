@@ -4,8 +4,13 @@
 #include <QWidget>
 #include <QVBoxLayout>
 #include <QProcess>
-#include <QPrintPreviewDialog>
+//#if QT_VERSION >= 0x050000
+//#include <QtPrintSupport/QPrinter>
+//#include <QtPrintSupport/QPrintPreviewDialog>
+//#else
 #include <QPrinter>
+#include <QPrintPreviewDialog>
+//#endif
 #include <QFileSystemWatcher>
 #include <QToolButton>
 #include "mfcwidget.h"
