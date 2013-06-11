@@ -747,14 +747,14 @@ void ElectroDoc_v2::saveToFile(){
   if(m_Document==NULL ||
      !(m_Document->haveAttachments() || m_Document->havePages()))
     return;
+  QString fTypes=tr("Архив ZIP (*.zip)");
+  if(m_Document->havePages()) fTypes+=";;Набор изображений JPEG (*.jpg);;"
+      "Набор изображений PNG (*.png)";
   QString fName=QFileDialog::getSaveFileName(
-        this,tr("Сохранить в..."),"",
-        "Архив ZIP (*.zip);;Набор изображений PNG (*.png);;"
-        "Набор изображений JPEG (*.jpg)");
+        this,tr("Сохранить в..."),"",fTypes);
   if(fName.isEmpty()) return;
   QFileInfo fi(fName);
   if(fi.suffix().toLower()==tr("zip")){
-    ui->pBar_Scan->setMaximum(m_Document->pages()->count());
     ui->pBar_Scan->setFormat(tr("Обработка: %p%"));
     ui->pBar_Scan->setMinimum(0);
     ui->pBar_Scan->setVisible(true);
@@ -772,6 +772,7 @@ void ElectroDoc_v2::saveToFile(){
     if(m_Document->havePages()){
       // создаём набор файлов "baseName+<page #>.<ext>"
       ui->pBar_Scan->setVisible( true );
+      ui->pBar_Scan->setMaximum(m_Document->pages()->count());
       ui->pBar_Scan->setFormat( "Сохранение: %p%" );
       for(int pIdx = 0; pIdx < m_Document->pages()->count(); pIdx++ )
       {

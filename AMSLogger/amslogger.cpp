@@ -47,7 +47,7 @@ Q_CORE_EXPORT_INLINE void AMSLogger::messageOutput(QtMsgType type, const char *m
     }
     stream<<ba;
     if(AMSLogger::logLevel().testFlag(AMSLogger::LevelDebug))
-      if(outFile->fileName().length()>0) writeToFile(ba);
+      if(outFile->fileName().length()>0) writeToFile(ba+" ");
     break;
 
   case QtWarningMsg:
@@ -58,7 +58,7 @@ Q_CORE_EXPORT_INLINE void AMSLogger::messageOutput(QtMsgType type, const char *m
     }
     stream<<ba;
     if(AMSLogger::logLevel().testFlag(AMSLogger::LevelWarn))
-      if(outFile->fileName().length()>0) writeToFile(ba);
+      if(outFile->fileName().length()>0) writeToFile(ba+" ");
     break;
 
   case QtCriticalMsg:
@@ -69,7 +69,7 @@ Q_CORE_EXPORT_INLINE void AMSLogger::messageOutput(QtMsgType type, const char *m
     }
     stream<<ba;
     if(AMSLogger::logLevel().testFlag(AMSLogger::LevelCritical))
-      if(outFile->fileName().length()>0) writeToFile(ba);
+      if(outFile->fileName().length()>0) writeToFile(ba+" ");
     break;
 
   case QtFatalMsg:
@@ -80,7 +80,7 @@ Q_CORE_EXPORT_INLINE void AMSLogger::messageOutput(QtMsgType type, const char *m
     }
     stream<<ba;
     if(AMSLogger::logLevel().testFlag(AMSLogger::LevelFatal))
-      if(outFile->fileName().length()>0) writeToFile(ba);
+      if(outFile->fileName().length()>0) writeToFile(ba+" ");
 //    abort();
     break;
   }
@@ -149,6 +149,11 @@ AMSLogger& AMSLogger::operator <<(const void * ptr){
 
 AMSLogger& AMSLogger::operator <<(const char *ptr){
   QString str(ptr);
+  return (*this)<<str;
+}
+
+AMSLogger& AMSLogger::operator <<(const QByteArray& msg){
+  QString str(msg);
   return (*this)<<str;
 }
 
