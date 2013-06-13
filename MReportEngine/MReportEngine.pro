@@ -48,7 +48,8 @@ unix:!symbian {
 
 LIB_LIST = \
     -lMFCCore \
-    -lquazip
+    -lquazip \
+    -lAMSLogger
 
 greaterThan( QT_MAJOR_VERSION, 4 ) {
   DESTDIR = ../bin_qt5

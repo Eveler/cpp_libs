@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>222</width>
+    <width>227</width>
     <height>106</height>
    </rect>
   </property>
@@ -32,7 +32,16 @@
    <property name="spacing">
     <number>0</number>
    </property>
-   <property name="margin">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
     <number>0</number>
    </property>
    <item>
@@ -85,7 +94,16 @@
          <property name="spacing">
           <number>0</number>
          </property>
-         <property name="margin">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
           <number>0</number>
          </property>
          <item>
@@ -97,7 +115,16 @@
             </sizepolicy>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_3">
-            <property name="margin">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
              <number>0</number>
             </property>
             <item>
@@ -165,7 +192,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QToolButton" name="tBt_Ok">
+       <widget class="QPushButton" name="tBt_Ok">
         <property name="minimumSize">
          <size>
           <width>80</width>
@@ -174,6 +201,9 @@
         </property>
         <property name="text">
          <string>ОК</string>
+        </property>
+        <property name="default">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -200,22 +230,6 @@
  </resources>
  <connections>
   <connection>
-   <sender>tBt_Ok</sender>
-   <signal>clicked()</signal>
-   <receiver>MDateDialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>86</x>
-     <y>84</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>110</x>
-     <y>52</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>tBt_Cancel</sender>
    <signal>clicked()</signal>
    <receiver>MDateDialog</receiver>
@@ -227,6 +241,22 @@
     </hint>
     <hint type="destinationlabel">
      <x>110</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tBt_Ok</sender>
+   <signal>clicked()</signal>
+   <receiver>MDateDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>91</x>
+     <y>84</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>113</x>
      <y>52</y>
     </hint>
    </hints>

@@ -159,10 +159,16 @@ MReportParameter * MReportDocument::reportParameter( const QString &name ) const
 
 MReportParameter * MReportDocument::repeater() const
 {
-  if ( reportParameters().isEmpty() ||
-       reportParameters().first()->parameterType() != MReportParameter::PT_Repeater ) return NULL;
+  MReportParameter *res=NULL;
+  if ( reportParameters().isEmpty()) return NULL;
 
-  return reportParameters().first();
+  foreach(MReportParameter *p,reportParameters())
+    if(p->parameterType()==MReportParameter::PT_Repeater){
+      res=p;
+      break;
+    }
+
+  return res;
 }
 
 MReportParameter * MReportDocument::parentDocumentRepeater() const
