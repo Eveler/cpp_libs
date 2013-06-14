@@ -9,7 +9,7 @@ AbstractDocListSaver::AbstractDocListSaver(QSqlDatabase db, QString id,
                                            QObject *parent) :
   QObject(parent),DB(db),docStorage(NULL),ownStorage(true),
   loop(new QEventLoop(this)),timer(new QTimer(this)),curDoc(NULL),foreign_id(id){
-  timer->setInterval(5000);
+  timer->setInterval(10000);
   connect(timer,SIGNAL(timeout()),SLOT(storTimeout()));
 }
 

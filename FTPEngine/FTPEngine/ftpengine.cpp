@@ -1085,6 +1085,9 @@ void FTPEngine::socketAllReply()
       sendNextCommand = ( result && ( m__CurrentCommand->hasNextCommand() || !m__Commands.isEmpty() ) );
       break;
     }
+    if(!result) LogWarning()<<m__LastError
+                           <<"command name ="<<currentCommand->name()
+                          <<"argument ="<<currentCommand->argument();
   }
 
 #ifdef FTPENGINE_DEBUG

@@ -13,7 +13,7 @@ Docmanager::Docmanager(QSqlDatabase db, QObject *parent) :
   loop(new QEventLoop(this)),/*stor(NULL),ownStorage(false),*/
   timer(new QTimer(this)),declarDocs(NULL),newDocs(new DocumentsModel(this)),
   curDocpathsDocs(NULL){
-  timer->setInterval(5000);
+  timer->setInterval(10000);
   connect(timer,SIGNAL(timeout()),SLOT(timeout()));
   connect(this,SIGNAL(dataTransferProgress(qint64,qint64)),SLOT(updateTimer()));
 }
