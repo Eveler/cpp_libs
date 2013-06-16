@@ -229,10 +229,14 @@ bool FTPEngine::list()
   m__Commands << commandsPool;
 
   commandsPool->appendBefore( new FTPCommand( FTPCommand::Type_Type, tr( "a" ) ) );
-  QString argument = m__Transfer->address().toString().replace( ".", "," );
-  argument += ","+QString::number((m__Transfer->port() & 0xff00) >> 8);
-  argument += ","+QString::number(m__Transfer->port() & 0xff);
-  commandsPool->appendBefore( new FTPCommand( FTPCommand::Type_Port, argument ) );
+  if(m__Transfer->isPassive())
+    commandsPool->appendBefore(new FTPCommand(FTPCommand::Type_Pasv));
+  else{
+    QString argument = m__Transfer->address().toString().replace( ".", "," );
+    argument += ","+QString::number((m__Transfer->port() & 0xff00) >> 8);
+    argument += ","+QString::number(m__Transfer->port() & 0xff);
+    commandsPool->appendBefore( new FTPCommand( FTPCommand::Type_Port, argument ) );
+  }
   commandsPool->appendAfter( new FTPCommand( FTPCommand::Type_Noop ) );
 
   FileInfo *fi = NULL;
