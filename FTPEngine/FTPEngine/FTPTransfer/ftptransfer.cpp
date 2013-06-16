@@ -6,7 +6,9 @@ FTPTransfer::FTPTransfer(QObject *parent) :
   m__Client(NULL),
   m__State(FTPTransfer::State_None),
   m__Buffer(NULL),
-  m__BytesDone(0)
+  m__BytesDone(0),
+  passive(true),
+  transfer(NULL)
 {
   connect( m__Server, SIGNAL(newConnection()), SLOT(incomingConnection()) );
 }
@@ -41,6 +43,14 @@ void FTPTransfer::setBuffer( QIODevice *buffer )
 bool FTPTransfer::startUploading()
 {
     return uploadNext();
+}
+
+void FTPTransfer::setTransferMode(bool isPassive){
+  passive=isPassive;
+}
+
+bool FTPTransfer::isPassive() const{
+  return passive;
 }
 
 bool FTPTransfer::uploadNext()

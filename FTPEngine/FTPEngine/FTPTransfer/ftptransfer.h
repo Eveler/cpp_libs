@@ -23,6 +23,9 @@ public:
   void setBuffer( QIODevice *buffer );
   bool startUploading();
 
+  void setTransferMode(bool isPassive=true);
+  bool isPassive() const;
+
 signals:
   void dataCommunicationProgress( qint64 currentSize, qint64 overallSize );
   void dataCommunicationFinished();
@@ -38,6 +41,9 @@ private:
 
   QIODevice *m__Buffer;
   qint64 m__BytesDone;
+
+  bool passive;
+  QTcpSocket *transfer;
 
   bool uploadNext();
 

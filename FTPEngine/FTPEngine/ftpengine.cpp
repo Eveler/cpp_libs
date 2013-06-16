@@ -34,6 +34,7 @@ FTPEngine::FTPEngine( QObject *parent ) :
            SLOT(transferDataProgress(qint64,qint64)) );
   connect( m__Transfer, SIGNAL(dataCommunicationFinished()),
            SLOT(transferDataFinished()) );
+  setPassiveTransferMode();
 }
 
 FTPEngine::~FTPEngine()
@@ -55,6 +56,10 @@ FTPEngine::~FTPEngine()
 
   delete m__Timer;
   m__Timer = NULL;
+}
+
+void FTPEngine::setPassiveTransferMode(bool isPassive){
+  m__Transfer->setTransferMode(isPassive);
 }
 
 void FTPEngine::connectToHost( const QUrl &url, int port )
