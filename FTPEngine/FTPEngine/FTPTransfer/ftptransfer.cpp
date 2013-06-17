@@ -1,4 +1,5 @@
 #include "ftptransfer.h"
+#include "amslogger.h"
 
 FTPTransfer::FTPTransfer(QObject *parent) :
   QObject(parent),
@@ -53,15 +54,55 @@ bool FTPTransfer::isPassive() const{
   return passive;
 }
 
+bool FTPTransfer::openPassiveChanel(QString addr, quint16 port){
+#ifdef FTPENGINE_DEBUG
+  LogDebug()<<"openPassiveChanel("<<addr<<","<<port<<")";
+#endif
+  transfer=new QTcpSocket(this);
+  connect(transfer,SIGNAL(readyRead()),SLOT(receivedTransferData()));
+  connect(transfer,SIGNAL(readChannelFinished()),SLOT(disconnectTransfer()));
+  connect(transfer,SIGNAL(bytesWritten(qint64)),
+          SLOT(transferBytesWritten(qint64)));
+  connect(transfer,SIGNAL(disconnected()),SLOT(transferConnectionClosed()));
+#ifdef FTPENGINE_DEBUG
+  connect(transfer,SIGNAL(error(QAbstractSocket::SocketError)),
+          SLOT(transferError(QAbstractSocket::SocketError)));
+  connect(transfer,SIGNAL(stateChanged(QAbstractSocket::SocketState)),
+          SLOT(transferSateChanged(QAbstractSocket::SocketState)));
+#endif
+  transfer->connectToHost(addr,port);
+  bool res=transfer->waitForConnected();
+  if(!res) errStr=transfer->errorString();
+  return res;
+}
+
+QString FTPTransfer::lastError() const{
+  return errStr;
+}
+
 bool FTPTransfer::uploadNext()
 {
-  if ( m__Client == NULL || m__Buffer == NULL ) return false;
+  if ( (m__Client == NULL && !transfer) || m__Buffer == NULL ){
+    errStr.clear();
+    if(!m__Buffer) errStr=tr("Буфер не определён");
+    if(!m__Client) errStr=tr("Клиентское подключение не определено");
+    if(!transfer) errStr=tr("Канал передачи данных не определён");
+    return false;
+  }
 
   const qint64 blockSize = 16*1024;
   char buf[16*1024];
   qint64 read = m__Buffer->read(buf, blockSize);
   qint64 write = 0;
-  if ( read > 0 ) write = m__Client->write( buf, read );
+  if ( read > 0 ){
+    if(isPassive()){
+      if(!transfer) return false;
+      write=transfer->write(buf,read);
+    }else write = m__Client->write( buf, read );
+  }else errStr=m__Buffer->errorString();
+  if(write<=0)
+    errStr=(isPassive()?"transfer: "+transfer->errorString():
+                        "Client: "+m__Client->errorString());
   return ( write > 0 );
 }
 
@@ -93,12 +134,37 @@ void FTPTransfer::receivedData()
   emit dataCommunicationProgress( m__Buffer->size(), 0 );
 }
 
+void FTPTransfer::receivedTransferData(){
+  m__State = State_Communication;
+
+  QByteArray data = QByteArray();
+  data.append( transfer->readAll() );
+
+  if(!m__Buffer){
+    errStr=tr("Буфер не определён");
+    return;
+  }
+  m__Buffer->write( data );
+  emit dataCommunicationProgress( m__Buffer->size(), 0 );
+}
+
 void FTPTransfer::bytesWritten(qint64 size)
 {
     m__BytesDone += size;
     dataCommunicationProgress( m__BytesDone, m__Buffer->size() );
     if ( m__BytesDone < m__Buffer->size() ) uploadNext();
     else disconnectClient();
+}
+
+void FTPTransfer::transferBytesWritten(qint64 size){
+  m__BytesDone += size;
+  if(!m__Buffer){
+    errStr=tr("Буфер не определён");
+    return;
+  }
+  dataCommunicationProgress( m__BytesDone, m__Buffer->size() );
+  if ( m__BytesDone < m__Buffer->size() ) uploadNext();
+  else disconnectTransfer();
 }
 
 void FTPTransfer::disconnectClient()
@@ -116,6 +182,14 @@ void FTPTransfer::disconnectClient()
   emit dataCommunicationFinished();
 }
 
+void FTPTransfer::disconnectTransfer(){
+  m__Buffer = NULL;
+  m__BytesDone = 0;
+  transfer->disconnect(this);
+  transfer->disconnectFromHost();
+  emit dataCommunicationFinished();
+}
+
 void FTPTransfer::connectionClosed()
 {
   disconnect( m__Client, SIGNAL(readyRead()), this, SLOT(receivedData()) );
@@ -130,3 +204,22 @@ void FTPTransfer::connectionClosed()
   if ( m__State != State_None ) emit connectionTerminated();
   m__State = State_None;
 }
+
+void FTPTransfer::transferConnectionClosed(){
+  transfer->disconnect(this);
+  transfer->close();
+  transfer->deleteLater();
+  transfer=NULL;
+  if(m__State!=State_None) emit connectionTerminated();
+  m__State=State_None;
+}
+
+#ifdef FTPENGINE_DEBUG
+void FTPTransfer::transferError(QAbstractSocket::SocketError err){
+  LogDebug()<<err<<transfer->errorString();
+}
+
+void FTPTransfer::transferSateChanged(QAbstractSocket::SocketState st){
+  LogDebug()<<"transfer state ="<<st;
+}
+#endif

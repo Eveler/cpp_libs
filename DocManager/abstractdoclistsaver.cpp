@@ -32,7 +32,7 @@ void AbstractDocListSaver::setStorage(AbstractDocsStorage *s){
   docStorage=s;
   ownStorage=false;
   connect(s,SIGNAL(dataTransferProgress(qint64,qint64,MFCDocument*)),
-          SIGNAL(progress(qint64,qint64)));
+          SLOT(dataTransferProgress(qint64,qint64)));
   connect(s,SIGNAL(destroyed()),SLOT(objectDestroyed()));
   connect(s,SIGNAL(error(QString)),SIGNAL(error(QString)));
   connect(s,SIGNAL(saved(QString)),SLOT(documentSaveDone(QString)));
@@ -251,6 +251,13 @@ void AbstractDocListSaver::storTimeout(){
   loop->exit(-1);
 }
 
+void AbstractDocListSaver::dataTransferProgress(qint64 bytesDone,
+                                                qint64 bytesTotal){
+//  timer->stop();
+  timer->start();
+  emit progress(bytesDone,bytesTotal);
+}
+
 void AbstractDocListSaver::set_error(QString str, QString file, int line){
   errStr=tr("%1 (%2): %3").arg(file).arg(line).arg(str);
   LogDebug()<<errStr;
@@ -261,7 +268,7 @@ void AbstractDocListSaver::set_error(QString str, QString file, int line){
 bool AbstractDocListSaver::removeFromDocuments(QString id){
   QSqlQuery qry(DB);
   QString qryStr=tr("SELECT id FROM client_documents WHERE documents_id=%1 "
-            "UNION SELECT id FROM docpaths_documents WHERE documents_id=%1"
+            "UNION SELECT id FROM docpaths_documents WHERE documents_id=%1 "
             "UNION SELECT id FROM declar_documents WHERE documents_id=%1")
       .arg(id);
   if(!qry.exec(qryStr)){

@@ -84,6 +84,7 @@ bool DeclarDocsSaver::saveDeleteDocuments(DocumentsModel *docList){
       qryStr=tr("SELECT id FROM client_documents WHERE documents_id=%1"
                 " AND clients_id in (%2) ")
           .arg(id.toString()).arg(clients_ids.join(","));
+    // NOTE: maybe we can to not take into account documents where initial=false for removal them?
     if(docpaths_ids.count()>0)
       qryStr+=(qryStr.length()>0?"UNION ":"")+
           tr("SELECT id FROM docpaths_documents "

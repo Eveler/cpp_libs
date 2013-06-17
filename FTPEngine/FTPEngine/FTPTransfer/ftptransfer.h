@@ -25,6 +25,9 @@ public:
 
   void setTransferMode(bool isPassive=true);
   bool isPassive() const;
+  bool openPassiveChanel(QString addr, quint16 port);
+
+  QString lastError() const;
 
 signals:
   void dataCommunicationProgress( qint64 currentSize, qint64 overallSize );
@@ -45,14 +48,24 @@ private:
   bool passive;
   QTcpSocket *transfer;
 
+  QString errStr;
+
   bool uploadNext();
 
 private slots:
   void incomingConnection();
   void receivedData();
+  void receivedTransferData();
   void bytesWritten( qint64 size );
+  void transferBytesWritten(qint64 size);
   void disconnectClient();
+  void disconnectTransfer();
   void connectionClosed();
+  void transferConnectionClosed();
+#ifdef FTPENGINE_DEBUG
+  void transferError(QAbstractSocket::SocketError err);
+  void transferSateChanged(QAbstractSocket::SocketState st);
+#endif
 };
 
 #endif // FTPTRANSFER_H

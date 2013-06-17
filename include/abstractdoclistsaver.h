@@ -36,6 +36,7 @@ protected slots:
   void objectDestroyed();
   virtual void documentSaveDone(QString path);
   void storTimeout();
+  void dataTransferProgress(qint64 bytesDone,qint64 bytesTotal);
 
 protected:
   QSqlDatabase DB;
