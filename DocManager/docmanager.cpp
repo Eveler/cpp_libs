@@ -159,7 +159,7 @@ void Docmanager::setClientCurrent(QVariant id){
     return;
   }
   if(!id.isNull() && id!=0){
-    emit currentClientChanged(curClientDocs);
+    emit currentClientChanged(curClientDocs->documents());
     emit currentClientChanged(curClientDocs->model());
     LogDebug()<<curClientDocs->model()->rowCount();
     emit currentClientChanged(id);

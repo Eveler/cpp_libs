@@ -5,8 +5,9 @@
 #include <QByteArray>
 #include <QTemporaryFile>
 #include <QPixmap>
+#include "export/dossier_export.h"
 
-class MFCDocumentPage
+class DOSSIER_EXPORT MFCDocumentPage
 {
 public:
   MFCDocumentPage( QString pageName, const QByteArray &body );

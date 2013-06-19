@@ -39,7 +39,7 @@ public:
 signals:
   void dataTransferProgress(qint64 val,qint64 total);
   void error(QString);
-  void currentClientChanged(ClientDocuments*);
+  void currentClientChanged(DocumentsModel*);
   void currentClientChanged(QAbstractItemModel*);
   void currentClientChanged(QVariant);
   void documentLoadDone(MFCDocument*);

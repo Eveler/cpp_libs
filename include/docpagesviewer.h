@@ -17,9 +17,10 @@
 #include <QTimer>
 #include "mfcdocument.h"
 #include "docpagewidget.h"
+#include "export/dossier_export.h"
 //#include "macros.h"
 
-class DocPagesViewer : public QScrollArea
+class DOSSIER_EXPORT DocPagesViewer : public QScrollArea
 {
   Q_OBJECT
 public:
