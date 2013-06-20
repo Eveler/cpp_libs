@@ -29,7 +29,9 @@ public:
   QVariant currentClient() const;
   MFCDocument *clientDocument(const QModelIndex &index) const;
   DocumentsModel *clientDocuments() const;
+  MFCDocument *docpathsDocument(const QModelIndex &index) const;
   DocumentsModel *docpathsDocuments() const;
+  MFCDocument *declarDocument(const QModelIndex &index) const;
   DocumentsModel *declarDocuments() const;
 
   void setSaveTime(QDateTime dt);
@@ -44,9 +46,12 @@ signals:
   void currentClientChanged(QVariant);
   void documentLoadDone(MFCDocument*);
   void documentAdded(DocumentsModel*);
-  void currentDocpathsChanged(DocpathsDocuments*);
+  void currentDocpathsChanged(DocumentsModel*);
   void currentDocpathsChanged(QAbstractItemModel*);
   void currentDocpathsChanged(QVariant);
+  void declarSet(DocumentsModel*);
+  void declarSet(QAbstractItemModel*);
+  void declarSet(QVariant);
 
 public slots:
   bool addClient(QVariant id);

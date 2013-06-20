@@ -98,10 +98,44 @@ DocumentsModel *Docmanager::clientDocuments() const{
   return curClientDocs->documents();
 }
 
+MFCDocument *Docmanager::docpathsDocument(const QModelIndex &index) const{
+  if(!curDocpathsDocs) return NULL;
+  QSortFilterProxyModel *model=
+      qobject_cast< QSortFilterProxyModel* >(curDocpathsDocs->model());
+  if(!model) return NULL;
+  QModelIndex idx=model->mapToSource(model->index(index.row(),index.column()));
+  MFCDocument *doc=curDocpathsDocs->documents()->document(idx);
+
+  if(doc && !doc->isValid()){
+    // запустим таймер для проверки загрузки на предмет зависания
+    timer->start();
+    loop->exec();
+  }
+
+  return doc;
+}
+
 DocumentsModel *Docmanager::docpathsDocuments() const{
   if(!curDocpathsDocs) return NULL;
   if(!curDocpathsDocs->documents()) curDocpathsDocs->load(DB);
   return curDocpathsDocs->documents();
+}
+
+MFCDocument *Docmanager::declarDocument(const QModelIndex &index) const{
+  if(!curClientDocs) return NULL;
+  QSortFilterProxyModel *model=
+      qobject_cast< QSortFilterProxyModel* >(declarDocs->model());
+  if(!model) return NULL;
+  QModelIndex idx=model->mapToSource(model->index(index.row(),index.column()));
+  MFCDocument *doc=declarDocs->documents()->document(idx);
+
+  if(doc && !doc->isValid()){
+    // запустим таймер для проверки загрузки на предмет зависания
+    timer->start();
+    loop->exec();
+  }
+
+  return doc;
 }
 
 DocumentsModel *Docmanager::declarDocuments() const{
@@ -209,8 +243,11 @@ bool Docmanager::setDeclar(const QVariant id){
   connect(dm,SIGNAL(documentRemoved(MFCDocument*)),
           SLOT(allDocsRemove(MFCDocument*)),Qt::UniqueConnection);
 
-  return true;
+  emit declarSet(id);
+  emit declarSet(declarDocs->model());
+  emit declarSet(dm);
 
+  return true;
 }
 
 void Docmanager::unsetDeclar(){
@@ -279,7 +316,7 @@ void Docmanager::setDocpathsCurrent(QVariant id){
     return;
   }
   if(!id.isNull() && id!=0){
-    emit currentDocpathsChanged(curDocpathsDocs);
+    emit currentDocpathsChanged(curDocpathsDocs->documents());
     emit currentDocpathsChanged(curDocpathsDocs->model());
     LogDebug()<<curDocpathsDocs->model()->rowCount();
     emit currentDocpathsChanged(id);
