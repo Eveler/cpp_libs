@@ -9,7 +9,8 @@ FTPTransfer::FTPTransfer(QObject *parent) :
   m__Buffer(NULL),
   m__BytesDone(0),
   passive(true),
-  transfer(NULL)
+  transfer(NULL),
+  loop(new QEventLoop(this))
 {
   connect( m__Server, SIGNAL(newConnection()), SLOT(incomingConnection()) );
 }
@@ -19,6 +20,7 @@ FTPTransfer::~FTPTransfer()
   delete m__Server;
   m__Server = NULL;
   m__Client = NULL;
+  loop->deleteLater();
 }
 
 bool FTPTransfer::listen( QHostAddress localAddress )
@@ -74,6 +76,11 @@ bool FTPTransfer::openPassiveChanel(QString addr, quint16 port){
   bool res=transfer->waitForConnected();
   if(!res) errStr=transfer->errorString();
   return res;
+}
+
+void FTPTransfer::wait4communication(){
+  if(m__State==State_None) return;
+  loop->exec();
 }
 
 QString FTPTransfer::lastError() const{
@@ -203,6 +210,7 @@ void FTPTransfer::connectionClosed()
   }
   if ( m__State != State_None ) emit connectionTerminated();
   m__State = State_None;
+  loop->quit();
 }
 
 void FTPTransfer::transferConnectionClosed(){
@@ -212,6 +220,7 @@ void FTPTransfer::transferConnectionClosed(){
   transfer=NULL;
   if(m__State!=State_None) emit connectionTerminated();
   m__State=State_None;
+  loop->quit();
 }
 
 #ifdef FTPENGINE_DEBUG

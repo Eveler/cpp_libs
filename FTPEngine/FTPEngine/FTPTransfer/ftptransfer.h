@@ -6,6 +6,7 @@
 #include <QHostAddress>
 #include <QTcpServer>
 #include <QTcpSocket>
+#include <QEventLoop>
 
 class FTPTransfer : public QObject
 {
@@ -26,6 +27,7 @@ public:
   void setTransferMode(bool isPassive=true);
   bool isPassive() const;
   bool openPassiveChanel(QString addr, quint16 port);
+  void wait4communication();
 
   QString lastError() const;
 
@@ -47,6 +49,7 @@ private:
 
   bool passive;
   QTcpSocket *transfer;
+  QEventLoop *loop;
 
   QString errStr;
 

@@ -62,7 +62,7 @@ bool DeclarDocsSaver::saveDocList(DocumentsModel *docList,
     qry.addBindValue(foreign_id);
     qry.addBindValue(docList->documentID(doc));
     qry.addBindValue(time);
-    qry.addBindValue(initial);
+    qry.addBindValue(initial || doc->property("initial").toBool());
     if(!qry.exec()){
       setError(tr("Ошибка сохранения документа дела: %1 "
                   "QUERY: %2").arg(qry.lastError().text()).arg(qry.lastQuery()));
