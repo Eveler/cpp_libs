@@ -11,9 +11,9 @@ DocpathsDocuments::DocpathsDocuments(const QVariant docpathsId,QSqlDatabase db,
 }
 
 DocpathsDocuments::~DocpathsDocuments(){
-  LogDebug()<<"~DocpathsDocuments() BEGIN";
+//  LogDebug()<<"~DocpathsDocuments() BEGIN";
   sortedModel->deleteLater();
-  LogDebug()<<"~DocpathsDocuments() END";
+//  LogDebug()<<"~DocpathsDocuments() END";
 }
 
 QSortFilterProxyModel *DocpathsDocuments::model(){

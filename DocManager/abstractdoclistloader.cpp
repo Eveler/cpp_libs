@@ -9,7 +9,7 @@ AbstractDocListLoader::AbstractDocListLoader(QSqlDatabase db,
 }
 
 AbstractDocListLoader::~AbstractDocListLoader(){
-  LogDebug()<<"~AbstractDocListLoader() BEGIN";
+//  LogDebug()<<"~AbstractDocListLoader() BEGIN";
   docListModel->deleteLater();
   emit modelDestroyed();
   if(docStorage) docStorage->disconnect(this);
@@ -17,7 +17,7 @@ AbstractDocListLoader::~AbstractDocListLoader(){
     if(docStorage) docStorage->removeStorage();
   }
   docStorage=NULL;
-  LogDebug()<<"~AbstractDocListLoader() END";
+//  LogDebug()<<"~AbstractDocListLoader() END";
 }
 
 void AbstractDocListLoader::setStorage(AbstractDocsStorage *s){

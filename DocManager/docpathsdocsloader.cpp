@@ -11,8 +11,8 @@ DocpathsDocsLoader::DocpathsDocsLoader(QSqlDatabase db,QObject *parent) :
 }
 
 DocpathsDocsLoader::~DocpathsDocsLoader(){
-  LogDebug()<<"~DocpathsDocsLoader() BEGIN";
-  LogDebug()<<"~DocpathsDocsLoader() END";
+//  LogDebug()<<"~DocpathsDocsLoader() BEGIN";
+//  LogDebug()<<"~DocpathsDocsLoader() END";
 }
 
 DocumentsModel *DocpathsDocsLoader::load(QVariant foreignID){

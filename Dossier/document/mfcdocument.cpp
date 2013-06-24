@@ -11,11 +11,16 @@ MFCDocument::MFCDocument(QObject *parent) :
 
 MFCDocument::~MFCDocument()
 {
-  delete m_Type;
-  delete m_Name;
-  delete m_Series;
-  delete m_Number;
-  delete m_Agency;
+//  delete m_Type;
+//  delete m_Name;
+//  delete m_Series;
+//  delete m_Number;
+//  delete m_Agency;
+  if(instances.contains(this)){
+    LogWarning()<<"Document"<<this<<"deleted directly from destructor! "
+                  "Use MFCDocument::remove(doc) instead!";
+    instances.remove(this);
+  }
   if(m_pages!=NULL) delete m_pages;
   if(m_attachments!=NULL) delete m_attachments;
 }
@@ -78,40 +83,36 @@ bool MFCDocument::copyFrom(MFCDocument *doc){
 
 void MFCDocument::setType( const QString &doc_type )
 {
-  if(!m_Type->isNull() && doc_type!=m_Type &&
+  if(!m_Type.isNull() && doc_type!=m_Type &&
      (havePages() || haveAttachments())) changed=true;
-  delete m_Type;
-  m_Type = new QString( doc_type );
+  m_Type=doc_type;
   emit type_Changed();
   emit propertyChanged("type",doc_type);
 }
 
 void MFCDocument::setName( const QString &doc_name )
 {
-  if(!m_Name->isNull() && doc_name!=m_Name &&
+  if(!m_Name.isNull() && doc_name!=m_Name &&
      (havePages() || haveAttachments())) changed=true;
-  delete m_Name;
-  m_Name = new QString( doc_name );
+  m_Name=doc_name;
   emit name_Changed();
   emit propertyChanged("name",doc_name);
 }
 
 void MFCDocument::setSeries( const QString &doc_series )
 {
-  if(!m_Series->isNull() && doc_series!=m_Series &&
+  if(!m_Series.isNull() && doc_series!=m_Series &&
      (havePages() || haveAttachments())) changed=true;
-  delete m_Series;
-  m_Series = new QString( doc_series );
+  m_Series=doc_series;
   emit series_Changed();
   emit propertyChanged("series",doc_series);
 }
 
 void MFCDocument::setNumber( const QString &doc_number )
 {
-  if(!m_Number->isNull() && doc_number!=m_Number &&
+  if(!m_Number.isNull() && doc_number!=m_Number &&
      (havePages() || haveAttachments())) changed=true;
-  delete m_Number;
-  m_Number = new QString( doc_number );
+  m_Number=doc_number;
   emit number_Changed();
   emit propertyChanged("number",doc_number);
 }
@@ -136,10 +137,9 @@ void MFCDocument::setExpiresDate( QDate doc_expires )
 
 void MFCDocument::setAgency( const QString &doc_agency )
 {
-  if(!m_Agency->isNull() && doc_agency!=m_Agency &&
+  if(!m_Agency.isNull() && doc_agency!=m_Agency &&
      (havePages() || haveAttachments())) changed=true;
-  delete m_Agency;
-  m_Agency = new QString( doc_agency );
+  m_Agency=doc_agency;
   emit agency_Changed();
   emit propertyChanged("agency",doc_agency);
 }
@@ -201,22 +201,22 @@ void MFCDocument::addAttachment(DocAttachment &attachment){
 
 const QString & MFCDocument::type()
 {
-  return *m_Type;
+  return m_Type;
 }
 
 const QString & MFCDocument::name()
 {
-  return *m_Name;
+  return m_Name;
 }
 
 const QString & MFCDocument::series()
 {
-  return *m_Series;
+  return m_Series;
 }
 
 const QString & MFCDocument::number()
 {
-  return *m_Number;
+  return m_Number;
 }
 
 const QDate & MFCDocument::date()
@@ -231,7 +231,7 @@ const QDate & MFCDocument::expiresDate()
 
 const QString & MFCDocument::agency()
 {
-  return *m_Agency;
+  return m_Agency;
 }
 
 const QDateTime & MFCDocument::createDate()
@@ -266,7 +266,7 @@ bool MFCDocument::isChanged(){
 }
 
 bool MFCDocument::isValid(){
-  bool is=(havePages() || haveAttachments()) && !m_Type->isEmpty() &&
+  bool is=(havePages() || haveAttachments()) && !m_Type.isEmpty() &&
       m_Date.isValid();
   if(!is) emit needBody(url(),this);
   return is;
@@ -289,12 +289,15 @@ QString MFCDocument::errorString(){
 
 void MFCDocument::remove(MFCDocument *doc){
   if(instances.contains(doc)){
-    instances[doc]-=1;
+    instances[doc]--;
+    LogDebug()<<doc->type()<<"("<<doc<<") referenced now"<<instances.value(doc)
+             <<"times";
     if(instances.value(doc)<=0){
       instances.remove(doc);
       LogDebug()<<"Removed instance ("<<doc<<") of \""<<doc->type()<<"\" of"
                <<doc->date()<<"created at"<<doc->createDate();
-      doc->deleteLater();
+//      doc->deleteLater();
+      delete doc;
     }
   }
 }
@@ -305,13 +308,13 @@ void MFCDocument::remove(){
 
 void MFCDocument::init(){
   changed=false;
-  m_Type = new QString();
-  m_Name = new QString();
-  m_Series = new QString();
-  m_Number = new QString();
+  m_Type=QString();
+  m_Name=QString();
+  m_Series=QString();
+  m_Number=QString();
   m_Date = QDate();
   m_Expires = QDate();
-  m_Agency = new QString();
+  m_Agency=QString();
   m_CreateDate = QDateTime::currentDateTime();
   m_pages=NULL;
   m_attachments=NULL;

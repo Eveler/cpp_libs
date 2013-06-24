@@ -8,9 +8,9 @@ DocumentsModel::DocumentsModel(QObject *parent):QAbstractItemModel(parent),
 }
 
 DocumentsModel::~DocumentsModel(){
-  LogDebug()<<"~DocumentsModel() BEGIN";
+//  LogDebug()<<"~DocumentsModel() BEGIN";
   clear();
-  LogDebug()<<"~DocumentsModel() END";
+//  LogDebug()<<"~DocumentsModel() END";
 }
 
 int DocumentsModel::rowCount(const QModelIndex &/*parent*/) const{
@@ -120,9 +120,9 @@ int DocumentsModel::findColumn(QString name) const{
 }
 
 void DocumentsModel::clear(){
-  LogDebug()<<"~clear() BEGIN"<<this;
+//  LogDebug()<<"~clear() BEGIN"<<this;
   foreach(MFCDocument *doc,docs){
-    LogDebug()<<"doc ="<<doc;
+//    LogDebug()<<"doc ="<<doc;
     doc->disconnect(this);
 //    doc->deleteLater();
     MFCDocument::remove(doc);
@@ -131,7 +131,7 @@ void DocumentsModel::clear(){
 //  ids.clear();
   newDocs.clear();
   removedIDs.clear();
-  LogDebug()<<"~clear() END"<<this;
+//  LogDebug()<<"~clear() END"<<this;
 }
 
 QList< MFCDocument* > DocumentsModel::documents() const{
@@ -273,7 +273,7 @@ bool DocumentsModel::removeDocument(MFCDocument *doc){
   if(i.count()<=0) return false;
 
   foreach(int r,i){
-    LogDebug()<<r;
+//    LogDebug()<<r;
     beginRemoveRows(QModelIndex(),r,r);
     newDocs.removeAll(doc);
 //    QVariant id=ids.take(r);
@@ -303,7 +303,7 @@ bool DocumentsModel::removeDocument(const int row){
 }
 
 void DocumentsModel::documentDestroyed(){
-  LogDebug()<<"documentDestroyed"<<this<<sender();
+//  LogDebug()<<"documentDestroyed"<<this<<sender();
   documentDestroyed(sender());
 }
 

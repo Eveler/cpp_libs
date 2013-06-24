@@ -11,9 +11,9 @@ DeclarDocuments::DeclarDocuments(const QVariant declarId,QSqlDatabase db,
 }
 
 DeclarDocuments::~DeclarDocuments(){
-  LogDebug()<<"~DeclarDocuments() BEGIN";
+//  LogDebug()<<"~DeclarDocuments() BEGIN";
   sortedModel->deleteLater();
-  LogDebug()<<"~DeclarDocuments() END";
+//  LogDebug()<<"~DeclarDocuments() END";
 }
 
 QSortFilterProxyModel *DeclarDocuments::model(){

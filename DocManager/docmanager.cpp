@@ -19,14 +19,13 @@ Docmanager::Docmanager(QSqlDatabase db, QObject *parent) :
 }
 
 Docmanager::~Docmanager(){
-  LogDebug()<<"~Docmanager() BEGIN";
+//  LogDebug()<<"~Docmanager() BEGIN";
   timer->deleteLater();
   loop->deleteLater();
   clear();
   allDocs->deleteLater();
   newDocs->deleteLater();
-//  if(ownStorage) stor->removeStorage();
-  LogDebug()<<"~Docmanager() END";
+//  LogDebug()<<"~Docmanager() END";
 }
 
 //void Docmanager::setDocumentsStorage(AbstractDocsStorage *storage){
@@ -195,7 +194,7 @@ void Docmanager::setClientCurrent(QVariant id){
   if(!id.isNull() && id!=0){
     emit currentClientChanged(curClientDocs->documents());
     emit currentClientChanged(curClientDocs->model());
-    LogDebug()<<curClientDocs->model()->rowCount();
+//    LogDebug()<<curClientDocs->model()->rowCount();
     emit currentClientChanged(id);
   }
 }
@@ -318,7 +317,7 @@ void Docmanager::setDocpathsCurrent(QVariant id){
   if(!id.isNull() && id!=0){
     emit currentDocpathsChanged(curDocpathsDocs->documents());
     emit currentDocpathsChanged(curDocpathsDocs->model());
-    LogDebug()<<curDocpathsDocs->model()->rowCount();
+//    LogDebug()<<curDocpathsDocs->model()->rowCount();
     emit currentDocpathsChanged(id);
   }
 }
@@ -629,7 +628,7 @@ void Docmanager::allDocsAdd(MFCDocument *doc){
   if(model->isNew(doc)){
     if(newDocs->documents().contains(doc)) return;
     newDocs->addDocument(doc,model->documentID(doc),true);
-    LogDebug()<<"HERE"<<doc->type()<<"added as new";
+    LogDebug()<<doc->type()<<"added as new";
     emit documentAdded(newDocs);
   }
 
@@ -657,7 +656,7 @@ void Docmanager::allDocsRemove(MFCDocument *doc){
   }
   if(!allDocs->isNew(doc) && declarDocs &&
      declarDocs->documents()->documents().contains(doc)){
-    LogDebug()<<!allDocs->isNew(doc)<<declarDocs->documents()->documents().contains(doc);
+//    LogDebug()<<!allDocs->isNew(doc)<<declarDocs->documents()->documents().contains(doc);
     return;
   }
 

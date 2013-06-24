@@ -11,10 +11,10 @@ AbstractDocumentsList::AbstractDocumentsList(const QVariant Id, QSqlDatabase db,
 }
 
 AbstractDocumentsList::~AbstractDocumentsList(){
-  LogDebug()<<"~AbstractDocumentsList() BEGIN";
+//  LogDebug()<<"~AbstractDocumentsList() BEGIN";
   if(ownLoader) if(loader) loader->deleteLater();
   if(ownSaver) if(saver) saver->deleteLater();
-  LogDebug()<<"~AbstractDocumentsList() END";
+//  LogDebug()<<"~AbstractDocumentsList() END";
 }
 
 void AbstractDocumentsList::setLoader(AbstractDocListLoader *l){

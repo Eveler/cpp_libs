@@ -89,13 +89,13 @@ private slots:
 
 private:
   static QHash< MFCDocument*,int > instances;
-  QString *m_Type;
-  QString *m_Name;
-  QString *m_Series;
-  QString *m_Number;
+  QString m_Type;
+  QString m_Name;
+  QString m_Series;
+  QString m_Number;
   QDate m_Date;
   QDate m_Expires;
-  QString *m_Agency;
+  QString m_Agency;
   QDateTime m_CreateDate;
   QString m_url;
   bool changed;
