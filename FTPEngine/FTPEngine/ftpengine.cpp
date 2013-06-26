@@ -28,7 +28,8 @@ FTPEngine::FTPEngine( QObject *parent ) :
   m__DirData(QByteArray()),
   m__DirInfo(QList<FileInfo *>()),
   m__Timer(new QTimer),
-  m__CommandListCreation(false)
+  m__CommandListCreation(false),
+  loop(new QEventLoop(this))
 {
   connect( m__Transfer, SIGNAL(dataCommunicationProgress(qint64,qint64)),
            SLOT(transferDataProgress(qint64,qint64)) );
@@ -79,10 +80,16 @@ void FTPEngine::connectToHost( const QUrl &url, int port )
 
   if ( m__Socket->state() != QAbstractSocket::UnconnectedState ) return;
 
+#ifdef FTPENGINE_DEBUG
+  LogDebug()<<"Connecting to host ="<<m__Url.host()<<"port ="<<m__Port
+           <<"m__User ="<<m__User<<"(url ="<<m__Url;
+#endif
   setDefaultConnect();
   connect( m__Socket, SIGNAL(readyRead()), this, SLOT(socketConnected()) );
 
   m__Socket->connectToHost( m__Url.host(), m__Port );
+
+  loop->exec();
 }
 
 void FTPEngine::disconnectFromHost()
@@ -847,6 +854,9 @@ void FTPEngine::sendAnswerResult( bool result )
 
 void FTPEngine::socketStateChanged( QAbstractSocket::SocketState socketState )
 {
+#ifdef FTPENGINE_DEBUG
+  LogDebug()<<"socketState ="<<socketState<<"m__Connected ="<<m__Connected;
+#endif
   bool before = m__Connected;
   m__Connected = ( socketState == QAbstractSocket::ConnectedState );
 
@@ -860,6 +870,7 @@ void FTPEngine::socketStateChanged( QAbstractSocket::SocketState socketState )
 void FTPEngine::socketConnected()
 {
   QByteArray answer = m__Socket->readAll().trimmed();
+  loop->quit();
   m__Socket->disconnect();
 
   m__Transfer->listen( m__Socket->localAddress() );

@@ -12,7 +12,7 @@
 #include <QUrl>
 #include <QTimer>
 #include <QIODevice>
-
+#include <QEventLoop>
 
 class FTPCommand;
 class FTPCommandsPool;
@@ -100,6 +100,8 @@ private:
   QTimer *m__Timer;
 
   bool m__CommandListCreation;
+
+  QEventLoop *loop;
 
   void setDefaultConnect();
 
