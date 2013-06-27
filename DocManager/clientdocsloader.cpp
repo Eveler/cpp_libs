@@ -19,6 +19,15 @@ ClientDocsLoader::~ClientDocsLoader(){
 
 DocumentsModel *ClientDocsLoader::load(QVariant foreignID){
   if(foreignID.isNull()) return NULL;
+  if(!DB.isValid()){
+    setError(tr("Указано ошибочное подключение к базе данных"));
+    return NULL;
+  }
+  if(!DB.isOpen()) if(!DB.open()){
+    setError(tr("Ошибка подключения к базе данных: %1")
+             .arg(DB.lastError().text()));
+    return NULL;
+  }
   // если docStorage ещё не задан создаём ftpStorage
   if(!docStorage){
     setStorage(&FtpDocsStorage::addStorage(
@@ -38,7 +47,7 @@ DocumentsModel *ClientDocsLoader::load(QVariant foreignID){
                     "  user_name_initials(cd.responsible) AS \"Ответственный\" "
                     "FROM client_documents cd,documents d,doctypes dt "
                     "WHERE cd.clients_id=%1 "
-                    "  AND (d.expires>=now()::date OR d.expires IS NULL) "
+//                    "  AND (d.expires>=now()::date OR d.expires IS NULL) "
                     "  AND cd.documents_id=d.id AND d.doctype_id=dt.id "
                     "ORDER BY d.created DESC")
       .arg(foreignID.toString());

@@ -7,7 +7,7 @@ CONFIG(debug, debug|release): TARGET = $${TARGET}d
 TEMPLATE = lib
 
 DEFINES += FTPENGINE_LIBRARY
-#DEFINES += FTPENGINE_DEBUG
+DEFINES += FTPENGINE_DEBUG
 
 INCLUDEPATH += ./ \
     ../bin_qt5/ \

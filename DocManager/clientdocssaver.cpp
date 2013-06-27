@@ -13,6 +13,15 @@ ClientDocsSaver::ClientDocsSaver(QSqlDatabase db, QString id, QObject *parent) :
 
 bool ClientDocsSaver::saveDocuments(DocumentsModel *docList, QString declar){
   if(!docList) return false;
+  if(!DB.isValid()){
+    setError(tr("Указано ошибочное подключение к базе данных"));
+    return false;
+  }
+  if(!DB.isOpen()) if(!DB.open()){
+    setError(tr("Ошибка подключения к базе данных: %1")
+             .arg(DB.lastError().text()));
+    return false;
+  }
 
   // если docStorage ещё не задан создаём ftpStorage
   if(!docStorage){
@@ -28,6 +37,15 @@ bool ClientDocsSaver::saveDocuments(DocumentsModel *docList, QString declar){
 bool ClientDocsSaver::saveDocList(DocumentsModel *docList, QDateTime saveTime,
                                   bool initial){
   if(!docList) return false;
+  if(!DB.isValid()){
+    setError(tr("Указано ошибочное подключение к базе данных"));
+    return false;
+  }
+  if(!DB.isOpen()) if(!DB.open()){
+    setError(tr("Ошибка подключения к базе данных: %1")
+             .arg(DB.lastError().text()));
+    return false;
+  }
   LogDebug()<<"ClientDocsSaver: saving list for"<<
               docList->newDocuments().count()<<"docs";
   foreach(MFCDocument *doc,docList->newDocuments())
@@ -69,6 +87,15 @@ bool ClientDocsSaver::saveDocList(DocumentsModel *docList, QDateTime saveTime,
 
 bool ClientDocsSaver::saveDeleteDocuments(DocumentsModel *docList){
   if(!docList) return false;
+  if(!DB.isValid()){
+    setError(tr("Указано ошибочное подключение к базе данных"));
+    return false;
+  }
+  if(!DB.isOpen()) if(!DB.open()){
+    setError(tr("Ошибка подключения к базе данных: %1")
+             .arg(DB.lastError().text()));
+    return false;
+  }
   QSqlQuery qry(DB);
   LogDebug()<<"ClientDocsSaver: deleting"<<
               docList->removedDocumentsIDs().count()<<"docs";

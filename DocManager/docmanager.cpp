@@ -62,27 +62,6 @@ MFCDocument *Docmanager::clientDocument(const QModelIndex &index) const{
   MFCDocument *doc=curClientDocs->documents()->document(idx);
 
   if(doc && !doc->isValid()){
-//    if(!stor){
-//      FtpDocsStorage *s=&FtpDocsStorage::addStorage("Docmanager_ftp_storage");
-//      setDocumentsStorage(s);
-//      if(!stor){
-//        setError(tr("Ошибка при установке загрузчика документов: %1")
-//                 .arg(FtpDocsStorage::errorString()));
-//        return NULL;
-//      }
-//      s->setDataBaseName(DB.databaseName());
-//      ownStorage=true;
-//      //        stor=s;
-//    }
-
-//    if(!stor->connectToHost(DB.userName(),DB.password(),DB.hostName(),
-//                            stor->port())){
-//      //      setError(tr("Ошибка соединения с сервером: %1").arg(stor->errorString()));
-//      return NULL;
-//    }
-//    if(!stor->load(doc->url(),doc)) return NULL;
-//    //    }
-
     // запустим таймер для проверки загрузки на предмет зависания
     timer->start();
     loop->exec();
@@ -403,6 +382,15 @@ bool Docmanager::save(QString declarNumber){
 }
 
 bool Docmanager::saveDocuments(QString declarNumber){
+  if(!DB.isValid()){
+    setError(tr("Указано ошибочное подключение к базе данных"));
+    return false;
+  }
+  if(!DB.isOpen()) if(!DB.open()){
+    setError(tr("Ошибка подключения к базе данных: %1")
+             .arg(DB.lastError().text()));
+    return false;
+  }
   bool canTrans=DB.driver()->hasFeature(QSqlDriver::Transactions);
   if(canTrans)
     if(!DB.transaction()){
@@ -452,6 +440,15 @@ bool Docmanager::saveDocuments(QString declarNumber){
 }
 
 bool Docmanager::saveDocumentsLists(bool initial){
+  if(!DB.isValid()){
+    setError(tr("Указано ошибочное подключение к базе данных"));
+    return false;
+  }
+  if(!DB.isOpen()) if(!DB.open()){
+    setError(tr("Ошибка подключения к базе данных: %1")
+             .arg(DB.lastError().text()));
+    return false;
+  }
   bool canTrans=DB.driver()->hasFeature(QSqlDriver::Transactions);
   if(canTrans)
     if(!DB.transaction()){
@@ -502,6 +499,15 @@ bool Docmanager::saveDocumentsLists(bool initial){
 }
 
 bool Docmanager::saveDeleteDocuments(){
+  if(!DB.isValid()){
+    setError(tr("Указано ошибочное подключение к базе данных"));
+    return false;
+  }
+  if(!DB.isOpen()) if(!DB.open()){
+    setError(tr("Ошибка подключения к базе данных: %1")
+             .arg(DB.lastError().text()));
+    return false;
+  }
   bool canTrans=DB.driver()->hasFeature(QSqlDriver::Transactions);
   if(canTrans)
     if(!DB.transaction()){
@@ -514,8 +520,6 @@ bool Docmanager::saveDeleteDocuments(){
   // docpaths_documents
   // Проверяем наличие документа хотя бы в одной из данных таблиц
   // Если отсутствует, удаляем документ из таблицы documents
-  QSqlQuery qry(DB);
-  QString qryStr;
   QStringList clients_ids;
   QStringList docpaths_ids;
 

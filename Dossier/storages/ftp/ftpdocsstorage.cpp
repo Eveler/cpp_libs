@@ -79,17 +79,18 @@ bool FtpDocsStorage::connectToHost(const QString uName, const QString pass,
             SLOT(ftpAnswer(FTPEngine::Command,bool)));
     connect(ftpEng,SIGNAL(loadProgress(qint64,qint64,QString)),
             SLOT(ftpTransferProgress(qint64,qint64)));
-//    connect(ftpEng,SIGNAL(ftpAnswer(QString,int)),SLOT(ftpAnswer(QString,int)));
+    connect(ftpEng,SIGNAL(ftpAnswer(QString,int)),SLOT(ftpAnswer(QString,int)));
   }
   QUrl url;
   url.setScheme("ftp");
   url.setHost(ftpHost);
   url.setUserName(userName);
   url.setPassword(userPass);
-  ftpEng->connectToHost(url,ftpPort);
+  bool res=ftpEng->connectToHost(url,ftpPort);
+  if(!res) setError(tr("Ошибка соединения: %1").arg(ftpEng->lastError()));
 
 //  setRoot();
-  return true;
+  return res;
 }
 
 void FtpDocsStorage::setRoot(const QString dataBaseName, const QString path){

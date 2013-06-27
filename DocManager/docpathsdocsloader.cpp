@@ -17,6 +17,15 @@ DocpathsDocsLoader::~DocpathsDocsLoader(){
 
 DocumentsModel *DocpathsDocsLoader::load(QVariant foreignID){
   if(foreignID.isNull()) return NULL;
+  if(!DB.isValid()){
+    setError(tr("Указано ошибочное подключение к базе данных"));
+    return NULL;
+  }
+  if(!DB.isOpen()) if(!DB.open()){
+    setError(tr("Ошибка подключения к базе данных: %1")
+             .arg(DB.lastError().text()));
+    return NULL;
+  }
   // если docStorage ещё не задан создаём ftpStorage
   if(!docStorage){
     setStorage(&FtpDocsStorage::addStorage(
@@ -36,7 +45,7 @@ DocumentsModel *DocpathsDocsLoader::load(QVariant foreignID){
                     "  user_name_initials(dd.responsible) AS \"Ответственный\" "
                     "FROM docpaths_documents dd,documents d,doctypes dt "
                     "WHERE dd.docpaths_id=%1 "
-                    "  AND (d.expires>=now()::date OR d.expires IS NULL) "
+//                    "  AND (d.expires>=now()::date OR d.expires IS NULL) "
                     "  AND dd.documents_id=d.id AND d.doctype_id=dt.id "
                     "ORDER BY d.created DESC")
       .arg(foreignID.toString());

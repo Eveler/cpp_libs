@@ -57,13 +57,15 @@ FTPEngine::~FTPEngine()
 
   delete m__Timer;
   m__Timer = NULL;
+
+  delete loop;
 }
 
 void FTPEngine::setPassiveTransferMode(bool isPassive){
   m__Transfer->setTransferMode(isPassive);
 }
 
-void FTPEngine::connectToHost( const QUrl &url, int port )
+bool FTPEngine::connectToHost( const QUrl &url, int port )
 {
   m__Url = url;
   if ( url.port() != -1 ) m__Port = url.port();
@@ -76,9 +78,9 @@ void FTPEngine::connectToHost( const QUrl &url, int port )
 
   m__Socket->disconnect();
 
-  if ( m__Url.isEmpty() || m__Port == -1 ) return;
+  if ( m__Url.isEmpty() || m__Port == -1 ) return false;
 
-  if ( m__Socket->state() != QAbstractSocket::UnconnectedState ) return;
+  if ( m__Socket->state() != QAbstractSocket::UnconnectedState ) return true;
 
 #ifdef FTPENGINE_DEBUG
   LogDebug()<<"Connecting to host ="<<m__Url.host()<<"port ="<<m__Port
@@ -89,7 +91,7 @@ void FTPEngine::connectToHost( const QUrl &url, int port )
 
   m__Socket->connectToHost( m__Url.host(), m__Port );
 
-  loop->exec();
+  return loop->exec()==0;
 }
 
 void FTPEngine::disconnectFromHost()
@@ -864,6 +866,12 @@ void FTPEngine::socketStateChanged( QAbstractSocket::SocketState socketState )
   {
     m__Authenticated = false;
     if ( before ) emit disconnected();
+  }
+
+  if(!m__Socket->errorString().isEmpty() &&
+     m__Socket->error()!=QAbstractSocket::UnknownSocketError){
+    m__LastError=m__Socket->errorString();
+    loop->exit(-1);
   }
 }
 

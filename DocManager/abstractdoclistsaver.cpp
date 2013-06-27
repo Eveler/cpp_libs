@@ -45,6 +45,15 @@ AbstractDocsStorage *AbstractDocListSaver::storage() const{
 bool AbstractDocListSaver::saveDocuments(DocumentsModel *docList,
                                          QString declar){
   if(!docList) return false;
+  if(!DB.isValid()){
+    setError(tr("Указано ошибочное подключение к базе данных"));
+    return false;
+  }
+  if(!DB.isOpen()) if(!DB.open()){
+    setError(tr("Ошибка подключения к базе данных: %1")
+             .arg(DB.lastError().text()));
+    return false;
+  }
 
   LogDebug()<<"Saving"<<docList->newDocuments().count()<<"documents";
   foreach(MFCDocument *doc,docList->newDocuments()){

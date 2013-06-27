@@ -31,7 +31,7 @@ public:
 
   void setPassiveTransferMode(bool isPassive=true);
 
-  void connectToHost( const QUrl &url = QUrl() , int port = 21 );
+  bool connectToHost( const QUrl &url = QUrl() , int port = 21 );
   void disconnectFromHost();
   bool isConnected() const;
 

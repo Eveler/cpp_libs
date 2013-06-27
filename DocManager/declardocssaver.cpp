@@ -20,6 +20,15 @@ void DeclarDocsSaver::set_docpaths_ids(QStringList& ids){
 
 bool DeclarDocsSaver::saveDocuments(DocumentsModel *docList, QString declar){
   if(!docList) return false;
+  if(!DB.isValid()){
+    setError(tr("Указано ошибочное подключение к базе данных"));
+    return false;
+  }
+  if(!DB.isOpen()) if(!DB.open()){
+    setError(tr("Ошибка подключения к базе данных: %1")
+             .arg(DB.lastError().text()));
+    return false;
+  }
 
   // если docStorage ещё не задан создаём ftpStorage
   if(!docStorage){
@@ -35,6 +44,15 @@ bool DeclarDocsSaver::saveDocuments(DocumentsModel *docList, QString declar){
 bool DeclarDocsSaver::saveDocList(DocumentsModel *docList,
                                   QDateTime saveTime, bool initial){
   if(!docList) return false;
+  if(!DB.isValid()){
+    setError(tr("Указано ошибочное подключение к базе данных"));
+    return false;
+  }
+  if(!DB.isOpen()) if(!DB.open()){
+    setError(tr("Ошибка подключения к базе данных: %1")
+             .arg(DB.lastError().text()));
+    return false;
+  }
   LogDebug()<<"DeclarDocsSaver: saving list for"<<
               docList->newDocuments().count()<<"docs";
   foreach(MFCDocument *doc,docList->newDocuments())
@@ -75,6 +93,15 @@ bool DeclarDocsSaver::saveDocList(DocumentsModel *docList,
 
 bool DeclarDocsSaver::saveDeleteDocuments(DocumentsModel *docList){
   if(!docList) return false;
+  if(!DB.isValid()){
+    setError(tr("Указано ошибочное подключение к базе данных"));
+    return false;
+  }
+  if(!DB.isOpen()) if(!DB.open()){
+    setError(tr("Ошибка подключения к базе данных: %1")
+             .arg(DB.lastError().text()));
+    return false;
+  }
   QString qryStr;
   QSqlQuery qry(DB);
   LogDebug()<<"DeclarDocsSaver: deleting"<<
