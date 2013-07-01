@@ -283,27 +283,27 @@ QString ElectroDoc_v2::errorString(){
 
 QString ElectroDoc_v2::transliter(const QString &str){
   // (C) linux.org.ru wingear
-  QHash<QChar, QString> t;
+  QHash<QString, QString> t;
 
-  t.insert('а',"a");  t.insert('б',"b");  t.insert('в',"v");   t.insert('г',"g");
-  t.insert('д',"d");  t.insert('е',"ye"); t.insert('ё',"yo");  t.insert('ж',"zh");
-  t.insert('з',"z");  t.insert('и',"i");  t.insert('й',"y");   t.insert('к',"k");
-  t.insert('л',"l");  t.insert('м',"m");  t.insert('н',"n");   t.insert('о',"o");
-  t.insert('п',"p");  t.insert('р',"r");  t.insert('с',"s");   t.insert('т',"t");
-  t.insert('у',"u");  t.insert('ф',"f");  t.insert('х',"kh");  t.insert('ц',"c");
-  t.insert('ч',"ch"); t.insert('ш',"sh"); t.insert('щ',"sch"); t.insert('ъ',"");
-  t.insert('ы',"y");  t.insert('ь',"");   t.insert('э',"e");   t.insert('ю',"yu");
-  t.insert('я',"ya");
-  t.insert('А',"A");  t.insert('Б',"B");  t.insert('В',"V");   t.insert('Г',"G");
-  t.insert('Д',"D");  t.insert('Е',"YE"); t.insert('Ё',"YO");  t.insert('Ж',"ZH");
-  t.insert('З',"Z");  t.insert('И',"I");  t.insert('Й',"Y");   t.insert('К',"K");
-  t.insert('Л',"L");  t.insert('М',"M");  t.insert('Н',"N");   t.insert('О',"O");
-  t.insert('П',"P");  t.insert('Р',"R");  t.insert('С',"S");   t.insert('Т',"T");
-  t.insert('У',"U");  t.insert('Ф',"F");  t.insert('Х',"KH");  t.insert('Ц',"C");
-  t.insert('Ч',"CH"); t.insert('Ш',"SH"); t.insert('Щ',"SCH"); t.insert('Ъ',"");
-  t.insert('Ы',"Y");  t.insert('Ь',"");   t.insert('Э',"E");   t.insert('Ю',"YU");
-  t.insert('Я',"YA");
-  t.insert('№',"N");
+  t.insert("а","a");  t.insert("б","b");  t.insert("в","v");   t.insert("г","g");
+  t.insert("д","d");  t.insert("е","ye"); t.insert("ё","yo");  t.insert("ж","zh");
+  t.insert("з","z");  t.insert("и","i");  t.insert("й","y");   t.insert("к","k");
+  t.insert("л","l");  t.insert("м","m");  t.insert("н","n");   t.insert("о","o");
+  t.insert("п","p");  t.insert("р","r");  t.insert("с","s");   t.insert("т","t");
+  t.insert("у","u");  t.insert("ф","f");  t.insert("х","kh");  t.insert("ц","c");
+  t.insert("ч","ch"); t.insert("ш","sh"); t.insert("щ","sch"); t.insert("ъ","");
+  t.insert("ы","y");  t.insert("ь","");   t.insert("э","e");   t.insert("ю","yu");
+  t.insert("я","ya");
+  t.insert("А","A");  t.insert("Б","B");  t.insert("В","V");   t.insert("Г","G");
+  t.insert("Д","D");  t.insert("Е","YE"); t.insert("Ё","YO");  t.insert("Ж","ZH");
+  t.insert("З","Z");  t.insert("И","I");  t.insert("Й","Y");   t.insert("К","K");
+  t.insert("Л","L");  t.insert("М","M");  t.insert("Н","N");   t.insert("О","O");
+  t.insert("П","P");  t.insert("Р","R");  t.insert("С","S");   t.insert("Т","T");
+  t.insert("У","U");  t.insert("Ф","F");  t.insert("Х","KH");  t.insert("Ц","C");
+  t.insert("Ч","CH"); t.insert("Ш","SH"); t.insert("Щ","SCH"); t.insert("Ъ","");
+  t.insert("Ы","Y");  t.insert("Ь","");   t.insert("Э","E");   t.insert("Ю","YU");
+  t.insert("Я","YA");
+  t.insert("№","N");
 //  t[0x430] = "a";
 //  t[0x410] = "A";
 //  t[0x44f] = "ya";

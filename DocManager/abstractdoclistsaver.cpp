@@ -159,15 +159,9 @@ void AbstractDocListSaver::documentSaveDone(QString path){
 
   QSqlQuery qry(DB);
 
-  QString qryStr="SELECT id FROM doctypes WHERE aname=?";
-  if(!qry.prepare(qryStr)){
-    setError(tr("Ошибка получения типа документа: %1 QUERY: %2")
-             .arg(qry.lastError().text()).arg(qryStr));
-    loop->exit(-1);
-    return;
-  }
-  qry.addBindValue(curDoc->type());
-  if(!qry.exec()){
+  QString qryStr=tr("SELECT id FROM doctypes WHERE aname='%1'")
+      .arg(curDoc->type());
+  if(!qry.exec(qryStr)){
     setError(tr("Ошибка запроса типа документа: %1 QUERY: %2")
              .arg(qry.lastError().text()).arg(qry.lastQuery()));
     loop->exit(-1);
@@ -184,28 +178,22 @@ void AbstractDocListSaver::documentSaveDone(QString path){
 
   QVariant docagency_id(QVariant::Int);
   if(!curDoc->agency().isEmpty()){
-    qryStr="SELECT cod FROM docagency WHERE \"name\"=?";
-      if(!qry.prepare(qryStr)){
-        setError(tr("Ошибка получения выдающей организации: %1 QUERY: %2")
-                 .arg(qry.lastError().text()).arg(qryStr));
-        loop->exit(-1);
-        return;
-      }
-      qry.addBindValue(curDoc->agency());
-      if(!qry.exec()){
-        setError(tr("Ошибка запроса выдающей организации: %1 QUERY: %2")
-                 .arg(qry.lastError().text()).arg(qry.lastQuery()));
-        loop->exit(-1);
-        return;
-      }
-      if(!qry.next()){
-        setError(tr("Неизвестная ошибка запроса: %1 QUERY: %2")
-                 .arg(qry.lastError().text()).arg(qry.lastQuery()));
-        loop->exit(-1);
-        return;
-      }
-      docagency_id=qry.value(0);
-      qry.clear();
+    qryStr=tr("SELECT cod FROM docagency WHERE \"name\"='%1'")
+        .arg(curDoc->agency());
+    if(!qry.exec(qryStr)){
+      setError(tr("Ошибка запроса выдающей организации: %1 QUERY: %2")
+               .arg(qry.lastError().text()).arg(qry.lastQuery()));
+      loop->exit(-1);
+      return;
+    }
+    if(!qry.next()){
+      setError(tr("Неизвестная ошибка запроса: %1 QUERY: %2")
+               .arg(qry.lastError().text()).arg(qry.lastQuery()));
+      loop->exit(-1);
+      return;
+    }
+    docagency_id=qry.value(0);
+    qry.clear();
   }
 
   if(!qry.exec("SELECT nextval('documents_id_seq')")){

@@ -472,7 +472,8 @@ void FTPEngine::executeCommand( QString text )
   QString command = text;
   text = text.replace( "\r", "" ).replace( "\n", "" );
 #ifdef FTPENGINE_DEBUG
-  LogDebug() << QString( "------> " ) << text;
+  LogDebug() << QString( "------> " ) <<
+                (text.contains("pass ")?"pass *******":text);
 #endif
   emit executedCommand( text );
 //#ifdef Q_OS_WIN32
