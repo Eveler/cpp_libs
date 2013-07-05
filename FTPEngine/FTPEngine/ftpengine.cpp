@@ -83,8 +83,10 @@ bool FTPEngine::connectToHost( const QUrl &url, int port )
   if ( m__Socket->state() != QAbstractSocket::UnconnectedState ) return true;
 
 #ifdef FTPENGINE_DEBUG
+  QUrl u=m__Url;
+  u.setPassword("******");
   LogDebug()<<"Connecting to host ="<<m__Url.host()<<"port ="<<m__Port
-           <<"m__User ="<<m__User<<"(url ="<<m__Url;
+           <<"m__User ="<<m__User<<"(url ="<<u;
 #endif
   setDefaultConnect();
   connect( m__Socket, SIGNAL(readyRead()), this, SLOT(socketConnected()) );

@@ -107,6 +107,7 @@ bool DeclarDocsSaver::saveDeleteDocuments(DocumentsModel *docList){
   LogDebug()<<"DeclarDocsSaver: deleting"<<
               docList->removedDocumentsIDs().count()<<"docs";
   foreach(QVariant id,docList->removedDocumentsIDs()){
+    qryStr.clear();
     if(clients_ids.count()>0)
       qryStr=tr("SELECT id FROM client_documents WHERE documents_id=%1"
                 " AND clients_id in (%2) ")

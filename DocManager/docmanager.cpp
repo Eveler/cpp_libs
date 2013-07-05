@@ -683,8 +683,8 @@ void Docmanager::timeout(){
 }
 
 void Docmanager::updateTimer(){
-  if(timer->isActive()) timer->stop();
-  timer->start();
+  if(timer->isActive()) timer->start();
+//  timer->start();
 }
 
 QVariant Docmanager::documentID(MFCDocument *doc) const{
