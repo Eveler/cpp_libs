@@ -822,6 +822,12 @@ QProgressBar::chunk
       </item>
       <item row="2" column="8">
        <widget class="QDateEdit" name="dEdit_DocDate">
+        <property name="minimumSize">
+         <size>
+          <width>101</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="specialValueText">
          <string/>
         </property>
@@ -856,6 +862,12 @@ QProgressBar::chunk
       </item>
       <item row="2" column="10">
        <widget class="QDateEdit" name="dEdit_DocExpires">
+        <property name="minimumSize">
+         <size>
+          <width>103</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="specialValueText">
          <string>не указано</string>
         </property>
