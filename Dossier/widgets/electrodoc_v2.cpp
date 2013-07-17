@@ -210,7 +210,7 @@ void ElectroDoc_v2::setCanJustClose(const bool can){
 }
 
 bool ElectroDoc_v2::setDocument(MFCDocument *document){
-  if(document==NULL || !(document->isValid()))
+  if(document==NULL || !(document->haveAttachments() || document->havePages()))
     return false;
   // Очищаем виджеты
   clear();
@@ -337,6 +337,7 @@ bool ElectroDoc_v2::isModified(){
 }
 
 void ElectroDoc_v2::setModified(const bool m){
+  if(!m && isReadOnly) return;
   m_modified=m;
   setWindowTitle(title+(m?" *":""));
 }
@@ -892,11 +893,11 @@ void ElectroDoc_v2::save(){
     m_Document->setAgency( ui->cBox_DocAgency->currentText() );
   }
 
-  hide();
+//  hide();
   if(originalDocument==NULL){
     originalDocument=MFCDocument::instance(QString(),QDate(),QDateTime());
   }
-  originalDocument->copyFrom(m_Document);
+  if(isModified() && !isReadOnly) originalDocument->copyFrom(m_Document);
   setModified(false);
   canJustClose=true;
   saved=true;
@@ -906,18 +907,18 @@ void ElectroDoc_v2::save(){
 void ElectroDoc_v2::confirm(){
   if(originalDocument==NULL){
     originalDocument=MFCDocument::instance(QString(),QDate(),QDateTime());
+    originalDocument->copyFrom(m_Document);
   }
-  originalDocument->copyFrom(m_Document);
   canJustClose=true;
   saved=true;
-  hide();
+//  hide();
   close();
 }
 
 void ElectroDoc_v2::reject(){
   canJustClose=true;
   emit rejected();
-  hide();
+//  hide();
   close();
 }
 
