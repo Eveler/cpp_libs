@@ -3,8 +3,6 @@
 
 #include "treelistitem.h"
 
-#include "amslogger.h"
-
 
 Widget_Treelist::Widget_Treelist(QWidget *parent) :
   QWidget(parent),
@@ -50,6 +48,7 @@ bool Widget_Treelist::addRoot( TreelistItem *item )
   {
 
   }
+  return true;
 }
 
 TreelistItem * Widget_Treelist::addChild( TreelistItem *item, const QStringList &fldVal, bool checked )
