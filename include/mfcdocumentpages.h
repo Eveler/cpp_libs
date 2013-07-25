@@ -2,8 +2,10 @@
 #define MFCDOCUMENTPAGES_H
 
 #include "mfcdocumentpage.h"
+#include "export/dossier_export.h"
 
-class MFCDocumentPages
+
+class DOSSIER_EXPORT MFCDocumentPages
 {
 public:
   MFCDocumentPages();
