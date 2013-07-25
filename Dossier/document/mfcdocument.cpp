@@ -248,7 +248,6 @@ bool MFCDocument::havePages(){
 }
 
 MFCDocumentPages *MFCDocument::pages(){
-  isValid();
   return m_pages;
 }
 
@@ -257,7 +256,6 @@ bool MFCDocument::haveAttachments(){
 }
 
 DocAttachments *MFCDocument::attachments(){
-  isValid();
   return m_attachments;
 }
 

@@ -41,17 +41,17 @@ QWidget#wgt_User, QWidget#wgt_Ticket
 	background: rgba(250, 250, 250, 150);
 	margin-bottom: 9px;
 }
-QToolButton#tBt_RemoveExt, QToolButton#tBt_DeletePage, QToolButton#tBt_SaveDocument
+QToolButton#tBt_RemoveExt, QToolButton#tBt_DeletePage, QToolButton#tBt_RejectDocument
 {
 	background-color: qradialgradient(spread:pad, cx:0.5, cy:0, radius:1.478, fx:0.5, fy:0, stop:0.420455 rgba(160, 160, 160, 160), stop:0.767045 rgba(120, 120, 120, 255));
 	border: 1px solid rgb(170, 170, 170);
 	border-top: 1px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(255, 255, 255, 0), stop:0.494318 rgba(255, 255, 255, 255), stop:1 rgba(255, 255, 255, 0));
 }
-QToolButton::hover#tBt_RemoveExt, QToolButton::hover#tBt_DeletePage, QToolButton::hover#tBt_SaveDocument
+QToolButton::hover#tBt_RemoveExt, QToolButton::hover#tBt_DeletePage, QToolButton::hover#tBt_RejectDocument
 {
 	background-color: qradialgradient(spread:pad, cx:0.5, cy:0, radius:1.478, fx:0.5, fy:0, stop:0.420455 rgba(220, 220, 220, 255), stop:0.767045 rgba(160, 160, 160, 255));
 }
-QToolButton::checked#tBt_RemoveExt, QToolButton::pressed#tBt_RemoveExt, QToolButton::checked#tBt_DeletePage, QToolButton::pressed#tBt_DeletePage, QToolButton::checked#tBt_SaveDocument, QToolButton::pressed#tBt_SaveDocument
+QToolButton::checked#tBt_RemoveExt, QToolButton::pressed#tBt_RemoveExt, QToolButton::checked#tBt_DeletePage, QToolButton::pressed#tBt_DeletePage, QToolButton::checked#tBt_RejectDocument, QToolButton::pressed#tBt_RejectDocument
 {
 /*	background-color: qradialgradient(spread:pad, cx:0.528409, cy:0, radius:1.478, fx:0.529, fy:0, stop:0.420455 rgba(230, 230, 230, 255), stop:0.767045 rgba(182, 182, 182, 255));*/
 	background-color: qradialgradient(spread:pad, cx:0.5, cy:0, radius:1.478, fx:0.5, fy:0, stop:0.278 rgba(160, 160, 160, 255), stop:0.767 rgba(220, 220, 220, 255));
