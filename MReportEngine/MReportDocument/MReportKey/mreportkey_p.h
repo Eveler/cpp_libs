@@ -27,6 +27,7 @@ private:
   MReportKey::DataType m__DT;
   QString m__Source;
   QString m__DataSource;
+  QString m__DataFormat;
 
   explicit MReportKey_P( const QString &name, MReportKey *parent );
 

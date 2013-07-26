@@ -12,7 +12,7 @@
 #include <QUrl>
 #include <QTimer>
 #include <QIODevice>
-
+#include <QEventLoop>
 
 class FTPCommand;
 class FTPCommandsPool;
@@ -29,7 +29,9 @@ public:
   explicit FTPEngine( QObject *parent = 0 );
   ~FTPEngine();
 
-  void connectToHost( const QUrl &url = QUrl() , int port = 21 );
+  void setPassiveTransferMode(bool isPassive=true);
+
+  bool connectToHost( const QUrl &url = QUrl() , int port = 21 );
   void disconnectFromHost();
   bool isConnected() const;
 
@@ -98,6 +100,8 @@ private:
   QTimer *m__Timer;
 
   bool m__CommandListCreation;
+
+  QEventLoop *loop;
 
   void setDefaultConnect();
 

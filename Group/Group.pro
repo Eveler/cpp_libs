@@ -80,13 +80,3 @@ SOURCES += \
     Group/group.cpp \
     Group/group_p.cpp \
     GroupsStorage/groupsstorage.cpp
-
-
-
-
-
-
-
-
-
-

@@ -37,7 +37,7 @@ bool MReportViewer_P::populate( MReportDocument *reportDocument ) const
     bool authd = false;
     if ( !reportSource->userName().isEmpty() &&
          reportSource->password().isEmpty() )
-      logIn->setNames( QStringList() << reportSource->userName() );
+      logIn->setNames( reportSource->userList() );
     authd = ( !reportSource->userName().isEmpty() &&
               !reportSource->password().isEmpty() );
     if ( authd ) authd = reportSource->check();
@@ -61,13 +61,8 @@ bool MReportViewer_P::populate( MReportDocument *reportDocument ) const
 
   foreach ( MReportParameter *reportParemeter, reportDocument->reportParameters() )
   {
-//    qDebug() << __LINE__ << ( reportParemeter->parameterType() == MReportParameter::PT_InputData );
     if ( reportParemeter->parameterType() == MReportParameter::PT_InputData )
     {
-//      qDebug() << __LINE__ << ( reportParemeter->dataType() == MReportParameter::DT_Date ) <<
-//                  reportParemeter->dataType();
-//      qDebug() << __LINE__ << ( reportParemeter->data().isValid() ) <<
-//                  reportParemeter->data();
       if ( reportParemeter->dataType() == MReportParameter::DT_Date &&
            !reportParemeter->data().isValid() )
       {

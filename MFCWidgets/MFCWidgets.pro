@@ -10,8 +10,7 @@ TEMPLATE = lib
 
 DEFINES += EXPORT_LIB_MWIDGETS
 
-LIB_LIST = \
-    -lAMSLogger
+LIB_LIST =
 
 INCLUDEPATH += ./ \
     ../bin/ \
@@ -69,15 +68,9 @@ CONFIG(debug, debug|release){
 }
 
 HEADERS += \
-    ../include/lib_export.h \
     ../include/mfcwidgets.h \
-    ../include/export/mwidgets_export_lib.h
 
 
 include(./MWidgetsCore/MWidgetsCore.pri)
 include(./Widget_Treelist/Widget_Treelist.pri)
 include(./Menu_PeriodDates/Menu_PeriodDates.pri)
-
-
-
-

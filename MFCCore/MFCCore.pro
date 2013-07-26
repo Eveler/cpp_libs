@@ -83,4 +83,3 @@ SOURCES += \
     mfccore.cpp \
     Abstraction/AbstractSimpleObject/abstractsimpleobject.cpp \
     Abstraction/AbstractSimpleStorage/abstractsimplestorage.cpp
-

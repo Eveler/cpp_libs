@@ -26,13 +26,21 @@ public:
   void exec( const QString &filePath );
   bool exec( MReportDocument *reportDocument );
 
-  const QString &html() const;
+  QString html() const;
+
+
+signals:
+  void progress( int current, int overall );
 
 
 private:
   Ui::MReportViewer *ui;
 
   MReportViewer_P *p;
+
+
+private slots:
+  void reportProgress( int current, int overall );
 };
 
 #endif // MREPORTVIEWER_H

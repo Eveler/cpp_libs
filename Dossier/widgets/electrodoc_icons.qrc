@@ -1,0 +1,29 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/monotone_arrow_down_hover.png</file>
+        <file>icons/monotone_arrow_up_hover.png</file>
+        <file>icons/check_button_checked_1.png</file>
+        <file>icons/check_button_checked_1_disabled.png</file>
+        <file>icons/check_button_checked_1_hover.png</file>
+        <file>icons/check_button_unchecked.png</file>
+        <file>icons/check_button_unchecked_disabled.png</file>
+        <file>icons/check_button_unchecked_hover.png</file>
+        <file>icons/radiobutton_checked.png</file>
+        <file>icons/radiobutton_checked_disabled.png</file>
+        <file>icons/radiobutton_checked_hover.png</file>
+        <file>icons/radiobutton_unchecked.png</file>
+        <file>icons/radiobutton_unchecked_disabled.png</file>
+        <file>icons/radiobutton_unchecked_hover.png</file>
+        <file>icons/arrow-down_1_hover.png</file>
+        <file>icons/arrow-down_1_simple.png</file>
+        <file>icons/gtk-add.png</file>
+        <file>icons/rotate_ccw.png</file>
+        <file>icons/rotate_cw.png</file>
+        <file>icons/old-zoom-best-fit.png</file>
+        <file>icons/old-zoom-in.png</file>
+        <file>icons/old-zoom-original.png</file>
+        <file>icons/old-zoom-out.png</file>
+        <file>icons/check.png</file>
+        <file>icons/fileprint.png</file>
+    </qresource>
+</RCC>

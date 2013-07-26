@@ -20,7 +20,16 @@
    <bool>true</bool>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="margin">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
     <number>0</number>
    </property>
    <item>
@@ -128,7 +137,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QToolButton" name="tBt_Ok">
+       <widget class="QPushButton" name="tBt_Ok">
         <property name="minimumSize">
          <size>
           <width>80</width>
@@ -137,6 +146,9 @@
         </property>
         <property name="text">
          <string>ОК</string>
+        </property>
+        <property name="default">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -169,13 +181,13 @@
  </resources>
  <connections>
   <connection>
-   <sender>tBt_Ok</sender>
+   <sender>tBt_Cancel</sender>
    <signal>clicked()</signal>
    <receiver>MLoginDialog</receiver>
-   <slot>accept()</slot>
+   <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>250</x>
+     <x>336</x>
      <y>90</y>
     </hint>
     <hint type="destinationlabel">
@@ -185,13 +197,13 @@
    </hints>
   </connection>
   <connection>
-   <sender>tBt_Cancel</sender>
+   <sender>tBt_Ok</sender>
    <signal>clicked()</signal>
    <receiver>MLoginDialog</receiver>
-   <slot>reject()</slot>
+   <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>336</x>
+     <x>250</x>
      <y>90</y>
     </hint>
     <hint type="destinationlabel">

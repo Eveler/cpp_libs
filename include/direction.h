@@ -31,15 +31,11 @@ public:
   Direction * parentDirection() const;
   const DirectionList & childDirections() const;
 
-  void setDepartment( Department *department );
-  Department *department() const;
-
 
 signals:
   void nameChanged();
   void childDirectionAdded( Direction *childDirection );
   void childDirectionRemoved( Direction *childDirection );
-  void departmentChanged();
 
 
 public slots:

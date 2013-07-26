@@ -28,6 +28,66 @@ void AMSLogger::install(){
   installed=true;
 }
 
+#if QT_VERSION >= 0x050000
+void AMSLogger::messageOutput(QtMsgType type, const QMessageLogContext &,const QString &msg){
+#else
+Q_CORE_EXPORT_INLINE void AMSLogger::messageOutput(QtMsgType type, const char *msg){
+#endif
+  AMSLogger::initialyze();
+  QByteArray ba(qPrintable(msg));
+  QString strDateTime=
+      QDateTime::currentDateTime().toString("[dd.MM.yyyy] [hh:mm:ss.zzz]: ");
+
+  switch (type){
+  case QtDebugMsg:
+    if(oldMsgType!=type){
+      if(stream.device()->pos()>0) stream<<endl;
+      ba.prepend("Debug: ");
+      ba.prepend(qPrintable(strDateTime));
+    }
+    stream<<ba;
+    if(AMSLogger::logLevel().testFlag(AMSLogger::LevelDebug))
+      if(outFile->fileName().length()>0) writeToFile(ba+" ");
+    break;
+
+  case QtWarningMsg:
+    if(oldMsgType!=type){
+      if(stream.device()->pos()>0) stream<<endl;
+      ba.prepend("Warning: ");
+      ba.prepend(qPrintable(strDateTime));
+    }
+    stream<<ba;
+    if(AMSLogger::logLevel().testFlag(AMSLogger::LevelWarn))
+      if(outFile->fileName().length()>0) writeToFile(ba+" ");
+    break;
+
+  case QtCriticalMsg:
+    if(oldMsgType!=type){
+      if(stream.device()->pos()>0) stream<<endl;
+      ba.prepend("Critical: ");
+      ba.prepend(qPrintable(strDateTime));
+    }
+    stream<<ba;
+    if(AMSLogger::logLevel().testFlag(AMSLogger::LevelCritical))
+      if(outFile->fileName().length()>0) writeToFile(ba+" ");
+    break;
+
+  case QtFatalMsg:
+    if(oldMsgType!=type){
+      if(stream.device()->pos()>0) stream<<endl;
+      ba.prepend("Fatal: ");
+      ba.prepend(qPrintable(strDateTime));
+    }
+    stream<<ba;
+    if(AMSLogger::logLevel().testFlag(AMSLogger::LevelFatal))
+      if(outFile->fileName().length()>0) writeToFile(ba+" ");
+//    abort();
+    break;
+  }
+  stream.flush();
+  oldMsgType=type;
+}
+
 void AMSLogger::initialyze(){
   space=true;
   if(initialized) return;
@@ -89,6 +149,11 @@ AMSLogger& AMSLogger::operator <<(const void * ptr){
 
 AMSLogger& AMSLogger::operator <<(const char *ptr){
   QString str(ptr);
+  return (*this)<<str;
+}
+
+AMSLogger& AMSLogger::operator <<(const QByteArray& msg){
+  QString str(msg);
   return (*this)<<str;
 }
 

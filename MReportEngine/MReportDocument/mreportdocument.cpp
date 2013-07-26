@@ -157,6 +157,32 @@ MReportParameter * MReportDocument::reportParameter( const QString &name ) const
   return NULL;
 }
 
+MReportParameter * MReportDocument::repeater() const
+{
+  MReportParameter *res=NULL;
+  if ( reportParameters().isEmpty()) return NULL;
+
+  foreach(MReportParameter *p,reportParameters())
+    if(p->parameterType()==MReportParameter::PT_Repeater){
+      res=p;
+      break;
+    }
+
+  return res;
+}
+
+MReportParameter * MReportDocument::parentDocumentRepeater() const
+{
+  MReportParameter *result = NULL;
+
+  if ( parentDocument() == NULL ) return result;
+  result = parentDocument()->repeater();
+  if ( result == NULL )
+    result = parentDocument()->parentDocumentRepeater();
+
+  return result;
+}
+
 MReportKey * MReportDocument::addReportKey( const QString &name )
 {
   if ( name.contains( " " ) || p->m__FileName.isEmpty() ||
@@ -191,23 +217,68 @@ MReportKey * MReportDocument::reportKey( const QString &name ) const
 QString MReportDocument::exec()
 {
   QStringList result = QStringList();
-  MReportParameter *firstParameter = NULL;
-  if ( !reportParameters().isEmpty() )
-  {
-    firstParameter = reportParameters().first();
-    if ( firstParameter->parameterType() != MReportParameter::PT_Repeater )
-      firstParameter = NULL;
-    else firstParameter->toFront();
-  }
+  MReportParameter *firstParameter = repeater();
+  if ( firstParameter != NULL )
+    firstParameter->toFront();
 
-  do
+  p->m__BufProgress = 0.;
+  p->m__Progress = 0.;
+  int repCount = 1;
+  if ( firstParameter != NULL ) repCount = firstParameter->count();
+  p->m__Units = repCount*p->m__Keys.count();
+
+//  do
+//  {
+//    QString html = body();
+//    if ( firstParameter != NULL && firstParameter->hasNext() ) firstParameter->next();
+//    foreach ( MReportKey *key, p->m__Keys )
+//    {
+//      if ( key->keyType() != MReportKey::KT_Attachment )
+//      {
+//        html = html.replace( key->name(), key->data() );
+//        p->increaseProgressValue();
+//      }
+//    }
+//    foreach ( MReportDocument *document, p->m__ChildDocuments )
+//    {
+//      MReportKey *key = p->m__DocumentKey[document];
+//      html = html.replace( key->name(), document->exec() );
+//    }
+//    result << html;
+//  } while ( firstParameter != NULL && firstParameter->hasNext() );
+
+  if ( firstParameter != NULL )
+  {
+    while ( firstParameter->hasNext() )
+    {
+      firstParameter->next();
+      QString html = body();
+      foreach ( MReportKey *key, p->m__Keys )
+      {
+        if ( key->keyType() != MReportKey::KT_Attachment )
+        {
+          html = html.replace( key->name(), key->data() );
+          p->increaseProgressValue();
+        }
+      }
+      foreach ( MReportDocument *document, p->m__ChildDocuments )
+      {
+        MReportKey *key = p->m__DocumentKey[document];
+        html = html.replace( key->name(), document->exec() );
+      }
+      result << html;
+    }
+  }
+  else
   {
     QString html = body();
-    if ( firstParameter != NULL && firstParameter->hasNext() ) firstParameter->next();
     foreach ( MReportKey *key, p->m__Keys )
     {
       if ( key->keyType() != MReportKey::KT_Attachment )
+      {
         html = html.replace( key->name(), key->data() );
+        p->increaseProgressValue();
+      }
     }
     foreach ( MReportDocument *document, p->m__ChildDocuments )
     {
@@ -215,7 +286,7 @@ QString MReportDocument::exec()
       html = html.replace( key->name(), document->exec() );
     }
     result << html;
-  } while ( firstParameter != NULL && firstParameter->hasNext() );
+  }
 
   return result.join( "\n" );
 }
@@ -230,3 +301,11 @@ void MReportDocument::setLastError( const QString &lastError )
 {
   p->m__LastError = lastError;
 }
+
+void MReportDocument::emitProgress()
+{
+  MReportDocument *reportDocument = parentDocument();
+  if ( reportDocument == NULL ) emit progress( (int)p->m__Progress, 10000 );
+  else reportDocument->p->increaseProgressValue( p->m__Progress );
+}
+

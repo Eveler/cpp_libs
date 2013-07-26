@@ -1,0 +1,2339 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ElectroDoc_v2</class>
+ <widget class="QWidget" name="ElectroDoc_v2">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>916</width>
+    <height>673</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Электронный документ</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget#Widget_AcceptApplications
+{
+	background-color: qlineargradient(spread:pad, x1:0, y1:0.931818, x2:0, y2:0, stop:0.198864 rgba(228, 230, 232, 255), stop:1 rgba(214, 214, 218, 255));
+}
+QWidget#wgt_ApplicationContainer
+{
+	border-radius: 5px;
+	border: 2px solid rgb(255, 170, 0);
+	background-color: qlineargradient(spread:pad, x1:0, y1:0.931818, x2:0, y2:0, stop:0.198864 rgba(246, 248, 250, 255), stop:1 rgba(237, 237, 241, 255));
+}
+QWidget#wgt_ApplicationTime
+{
+	border-bottom-left-radius: 15px;
+	border-bottom-right-radius: 15px;
+	border: 1px solid rgb(255, 170, 0);
+	border-top: none;
+	background: rgba(250, 240, 200, 150);
+}
+QWidget#wgt_User, QWidget#wgt_Ticket
+{
+	border-bottom-left-radius: 15px;
+	border-bottom-right-radius: 15px;
+	border: 1px solid rgb(255, 170, 0);
+	border-top: none;
+	background: rgba(250, 250, 250, 150);
+	margin-bottom: 9px;
+}
+QToolButton#tBt_RemoveExt, QToolButton#tBt_DeletePage, QToolButton#tBt_RejectDocument
+{
+	background-color: qradialgradient(spread:pad, cx:0.5, cy:0, radius:1.478, fx:0.5, fy:0, stop:0.420455 rgba(160, 160, 160, 160), stop:0.767045 rgba(120, 120, 120, 255));
+	border: 1px solid rgb(170, 170, 170);
+	border-top: 1px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(255, 255, 255, 0), stop:0.494318 rgba(255, 255, 255, 255), stop:1 rgba(255, 255, 255, 0));
+}
+QToolButton::hover#tBt_RemoveExt, QToolButton::hover#tBt_DeletePage, QToolButton::hover#tBt_RejectDocument
+{
+	background-color: qradialgradient(spread:pad, cx:0.5, cy:0, radius:1.478, fx:0.5, fy:0, stop:0.420455 rgba(220, 220, 220, 255), stop:0.767045 rgba(160, 160, 160, 255));
+}
+QToolButton::checked#tBt_RemoveExt, QToolButton::pressed#tBt_RemoveExt, QToolButton::checked#tBt_DeletePage, QToolButton::pressed#tBt_DeletePage, QToolButton::checked#tBt_RejectDocument, QToolButton::pressed#tBt_RejectDocument
+{
+/*	background-color: qradialgradient(spread:pad, cx:0.528409, cy:0, radius:1.478, fx:0.529, fy:0, stop:0.420455 rgba(230, 230, 230, 255), stop:0.767045 rgba(182, 182, 182, 255));*/
+	background-color: qradialgradient(spread:pad, cx:0.5, cy:0, radius:1.478, fx:0.5, fy:0, stop:0.278 rgba(160, 160, 160, 255), stop:0.767 rgba(220, 220, 220, 255));
+	border: 1px solid rgb(170, 170, 170);
+	border-bottom: 1px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(255, 255, 255, 0), stop:0.494318 rgba(255, 255, 255, 255), stop:1 rgba(255, 255, 255, 0));
+}
+QLabel#label_Message
+{
+	color: rgb(59, 59, 59);
+	background: rgba(0, 0, 0, 0);
+}
+/*======================================================================*/
+QRadioButton
+{
+	color: black;
+}
+QRadioButton::checked
+{
+	color: rgb(0, 85, 127);
+}
+QRadioButton::hover:!checked
+{
+	color: rgb(216, 72, 0);
+	color: rgb(0, 65, 107);
+}
+QRadioButton::disabled
+{
+	color: darkgray;
+}
+ QRadioButton::indicator {
+     width: 28px;
+     height: 28px;
+ }
+ QRadioButton::indicator::unchecked::disabled {
+     image: url(:/icons/radiobutton_unchecked_disabled.png);
+ }
+ QRadioButton::indicator::unchecked:!disabled {
+     image: url(:/icons/radiobutton_unchecked.png);
+ }
+QRadioButton::indicator::unchecked:hover:!disabled
+{
+	image: url(:/icons/radiobutton_unchecked_hover.png);
+}
+ QRadioButton::indicator::checked::disabled {
+     image: url(:/icons/radiobutton_checked_disabled.png);
+ }
+ QRadioButton::indicator::checked:!disabled {
+     image: url(:/icons/radiobutton_checked.png);
+ }
+QRadioButton::indicator::checked:hover:!disabled
+{
+	image: url(:/icons/radiobutton_checked_hover.png);
+}
+/*======================================================================*/
+QCheckBox
+{
+	padding-left: 3px;
+	color: black;
+}
+QCheckBox::checked
+{
+	color: rgb(0, 85, 127);
+}
+QCheckBox::hover:!checked
+{
+	color: rgb(216, 72, 0);
+	color: rgb(0, 65, 107);
+}
+QCheckBox::disabled
+{
+	color: darkgray;
+}
+ QCheckBox::indicator {
+     width: 20px;
+     height: 20px;
+ }
+ QCheckBox::indicator::unchecked:disabled {
+     image: url(:/icons/check_button_unchecked_disabled.png);
+ }
+ QCheckBox::indicator::unchecked:!disabled {
+     image: url(:/icons/check_button_unchecked.png);
+ }
+ QCheckBox::indicator::unchecked:hover:!disabled {
+     image: url(:/icons/check_button_unchecked_hover.png);
+ }
+ QCheckBox::indicator::checked:disabled {
+     image: url(:/icons/check_button_checked_1_disabled.png);
+ }
+ QCheckBox::indicator::checked:!disabled {
+     image: url(:/icons/check_button_checked_1.png);
+ }
+ QCheckBox::indicator::checked:hover:!disabled {
+     image: url(:/icons/check_button_checked_1_hover.png);
+ }
+/*======================================================================*/
+QAbstractButton
+{
+	margin: 0 2px 0 2px;
+	padding: 3px 3px 3px 3px;
+	border-radius: 4px;
+	border: 1px solid rgb(255, 125, 0);
+	border-top: 1px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(255, 255, 255, 0), stop:0.494318 rgba(255, 255, 255, 255), stop:1 rgba(255, 255, 255, 0));
+/*	background-color: qlineargradient(spread:pad, x1:0, y1:0.931818, x2:0, y2:0, stop:0.198864 rgba(246, 248, 250, 255), stop:1 rgba(237, 237, 241, 255));*/
+	background-color: qradialgradient(spread:pad, cx:0.528409, cy:0, radius:1.478, fx:0.529, fy:0, stop:0.420455 rgba(255, 181, 52, 255), stop:0.767045 rgba(255, 118, 0, 255));
+	color: rgb(62, 62, 62);
+}
+QAbstractButton:disabled
+{
+	color: gray;
+	background-color: rgb(255, 255, 255);
+	border-color: rgb(200, 200, 200);
+}
+QAbstractButton::hover
+{
+	border: 1px solid rgb(255, 155, 0);
+	border-top: 1px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(255, 255, 255, 0), stop:0.494318 rgba(255, 255, 255, 255), stop:1 rgba(255, 255, 255, 0));
+/*	background-color: qlineargradient(spread:pad, x1:0, y1:0.931818, x2:0, y2:0, stop:0.170455 rgba(250, 180, 79, 255), stop:1 rgba(255, 245, 218, 255));*/
+	background-color: qradialgradient(spread:pad, cx:0.528409, cy:0, radius:1.597, fx:0.534, fy:0, stop:0.278409 rgba(255, 207, 54, 255), stop:0.767045 rgba(255, 118, 0, 255));
+/*	color: white;*/
+}
+/*QAbstractButton::pressed
+{
+	padding: 3px 1px 1px 1px;
+	border: 2px solid rgba(255, 200, 30, 255);
+}*/
+QAbstractButton::checked, QAbstractButton::pressed
+{
+	padding: 3px 3px 2px 3px;
+/*	border: 2px solid rgba(255, 200, 30, 255);
+	color: white;
+	background-color: qlineargradient(spread:pad, x1:0, y1:0.931818, x2:0, y2:0, stop:0.170455 rgba(250, 180, 79, 255), stop:1 rgba(255, 245, 218, 255));*/
+	border: 1px solid rgb(255, 155, 0);
+	border-bottom: 1px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(255, 255, 255, 0), stop:0.494318 rgba(255, 255, 255, 255), stop:1 rgba(255, 255, 255, 0));
+	background-color: qradialgradient(spread:pad, cx:0.528, cy:0.994318, radius:1.597, fx:0.528, fy:1, stop:0.278409 rgba(255, 207, 54, 255), stop:0.767045 rgba(255, 118, 0, 255));
+}
+/*======================================================================*/
+QRadioButton
+{
+	color: black;
+	margin: 0;
+	padding: 0;
+	border-radius: 0;
+	border: none;
+	background: transparent;
+}
+QRadioButton::checked
+{
+	color: rgb(0, 85, 127);
+	margin: 0;
+	padding: 0;
+	border-radius: 0;
+	border: none;
+	background: transparent;
+}
+QRadioButton::hover:!checked
+{
+	color: rgb(0, 65, 107);
+	margin: 0;
+	padding: 0;
+	border-radius: 0;
+	border: none;
+	background: transparent;
+}
+QRadioButton::disabled
+{
+	color: darkgray;
+	margin: 0;
+	padding: 0;
+	border-radius: 0;
+	border: none;
+	background: transparent;
+}
+ QRadioButton::indicator {
+     width: 28px;
+     height: 28px;
+ }
+ QRadioButton::indicator::unchecked::disabled {
+     image: url(:/icons/radiobutton_unchecked_disabled.png);
+ }
+ QRadioButton::indicator::unchecked:!disabled {
+     image: url(:/icons/radiobutton_unchecked.png);
+ }
+QRadioButton::indicator::unchecked:hover:!disabled
+{
+	image: url(:/icons/radiobutton_unchecked_hover.png);
+}
+ QRadioButton::indicator::checked::disabled {
+     image: url(:/icons/radiobutton_checked_disabled.png);
+ }
+ QRadioButton::indicator::checked:!disabled {
+     image: url(:/icons/radiobutton_checked.png);
+ }
+QRadioButton::indicator::checked:hover:!disabled
+{
+	image: url(:/icons/radiobutton_checked_hover.png);
+}
+/*======================================================================*/
+QCheckBox
+{
+	margin: 0;
+	padding: 0;
+	border-radius: 0;
+	border: none;
+	background: transparent;
+	color: black;
+}
+QCheckBox::checked
+{
+	color: rgb(0, 85, 127);
+	margin: 0;
+	padding: 0;
+	border-radius: 0;
+	border: none;
+	background: transparent;
+}
+QCheckBox::hover:!checked
+{
+	color: rgb(0, 65, 107);
+	margin: 0;
+	padding: 0;
+	border-radius: 0;
+	border: none;
+	background: transparent;
+}
+QCheckBox::disabled
+{
+	color: darkgray;
+	margin: 0;
+	padding: 0;
+	border-radius: 0;
+	border: none;
+	background: transparent;
+}
+ QCheckBox::indicator {
+     width: 20px;
+     height: 20px;
+ }
+ QCheckBox::indicator::unchecked:disabled {
+     image: url(:/icons/check_button_unchecked_disabled.png);
+ }
+ QCheckBox::indicator::unchecked:!disabled {
+     image: url(:/icons/check_button_unchecked.png);
+ }
+ QCheckBox::indicator::unchecked:hover:!disabled {
+     image: url(:/icons/check_button_unchecked_hover.png);
+ }
+ QCheckBox::indicator::checked:disabled {
+     image: url(:/icons/check_button_checked_1_disabled.png);
+ }
+ QCheckBox::indicator::checked:!disabled {
+     image: url(:/icons/check_button_checked_1.png);
+ }
+ QCheckBox::indicator::checked:hover:!disabled {
+     image: url(:/icons/check_button_checked_1_hover.png);
+ }
+/*======================================================================*/
+QTabWidget::pane { /* The tab widget frame */
+/*border: 1px solid #C2C7CB;*/
+	border: none;
+	border-top: 4px solid qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(255, 191, 57, 255), stop:1 rgba(255, 255, 255, 0));
+	border-bottom: 4px solid qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(255, 255, 255, 0),  stop:1 rgba(255, 191, 57, 255));
+/*border-radius: 4px;*/
+}
+
+QTabWidget::pane#tabWgt_Main
+{
+	border-radius: 5px;
+	border: 2px solid rgb(255, 170, 0);
+}
+
+QTabWidget::tab-bar
+{
+	left: 5px; /* move to the right by 5px */
+}
+
+ /* Style the tab using the tab sub-control. Note that
+     it reads QTabBar _not_ QTabWidget */
+ QTabBar::tab
+{
+/*	background-color: qlineargradient(spread:pad, x1:0, y1:0.931818, x2:0, y2:0, stop:0.198864 rgba(246, 248, 250, 255), stop:1 rgba(237, 237, 241, 255));*/
+/*	background-color: qradialgradient(spread:pad, cx:0.528409, cy:0, radius:0.986, fx:0.54, fy:0, stop:0.278409 rgba(255, 199, 54, 255), stop:0.767045 rgba(255, 118, 0, 255));*/
+	background-color: qradialgradient(spread:pad, cx:0.528409, cy:0, radius:1.478, fx:0.529, fy:0, stop:0.420455 rgba(218, 218, 218, 255), stop:0.767045 rgba(182, 182, 182, 255));
+	border: 1px solid #C4C4C3;
+	border-bottom-color: rgb(255, 190, 20);
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	min-width: 8px;
+	padding: 2px 10px 0 10px;
+ }
+ QTabBar::tab:hover:!selected
+{
+	margin-top: 2px;
+/*	background-color: qlineargradient(spread:pad, x1:0, y1:0.931818, x2:0, y2:0, stop:0.170455 rgba(250, 180, 79, 255), stop:1 rgba(255, 245, 218, 255));*/
+	background-color: qradialgradient(spread:pad, cx:0.528409, cy:0, radius:1.597, fx:0.534, fy:0, stop:0.278409 rgba(255, 207, 54, 255), stop:0.767045 rgba(255, 118, 0, 255));
+	color: white;
+	border-bottom-color: rgb(255, 190, 20);
+	border-top: 1px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(255, 255, 255, 0), stop:0.494318 rgba(255, 255, 255, 255), stop:1 rgba(255, 255, 255, 0));
+}
+QTabBar::tab:selected
+{
+	background-color: qradialgradient(spread:pad, cx:0.528, cy:0.994318, radius:1.597, fx:0.528, fy:1, stop:0.278409 rgba(255, 207, 54, 255), stop:0.767045 rgba(255, 118, 0, 255));
+	border-color: rgba(255, 255, 255, 150);
+	color: rgb(80, 80, 80);
+/*	border-bottom-color: rgb(255, 190, 20);*/
+	border-bottom: 1px solid qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(255, 207, 54, 255), stop:0.494318 rgba(255, 255, 255, 255), stop:1 rgba(255, 207, 54, 255));
+}
+QTabBar::tab:!selected:!hover:enabled
+{
+	margin: 0;
+	margin-top: 2px; /* make non-selected tabs look smaller */
+/*color: rgb(255, 170, 0);*/
+	color: rgb(80, 80, 80);
+	border-bottom-color: rgb(200, 200, 200);
+}
+/* make use of negative margins for overlapping tabs */
+QTabBar::tab:selected
+{
+/* expand/overlap to the left and right by 4px */
+	margin-left: -2px;
+	margin-right: -2px;
+}
+QTabBar::tab:first:selected
+{
+	margin-left: 2px; /* the first selected tab has nothing to overlap with on the left */
+}
+QTabBar::tab:last:selected
+{
+	margin-right: 2px; /* the last selected tab has nothing to overlap with on the right */
+}
+QTabBar::tab:only-one
+{
+	margin: 0; /* if there is only one tab, we don't want overlapping margins */
+}
+QTabBar::tab:disabled
+{
+	margin-top: 2px;
+/*	background-color: qlineargradient(spread:pad, x1:0, y1:0.931818, x2:0, y2:0, stop:0.198864 rgba(226, 228, 230, 255), stop:1 rgba(217, 217, 221, 255));*/
+	background-color: qradialgradient(spread:pad, cx:0.528409, cy:0, radius:0.986, fx:0.54, fy:0, stop:0.420455 rgba(210, 210, 210, 210), stop:0.767045 rgba(180, 180, 180, 255));
+	color: rgb(235, 235, 235, 235);
+	border-bottom-color: rgb(255, 190, 20);
+}
+/*======================================================================*/
+QGroupBox
+{
+	margin-top: 0px;
+	border-radius: 5px;
+	border: 1px solid rgba(160, 160, 160, 150);
+	padding: 23px 2px 2px 2px;
+	background-color: rgba(218, 218, 218, 160);
+}
+QGroupBox::title
+{
+	border-bottom-left-radius: 5px;
+	border-bottom-right-radius: 5px;
+	border: 1px solid rgba(160, 160, 160, 100);
+	border-top: none;
+	subcontrol-origin: margin;
+	subcontrol-position: top center;
+	padding: 2px 2px 2px 2px;
+	background-color: rgba(218, 218, 218, 160);
+	background-color: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:0 rgba(218, 218, 218, 160), stop:0.443182 rgba(218, 218, 218, 220), stop:0.982955 rgba(243, 243, 243, 0));
+	color: rgba(80, 80, 80, 255);
+}
+QGroupBox::title:hover
+{
+	color: rgba(0, 200, 255, 255);
+}
+QGroupBox::indicator
+{
+	margin-left: 3px;
+	margin-right: -2px;
+	width: 15px;
+	height: 15px;
+	border-radius: 4px;
+	border: 1px solid rgba(160, 160, 160, 0);
+	background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:1.061, fx:0.261364, fy:0.216, stop:0.017045 rgba(243, 243, 243, 255), stop:1 rgba(174, 174, 174, 255));
+}
+QGroupBox::indicator::hover
+{
+	border-top: 1px solid rgba(0, 255, 255, 150);
+	border-left: 1px solid rgba(0, 255, 255, 150);
+	border-bottom: 1px solid rgba(0, 223, 255, 150);
+	border-right: 1px solid rgba(0, 223, 255, 150);
+	background-color: qradialgradient(spread:pad, cx:0.5, cy:0.5, radius:1.061, fx:0.261364, fy:0.216, stop:0.017045 rgba(243, 243, 243, 255), stop:1 rgba(0, 223, 255, 255));
+}
+QGroupBox::indicator::checked
+{
+	image: url(:/icons/check.png)
+}
+/*======================================================================*/
+QProgressBar
+{
+	border: 2px solid grey;
+	border-radius: 5px;
+	text-align: center;
+}
+QProgressBar::chunk
+{
+	background-color: #05B8CC;
+	background-color: rgb(216, 144, 0);
+	border-radius: 3px;
+}
+/*======================================================================*/
+QLineEdit
+{
+	padding: 3px 3px 3px 3px;
+	border-radius: 4px;
+	border: /*none*/ 1px solid darkgray;
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(231, 231, 231, 92), stop:0.481 rgba(255, 255, 255, 92), stop:0.52 rgba(230, 230, 230, 91), stop:1 rgba(164, 164, 164, 92));
+	color: rgb(100, 100, 100);
+}
+QLineEdit:read-only
+{
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(231, 231, 231, 92), stop:0.481 rgba(255, 255, 255, 92), stop:0.52 rgba(230, 230, 230, 91), stop:1 rgba(164, 164, 164, 92));
+}
+QLineEdit:!read-only
+{
+	background-color: white;
+}
+QLineEdit::hover
+{
+	border: /*none*/ 1px solid rgb(255, 170, 0);
+	background-color: rgb(255, 240, 210);
+}
+QLineEdit::focus:!read-only
+{
+	background-color: rgb(255, 240, 210);
+}
+QLineEdit::hover:read-only
+{
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(231, 231, 231, 92), stop:0.481 rgba(255, 183, 0, 92), stop:0.52 rgba(230, 165, 0, 91), stop:1 rgba(198, 134, 0, 92));
+}
+/*======================================================================*/
+QAbstractSpinBox
+{
+	border: 1px solid darkgray;
+	border-radius: 4px;
+	padding: 1px 18px 1px 3px;
+	color: gray;
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(231, 231, 231, 92), stop:0.481 rgba(255, 255, 255, 92), stop:0.52 rgba(230, 230, 230, 91), stop:1 rgba(164, 164, 164, 92));
+}
+QAbstractSpinBox:disabled
+{
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(250, 250, 250, 120), stop:0.481 rgba(255, 255, 255, 120), stop:0.52 rgba(250, 250, 250, 120), stop:1 rgba(180, 180, 180, 120));
+}
+QAbstractSpinBox:on {
+     padding-top: 3px;
+     padding-left: 4px;
+}
+QAbstractSpinBox::drop-down
+{
+	subcontrol-origin: padding;
+	subcontrol-position: top right;
+	width: 20px;
+	border-left-width: 1px;
+	border-left-color: darkgray;
+	border-left-style: solid;
+	border-top-right-radius: 3px;
+	border-bottom-right-radius: 3px;
+}
+QAbstractSpinBox::drop-down
+{
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(231, 231, 231, 92), stop:0.481 rgba(255, 255, 255, 92), stop:0.52 rgba(230, 230, 230, 91), stop:1 rgba(164, 164, 164, 92));
+}
+QAbstractSpinBox::down-arrow
+{
+	image: url(:/icons/arrow-down_1_simple.png);
+	width: 19px;
+	height: 19px; 
+}
+QAbstractSpinBox::down-arrow:on
+{
+	image: url(:/icons/arrow-down_1_hover.png);
+	top: 1px;
+}
+QAbstractSpinBox::hover:!disabled
+{
+	border: 1px solid rgb(255, 170, 0);
+	background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(231, 231, 231, 92), stop:0.481 rgba(255, 183, 0, 92), stop:0.52 rgba(230, 165, 0, 91), stop:1 rgba(198, 134, 0, 92));
+}
+QAbstractSpinBox::down-arrow:hover:!disabled
+{
+    image: url(:/icons/arrow-down_1_hover.png);
+}
+/*======================================================================*/
+</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QWidget" name="wgt_ToolBar" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QWidget#wgt_ToolBar
+{
+	padding: 3px 3px 3px 3px;
+	/*border-radius: 4px;*/
+	border: none;
+	background-color: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:0 rgba(164, 164, 164, 92), stop:0.480874 rgba(127, 127, 127, 91), stop:0.519126 rgba(163, 163, 163, 92), stop:1 rgba(231, 231, 231, 92));
+}
+
+QToolButton
+{
+	padding: 3px 3px 3px 3px;
+	border-radius: 0;
+	border: 1px solid rgba(0, 0, 0, 0);
+	background-color: none;
+}
+QToolButton::hover
+{
+	border: 1px solid rgba(255, 125, 0, 92);
+	border-top: none;
+	border-bottom: none;
+	background-color: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:0 rgba(164, 164, 164, 92), stop:0.480874 rgba(255, 118, 0, 92), stop:0.519126 rgba(255, 138, 0, 91), stop:1 rgba(231, 231, 231, 92));
+	color: white;
+}
+QToolButton::pressed
+{
+	background-color: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:0 rgba(184, 184, 184, 92), stop:0.480874 rgba(255, 138, 0, 92), stop:0.519126 rgba(255, 158, 0, 91), stop:1 rgba(251, 251, 251, 92));
+	color: white;
+	padding: 4px 1px 2px 1px;
+}</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <property name="leftMargin">
+       <number>3</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>3</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <item row="0" column="2">
+       <widget class="QToolButton" name="tBt_Load">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Загрузить
+изображение</string>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="5">
+       <widget class="QToolButton" name="tBt_ScanNew">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Сканировать
+новый лист</string>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="11">
+       <widget class="QProgressBar" name="pBar_Scan">
+        <property name="minimumSize">
+         <size>
+          <width>145</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>300</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">/*QProgressBar
+{
+	border-radius: 5px;
+	border: 1px solid lightgray;
+	background-color: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:0 rgba(165, 165, 165, 92), stop:0.48 rgba(91, 91, 91, 91), stop:0.519 rgba(127, 127, 127, 92), stop:1 rgba(231, 231, 231, 91));
+	text-align: center;
+	color: white;
+	padding: 0px 0px 0px 0px;
+}
+QProgressBar::chunk
+{
+	border-radius: 5px;
+	background-color: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:0 rgba(0, 165, 164, 92), stop:0.48 rgba(0, 78, 91, 91), stop:0.519 rgba(0, 114, 127, 92), stop:1 rgba(0, 231, 231, 91));
+}*/</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="12">
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="10">
+       <spacer name="horizontalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>3</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="6">
+       <widget class="QToolButton" name="tBt_ScanReplace">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Сканировать и
+заменить лист</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="7">
+       <widget class="Line" name="line_3">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="8">
+       <widget class="QToolButton" name="tBt_LoadExt">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Загрузить
+из файла</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="Line" name="line_2">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4">
+       <widget class="QToolButton" name="tBt_SelectSource">
+        <property name="text">
+         <string>Настройка
+сканера</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="wgt_Details" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <property name="leftMargin">
+       <number>4</number>
+      </property>
+      <property name="topMargin">
+       <number>4</number>
+      </property>
+      <property name="rightMargin">
+       <number>4</number>
+      </property>
+      <property name="bottomMargin">
+       <number>4</number>
+      </property>
+      <property name="spacing">
+       <number>2</number>
+      </property>
+      <item row="0" column="2" colspan="9">
+       <widget class="QComboBox" name="cBox_DocType">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+        <property name="maxVisibleItems">
+         <number>20</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2" colspan="9">
+       <widget class="QLineEdit" name="lEdit_DocName">
+        <property name="placeholderText">
+         <string>не указано (вводится краткое содержание документа)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>№</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="4">
+       <widget class="QLineEdit" name="lEdit_DocNum">
+        <property name="placeholderText">
+         <string>не указано</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="6">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Дата выдачи</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="8">
+       <widget class="QDateEdit" name="dEdit_DocDate">
+        <property name="minimumSize">
+         <size>
+          <width>101</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="specialValueText">
+         <string/>
+        </property>
+        <property name="minimumDate">
+         <date>
+          <year>1800</year>
+          <month>1</month>
+          <day>1</day>
+         </date>
+        </property>
+        <property name="displayFormat">
+         <string>dd.MM.yyyy</string>
+        </property>
+        <property name="calendarPopup">
+         <bool>true</bool>
+        </property>
+        <property name="date">
+         <date>
+          <year>1800</year>
+          <month>1</month>
+          <day>1</day>
+         </date>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="9">
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>действителен до</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="10">
+       <widget class="QDateEdit" name="dEdit_DocExpires">
+        <property name="minimumSize">
+         <size>
+          <width>103</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="specialValueText">
+         <string>не указано</string>
+        </property>
+        <property name="minimumDate">
+         <date>
+          <year>1800</year>
+          <month>1</month>
+          <day>1</day>
+         </date>
+        </property>
+        <property name="calendarPopup">
+         <bool>true</bool>
+        </property>
+        <property name="date">
+         <date>
+          <year>1800</year>
+          <month>1</month>
+          <day>1</day>
+         </date>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2" colspan="9">
+       <widget class="QComboBox" name="cBox_DocAgency">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+        <property name="maxVisibleItems">
+         <number>20</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="5">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>10</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="3" column="11">
+       <widget class="QToolButton" name="tBt_AddAgency">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="icon">
+         <iconset resource="electrodoc_icons.qrc">
+          <normaloff>:/icons/gtk-add.png</normaloff>:/icons/gtk-add.png</iconset>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="11">
+       <widget class="QToolButton" name="tBt_AddDocType">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="icon">
+         <iconset resource="electrodoc_icons.qrc">
+          <normaloff>:/icons/gtk-add.png</normaloff>:/icons/gtk-add.png</iconset>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="2">
+       <widget class="QLabel" name="label_9">
+        <property name="text">
+         <string>Серия</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Наименование</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_1">
+        <property name="text">
+         <string>Тип</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QLineEdit" name="lEdit_DocSer">
+        <property name="placeholderText">
+         <string>не указано</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="label_11">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Droid Sans'; font-size:14pt; font-weight:600; color:#c00000;&quot;&gt;*&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="7">
+       <widget class="QLabel" name="label_12">
+        <property name="text">
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Droid Sans'; font-size:14pt; font-weight:600; color:#c00000;&quot;&gt;*&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="2">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Выдан</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="widget_6" native="true">
+     <layout class="QVBoxLayout" name="verticalLayout_4">
+      <property name="leftMargin">
+       <number>3</number>
+      </property>
+      <property name="topMargin">
+       <number>3</number>
+      </property>
+      <property name="rightMargin">
+       <number>3</number>
+      </property>
+      <property name="bottomMargin">
+       <number>3</number>
+      </property>
+      <item>
+       <widget class="QGroupBox" name="wgt_ExtDoc">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="title">
+         <string>Вложения</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_10">
+         <property name="leftMargin">
+          <number>4</number>
+         </property>
+         <property name="topMargin">
+          <number>4</number>
+         </property>
+         <property name="rightMargin">
+          <number>4</number>
+         </property>
+         <property name="bottomMargin">
+          <number>4</number>
+         </property>
+         <property name="spacing">
+          <number>2</number>
+         </property>
+         <item row="1" column="1" colspan="2">
+          <widget class="QToolButton" name="tBt_OpenExt">
+           <property name="text">
+            <string>Открыть</string>
+           </property>
+           <property name="autoRaise">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="5">
+          <spacer name="horizontalSpacer_10">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>1</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="0" colspan="6">
+          <widget class="QListWidget" name="lstWgt_Attachments">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>100</height>
+            </size>
+           </property>
+           <property name="alternatingRowColors">
+            <bool>true</bool>
+           </property>
+           <property name="isWrapping" stdset="0">
+            <bool>true</bool>
+           </property>
+           <property name="sortingEnabled">
+            <bool>true</bool>
+           </property>
+           <item>
+            <property name="text">
+             <string/>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="1" column="4">
+          <widget class="QToolButton" name="tBt_RemoveExt">
+           <property name="text">
+            <string>Удалить</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="3">
+          <widget class="Line" name="line_4">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="gBox_Pages">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="title">
+         <string>Документ - стр. 0 из 0</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_6">
+         <property name="leftMargin">
+          <number>4</number>
+         </property>
+         <property name="topMargin">
+          <number>4</number>
+         </property>
+         <property name="rightMargin">
+          <number>4</number>
+         </property>
+         <property name="bottomMargin">
+          <number>4</number>
+         </property>
+         <property name="spacing">
+          <number>2</number>
+         </property>
+         <item row="1" column="1" rowspan="2">
+          <widget class="QWidget" name="wgt_PageEdit" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_7">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <item row="0" column="3">
+             <spacer name="horizontalSpacer_5">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="0" column="0">
+             <widget class="QWidget" name="widget_4" native="true">
+              <layout class="QGridLayout" name="gridLayout_9">
+               <property name="leftMargin">
+                <number>3</number>
+               </property>
+               <property name="topMargin">
+                <number>3</number>
+               </property>
+               <property name="rightMargin">
+                <number>3</number>
+               </property>
+               <property name="bottomMargin">
+                <number>3</number>
+               </property>
+               <item row="0" column="0">
+                <widget class="QToolButton" name="tBt_PageUp">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="toolTip">
+                  <string>Страницу вверх</string>
+                 </property>
+                 <property name="text">
+                  <string>Страницу вверх</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="electrodoc_icons.qrc">
+                   <normaloff>:/icons/monotone_arrow_up_hover.png</normaloff>:/icons/monotone_arrow_up_hover.png</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>24</width>
+                   <height>24</height>
+                  </size>
+                 </property>
+                 <property name="toolButtonStyle">
+                  <enum>Qt::ToolButtonIconOnly</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QToolButton" name="tBt_PageDown">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="toolTip">
+                  <string>Страницу вниз</string>
+                 </property>
+                 <property name="text">
+                  <string>Страницу вниз</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="electrodoc_icons.qrc">
+                   <normaloff>:/icons/monotone_arrow_down_hover.png</normaloff>:/icons/monotone_arrow_down_hover.png</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>24</width>
+                   <height>24</height>
+                  </size>
+                 </property>
+                 <property name="toolButtonStyle">
+                  <enum>Qt::ToolButtonIconOnly</enum>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QWidget" name="widget_5" native="true">
+              <layout class="QVBoxLayout" name="verticalLayout">
+               <property name="leftMargin">
+                <number>3</number>
+               </property>
+               <property name="topMargin">
+                <number>3</number>
+               </property>
+               <property name="rightMargin">
+                <number>3</number>
+               </property>
+               <property name="bottomMargin">
+                <number>3</number>
+               </property>
+               <item>
+                <widget class="QToolButton" name="tBt_RotateLeft">
+                 <property name="toolTip">
+                  <string>Повернуть влево на 90 градусов</string>
+                 </property>
+                 <property name="text">
+                  <string>Повернуть влево на 90 градусов</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="electrodoc_icons.qrc">
+                   <normaloff>:/icons/rotate_ccw.png</normaloff>:/icons/rotate_ccw.png</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>24</width>
+                   <height>24</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QToolButton" name="tBt_RotateRight">
+                 <property name="toolTip">
+                  <string>Повернуть вправо на 90 градусов</string>
+                 </property>
+                 <property name="text">
+                  <string>Повернуть вправо на 90 градусов</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="electrodoc_icons.qrc">
+                   <normaloff>:/icons/rotate_cw.png</normaloff>:/icons/rotate_cw.png</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>24</width>
+                   <height>24</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QWidget" name="widget_2" native="true">
+              <layout class="QVBoxLayout" name="verticalLayout_3">
+               <property name="leftMargin">
+                <number>3</number>
+               </property>
+               <property name="topMargin">
+                <number>3</number>
+               </property>
+               <property name="rightMargin">
+                <number>3</number>
+               </property>
+               <property name="bottomMargin">
+                <number>3</number>
+               </property>
+               <item>
+                <widget class="QToolButton" name="tBt_DeletePage">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true"/>
+                 </property>
+                 <property name="text">
+                  <string>Удалить
+страницу</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="0" column="0" rowspan="3">
+          <widget class="QListWidget" name="lWgt_Pages">
+           <property name="minimumSize">
+            <size>
+             <width>170</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>170</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="editTriggers">
+            <set>QAbstractItemView::NoEditTriggers</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QWidget" name="wgt_Zoom" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="styleSheet">
+            <string notr="true"/>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_8">
+            <property name="leftMargin">
+             <number>3</number>
+            </property>
+            <property name="topMargin">
+             <number>3</number>
+            </property>
+            <property name="rightMargin">
+             <number>3</number>
+            </property>
+            <property name="bottomMargin">
+             <number>3</number>
+            </property>
+            <property name="horizontalSpacing">
+             <number>2</number>
+            </property>
+            <property name="verticalSpacing">
+             <number>0</number>
+            </property>
+            <item row="0" column="6">
+             <widget class="QSlider" name="hSlider_Scale">
+              <property name="minimumSize">
+               <size>
+                <width>180</width>
+                <height>22</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>180</width>
+                <height>22</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Масштаб</string>
+              </property>
+              <property name="styleSheet">
+               <string notr="true"> QSlider::groove:horizontal {
+     border: 1px solid #999999;
+     height: 5px; /* the groove expands to the size of the slider by default. by giving it a height, it has a fixed size */
+     background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #B1B1B1, stop:1 #c4c4c4);
+     margin: 2px 0;
+	color: black;
+ }
+  QSlider::handle:horizontal {
+     background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #b4b4b4, stop:1 #8f8f8f);
+     border: 1px solid #5c5c5c;
+     width: 18px;
+     margin: -2px 0;
+     border-radius: 3px;
+ }
+  QSlider::handle:horizontal:hover {
+     background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgb(255, 180, 0), stop:1 rgb(255, 120, 0));
+     border: 1px solid rgb(255, 155, 0);
+ }
+</string>
+              </property>
+              <property name="minimum">
+               <number>10</number>
+              </property>
+              <property name="maximum">
+               <number>400</number>
+              </property>
+              <property name="singleStep">
+               <number>1</number>
+              </property>
+              <property name="pageStep">
+               <number>400</number>
+              </property>
+              <property name="value">
+               <number>100</number>
+              </property>
+              <property name="sliderPosition">
+               <number>100</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="5">
+             <widget class="QToolButton" name="tBt_ZoomOut">
+              <property name="toolTip">
+               <string>Уменьшить</string>
+              </property>
+              <property name="text">
+               <string>Уменьшить</string>
+              </property>
+              <property name="icon">
+               <iconset resource="electrodoc_icons.qrc">
+                <normaloff>:/icons/old-zoom-out.png</normaloff>:/icons/old-zoom-out.png</iconset>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>24</width>
+                <height>24</height>
+               </size>
+              </property>
+              <property name="autoRaise">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="7">
+             <widget class="QToolButton" name="tBt_ZoomIn">
+              <property name="toolTip">
+               <string>Увеличить</string>
+              </property>
+              <property name="text">
+               <string>Увеличить</string>
+              </property>
+              <property name="icon">
+               <iconset resource="electrodoc_icons.qrc">
+                <normaloff>:/icons/old-zoom-in.png</normaloff>:/icons/old-zoom-in.png</iconset>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>24</width>
+                <height>24</height>
+               </size>
+              </property>
+              <property name="autoRaise">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="6">
+             <widget class="QWidget" name="widget_3" native="true">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="label_7">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string>Масштаб: </string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QSpinBox" name="spinBox_Scale">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">QSpinBox
+{
+	border-radius: 3px;
+	border: 1px solid rgba(0, 0, 0, 0);
+	background-color: rgba(255, 255, 255, 0);
+	padding: -1px -1px -1px -1px;
+}
+QSpinBox::focus
+{
+	border: 1px solid rgb(150, 255, 255);
+	background-color: rgb(238, 255, 255);
+}</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>
+                 </property>
+                 <property name="buttonSymbols">
+                  <enum>QAbstractSpinBox::NoButtons</enum>
+                 </property>
+                 <property name="suffix">
+                  <string/>
+                 </property>
+                 <property name="prefix">
+                  <string/>
+                 </property>
+                 <property name="minimum">
+                  <number>10</number>
+                 </property>
+                 <property name="maximum">
+                  <number>400</number>
+                 </property>
+                 <property name="singleStep">
+                  <number>10</number>
+                 </property>
+                 <property name="value">
+                  <number>100</number>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="label_8">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string>%</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="0" column="4">
+             <widget class="Line" name="line">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="3">
+             <widget class="QToolButton" name="tBt_FitWidth">
+              <property name="toolTip">
+               <string>По ширине окна</string>
+              </property>
+              <property name="text">
+               <string>По ширине окна</string>
+              </property>
+              <property name="icon">
+               <iconset resource="electrodoc_icons.qrc">
+                <normaloff>:/icons/old-zoom-best-fit.png</normaloff>:/icons/old-zoom-best-fit.png</iconset>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>24</width>
+                <height>24</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="8">
+             <widget class="QToolButton" name="tBt_OriginalZoom">
+              <property name="toolTip">
+               <string>Оригинальный размер</string>
+              </property>
+              <property name="text">
+               <string>Оригинальный размер</string>
+              </property>
+              <property name="icon">
+               <iconset resource="electrodoc_icons.qrc">
+                <normaloff>:/icons/old-zoom-original.png</normaloff>:/icons/old-zoom-original.png</iconset>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>24</width>
+                <height>24</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2" rowspan="2">
+             <widget class="QToolButton" name="tBt_Print">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Печатать</string>
+              </property>
+              <property name="icon">
+               <iconset resource="electrodoc_icons.qrc">
+                <normaloff>:/icons/fileprint.png</normaloff>:/icons/fileprint.png</iconset>
+              </property>
+              <property name="toolButtonStyle">
+               <enum>Qt::ToolButtonTextUnderIcon</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1" rowspan="2">
+             <widget class="QToolButton" name="tBt_SaveFile">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Сохранить
+в файл</string>
+              </property>
+              <property name="autoRaise">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Preferred</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>1</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="1" colspan="2">
+          <widget class="QWidget" name="wgt_Pages" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="widget" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QWidget#widget
+{
+	border-top: 1px solid gray;
+}</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <property name="leftMargin">
+       <number>4</number>
+      </property>
+      <property name="topMargin">
+       <number>4</number>
+      </property>
+      <property name="rightMargin">
+       <number>4</number>
+      </property>
+      <property name="bottomMargin">
+       <number>4</number>
+      </property>
+      <property name="spacing">
+       <number>2</number>
+      </property>
+      <item row="0" column="1">
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>526</width>
+          <height>24</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="3">
+       <widget class="QToolButton" name="tBt_SaveDocument">
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="text">
+         <string>Сохранить документ</string>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_10">
+        <property name="text">
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Droid Sans'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; color:#000000;&quot;&gt;(&lt;/span&gt;&lt;span style=&quot; font-size:14pt; font-weight:600; color:#c00000;&quot;&gt;*&lt;/span&gt;&lt;span style=&quot; color:#000000;&quot;&gt;)&lt;/span&gt;&lt;span style=&quot; color:#000000;&quot;&gt;-обязательное поле для заполнения!&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QToolButton" name="tBt_RejectDocument">
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Нет, не сохранять</string>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>cBox_DocType</tabstop>
+  <tabstop>tBt_AddDocType</tabstop>
+  <tabstop>lEdit_DocName</tabstop>
+  <tabstop>lEdit_DocSer</tabstop>
+  <tabstop>lEdit_DocNum</tabstop>
+  <tabstop>dEdit_DocDate</tabstop>
+  <tabstop>dEdit_DocExpires</tabstop>
+  <tabstop>cBox_DocAgency</tabstop>
+  <tabstop>tBt_AddAgency</tabstop>
+  <tabstop>tBt_Load</tabstop>
+  <tabstop>tBt_SelectSource</tabstop>
+  <tabstop>tBt_ScanNew</tabstop>
+  <tabstop>tBt_ScanReplace</tabstop>
+  <tabstop>tBt_LoadExt</tabstop>
+  <tabstop>lstWgt_Attachments</tabstop>
+  <tabstop>tBt_OpenExt</tabstop>
+  <tabstop>tBt_RemoveExt</tabstop>
+  <tabstop>lWgt_Pages</tabstop>
+  <tabstop>tBt_PageUp</tabstop>
+  <tabstop>tBt_PageDown</tabstop>
+  <tabstop>tBt_RotateLeft</tabstop>
+  <tabstop>tBt_RotateRight</tabstop>
+  <tabstop>tBt_SaveFile</tabstop>
+  <tabstop>tBt_Print</tabstop>
+  <tabstop>tBt_FitWidth</tabstop>
+  <tabstop>tBt_ZoomOut</tabstop>
+  <tabstop>hSlider_Scale</tabstop>
+  <tabstop>spinBox_Scale</tabstop>
+  <tabstop>tBt_ZoomIn</tabstop>
+  <tabstop>tBt_OriginalZoom</tabstop>
+  <tabstop>tBt_SaveDocument</tabstop>
+ </tabstops>
+ <resources>
+  <include location="electrodoc_icons.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>hSlider_Scale</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>spinBox_Scale</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>628</x>
+     <y>595</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>729</x>
+     <y>623</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBox_Scale</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>hSlider_Scale</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>729</x>
+     <y>623</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>628</x>
+     <y>595</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>hSlider_Scale</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>ElectroDoc_v2</receiver>
+   <slot>scale(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>628</x>
+     <y>595</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>400</x>
+     <y>341</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tBt_FitWidth</sender>
+   <signal>clicked()</signal>
+   <receiver>ElectroDoc_v2</receiver>
+   <slot>fitToWith()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>576</x>
+     <y>607</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>400</x>
+     <y>341</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tBt_OriginalZoom</sender>
+   <signal>clicked()</signal>
+   <receiver>ElectroDoc_v2</receiver>
+   <slot>scaleToOriginal()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>882</x>
+     <y>607</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>400</x>
+     <y>341</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tBt_Load</sender>
+   <signal>clicked()</signal>
+   <receiver>ElectroDoc_v2</receiver>
+   <slot>loadImage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>44</x>
+     <y>18</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>400</x>
+     <y>341</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tBt_SelectSource</sender>
+   <signal>clicked()</signal>
+   <receiver>ElectroDoc_v2</receiver>
+   <slot>scannerConfigTriggered()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>125</x>
+     <y>18</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>400</x>
+     <y>341</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tBt_ScanNew</sender>
+   <signal>clicked()</signal>
+   <receiver>ElectroDoc_v2</receiver>
+   <slot>scanNew()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>202</x>
+     <y>18</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>400</x>
+     <y>341</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tBt_ScanReplace</sender>
+   <signal>clicked()</signal>
+   <receiver>ElectroDoc_v2</receiver>
+   <slot>scanReplace()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>291</x>
+     <y>18</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>400</x>
+     <y>341</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lWgt_Pages</sender>
+   <signal>currentRowChanged(int)</signal>
+   <receiver>ElectroDoc_v2</receiver>
+   <slot>setVisiblePage(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>43</x>
+     <y>490</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>400</x>
+     <y>341</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ElectroDoc_v2</sender>
+   <signal>scaled(int)</signal>
+   <receiver>hSlider_Scale</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>400</x>
+     <y>341</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>628</x>
+     <y>595</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tBt_ZoomIn</sender>
+   <signal>clicked()</signal>
+   <receiver>ElectroDoc_v2</receiver>
+   <slot>zoomIn()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>849</x>
+     <y>607</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>400</x>
+     <y>341</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tBt_ZoomOut</sender>
+   <signal>clicked()</signal>
+   <receiver>ElectroDoc_v2</receiver>
+   <slot>zoomOut()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>614</x>
+     <y>607</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>400</x>
+     <y>341</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tBt_LoadExt</sender>
+   <signal>clicked()</signal>
+   <receiver>ElectroDoc_v2</receiver>
+   <slot>loadAttachment()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>409</x>
+     <y>19</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>444</x>
+     <y>339</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tBt_PageUp</sender>
+   <signal>clicked()</signal>
+   <receiver>ElectroDoc_v2</receiver>
+   <slot>moveCurrentPageUp()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>163</x>
+     <y>591</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>444</x>
+     <y>339</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tBt_PageDown</sender>
+   <signal>clicked()</signal>
+   <receiver>ElectroDoc_v2</receiver>
+   <slot>moveCurrentPageDown()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>163</x>
+     <y>618</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>444</x>
+     <y>339</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tBt_DeletePage</sender>
+   <signal>clicked()</signal>
+   <receiver>ElectroDoc_v2</receiver>
+   <slot>removeCurrentPage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>286</x>
+     <y>604</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>444</x>
+     <y>339</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tBt_SaveFile</sender>
+   <signal>clicked()</signal>
+   <receiver>ElectroDoc_v2</receiver>
+   <slot>saveToFile()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>415</x>
+     <y>601</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>444</x>
+     <y>339</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tBt_RotateLeft</sender>
+   <signal>clicked()</signal>
+   <receiver>ElectroDoc_v2</receiver>
+   <slot>rotateLeft()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>381</x>
+     <y>603</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>444</x>
+     <y>339</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tBt_RotateRight</sender>
+   <signal>clicked()</signal>
+   <receiver>ElectroDoc_v2</receiver>
+   <slot>rotateRight()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>381</x>
+     <y>630</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>444</x>
+     <y>339</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tBt_SaveDocument</sender>
+   <signal>clicked()</signal>
+   <receiver>ElectroDoc_v2</receiver>
+   <slot>save()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>800</x>
+     <y>661</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>444</x>
+     <y>339</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tBt_Print</sender>
+   <signal>clicked()</signal>
+   <receiver>ElectroDoc_v2</receiver>
+   <slot>print()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>510</x>
+     <y>600</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>444</x>
+     <y>339</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tBt_OpenExt</sender>
+   <signal>clicked()</signal>
+   <receiver>ElectroDoc_v2</receiver>
+   <slot>openAttachment()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>42</x>
+     <y>301</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>444</x>
+     <y>339</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lstWgt_Attachments</sender>
+   <signal>itemDoubleClicked(QListWidgetItem*)</signal>
+   <receiver>ElectroDoc_v2</receiver>
+   <slot>openAttachment()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>444</x>
+     <y>236</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>444</x>
+     <y>339</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tBt_RemoveExt</sender>
+   <signal>clicked()</signal>
+   <receiver>ElectroDoc_v2</receiver>
+   <slot>removeSelectedAttachments()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>116</x>
+     <y>301</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>444</x>
+     <y>339</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tBt_RejectDocument</sender>
+   <signal>clicked()</signal>
+   <receiver>ElectroDoc_v2</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>642</x>
+     <y>659</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>457</x>
+     <y>338</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <signal>scaled(int)</signal>
+  <slot>scale(int)</slot>
+  <slot>fitToWith()</slot>
+  <slot>scaleToOriginal()</slot>
+  <slot>loadImage()</slot>
+  <slot>scannerConfigTriggered()</slot>
+  <slot>scanNew()</slot>
+  <slot>scanReplace()</slot>
+  <slot>setVisiblePage(int)</slot>
+  <slot>zoomIn()</slot>
+  <slot>zoomOut()</slot>
+  <slot>loadAttachment()</slot>
+  <slot>moveCurrentPageUp()</slot>
+  <slot>moveCurrentPageDown()</slot>
+  <slot>removeCurrentPage()</slot>
+  <slot>rotateLeft()</slot>
+  <slot>rotateRight()</slot>
+  <slot>saveToFile()</slot>
+  <slot>save()</slot>
+  <slot>print()</slot>
+  <slot>openAttachment()</slot>
+  <slot>removeSelectedAttachments()</slot>
+  <slot>reject()</slot>
+ </slots>
+</ui>

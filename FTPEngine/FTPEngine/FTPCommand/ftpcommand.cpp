@@ -42,6 +42,8 @@ QString FTPCommand::name( Type type )
     return QString( "port" );
   case Type_Quit:
     return QString( "quit" );
+  case Type_Pasv:
+    return QString("pasv");
   }
 
   return QString();

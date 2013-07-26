@@ -7,6 +7,7 @@
 #include <QSqlError>
 
 #include <QDebug>
+#include "amslogger.h"
 
 
 MReportSource::~MReportSource()
@@ -118,6 +119,16 @@ void MReportSource::setPassword( const QString & password )
   p->m__Password = password;
 }
 
+void MReportSource::setUserList( const QStringList & userList )
+{
+  p->m__UserList = userList;
+}
+
+const QStringList & MReportSource::userList() const
+{
+  return p->m__UserList;
+}
+
 bool MReportSource::check() const
 {
   bool result = false;
@@ -147,7 +158,7 @@ QVariant MReportSource::executeQuery( const QString &query )
   QVariant result = QVariant();
 
   if ( QSqlDatabase::contains( p->m__Uuid ) )
-    qDebug() << "Connection exists!";
+    LogDebug() << "Connection exists!";
   {
     QSqlDatabase db = QSqlDatabase::addDatabase( p->m__DriverName, p->m__Uuid );
     db.setHostName( p->m__Host );
@@ -158,6 +169,7 @@ QVariant MReportSource::executeQuery( const QString &query )
     if ( db.open() )
     {
       QList<QVariant> buf = QList<QVariant>();
+      LogDebug()<<query;
       QSqlQuery qry = db.exec( query );
       if ( !db.lastError().isValid() &&
            !qry.lastError().isValid() )
@@ -165,8 +177,11 @@ QVariant MReportSource::executeQuery( const QString &query )
           buf << qry.value( 0 );
       else
       {
-        qDebug() << db.lastError().text();
-        qDebug() << qry.lastError().text();
+        LogWarning() << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++";
+        LogWarning() << db.lastError().text();
+        LogWarning() << qry.lastError().text();
+        LogWarning() << query;
+        LogWarning() << "================================================================================";
       }
       if ( buf.count() == 1 ) result = buf.first();
       else if ( buf.count() > 1 ) result = buf;

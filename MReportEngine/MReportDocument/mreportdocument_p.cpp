@@ -61,3 +61,16 @@ MReportDocument * MReportDocument_P::p_dptr() const
 {
   return qobject_cast<MReportDocument *>( parent() );
 }
+
+void MReportDocument_P::increaseProgressValue( double progress )
+{
+  double index = 10000./(double)m__Units;
+  if ( progress == 10000. )
+  {
+    m__BufProgress += index;
+    m__Progress = m__BufProgress;
+  }
+  else m__Progress = m__BufProgress+(index*(progress/10000));
+
+  p_dptr()->emitProgress();
+}

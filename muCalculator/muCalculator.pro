@@ -75,4 +75,3 @@ HEADERS  += \
     QMathParser_1_0/muParser/muParserBase.h \
     QMathParser_1_0/muParser/muParser.h \
     ../include/mucalculator.h
-

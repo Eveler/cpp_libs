@@ -28,12 +28,14 @@ FTPEngine::FTPEngine( QObject *parent ) :
   m__DirData(QByteArray()),
   m__DirInfo(QList<FileInfo *>()),
   m__Timer(new QTimer),
-  m__CommandListCreation(false)
+  m__CommandListCreation(false),
+  loop(new QEventLoop(this))
 {
   connect( m__Transfer, SIGNAL(dataCommunicationProgress(qint64,qint64)),
            SLOT(transferDataProgress(qint64,qint64)) );
   connect( m__Transfer, SIGNAL(dataCommunicationFinished()),
            SLOT(transferDataFinished()) );
+  setPassiveTransferMode();
 }
 
 FTPEngine::~FTPEngine()
@@ -55,9 +57,15 @@ FTPEngine::~FTPEngine()
 
   delete m__Timer;
   m__Timer = NULL;
+
+  delete loop;
 }
 
-void FTPEngine::connectToHost( const QUrl &url, int port )
+void FTPEngine::setPassiveTransferMode(bool isPassive){
+  m__Transfer->setTransferMode(isPassive);
+}
+
+bool FTPEngine::connectToHost( const QUrl &url, int port )
 {
   m__Url = url;
   if ( url.port() != -1 ) m__Port = url.port();
@@ -70,14 +78,22 @@ void FTPEngine::connectToHost( const QUrl &url, int port )
 
   m__Socket->disconnect();
 
-  if ( m__Url.isEmpty() || m__Port == -1 ) return;
+  if ( m__Url.isEmpty() || m__Port == -1 ) return false;
 
-  if ( m__Socket->state() != QAbstractSocket::UnconnectedState ) return;
+  if ( m__Socket->state() != QAbstractSocket::UnconnectedState ) return true;
 
+#ifdef FTPENGINE_DEBUG
+  QUrl u=m__Url;
+  u.setPassword("******");
+  LogDebug()<<"Connecting to host ="<<m__Url.host()<<"port ="<<m__Port
+           <<"m__User ="<<m__User<<"(url ="<<u;
+#endif
   setDefaultConnect();
   connect( m__Socket, SIGNAL(readyRead()), this, SLOT(socketConnected()) );
 
   m__Socket->connectToHost( m__Url.host(), m__Port );
+
+  return loop->exec()==0;
 }
 
 void FTPEngine::disconnectFromHost()
@@ -122,13 +138,13 @@ bool FTPEngine::sendCommand( QString text, bool ignoreError )
 {
   m__Socket->disconnect();
 
+#ifdef FTPENGINE_DEBUG
   if ( !isConnected() )
   {
-#ifdef FTPENGINE_DEBUG
     LogDebug() << QString( "Not connected!" );
     return false;
-#endif
   }
+#endif
 
   QStringList cmd = text.split( " " );
   QString cmdText = cmd.first();
@@ -224,10 +240,14 @@ bool FTPEngine::list()
   m__Commands << commandsPool;
 
   commandsPool->appendBefore( new FTPCommand( FTPCommand::Type_Type, tr( "a" ) ) );
-  QString argument = m__Transfer->address().toString().replace( ".", "," );
-  argument += ","+QString::number((m__Transfer->port() & 0xff00) >> 8);
-  argument += ","+QString::number(m__Transfer->port() & 0xff);
-  commandsPool->appendBefore( new FTPCommand( FTPCommand::Type_Port, argument ) );
+  if(m__Transfer->isPassive())
+    commandsPool->appendBefore(new FTPCommand(FTPCommand::Type_Pasv));
+  else{
+    QString argument = m__Transfer->address().toString().replace( ".", "," );
+    argument += ","+QString::number((m__Transfer->port() & 0xff00) >> 8);
+    argument += ","+QString::number(m__Transfer->port() & 0xff);
+    commandsPool->appendBefore( new FTPCommand( FTPCommand::Type_Port, argument ) );
+  }
   commandsPool->appendAfter( new FTPCommand( FTPCommand::Type_Noop ) );
 
   FileInfo *fi = NULL;
@@ -454,7 +474,8 @@ void FTPEngine::executeCommand( QString text )
   QString command = text;
   text = text.replace( "\r", "" ).replace( "\n", "" );
 #ifdef FTPENGINE_DEBUG
-  LogDebug() << QString( "------> " ) << text;
+  LogDebug() << QString( "------> " ) <<
+                (text.contains("pass ")?"pass *******":text);
 #endif
   emit executedCommand( text );
 //#ifdef Q_OS_WIN32
@@ -488,10 +509,14 @@ FTPCommandsPool * FTPEngine::putFile_P( QString name , QIODevice *buffer )
   m__Commands << commandsPool;
 
   commandsPool->appendBefore( new FTPCommand( FTPCommand::Type_Type, tr( "i" ) ) );
-  QString argument = m__Transfer->address().toString().replace( ".", "," );
-  argument += ","+QString::number((m__Transfer->port() & 0xff00) >> 8);
-  argument += ","+QString::number(m__Transfer->port() & 0xff);
-  commandsPool->appendBefore( new FTPCommand( FTPCommand::Type_Port, argument ) );
+  if(m__Transfer->isPassive())
+    commandsPool->appendBefore(new FTPCommand(FTPCommand::Type_Pasv));
+  else{
+    QString argument = m__Transfer->address().toString().replace( ".", "," );
+    argument += ","+QString::number((m__Transfer->port() & 0xff00) >> 8);
+    argument += ","+QString::number(m__Transfer->port() & 0xff);
+    commandsPool->appendBefore( new FTPCommand( FTPCommand::Type_Port, argument ) );
+  }
   commandsPool->appendBefore( new FTPCommand( FTPCommand::Type_Allo,
                                               QString::number( buffer->size() ) ) );
   commandsPool->appendAfter( new FTPCommand( FTPCommand::Type_Noop, QString() ) );
@@ -527,10 +552,14 @@ FTPCommandsPool * FTPEngine::getFile_P( QString name, QIODevice *buffer )
 
   commandsPool->appendBefore( new FTPCommand( FTPCommand::Type_Type, tr( "i" ) ) );
   commandsPool->appendBefore( new FTPCommand( FTPCommand::Type_Size, fileName ) );
-  QString argument = m__Transfer->address().toString().replace( ".", "," );
-  argument += ","+QString::number((m__Transfer->port() & 0xff00) >> 8);
-  argument += ","+QString::number(m__Transfer->port() & 0xff);
-  commandsPool->appendBefore( new FTPCommand( FTPCommand::Type_Port, argument ) );
+  if(m__Transfer->isPassive())
+    commandsPool->appendBefore(new FTPCommand(FTPCommand::Type_Pasv));
+  else{
+    QString argument = m__Transfer->address().toString().replace( ".", "," );
+    argument += ","+QString::number((m__Transfer->port() & 0xff00) >> 8);
+    argument += ","+QString::number(m__Transfer->port() & 0xff);
+    commandsPool->appendBefore( new FTPCommand( FTPCommand::Type_Port, argument ) );
+  }
   commandsPool->appendAfter( new FTPCommand( FTPCommand::Type_Noop, QString() ) );
 
   FileInfo *fi = new FileInfo;
@@ -830,6 +859,9 @@ void FTPEngine::sendAnswerResult( bool result )
 
 void FTPEngine::socketStateChanged( QAbstractSocket::SocketState socketState )
 {
+#ifdef FTPENGINE_DEBUG
+  LogDebug()<<"socketState ="<<socketState<<"m__Connected ="<<m__Connected;
+#endif
   bool before = m__Connected;
   m__Connected = ( socketState == QAbstractSocket::ConnectedState );
 
@@ -838,17 +870,24 @@ void FTPEngine::socketStateChanged( QAbstractSocket::SocketState socketState )
     m__Authenticated = false;
     if ( before ) emit disconnected();
   }
+
+  if(!m__Socket->errorString().isEmpty() &&
+     m__Socket->error()!=QAbstractSocket::UnknownSocketError){
+    m__LastError=m__Socket->errorString();
+    loop->exit(-1);
+  }
 }
 
 void FTPEngine::socketConnected()
 {
   QByteArray answer = m__Socket->readAll().trimmed();
+  loop->quit();
   m__Socket->disconnect();
 
   m__Transfer->listen( m__Socket->localAddress() );
 
   int code = ftpAnswerCode( answer );
-  emit ftpAnswer( answer, code );
+  emit ftpAnswer( ftpAnswerText( answer ), code );
 
   if ( !checkCode( answer, 220 ) ) return;
 
@@ -867,7 +906,7 @@ void FTPEngine::socketAuthUserReply()
   setDefaultConnect();
 
   int code = ftpAnswerCode( answer );
-  emit ftpAnswer( answer, code );
+  emit ftpAnswer( ftpAnswerText( answer ), code );
 
   if ( !checkCode( answer, 331 ) )
   {
@@ -888,7 +927,7 @@ void FTPEngine::socketAuthPassReply()
   setDefaultConnect();
 
   int code = ftpAnswerCode( answer );
-  emit ftpAnswer( answer, code );
+  emit ftpAnswer( ftpAnswerText( answer ), code );
 
   if ( !checkCode( answer, 230 ) )
   {
@@ -1058,7 +1097,8 @@ void FTPEngine::socketAllReply()
         m__LastText = text;
 
         m__Transfer->setBuffer( m__CommandIODevice[currentCommand].second );
-        m__Transfer->startUploading();
+        result=m__Transfer->startUploading();
+        if(!result) m__LastError=m__Transfer->lastError();
       }
       sendAnswer = ( !result || !m__CurrentCommand->hasNextCommand() );
       sendNextCommand = false;
@@ -1077,6 +1117,25 @@ void FTPEngine::socketAllReply()
       sendAnswer = ( !result || !m__CurrentCommand->hasNextCommand() );
       sendNextCommand = ( result && ( m__CurrentCommand->hasNextCommand() || !m__Commands.isEmpty() ) );
       break;
+    case FTPCommand::Type_Pasv:
+      result = ( code == 227 );
+      if ( !result ) m__LastError = text;
+      else{
+        m__LastText = text;
+        text.remove("Entering Passive Mode");
+        text.remove("(");
+        text.remove(")");
+        text.remove(".");
+        QStringList sAddr=text.split(",");
+        QString addr=sAddr.value(0)+"."+sAddr.value(1)+"."+sAddr.value(2)+"."+
+            sAddr.value(3);
+        int port=sAddr.value(4).toInt()*256+sAddr.value(5).toInt();
+        result=m__Transfer->openPassiveChanel(addr,port);
+        if(!result) m__LastError=m__Transfer->lastError();
+      }
+      sendAnswer = ( !result || !m__CurrentCommand->hasNextCommand() );
+      sendNextCommand = ( result && ( m__CurrentCommand->hasNextCommand() || !m__Commands.isEmpty() ) );
+      break;
     case FTPCommand::Type_Quit:
       result = ( code == 200 );
       if ( !result ) m__LastError = text;
@@ -1085,6 +1144,9 @@ void FTPEngine::socketAllReply()
       sendNextCommand = ( result && ( m__CurrentCommand->hasNextCommand() || !m__Commands.isEmpty() ) );
       break;
     }
+    if(!result) LogWarning()<<m__LastError
+                           <<"command name ="<<currentCommand->name()
+                          <<"argument ="<<currentCommand->argument();
   }
 
 #ifdef FTPENGINE_DEBUG

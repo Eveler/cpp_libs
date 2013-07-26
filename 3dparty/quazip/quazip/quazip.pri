@@ -13,7 +13,7 @@ HEADERS += $$PWD/crypt.h \
            $$PWD/unzip.h \
            $$PWD/zip.h
 SOURCES += $$PWD/qioapi.cpp \
-           $$PWD/JlCompress.cpp \
+#           $$PWD/JlCompress.cpp \
            $$PWD/quaadler32.cpp \
            $$PWD/quacrc32.cpp \
            $$PWD/quazip.cpp \

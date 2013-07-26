@@ -59,6 +59,8 @@ public:
   const MReportParameterList & reportParameters() const;
   /** Поиск параметра по его имени во всем дереве документов.*/
   MReportParameter * reportParameter( const QString &name ) const;
+  MReportParameter *repeater() const;
+  MReportParameter * parentDocumentRepeater() const;
 
   /** Добавление ключа в документ. ВНИМАНИЕ: если в дереве документов ключ с
   таким именем уже существует, то функция вернет NULL!*/
@@ -73,6 +75,7 @@ public:
 
 
 signals:
+  void progress( int current, int overall );
 
 
 public slots:
@@ -94,6 +97,8 @@ private:
   explicit MReportDocument( MReportDocument *parent, const QString &fileName );
 
   void setLastError( const QString &lastError );
+
+  void emitProgress();
 };
 
 #endif // MREPORTDOCUMENT_H

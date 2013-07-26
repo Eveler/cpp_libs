@@ -18,19 +18,22 @@ MReportDocument * MReport::load( const QString &filePath, QString *errorStr, QOb
   QFileInfo fi( filePath );
   if ( fi.suffix() != QObject::tr( "mrf" ) )
   {
-    *errorStr = QObject::tr( "Неверный формат файла отчета!" );
+    if ( errorStr != NULL )
+      *errorStr = QObject::tr( "Неверный формат файла отчета!" );
     return NULL;
   }
   if ( !fi.exists() )
   {
-    *errorStr = QObject::tr( "Файл отчета не найден!" );
+    if ( errorStr != NULL )
+      *errorStr = QObject::tr( "Файл отчета не найден!" );
     return NULL;
   }
 
   QDir workDir( fi.absolutePath() );
   if ( workDir.exists( fi.baseName() ) )
   {
-    *errorStr = QObject::tr( "Файл отчета уже используется!" );
+    if ( errorStr != NULL )
+      *errorStr = QObject::tr( "Файл отчета уже используется!" );
     return NULL;
   }
   workDir.mkdir( fi.baseName() );
@@ -39,7 +42,8 @@ MReportDocument * MReport::load( const QString &filePath, QString *errorStr, QOb
   QuaZip zipF( filePath );
   if ( !zipF.open( QuaZip::mdUnzip ) )
   {
-    *errorStr = QObject::tr( "Zip error №%1" ).arg( zipF.getZipError() );
+    if ( errorStr != NULL )
+      *errorStr = QObject::tr( "Zip error №%1" ).arg( zipF.getZipError() );
     return NULL;
   }
 
@@ -211,12 +215,14 @@ QString MReport::sources( const QDomNode &tag, MReportDocument *reportDocument )
     QString host = elemParams.attribute( QObject::tr( "host" ) );
     QString port = elemParams.attribute( QObject::tr( "port" ) );
     QString database = elemParams.attribute( QObject::tr( "database" ) );
+    QStringList userlist = elemParams.attribute( QObject::tr( "userlist" ) ).split( "; " );
 
     if ( sourceType == QObject::tr( "SQL" ) ) rs->setSourceType( MReportSource::ST_SQL );
     rs->setDriverName( driver );
     rs->setHost( host );
     rs->setPort( port.toInt() );
     rs->setDatabaseName( database );
+    rs->setUserList( userlist );
   }
 
   return result.join( "\n" );
@@ -260,6 +266,7 @@ QString MReport::parameters( const QDomNode &tag, MReportDocument *reportDocumen
     if ( parameterType == QObject::tr( "InputData" ) )
     {
       rp->setParameterType( MReportParameter::PT_InputData );
+
       if ( parameterDataType == QObject::tr( "String" ) )
         rp->setDataType( MReportParameter::DT_String );
       else if ( parameterDataType == QObject::tr( "StringList" ) )
@@ -268,10 +275,19 @@ QString MReport::parameters( const QDomNode &tag, MReportDocument *reportDocumen
         rp->setDataType( MReportParameter::DT_Date );
       else if ( parameterDataType == QObject::tr( "DateList" ) )
         rp->setDataType( MReportParameter::DT_DateList );
+      else if ( parameterDataType == QObject::tr( "Integer" ) )
+        rp->setDataType( MReportParameter::DT_Integer );
+      else if ( parameterDataType == QObject::tr( "IntegerList" ) )
+        rp->setDataType( MReportParameter::DT_IntegerList );
     }
-    else if ( parameterType == QObject::tr( "SQL" ) )
+    else if ( parameterType == QObject::tr( "SQL" ) ||
+              parameterType == QObject::tr( "SQL with parameters" ) )
     {
-      rp->setParameterType( MReportParameter::PT_SQL );
+      if ( parameterType == QObject::tr( "SQL" ) )
+        rp->setParameterType( MReportParameter::PT_SQL );
+      else
+        rp->setParameterType( MReportParameter::PT_SQLWithParameters );
+
       if ( parameterDataType == QObject::tr( "String" ) )
         rp->setDataType( MReportParameter::DT_String );
       else if ( parameterDataType == QObject::tr( "StringList" ) )
@@ -280,6 +296,10 @@ QString MReport::parameters( const QDomNode &tag, MReportDocument *reportDocumen
         rp->setDataType( MReportParameter::DT_Date );
       else if ( parameterDataType == QObject::tr( "DateList" ) )
         rp->setDataType( MReportParameter::DT_DateList );
+      else if ( parameterDataType == QObject::tr( "Integer" ) )
+        rp->setDataType( MReportParameter::DT_Integer );
+      else if ( parameterDataType == QObject::tr( "IntegerList" ) )
+        rp->setDataType( MReportParameter::DT_IntegerList );
       rp->setDataSource( parameterDataSource );
     }
     else if ( parameterType == QObject::tr( "Repeater" ) )
@@ -341,6 +361,8 @@ QString MReport::keys( const QDomNode &tag, MReportDocument *reportDocument )
           QObject::tr( "key_data_type" ) ).toElement().attribute( QObject::tr( "name" ) );
     QString keyDataSource = tagKey.namedItem(
           QObject::tr( "key_data_source" ) ).firstChild().toCDATASection().nodeValue();
+    QString keyDataFormat = tagKey.namedItem(
+          QObject::tr( "key_data_format" ) ).toElement().attribute( QObject::tr( "value" ) );
 
     MReportKey::KeyType kt = MReportKey::KT_Undefined;
     MReportKey::DataType dt = MReportKey::DT_Undefined;
@@ -353,6 +375,8 @@ QString MReport::keys( const QDomNode &tag, MReportDocument *reportDocument )
       kt = MReportKey::KT_SQLWithParameters;
     else if ( keySourceType == QObject::tr( "Attachment" ) )
       kt = MReportKey::KT_Attachment;
+    else if ( keySourceType == QObject::tr( "RepeaterIndex" ) )
+      kt = MReportKey::KT_RepeaterIndex;
     else
       addError( QObject::tr( "ключ '%1' имеет неверный тип [%2]" ).arg(
                   keyName, keySourceType ), result );
@@ -364,7 +388,9 @@ QString MReport::keys( const QDomNode &tag, MReportDocument *reportDocument )
     else if ( keyDataType == QObject::tr( "Time" ) ) dt = MReportKey::DT_Time;
     else if ( keyDataType == QObject::tr( "Integer" ) ) dt = MReportKey::DT_Integer;
     else if ( keyDataType == QObject::tr( "Double" ) ) dt = MReportKey::DT_Double;
-    else if ( kt != MReportKey::KT_Parameter && kt != MReportKey::KT_Attachment )
+    else if ( kt != MReportKey::KT_Parameter &&
+              kt != MReportKey::KT_Attachment &&
+              kt != MReportKey::KT_RepeaterIndex )
       addError( QObject::tr( "ключ '%1'::%2 имеет неверный тип данных [%3]" ).arg(
                   keyName, keySourceType, keyDataType ), result );
 
@@ -372,6 +398,7 @@ QString MReport::keys( const QDomNode &tag, MReportDocument *reportDocument )
     rk->setSource( keySource );
     rk->setDataType( dt );
     rk->setDataSource( keyDataSource );
+    rk->setDataFormat( keyDataFormat );
 
     if ( kt == MReportKey::KT_Attachment )
       load( reportDocument->addReportDocument( keySource, rk ) );

@@ -81,7 +81,3 @@ SOURCES += \
     Member/member.cpp \
     Member/member_p.cpp \
     MembersStorage/membersstorage.cpp
-
-
-
-

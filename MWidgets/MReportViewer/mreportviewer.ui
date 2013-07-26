@@ -35,6 +35,22 @@
      </property>
     </widget>
    </item>
+   <item>
+    <widget class="QProgressBar" name="progressBar">
+     <property name="maximum">
+      <number>10000</number>
+     </property>
+     <property name="value">
+      <number>0</number>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="format">
+      <string/>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <customwidgets>

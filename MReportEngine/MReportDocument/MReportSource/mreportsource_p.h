@@ -34,6 +34,7 @@ private:
   QString m__DatabaseName;
   QString m__UserName;
   QString m__Password;
+  QStringList m__UserList;
 
   explicit MReportSource_P( const QString &name, MReportSource *parent );
 

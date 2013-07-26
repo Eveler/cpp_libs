@@ -6,7 +6,12 @@
 MReportSource_P::MReportSource_P(const QString &name, MReportSource *parent) :
   QObject(parent),
   m__Name(name),
-  m__ST(MReportSource::ST_Undefined)
+  m__ST(MReportSource::ST_Undefined),
+  m__Port(0),
+  m__DatabaseName(QString()),
+  m__UserName(QString()),
+  m__Password(QString()),
+  m__UserList(QStringList())
 {
   do
     m__Uuid = QUuid::createUuid().toString();

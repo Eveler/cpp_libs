@@ -9,7 +9,9 @@ MReportParameter_P::MReportParameter_P( const QString &name, MReportParameter *p
   m__Source(QString()),
   m__DataSource(QString()),
   m__Data(QVariant()),
-  m__DataIterator(QListIterator<QVariant>( QList<QVariant>() ))
+  m__DataIterator(QListIterator<QVariant>( QList<QVariant>() )),
+  m__ListIndex(0),
+  m__Count(0)
 {
 }
 

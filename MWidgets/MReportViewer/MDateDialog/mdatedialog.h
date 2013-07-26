@@ -2,7 +2,7 @@
 #define MDATEDIALOG_H
 
 #include <QDialog>
-
+#include <QDateTime>
 
 namespace Ui {
 class MDateDialog;

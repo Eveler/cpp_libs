@@ -33,8 +33,7 @@ unix:!symbian {
 }
 
 LIB_LIST = \
-    -lMFCCore \
-    -lDepartment
+    -lMFCCore
 
 greaterThan(QT_MAJOR_VERSION, 4) {
   INCLUDEPATH += \
@@ -81,13 +80,3 @@ SOURCES += \
     Direction/direction.cpp \
     Direction/direction_p.cpp \
     DirectionsStorage/directionsstorage.cpp
-
-
-
-
-
-
-
-
-
-
