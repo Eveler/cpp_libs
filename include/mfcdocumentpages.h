@@ -1,12 +1,16 @@
 #ifndef MFCDOCUMENTPAGES_H
 #define MFCDOCUMENTPAGES_H
 
+#include <QObject>
+
 #include "mfcdocumentpage.h"
 #include "export/dossier_export.h"
 
 
-class DOSSIER_EXPORT MFCDocumentPages
+class DOSSIER_EXPORT MFCDocumentPages: public QObject
 {
+    Q_OBJECT
+
 public:
   MFCDocumentPages();
   ~MFCDocumentPages();
@@ -33,6 +37,9 @@ private:
   MFCDocumentPage *nullPage;
   QString errStr;
   void error(const QString str);
+
+signals:
+  void countChanged( int count );
 };
 
 #endif // MFCDOCUMENTPAGES_H
