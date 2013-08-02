@@ -450,7 +450,8 @@ void FtpDocsStorage::ftpAnswer(FTPEngine::Command cmd, bool res){
     if(loadZip(arc,curDoc)) emit loaded(curDoc);
     if(arc){
       QString fileName=arc->fileName();
-      arc->deleteLater();
+//      arc->deleteLater();
+      delete arc;
       arc=NULL;
       QFile::remove(fileName);
     }
@@ -458,7 +459,8 @@ void FtpDocsStorage::ftpAnswer(FTPEngine::Command cmd, bool res){
   }else if(cmd==FTPEngine::Command_PutFile){
     LogDebug()<<curPath<<arc;
     arc->remove();
-    arc->deleteLater();
+//    arc->deleteLater();
+    delete arc;
     arc=NULL;
     docsDone++;
     emit saved(curPath);
@@ -560,20 +562,23 @@ bool FtpDocsStorage::load(QString fileName, MFCDocument *doc){
 
 void FtpDocsStorage::cancel(){
   if(ftpEng){
-    ftpEng->deleteLater();
+//    ftpEng->deleteLater();
+    delete ftpEng;
     ftpEng=NULL;
   }
   if(arc){
 //    arc->remove();
     QString fileName=arc->fileName();
-    arc->deleteLater();
+//    arc->deleteLater();
+    delete arc;
     arc=NULL;
     QFile::remove(fileName);
   }
   while(!jobQueue.isEmpty()){
     QFile *file=jobQueue.dequeue();
     file->remove();
-    file->deleteLater();
+//    file->deleteLater();
+    delete file;
   }
   docsDone=1;
   docCount=1;

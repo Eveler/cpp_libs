@@ -19,8 +19,10 @@ AbstractDocListSaver::~AbstractDocListSaver(){
   if(ownStorage){
     if(docStorage) docStorage->removeStorage();
   }
-  loop->deleteLater();
-  timer->deleteLater();
+//  loop->deleteLater();
+  delete loop;
+//  timer->deleteLater();
+  delete timer;
   LogDebug()<<"~AbstractDocListSaver() END";
 }
 

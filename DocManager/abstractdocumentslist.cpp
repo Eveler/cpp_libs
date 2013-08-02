@@ -11,16 +11,19 @@ AbstractDocumentsList::AbstractDocumentsList(const QVariant Id, QSqlDatabase db,
 }
 
 AbstractDocumentsList::~AbstractDocumentsList(){
-//  LogDebug()<<"~AbstractDocumentsList() BEGIN";
-  if(ownLoader) if(loader) loader->deleteLater();
-  if(ownSaver) if(saver) saver->deleteLater();
-//  LogDebug()<<"~AbstractDocumentsList() END";
+  LogDebug()<<"~AbstractDocumentsList() BEGIN";
+  if(ownLoader) if(loader) //loader->deleteLater();
+    delete loader;
+  if(ownSaver) if(saver) //saver->deleteLater();
+    delete saver;
+  LogDebug()<<"~AbstractDocumentsList() END";
 }
 
 void AbstractDocumentsList::setLoader(AbstractDocListLoader *l){
   if(!l || loader==l) return;
   if(loader) loader->disconnect(this);
-  if(ownLoader) loader->deleteLater();
+  if(ownLoader) //loader->deleteLater();
+    delete loader;
   loader=l;
   ownLoader=false;
   connect(l,SIGNAL(destroyed()),SLOT(objectDestroyed()));
@@ -34,7 +37,8 @@ void AbstractDocumentsList::setLoader(AbstractDocListLoader *l){
 void AbstractDocumentsList::setSaver(AbstractDocListSaver *s){
   if(!s || saver==s) return;
   if(saver) saver->disconnect(this);
-  if(ownSaver) saver->deleteLater();
+  if(ownSaver) //saver->deleteLater();
+    delete saver;
   saver=s;
   ownSaver=false;
   connect(s,SIGNAL(destroyed()),SLOT(objectDestroyed()));
