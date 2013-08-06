@@ -32,6 +32,7 @@ void AbstractDocumentsList::setLoader(AbstractDocListLoader *l){
   connect(l,SIGNAL(done(bool)),SIGNAL(loadDone(bool)));
   connect(l,SIGNAL(documentLoadDone(MFCDocument*)),
           SIGNAL(documentLoadDone(MFCDocument*)));
+  connect(l,SIGNAL(modelDestroyed()),SLOT(destroyModel()));
 }
 
 void AbstractDocumentsList::setSaver(AbstractDocListSaver *s){
@@ -117,4 +118,9 @@ void AbstractDocumentsList::showSaveProgress(qint64 val, qint64 total){
     if(!doc->url().isEmpty()) v++;
   v*=(val>0?val:t/c);
   emit progress(v,t);
+}
+
+void AbstractDocumentsList::destroyModel(){
+//  emit modelDestroyed();
+  doclistModel=NULL;
 }

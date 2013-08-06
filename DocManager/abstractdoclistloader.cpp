@@ -11,8 +11,16 @@ AbstractDocListLoader::AbstractDocListLoader(QSqlDatabase db,
 AbstractDocListLoader::~AbstractDocListLoader(){
   LogDebug()<<"~AbstractDocListLoader() BEGIN";
 //  docListModel->deleteLater();
-  delete docListModel;
+  QList< MFCDocument* > docs=docListModel->documents();
   emit modelDestroyed();
+//  LogDebug()<<"modelDestroyed";
+  delete docListModel;
+//  LogDebug()<<"model deleted";
+  while(!docs.isEmpty()){
+    MFCDocument *doc=docs.takeFirst();
+    MFCDocument::remove(doc);
+  }
+//  LogDebug()<<"model documents deleted";
   if(docStorage) docStorage->disconnect(this);
   if(ownStorage){
     if(docStorage) docStorage->removeStorage();
