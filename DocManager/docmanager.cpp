@@ -9,23 +9,34 @@
 #define setError(str) set_error(str,__FILE__,__LINE__)
 
 Docmanager::Docmanager(QSqlDatabase db, QObject *parent) :
-  QObject(parent),DB(db),allDocs(new DocumentsModel(this)),curClientDocs(NULL),
-  loop(new QEventLoop(this)),/*stor(NULL),ownStorage(false),*/
-  timer(new QTimer(this)),declarDocs(NULL),newDocs(new DocumentsModel(this)),
-  curDocpathsDocs(NULL){
+  QObject(parent),
+  DB(db),
+  allDocs(new DocumentsModel(this)),
+  curClientDocs(NULL),
+  loop(new QEventLoop(this)),
+  /*stor(NULL),ownStorage(false),*/
+  timer(new QTimer(this)),
+  declarDocs(NULL),
+  newDocs(new DocumentsModel(this)),
+  curDocpathsDocs(NULL)
+{
   timer->setInterval(10000);
   connect(timer,SIGNAL(timeout()),SLOT(timeout()));
   connect(this,SIGNAL(dataTransferProgress(qint64,qint64)),SLOT(updateTimer()));
 }
 
 Docmanager::~Docmanager(){
-//  LogDebug()<<"~Docmanager() BEGIN";
-  timer->deleteLater();
-  loop->deleteLater();
+  LogDebug()<<"~Docmanager() BEGIN";
   clear();
-  allDocs->deleteLater();
-  newDocs->deleteLater();
-//  LogDebug()<<"~Docmanager() END";
+//  timer->deleteLater();
+  delete timer;
+//  loop->deleteLater();
+  delete loop;
+//  allDocs->deleteLater();
+  delete allDocs;
+//  newDocs->deleteLater();
+  delete newDocs;
+  LogDebug()<<"~Docmanager() END";
 }
 
 //void Docmanager::setDocumentsStorage(AbstractDocsStorage *storage){
@@ -190,8 +201,10 @@ void Docmanager::removeClient(QVariant id){
     if(i.value()==id){
       if(i.key()==curClientDocs) unsetCurrentClient();
 //      i.key()->disconnect();
-      i.key()->deleteLater();
+      ClientDocuments *cd=i.key();
+//      i.key()->deleteLater();
       i.remove();
+      delete cd;
     }
   }
 }
@@ -230,7 +243,8 @@ bool Docmanager::setDeclar(const QVariant id){
 
 void Docmanager::unsetDeclar(){
   if(declarDocs){
-    declarDocs->deleteLater();
+//    declarDocs->deleteLater();
+    delete declarDocs;
     declarDocs=NULL;
   }
 }
@@ -279,8 +293,10 @@ void Docmanager::removeDocpaths(QVariant id){
     if(i.value()==id){
       if(i.key()==curDocpathsDocs) if(!nextDocpaths()) curDocpathsDocs=NULL;
 //      i.key()->disconnect();
-      i.key()->deleteLater();
+      DocpathsDocuments *dd=i.key();
+//      i.key()->deleteLater();
       i.remove();
+      delete dd;
     }
   }
 }
@@ -571,35 +587,44 @@ bool Docmanager::saveDeleteDocuments(){
 }
 
 void Docmanager::clear(){
+  LogDebug()<<"clear() BEGIN";
   errStr.clear();
   cancelDownload();
 
   if(declarDocs){
 //    declarDocs->disconnect();
-    declarDocs->deleteLater();
+//    declarDocs->deleteLater();
+    delete declarDocs;
     declarDocs=NULL;
   }
 
-  QHashIterator< ClientDocuments*,QVariant > ci(clientsDocs);
+  QMutableHashIterator< ClientDocuments*,QVariant > ci(clientsDocs);
   while(ci.hasNext()){
     ci.next();
 //    ci.key()->disconnect();
-    ci.key()->deleteLater();
+//    ci.key()->deleteLater();
+    ClientDocuments *cd=ci.key();
+    ci.remove();
+    delete cd;
   }
   clientsDocs.clear();
   curClientDocs=NULL;
 
-  QHashIterator< DocpathsDocuments*,QVariant > di(docpathsDocs);
+  QMutableHashIterator< DocpathsDocuments*,QVariant > di(docpathsDocs);
   while(di.hasNext()){
     di.next();
 //    di.key()->disconnect();
-    di.key()->deleteLater();
+//    di.key()->deleteLater();
+    DocpathsDocuments *dd=di.key();
+    di.remove();
+    delete dd;
   }
   docpathsDocs.clear();
   curDocpathsDocs=NULL;
 
   allDocs->clear();
   newDocs->clear();
+  LogDebug()<<"clear() END";
 }
 
 void Docmanager::cancelDownload(){
