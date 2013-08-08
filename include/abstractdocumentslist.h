@@ -26,6 +26,7 @@ signals:
   void progress(qint64,qint64);
   void loadDone(bool);
   void documentLoadDone(MFCDocument*);
+//  void modelDestroyed();
 //  void saveDone(bool);
 
 public slots:
@@ -50,6 +51,7 @@ protected slots:
   void objectDestroyed();
   void setDocumentID(MFCDocument *doc,QVariant id);
   void showSaveProgress(qint64 val,qint64 total);
+  void destroyModel();
 
 protected:
   AbstractDocListLoader *loader;

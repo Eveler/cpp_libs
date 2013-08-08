@@ -17,12 +17,9 @@ public:
   explicit Docmanager(QSqlDatabase db,QObject *parent = 0);
   ~Docmanager();
 
-//  void setDocumentsStorage(AbstractDocsStorage *storage);
-
   DocumentsModel *allDocuments() const;
 //  QList< MFCDocument* > findAddedDocuments(const QVariant type) const;
   DocumentsModel *addedDocuments() const;
-//  QList< MFCDocument* > addedDocumentsList() const;
 //  QAbstractItemModel *documentsForRelease() const;
 //  QList< MFCDocument* > documentsForReleaseList() const;
 
@@ -58,17 +55,19 @@ public slots:
   void setClientCurrent(QVariant id);
   void unsetCurrentClient();
   void removeClient(QVariant id);
+  bool removeClientDocument(MFCDocument *doc);
   bool setDeclar(const QVariant id);
   void unsetDeclar();
+  bool removeDeclarDocument(MFCDocument *doc);
   bool addDocpaths(QVariant id);
   void unsetCurrentDocpaths();
   void removeDocpaths(QVariant id);
   void setDocpathsCurrent(QVariant id);
   bool nextDocpaths();
+  bool removeDocpathsDocument(MFCDocument *doc);
   MFCDocument *newDocument(MFCDocument *doc);
   bool loadDocument(MFCDocument *doc);
-
-//  bool loadDocument(MFCRecord *documentRec);
+  bool removeNewDocument(MFCDocument *doc);
 
   bool save(QString declarNumber=QString());
   bool saveDocuments(QString declarNumber=QString());
