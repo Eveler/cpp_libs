@@ -1,5 +1,6 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.0
+import QtGraphicalEffects 1.0
 
 Item {
     id: comboObject
@@ -16,9 +17,27 @@ Item {
     property int fontPixelSize: text_Label.font.pixelSize
     property string fontFamily: text_Label.font.family
 
+    property int maxVisibleItemsCount: 15
+
+    property Component delegate: null
+
+    RectangularGlow {
+        id: effect
+        anchors.fill: rect_ContentBackground
+        glowRadius: 5
+        spread: 0.2
+        color: "#99000000"
+        visible: menu.poppedup
+        cornerRadius: rect_ContentBackground.radius + glowRadius
+    }
     Rectangle {
         id: rect_ContentBackground
         anchors.fill: parent
+        anchors.margins: -1
+
+        color: "#99000000"
+        border.color: "#99000000"
+        radius: 5
     }
 
     Rectangle {
@@ -30,7 +49,7 @@ Item {
 
         visible: text_Label.text.length > 0
 
-        border.color: "gray"
+        color: "transparent"
     }
     Text {
         id: text_Label
@@ -46,6 +65,34 @@ Item {
         font.bold: comboObject.fontBold
         font.pixelSize: comboObject.fontPixelSize
         font.family: ( comboObject.fontFamily.length === 0 ? "Consolas" : comboObject.fontFamily )
+        color: "white"
+    }
+
+    Rectangle {
+        id: rect_MenuButton
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.right: parent.right
+        width: image_MenuButton.width
+
+        color: "transparent"
+
+        Image {
+            id: image_MenuButton
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.right: parent.right
+            width: 24
+            height: 24
+        }
+
+        MouseArea {
+            id: mouse_MenuButton
+            anchors.fill: parent
+
+            hoverEnabled: true
+
+            onClicked: menu.poppedup = !menu.poppedup
+        }
     }
 
     Rectangle {
@@ -55,7 +102,7 @@ Item {
         anchors.bottom: parent.bottom
         anchors.right: rect_MenuButton.left
 
-        border.color: "gray"
+        color: "#55ffffff"
 
         MouseArea {
             anchors.fill: parent
@@ -77,24 +124,16 @@ Item {
         font.family: comboObject.fontFamily
     }
 
-    Rectangle {
-        id: rect_MenuButton
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        anchors.right: parent.right
-        width: image_MenuButton.width
-        border.color: "gray"
+    ComboMenu {
+        id: menu
+        anchors.topMargin: 1
+        anchors.rightMargin: 4
+        poppedupWidth: rect_ContentBackground.width-(rect_ContentBackground.radius*2)
 
-        Image {
-            id: image_MenuButton
-            width: 24
-            height: 24
+        control: comboObject
 
-            anchors.centerIn: parent
-        }
-
-        MouseArea {
-            anchors.fill: parent
-        }
+        fontBold: comboObject.fontBold
+        fontPixelSize: comboObject.fontPixelSize
+        fontFamily: comboObject.fontFamily
     }
 }

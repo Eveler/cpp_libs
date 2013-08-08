@@ -9,17 +9,40 @@ ApplicationWindow {
     width: 500
     height: 300
 
-    ComboObject {
-        id: comboObject
+    Rectangle {
+        anchors.fill: parent
 
-        anchors.centerIn: parent
+        color: "#ff5599aa"
+    }
 
-        width: contentWidth
-        height: contentHeight
+    Item {
+        anchors.fill: parent
 
-        fontBold: true
-        fontPixelSize: 14
-        fontFamily: "Pluto Bold"
-        label: "Тип документа"
+        ComboObject {
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: parent.top
+
+            width: contentWidth
+            height: contentHeight
+
+            fontBold: true
+            fontPixelSize: 14
+            fontFamily: "Pluto Bold"
+            label: "Тип документа"
+
+        }
+
+        ComboObject {
+            anchors.centerIn: parent
+
+            width: contentWidth
+            height: contentHeight
+
+            fontBold: true
+            fontPixelSize: 14
+            fontFamily: "Pluto Bold"
+            label: "Тип документа"
+
+        }
     }
 }
