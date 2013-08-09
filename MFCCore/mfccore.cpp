@@ -204,11 +204,13 @@ QString MFCCore::execFile(const QString &fName, const bool block_ui){
     if(sys_out.simplified().length()>0)
       errStr+=tr("Вывод процесса: %1").arg(sys_out);
 
-    ext_proc->deleteLater();
+//    ext_proc->deleteLater();
+    delete ext_proc;
     ext_proc=NULL;
     if(ext_proc_file){
       ext_proc_file->remove();
-      ext_proc_file->deleteLater();
+//      ext_proc_file->deleteLater();
+      delete ext_proc_file;
       ext_proc_file=NULL;
     }
     return errStr;
@@ -222,7 +224,8 @@ QString MFCCore::execFile(const QString &fName, const bool block_ui){
     if(!ext_proc->waitForStarted()){
       errStr=tr("Истекло время ожидания запуска процесса: %1")
           .arg(ext_proc->errorString());
-      ext_proc->deleteLater();
+//      ext_proc->deleteLater();
+      delete ext_proc;
       ext_proc=NULL;
     }
   }
@@ -248,7 +251,8 @@ QString MFCCore::execFile(const QByteArray &buf, const QString &extension,
   if(!ext_proc_file->open(QFile::WriteOnly)){
     errStr=tr("Ошибка создания временного файла: %1: %2")
         .arg(fileName).arg(ext_proc_file->errorString());
-    ext_proc_file->deleteLater();
+//    ext_proc_file->deleteLater();
+    delete ext_proc_file;
     ext_proc_file=NULL;
     return errStr;
   }
@@ -258,7 +262,8 @@ QString MFCCore::execFile(const QByteArray &buf, const QString &extension,
           ext_proc_file->errorString());
     ext_proc_file->close();
     ext_proc_file->remove();
-    ext_proc_file->deleteLater();
+//    ext_proc_file->deleteLater();
+    delete ext_proc_file;
     ext_proc_file=NULL;
     return errStr;
   }
@@ -292,12 +297,14 @@ void MFCCore::processFinished(int exitCode){
   if(sys_out.simplified().length()>0)
     errStr+=tr("Вывод процесса: %1").arg(sys_out);
 
-  ext_proc->deleteLater();
+//  ext_proc->deleteLater();
+  delete ext_proc;
   ext_proc=NULL;
 
   if(ext_proc_file){
     ext_proc_file->remove();
-    ext_proc_file->deleteLater();
+//    ext_proc_file->deleteLater();
+    delete ext_proc_file;
     ext_proc_file=NULL;
   }
 }
@@ -306,12 +313,14 @@ void MFCCore::processError(QProcess::ProcessError err){
   if(err==QProcess::FailedToStart || err==QProcess::Crashed ||
      err==QProcess::Timedout || err==QProcess::UnknownError){
     if(ext_proc){
-      ext_proc->deleteLater();
+//      ext_proc->deleteLater();
+      delete ext_proc;
       ext_proc=NULL;
 
       if(ext_proc_file){
         ext_proc_file->remove();
-        ext_proc_file->deleteLater();
+//        ext_proc_file->deleteLater();
+        delete ext_proc_file;
         ext_proc_file=NULL;
       }
     }

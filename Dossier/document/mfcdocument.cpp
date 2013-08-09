@@ -1,3 +1,4 @@
+#include <QMetaProperty>
 #include "mfcdocument.h"
 #include "amslogger.h"
 
@@ -17,8 +18,17 @@ MFCDocument::~MFCDocument()
 //  delete m_Number;
 //  delete m_Agency;
   if(instances.contains(this)){
-    LogWarning()<<"Document"<<this<<"deleted directly from destructor! "
-                  "Use MFCDocument::remove(doc) instead!";
+    QStringList props;
+    foreach(QByteArray pn,dynamicPropertyNames())
+      props<<pn+" = "+property(pn).toString();
+    for(int i=0;i<metaObject()->propertyCount();i++){
+      QMetaProperty p=metaObject()->property(i);
+      QVariant v=property(p.name());
+      props<<tr(p.name())+" = "+(v.isNull() || !v.isValid()?"<NULL>":v.toString());
+    }
+    LogWarning()<<"Document"<<this<<"("<<props.join("; ")
+               <<") deleted directly from destructor! "
+                 "Use MFCDocument::remove(doc) instead!";
     instances.remove(this);
   }
   if(m_pages!=NULL) delete m_pages;
@@ -42,8 +52,15 @@ MFCDocument *MFCDocument::instance(QString doc_type, QDate doc_date,
   doc->setDate(doc_date);
   doc->setCreateDate(doc_createdate);
   instances.insert(doc,1);
-  LogDebug()<<"Created instance ("<<doc<<") of \""<<doc->type()<<"\" of"
-           <<doc->date()<<"created at"<<doc->createDate();
+  QStringList props;
+  foreach(QByteArray pn,doc->dynamicPropertyNames())
+    props<<pn+" = "+doc->property(pn).toString();
+  for(int i=0;i<doc->metaObject()->propertyCount();i++){
+    QMetaProperty p=doc->metaObject()->property(i);
+    QVariant v=doc->property(p.name());
+    props<<tr(p.name())+" = "+(v.isNull() || !v.isValid()?"<NULL>":v.toString());
+  }
+  LogDebug()<<"Created instance "<<doc<<" ("<<props.join("; ")<<")";
   return doc;
 }
 
@@ -292,9 +309,15 @@ void MFCDocument::remove(MFCDocument *doc){
              <<"times";
     if(instances.value(doc)<=0){
       instances.remove(doc);
-      LogDebug()<<"Removed instance ("<<doc<<") of \""<<doc->type()<<"\" of"
-               <<doc->date()<<"created at"<<doc->createDate();
-//      doc->deleteLater();
+      QStringList props;
+      foreach(QByteArray pn,doc->dynamicPropertyNames())
+        props<<pn+" = "+doc->property(pn).toString();
+      for(int i=0;i<doc->metaObject()->propertyCount();i++){
+        QMetaProperty p=doc->metaObject()->property(i);
+        QVariant v=doc->property(p.name());
+        props<<tr(p.name())+" = "+(v.isNull() || !v.isValid()?"<NULL>":v.toString());
+      }
+      LogDebug()<<"Removed instance "<<doc<<" ("<<props.join("; ")<<")";
       delete doc;
     }
   }

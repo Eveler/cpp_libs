@@ -14,7 +14,8 @@ ClientDocuments::ClientDocuments(const QVariant clientId,QSqlDatabase db,
 
 ClientDocuments::~ClientDocuments(){
   LogDebug()<<"~ClientDocuments() BEGIN";
-  sortedModel->deleteLater();
+//  sortedModel->deleteLater();
+  delete sortedModel;
   LogDebug()<<"~ClientDocuments() END";
 }
 

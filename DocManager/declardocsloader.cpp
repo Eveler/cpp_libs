@@ -11,8 +11,8 @@ DeclarDocsLoader::DeclarDocsLoader(QSqlDatabase db,QObject *parent) :
 }
 
 DeclarDocsLoader::~DeclarDocsLoader(){
-//  LogDebug()<<"~DeclarDocsLoader() BEGIN";
-//  LogDebug()<<"~DeclarDocsLoader() END";
+  LogDebug()<<"~DeclarDocsLoader() BEGIN";
+  LogDebug()<<"~DeclarDocsLoader() END";
 }
 
 DocumentsModel *DeclarDocsLoader::load(QVariant foreignID){

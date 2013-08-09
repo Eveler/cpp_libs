@@ -8,9 +8,9 @@ DocumentsModel::DocumentsModel(QObject *parent):QAbstractItemModel(parent),
 }
 
 DocumentsModel::~DocumentsModel(){
-//  LogDebug()<<"~DocumentsModel() BEGIN";
+  LogDebug()<<"~DocumentsModel() BEGIN";
   clear();
-//  LogDebug()<<"~DocumentsModel() END";
+  LogDebug()<<"~DocumentsModel() END";
 }
 
 int DocumentsModel::rowCount(const QModelIndex &/*parent*/) const{
@@ -120,18 +120,17 @@ int DocumentsModel::findColumn(QString name) const{
 }
 
 void DocumentsModel::clear(){
-//  LogDebug()<<"~clear() BEGIN"<<this;
+  LogDebug()<<"~clear() BEGIN";
   foreach(MFCDocument *doc,docs){
 //    LogDebug()<<"doc ="<<doc;
     doc->disconnect(this);
-//    doc->deleteLater();
-    MFCDocument::remove(doc);
+//    MFCDocument::remove(doc);
   }
   docs.clear();
 //  ids.clear();
   newDocs.clear();
   removedIDs.clear();
-//  LogDebug()<<"~clear() END"<<this;
+  LogDebug()<<"~clear() END";
 }
 
 QList< MFCDocument* > DocumentsModel::documents() const{
@@ -229,9 +228,8 @@ bool DocumentsModel::addDocument(MFCDocument *doc, const QVariant id,
   int rCount=docs.count();
   if(isNewVisible || !isNew) beginInsertRows(QModelIndex(),rCount,rCount);
 
-  QMap< int,MFCDocument* >::iterator i=docs.insert(rCount,doc);
-  doc->setParent(this);
-  connect(doc,SIGNAL(destroyed()),SLOT(documentDestroyed()));
+  /*QMap< int,MFCDocument* >::iterator i=*/docs.insert(rCount,doc);
+//  doc->setParent(this);
   connect(doc,SIGNAL(destroyed(QObject*)),SLOT(documentDestroyed(QObject*)));
 //  QMap< int,QVariant >::iterator ii=ids.insert(rCount,id);
 //  LogDebug()<<"r ="<<ii.key()<<"ID ="<<ii.value();
@@ -272,6 +270,7 @@ bool DocumentsModel::removeDocument(MFCDocument *doc){
   QList< int > i=docs.keys(doc);
   if(i.count()<=0) return false;
 
+//  LogDebug()<<"about to remove Document("<<doc<<")"<<this;
   foreach(int r,i){
 //    LogDebug()<<r;
     beginRemoveRows(QModelIndex(),r,r);
@@ -283,6 +282,7 @@ bool DocumentsModel::removeDocument(MFCDocument *doc){
     recalc();
     endRemoveRows();
   }
+//  LogDebug()<<"removed Document("<<doc<<")"<<this;
   emit documentRemoved(doc);
   return true;
 }
@@ -300,11 +300,6 @@ bool DocumentsModel::removeDocument(const int row){
   endRemoveRows();
   emit documentRemoved(doc);
   return true;
-}
-
-void DocumentsModel::documentDestroyed(){
-//  LogDebug()<<"documentDestroyed"<<this<<sender();
-  documentDestroyed(sender());
 }
 
 void DocumentsModel::documentDestroyed(QObject *obj){

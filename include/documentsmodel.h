@@ -54,13 +54,12 @@ public slots:
 
 private slots:
   bool removeDocument(const int row);
-  void documentDestroyed();
   void documentDestroyed(QObject *obj);
   void recalc();
 
 private:
   QMap< int,MFCDocument* > docs;
-  QMap< int,QVariant > ids;
+//  QMap< int,QVariant > ids;
   QList< MFCDocument* > newDocs;
   QVariantList removedIDs;
 

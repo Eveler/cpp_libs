@@ -20,7 +20,8 @@ FTPTransfer::~FTPTransfer()
   delete m__Server;
   m__Server = NULL;
   m__Client = NULL;
-  loop->deleteLater();
+//  loop->deleteLater();
+  delete loop;
 }
 
 bool FTPTransfer::listen( QHostAddress localAddress )
@@ -216,7 +217,8 @@ void FTPTransfer::connectionClosed()
 void FTPTransfer::transferConnectionClosed(){
   transfer->disconnect(this);
   transfer->close();
-  transfer->deleteLater();
+//  transfer->deleteLater();
+  delete transfer;
   transfer=NULL;
   if(m__State!=State_None) emit connectionTerminated();
   m__State=State_None;
