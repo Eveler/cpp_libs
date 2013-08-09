@@ -98,8 +98,9 @@ bool FTPEngine::connectToHost( const QUrl &url, int port )
 
 void FTPEngine::disconnectFromHost()
 {
-  if ( m__Socket->state() != QAbstractSocket::UnconnectedState )
+//  if ( m__Socket->state() != QAbstractSocket::UnconnectedState )
     m__Socket->disconnectFromHost();
+    m__Socket->waitForDisconnected();
 
   m__Socket->disconnect();
 }
@@ -859,9 +860,6 @@ void FTPEngine::sendAnswerResult( bool result )
 
 void FTPEngine::socketStateChanged( QAbstractSocket::SocketState socketState )
 {
-#ifdef FTPENGINE_DEBUG
-  LogDebug()<<"socketState ="<<socketState<<"m__Connected ="<<m__Connected;
-#endif
   bool before = m__Connected;
   m__Connected = ( socketState == QAbstractSocket::ConnectedState );
 
@@ -876,6 +874,10 @@ void FTPEngine::socketStateChanged( QAbstractSocket::SocketState socketState )
     m__LastError=m__Socket->errorString();
     loop->exit(-1);
   }
+#ifdef FTPENGINE_DEBUG
+  LogDebug()<<"m__LastError ="<<m__LastError;
+  LogDebug()<<"socketState ="<<socketState<<"m__Connected ="<<m__Connected;
+#endif
 }
 
 void FTPEngine::socketConnected()
@@ -887,6 +889,9 @@ void FTPEngine::socketConnected()
   m__Transfer->listen( m__Socket->localAddress() );
 
   int code = ftpAnswerCode( answer );
+#ifdef FTPENGINE_DEBUG
+  LogDebug()<<"code ="<<code;
+#endif
   emit ftpAnswer( ftpAnswerText( answer ), code );
 
   if ( !checkCode( answer, 220 ) ) return;

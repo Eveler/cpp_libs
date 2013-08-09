@@ -3,7 +3,7 @@ import QtQuick.Controls 1.0
 import QtGraphicalEffects 1.0
 
 Item {
-    id: comboObject
+    id: dateTimeEdit
     width: 100
     height: 62
 
@@ -21,13 +21,39 @@ Item {
 
     property Component delegate: null
 
+    state: "DDMMYYYY hhmmss"
+
+    states: [
+        State {
+            name: "DDMMYYYY hhmmss"
+            PropertyChanges {
+                target: input_text
+                inputMask: "99-99-9999 99:99:99;_"
+            }
+        },
+        State {
+            name: "DDMMYYYY"
+            PropertyChanges {
+                target: input_text
+                inputMask: "99-99-9999;_"
+            }
+        },
+        State {
+            name: "hhmmss"
+            PropertyChanges {
+                target: input_text
+                inputMask: "99:99:99;_"
+            }
+        }
+    ]
+
     RectangularGlow {
         id: effect
         anchors.fill: rect_ContentBackground
         glowRadius: 5
         spread: 0.2
         color: "#66000000"
-        visible: menu.poppedup
+        visible: /*menu.poppedup*/true
         cornerRadius: rect_ContentBackground.radius + glowRadius
     }
     Rectangle {
@@ -61,10 +87,10 @@ Item {
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
 
-        text: comboObject.label
-        font.bold: comboObject.fontBold
-        font.pixelSize: comboObject.fontPixelSize
-        font.family: ( comboObject.fontFamily.length === 0 ? "Consolas" : comboObject.fontFamily )
+        text: dateTimeEdit.label
+        font.bold: dateTimeEdit.fontBold
+        font.pixelSize: dateTimeEdit.fontPixelSize
+        font.family: ( dateTimeEdit.fontFamily.length === 0 ? "Consolas" : dateTimeEdit.fontFamily )
         color: "white"
     }
 
@@ -91,7 +117,9 @@ Item {
 
             hoverEnabled: true
 
-            onClicked: menu.poppedup = !menu.poppedup
+            onClicked: {
+                /*menu.poppedup = !menu.poppedup*/
+            }
         }
     }
 
@@ -115,57 +143,37 @@ Item {
         anchors.fill: rect_TextBackground
         anchors.leftMargin: 5
 
+        horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
 
         selectByMouse: true
 
-        font.bold: comboObject.fontBold
-        font.pixelSize: comboObject.fontPixelSize
-        font.family: comboObject.fontFamily
+        font.bold: dateTimeEdit.fontBold
+        font.pixelSize: dateTimeEdit.fontPixelSize
+        font.family: dateTimeEdit.fontFamily
 
         property bool search: true
-
-        onTextChanged: {
-            if ( !search ) return
-
-            var index = menu.find( text )
-            var count = menu.visibleItemsCount
-            if ( count > 1 )
-            {
-                if ( text.length > 0 ) menu.poppedup = true
-            }
-            else
-            {
-                if ( count === 1 && text.length > 0 )
-                {
-                    if ( menu.currentValue === menu.value( index ) )
-                        text = menu.currentValue
-                    else menu.select( index )
-                }
-                menu.poppedup = false
-            }
-        }
     }
 
-    ComboMenu {
-        id: menu
-        anchors.topMargin: 1
-        anchors.rightMargin: 4
-        poppedupWidth: rect_ContentBackground.width-(rect_ContentBackground.radius*2)
+//    ComboMenu {
+//        id: menu
+//        anchors.topMargin: 1
+//        anchors.rightMargin: 4
+//        poppedupWidth: rect_ContentBackground.width-(rect_ContentBackground.radius*2)
 
-        control: comboObject
+//        control: comboObject
 
-        fontBold: comboObject.fontBold
-        fontPixelSize: comboObject.fontPixelSize
-        fontFamily: comboObject.fontFamily
+//        fontBold: comboObject.fontBold
+//        fontPixelSize: comboObject.fontPixelSize
+//        fontFamily: comboObject.fontFamily
 
-        onCurrentIndexChanged: {
-            input_text.search = false
-            input_text.text = value( currentIndex )
-            input_text.search = true
-            menu.poppedup = false
-        }
+//        onCurrentIndexChanged: {
+//            input_text.search = false
+//            input_text.text = value( currentIndex )
+//            input_text.search = true
+//            menu.poppedup = false
+//        }
 
-        property string currentValue: value( currentIndex )
-    }
+//        property string currentValue: value( currentIndex )
+//    }
 }

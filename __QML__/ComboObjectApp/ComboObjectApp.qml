@@ -9,33 +9,34 @@ ApplicationWindow {
     width: 500
     height: 300
 
-    Rectangle {
+    Image {
         anchors.fill: parent
 
-        color: "#ff5599aa"
+        fillMode: Image.PreserveAspectCrop
+        source: "under-construction-background-1584.png"
     }
 
     Item {
         anchors.fill: parent
 
         ComboObject {
-            anchors.horizontalCenter: parent.horizontalCenter
             anchors.top: parent.top
+            anchors.left: parent.left
 
-            width: contentWidth
+            width: 300
             height: contentHeight
 
             fontBold: true
             fontPixelSize: 14
             fontFamily: "Pluto Bold"
-            label: "Тип документа"
 
         }
 
         ComboObject {
-            anchors.centerIn: parent
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.left: parent.left
 
-            width: contentWidth
+            width: 300
             height: contentHeight
 
             fontBold: true
