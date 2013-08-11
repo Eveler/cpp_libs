@@ -2,6 +2,8 @@ import QtQuick 2.1
 import QtQuick.Controls 1.0
 import QtQuick.Window 2.0
 import "content"
+import "../MQMLPlugins/release" as MPlugins
+import "org.qt-project.Qt.QQmlExtensionInterface"
 
 ApplicationWindow {
     id: applicationWindow
@@ -26,9 +28,13 @@ ApplicationWindow {
         }
 
         Calendar {
+            id: calendar
             anchors.centerIn: parent
 
             poppedup: true
+
         }
     }
+
+    Component.onCompleted: calendar.setCurrentMonth( 2013, 8 )
 }

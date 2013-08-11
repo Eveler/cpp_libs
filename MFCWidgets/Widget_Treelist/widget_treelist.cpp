@@ -48,6 +48,7 @@ bool Widget_Treelist::addRoot( TreelistItem *item )
   {
 
   }
+  return true;
 }
 
 TreelistItem * Widget_Treelist::addChild( TreelistItem *item, const QStringList &fldVal, bool checked )
