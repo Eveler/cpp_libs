@@ -5,14 +5,8 @@ Item {
     id: calendar
     width: ( listView.currentItem && poppedup ?
                 listView.currentItem.width+(rect_ContentBackground.radius*2) : 0 )
-    Behavior on width {
-        SpringAnimation { spring: 2; damping: 0.2 }
-    }
     height: ( listView.currentItem && poppedup ?
                  listView.currentItem.height+(rect_ContentBackground.radius*2) : 0 )
-    Behavior on height {
-        SpringAnimation { spring: 2; damping: 0.2 }
-    }
 
     property Item control: null
     onControlChanged: {
@@ -39,12 +33,20 @@ Item {
 
         Item {
             id: calendarItem
-            width: rect_LeftButton.width+item_Content.width+rect_RightButton.width
-            height: item_Content.height
+            width: rect_LeftButton.width+grid_Content.width+rect_RightButton.width
+            height: grid_Content.height
 
             scale: ( calendarItem.ListView.isCurrentItem ? 1.0 : 0.0 )
             Behavior on scale {
                 NumberAnimation { duration: 500 }
+            }
+
+            property int year: yearValue
+            property int month: monthValue
+            
+            property date itemDate
+            onMonthChanged: {
+                grid_Content.model.append( { "dayValue": 1 } )
             }
 
             Rectangle {
@@ -54,12 +56,7 @@ Item {
                 anchors.bottom: parent.bottom
                 width: 12
 
-//                opacity: ( calendarItem.ListView.isCurrentItem ? 1.0 : 0.0 )
-//                Behavior on opacity {
-//                    NumberAnimation { duration: 1000 }
-//                }
-
-                color: ( model.index > 0 ? "#99888888" : "#33888888" )
+                color: "#99888888"
 
                 MouseArea {
                     id: mouse_LeftButton
@@ -77,12 +74,7 @@ Item {
                 anchors.bottom: parent.bottom
                 width: 12
 
-//                opacity: ( calendarItem.ListView.isCurrentItem ? 1.0 : 0.0 )
-//                Behavior on opacity {
-//                    NumberAnimation { duration: 1000 }
-//                }
-
-                color: ( model.index+1 < calendarItem.parent.parent.count ? "#99888888" : "#33888888" )
+                color: "#99888888"
 
                 MouseArea {
                     id: mouse_RightButton
@@ -93,39 +85,40 @@ Item {
                     onClicked: calendarItem.parent.parent.nextMonth()
                 }
             }
-            Item {
-                id: item_Content
+            GridView {
+                id: grid_Content
                 anchors.centerIn: parent
-                width: 100
+                width: 140
                 height: 100
+
+                cellWidth: width/7
+                cellHeight: height/5
+
+                model: ListModel{}
+                delegate: Rectangle {
+                    width: grid_Content.cellWidth
+                    height: grid_Content.cellHeight
+
+                    radius: 4
+                }
             }
-            Text {
-                anchors.fill: item_Content
+//            Text {
+//                anchors.fill: grid_Content
 
-                property date itemDate: dateValue
+//                property date itemDate: dateValue
 
-                text: Qt.formatDate( itemDate,  "dd.MM.yyyy" )
+//                text: Qt.formatDate( itemDate,  "dd.MM.yyyy" )
 
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-            }
+//                horizontalAlignment: Text.AlignHCenter
+//                verticalAlignment: Text.AlignVCenter
+//            }
         }
     }
 
     QtObject {
         id: dataContainer
 
-        property ListModel dateModel: ListModel {
-            ListElement {
-                dateValue: "2013-08-08"
-            }
-            ListElement {
-                dateValue: "2013-08-09"
-            }
-            ListElement {
-                dateValue: "2013-08-10"
-            }
-        }
+        property ListModel dateModel: ListModel {}
     }
 
     RectangularGlow {
@@ -164,14 +157,19 @@ Item {
 
         interactive: false
 
-        property date curDate: model.get( currentIndex ).dateValue
+        property date curDate
 
         function nextMonth() {
-            if ( currentIndex+1 < count ) currentIndex++
+//            if ( currentIndex+1 < count ) currentIndex++
+            var newIndex = listView.currentIndex+1
+            listView.model.append(
+                        { "yearValue": listView.model.get( listView.currentIndex ).yearValue,
+                            "monthValue": listView.model.get( listView.currentIndex ).monthValue+1 } )
+            listView.currentIndex = newIndex
         }
 
         function prevMonth() {
-            if ( currentIndex-1 > -1 ) currentIndex--
+//            if ( currentIndex-1 > -1 ) currentIndex--
         }
     }
 
@@ -179,12 +177,11 @@ Item {
 
     }
 
-    function setCurrentYear( year ) {
-
-    }
-
-    function setCurrentMonth( month ) {
-
+    function setCurrentMonth( year, month ) {
+        var newIndex = listView.currentIndex
+        if ( newIndex === -1 ) newIndex = 0
+        listView.model.append( { "yearValue": year, "monthValue": month } )
+        listView.currentIndex = newIndex
     }
 
     function setCurrentDay( day ) {

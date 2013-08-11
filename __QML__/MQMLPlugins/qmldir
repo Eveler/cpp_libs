@@ -1,0 +1,3 @@
+module mqmlcomponents
+plugin MQMLPlugins
+
