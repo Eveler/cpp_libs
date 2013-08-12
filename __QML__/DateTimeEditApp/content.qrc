@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>content/DateTimeEdit.qml</file>
+        <file>content/DateTimeEditApp.qml</file>
+        <file>content/Calendar.qml</file>
+    </qresource>
+</RCC>

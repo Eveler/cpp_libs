@@ -29,13 +29,17 @@ Item {
 
     property bool poppedup: false
 
+    MDate {
+        id: dateInfo
+    }
+
     Component {
         id: calendarDelegate
 
         Item {
             id: calendarItem
-            width: rect_LeftButton.width+item_GridContainer.width+rect_RightButton.width
-            height: item_GridContainer.height
+            width: rect_LeftButton.width+grid_Content.width+rect_RightButton.width
+            height: grid_Content.height
 
             scale: ( calendarItem.ListView.isCurrentItem ? 1.0 : 0.0 )
             Behavior on scale {
@@ -45,35 +49,9 @@ Item {
             property int year: yearValue
             property int month: monthValue
 
-            MDate { id: dateInfo }
-
             property date itemDate
             onMonthChanged: {
-                grid_Content.model.clear()
-                var date = dateInfo.date( year, month, 1 )
-                var date2 = dateInfo.addDays( date, -(dateInfo.dayOfWeak( date )) )
-                for ( var day = 1; day<dateInfo.dayOfWeak( date ); day++ )
-                {
-                    date2 = dateInfo.addDays( date2, 1 )
-                    grid_Content.model.append( { "dayValue": date2.getDate(),
-                                              "subMonthValue": date2.getMonth()+1 } )
-                }
-
-                date = dateInfo.date( year, month, 1 )
-                date = dateInfo.addDays( date, -1 )
-                for ( var day = 0; day < dateInfo.daysInMonth( year, month ); day++ )
-                {
-                    date = dateInfo.addDays( date, 1 )
-                    grid_Content.model.append( { "dayValue": date.getDate(),
-                                                  "subMonthValue": date.getMonth()+1 } )
-                }
-
-                while ( grid_Content.model.count < 7*6 )
-                {
-                    date = dateInfo.addDays( date, 1 )
-                    grid_Content.model.append( { "dayValue": date.getDate(),
-                                                  "subMonthValue": date.getMonth()+1 } )
-                }
+                grid_Content.model.append( { "dayValue": 1 } )
             }
 
             Rectangle {
@@ -112,48 +90,21 @@ Item {
                     onClicked: calendarItem.parent.parent.nextMonth()
                 }
             }
-            Item {
-                id: item_GridContainer
+            GridView {
+                id: grid_Content
                 anchors.centerIn: parent
                 width: 140
-                height: 120
+                height: 100
 
-                GridView {
-                    id: grid_Content
-                    anchors.fill: parent
-                    anchors.margins: 1
+                cellWidth: width/7
+                cellHeight: height/5
 
-                    cellWidth: width/7
-                    cellHeight: height/6
+                model: ListModel{}
+                delegate: Rectangle {
+                    width: grid_Content.cellWidth
+                    height: grid_Content.cellHeight
 
-                    interactive: false
-
-                    model: ListModel{}
-                    delegate: Item {
-                        id: subItem
-                        width: grid_Content.cellWidth
-                        height: grid_Content.cellHeight
-
-                        property int subMonth: subMonthValue
-
-                        Rectangle {
-                            anchors.fill: parent
-                            anchors.margins: 1
-
-                            radius: 4
-
-                            color: ( subItem.subMonth != calendarItem.month ?
-                                        "transparent" : "#33000000" )
-
-                            Text {
-                                anchors.fill: parent
-
-                                text: dayValue
-                                horizontalAlignment: Text.AlignHCenter
-                                verticalAlignment: Text.AlignVCenter
-                            }
-                        }
-                    }
+                    radius: 4
                 }
             }
 //            Text {
@@ -168,22 +119,6 @@ Item {
 //            }
         }
     }
-
-//    MDate {
-//        id: dateInfo
-//        property date curDate: currentDate()
-//        onCurDateChanged: {
-//            console.debug( "curDate: "+curDate )
-//            console.debug( "daysInMonth: "+daysInMonth( curDate.getFullYear(), curDate.getMonth() ) )
-//            console.debug( "daysInYear: "+daysInYear( curDate.getFullYear() ) )
-//            console.debug( "dayOfWeak: "+dayOfWeak( curDate ) )
-//            console.debug( "dayOfYear: "+dayOfYear( curDate ) )
-//            console.debug( "longDayName: "+longDayName( dayOfWeak( curDate ) ) )
-//            console.debug( "longMonthName: "+longMonthName( curDate.getMonth()+1 ) )
-//            console.debug( "shortDayName: "+shortDayName( dayOfWeak( curDate ) ) )
-//            console.debug( "shortMonthName: "+shortMonthName( curDate.getMonth()+1 ) )
-//        }
-//    }
 
     QtObject {
         id: dataContainer
@@ -230,21 +165,16 @@ Item {
         property date curDate
 
         function nextMonth() {
+//            if ( currentIndex+1 < count ) currentIndex++
             var newIndex = listView.currentIndex+1
-            var year = listView.model.get( listView.currentIndex ).yearValue
-            var month = listView.model.get( listView.currentIndex ).monthValue
-            if ( month === 12 )
-            {
-                year++
-                month = 1
-            }
-            else month++
             listView.model.append(
-                        { "yearValue": year, "monthValue": month } )
+                        { "yearValue": listView.model.get( listView.currentIndex ).yearValue,
+                            "monthValue": listView.model.get( listView.currentIndex ).monthValue+1 } )
             listView.currentIndex = newIndex
         }
 
         function prevMonth() {
+//            if ( currentIndex-1 > -1 ) currentIndex--
         }
     }
 
