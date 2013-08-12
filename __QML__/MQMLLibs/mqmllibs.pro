@@ -26,6 +26,8 @@ OTHER_FILES = qmldir \
     PRE_TARGETDEPS += $$copy_qmldir.target
 }
 
+QT_INSTALL_QML = C:/Qt/Qt5.1.0/5.1.0/mingw48_32/qml
+
 qmldir.files = qmldir
 unix {
     installPath = $$[QT_INSTALL_QML]/$$replace(uri, \\., /)

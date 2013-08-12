@@ -83,7 +83,7 @@ Item {
                 anchors.bottom: parent.bottom
                 width: 12
 
-                color: "#99888888"
+                color: "#99ff8833"
 
                 MouseArea {
                     id: mouse_LeftButton
@@ -101,7 +101,7 @@ Item {
                 anchors.bottom: parent.bottom
                 width: 12
 
-                color: "#99888888"
+                color: "#99ff8833"
 
                 MouseArea {
                     id: mouse_RightButton
@@ -115,13 +115,15 @@ Item {
             Item {
                 id: item_GridContainer
                 anchors.centerIn: parent
-                width: 140
+                width: 160
                 height: 120
 
                 GridView {
                     id: grid_Content
                     anchors.fill: parent
                     anchors.margins: 1
+                    anchors.leftMargin: 3
+                    anchors.rightMargin: 3
 
                     cellWidth: width/7
                     cellHeight: height/6
@@ -130,7 +132,7 @@ Item {
 
                     model: ListModel{}
                     delegate: Item {
-                        id: subItem
+                        id: item_Day
                         width: grid_Content.cellWidth
                         height: grid_Content.cellHeight
 
@@ -142,8 +144,16 @@ Item {
 
                             radius: 4
 
-                            color: ( subItem.subMonth != calendarItem.month ?
-                                        "transparent" : "#33000000" )
+                            color: ( item_Day.subMonth !== calendarItem.month ?
+                                        "#33000000" : ( mouse_Day.containsMouse ? "#77ffffff" : "#33ffffff" ) )
+                            Behavior on color {
+                                ColorAnimation { duration: 120 }
+                            }
+
+                            scale: ( mouse_Day.containsMouse ? 1.2 : 1.0 )
+                            Behavior on scale {
+                                NumberAnimation { duration: 120 }
+                            }
 
                             Text {
                                 anchors.fill: parent
@@ -151,39 +161,30 @@ Item {
                                 text: dayValue
                                 horizontalAlignment: Text.AlignHCenter
                                 verticalAlignment: Text.AlignVCenter
+
+                                color: ( item_Day.subMonth !== calendarItem.month ?
+                                            ( mouse_Day.containsMouse ? "white" : "black" ) : "black" )
+                                Behavior on color {
+                                    ColorAnimation { duration: 120 }
+                                }
+                                scale: ( mouse_Day.containsMouse ? 1.3 : 1.0 )
+                                Behavior on scale {
+                                    NumberAnimation { duration: 120 }
+                                }
+                            }
+
+                            MouseArea {
+                                id: mouse_Day
+                                anchors.fill: parent
+
+                                hoverEnabled: true
                             }
                         }
                     }
                 }
             }
-//            Text {
-//                anchors.fill: grid_Content
-
-//                property date itemDate: dateValue
-
-//                text: Qt.formatDate( itemDate,  "dd.MM.yyyy" )
-
-//                horizontalAlignment: Text.AlignHCenter
-//                verticalAlignment: Text.AlignVCenter
-//            }
         }
     }
-
-//    MDate {
-//        id: dateInfo
-//        property date curDate: currentDate()
-//        onCurDateChanged: {
-//            console.debug( "curDate: "+curDate )
-//            console.debug( "daysInMonth: "+daysInMonth( curDate.getFullYear(), curDate.getMonth() ) )
-//            console.debug( "daysInYear: "+daysInYear( curDate.getFullYear() ) )
-//            console.debug( "dayOfWeak: "+dayOfWeak( curDate ) )
-//            console.debug( "dayOfYear: "+dayOfYear( curDate ) )
-//            console.debug( "longDayName: "+longDayName( dayOfWeak( curDate ) ) )
-//            console.debug( "longMonthName: "+longMonthName( curDate.getMonth()+1 ) )
-//            console.debug( "shortDayName: "+shortDayName( dayOfWeak( curDate ) ) )
-//            console.debug( "shortMonthName: "+shortMonthName( curDate.getMonth()+1 ) )
-//        }
-//    }
 
     QtObject {
         id: dataContainer
@@ -205,7 +206,7 @@ Item {
         anchors.fill: parent
         radius: 5
 
-        color: "#66000000"
+        color: "#440077ff"
     }
 
 
@@ -239,12 +240,39 @@ Item {
                 month = 1
             }
             else month++
-            listView.model.append(
-                        { "yearValue": year, "monthValue": month } )
+            if ( newIndex === listView.count ||
+                    listView.model.get( newIndex ).yearValue !== year ||
+                    listView.model.get( newIndex ).monthValue !== month )
+                listView.model.append(
+                            { "yearValue": year, "monthValue": month } )
+            if ( listView.count > 2 )
+            {
+                listView.model.remove( 0 )
+                newIndex--
+            }
             listView.currentIndex = newIndex
         }
 
         function prevMonth() {
+            var year = listView.model.get( listView.currentIndex ).yearValue
+            var month = listView.model.get( listView.currentIndex ).monthValue
+            if ( month === 1 )
+            {
+                year--
+                month = 12
+            }
+            else month--
+            if ( listView.model.get( 0 ).yearValue !== year ||
+                    listView.model.get( 0 ).monthValue !== month )
+            {
+                listView.model.insert( 0,
+                                      { "yearValue": year, "monthValue": month } )
+                listView.currentIndex++
+                listView.positionViewAtIndex( 1, ListView.SnapPosition )
+            }
+            if ( listView.count > 2 )
+                listView.model.remove( listView.count-1 )
+            listView.currentIndex = 0
         }
     }
 
