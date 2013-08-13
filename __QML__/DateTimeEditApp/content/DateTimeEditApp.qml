@@ -24,6 +24,8 @@ ApplicationWindow {
             fontPixelSize: 14
             fontFamily: "Consolas"
             label: "Дата выдачи"
+
+            value: Qt.formatDate( calendar.currentDate, "dd-MM-yyyy" )
         }
 
         RectangularGlow {
@@ -43,6 +45,8 @@ ApplicationWindow {
             MDate {
                 id: dateInfo
             }
+
+            changeDateOnHover: true
 
             currentDate: dateInfo.currentDate()
         }

@@ -1,4 +1,6 @@
 import QtQuick 2.1
+import QtQuick.Controls 1.0
+import QtQuick.Controls.Styles 1.0
 import com.mihail.qmlcomponents 1.0
 
 Item {
@@ -25,6 +27,8 @@ Item {
         listView.setCurrentMonth( currentDate.getFullYear(), currentDate.getMonth()+1 )
     }
 
+    property bool changeDateOnHover: false
+
     property date minimumDate: "0001-01-01"
 
     Component {
@@ -32,14 +36,14 @@ Item {
 
         Item {
             id: headerItem
-            height: text_Year.contentHeight+10
+            height: 35
 
             ListView {
                 id: list_Months
                 anchors.top: parent.top
                 anchors.left: parent.left
                 anchors.bottom: parent.bottom
-                anchors.right: text_Year.left
+                width: parent.width/2
 
                 clip: true
                 snapMode: ListView.SnapOneItem
@@ -93,20 +97,46 @@ Item {
                 }
             }
 
-            Text {
-                id: text_Year
+            SpinBox {
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
                 anchors.right: parent.right
-                width: contentWidth
+                width: parent.width/2
 
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
+                font.pixelSize: 15
 
-                text: headerItem.parent.visibleYear+" год"
+                minimumValue: 1
+                maximumValue: 5000
 
-                font.pixelSize: 13
+                value: headerItem.parent.visibleYear
+                onValueChanged: headerItem.parent.setYear( value )
+
+                style: Rectangle{
+                    property QtObject padding: QtObject {}
+                    property Component panel: TextInput {
+                        property int horizontalTextAlignment: Text.AlignHCenter
+                        property int verticalTextAlignment: Text.AlignVCenter
+                        property color foregroundColor: "black"
+                        property color selectionColor: "white"
+                        property color selectedTextColor: "black"
+                    }
+                }
             }
+
+//            Text {
+//                id: text_Year
+//                anchors.top: parent.top
+//                anchors.bottom: parent.bottom
+//                anchors.right: parent.right
+//                width: contentWidth
+
+//                horizontalAlignment: Text.AlignHCenter
+//                verticalAlignment: Text.AlignVCenter
+
+//                text: headerItem.parent.visibleYear+" год"
+
+//                font.pixelSize: 13
+//            }
         }
     }
 
@@ -122,6 +152,26 @@ Item {
             Behavior on scale {
                 NumberAnimation { duration: 500 }
             }
+            onScaleChanged: {
+                if ( scale === 1.0 )
+                {
+                    onShow = true
+                    onHide = false
+                }
+                else if ( scale === 0.0 && onShow )
+                {
+                    onShow = false
+                    onHide = true
+                    month = 0
+                }
+                else if ( onHide )
+                    month = monthValue
+            }
+
+            enabled: scale === 1.0
+
+            property bool onShow: false
+            property bool onHide: false
 
             property int year: yearValue
             property int month: monthValue
@@ -131,6 +181,7 @@ Item {
             property date itemDate
             onMonthChanged: {
                 grid_Content.model.clear()
+                if ( monthValue < 1 || monthValue > 12 ) return
                 var selectIndex = -1
                 var date = dateInfo.date( year, month, 1 )
                 var date2 = dateInfo.addDays( date, -(dateInfo.dayOfWeak( date )) )
@@ -212,7 +263,7 @@ Item {
             Item {
                 id: item_GridContainer
                 anchors.centerIn: parent
-                width: 160
+                width: 200
                 height: 120
 
                 GridView {
@@ -289,6 +340,11 @@ Item {
                                 onClicked: {
                                     calendarItem.parent.parent.setCurrentDate( item_Day.itemDate )
                                 }
+                                onContainsMouseChanged: {
+                                    if ( calendarItem.parent.parent.changeDateOnHover &&
+                                            item_Day.itemDate.getMonth()+1 === calendarItem.month )
+                                        calendarItem.parent.parent.setCurrentDate( item_Day.itemDate )
+                                }
                             }
                         }
                     }
@@ -345,6 +401,9 @@ Item {
 
         function prevMonth() { listView.prevMonth() }
         function nextMonth() { listView.nextMonth() }
+        function prevYear() { listView.prevYear() }
+        function nextYear() { listView.prevYear() }
+        function setYear( year ) { listView.setYear( year ) }
     }
 
     ListView {
@@ -364,6 +423,7 @@ Item {
         interactive: false
 
         readonly property date currentDate: calendar.currentDate
+        readonly property bool changeDateOnHover: calendar.changeDateOnHover
 
         function nextMonth() {
             var newIndex = listView.currentIndex+1
@@ -390,8 +450,29 @@ Item {
             setCurrentMonth( year, month )
         }
 
+        function nextYear() {
+            var newIndex = listView.currentIndex+1
+            var year = listView.model.get( listView.currentIndex ).yearValue
+            var month = listView.model.get( listView.currentIndex ).monthValue
+            year++
+            setCurrentMonth( year, month )
+        }
+
+        function prevYear() {
+            var year = listView.model.get( listView.currentIndex ).yearValue
+            var month = listView.model.get( listView.currentIndex ).monthValue
+                year--
+            setCurrentMonth( year, month )
+        }
+
+        function setYear( year ) {
+            var month = listView.model.get( listView.currentIndex ).monthValue
+            setCurrentMonth( year, month )
+        }
+
         function setCurrentMonth( year, month ) {
-            var newIndex = listView.currentIndex
+            var oldIndex = listView.currentIndex
+            var newIndex = oldIndex
             if ( newIndex === -1 )
             {
                 newIndex = 0

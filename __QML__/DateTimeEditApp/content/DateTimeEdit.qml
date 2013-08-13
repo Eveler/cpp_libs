@@ -21,6 +21,8 @@ Item {
 
     property Component delegate: null
 
+    property alias value: input_text.text
+
     state: "DDMMYYYY hhmmss"
 
     states: [
