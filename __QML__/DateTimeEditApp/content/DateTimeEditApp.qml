@@ -1,6 +1,8 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.0
 import QtQuick.Window 2.0
+import QtGraphicalEffects 1.0
+import com.mihail.qmlcomponents 1.0
 
 ApplicationWindow {
     id: applicationWindow
@@ -24,14 +26,33 @@ ApplicationWindow {
             label: "Дата выдачи"
         }
 
+        RectangularGlow {
+            id: effect
+            anchors.fill: calendar
+            glowRadius: 5
+            spread: 0.2
+            color: "#66000000"
+            cornerRadius: glowRadius*2
+        }
         Calendar {
             id: calendar
             anchors.centerIn: parent
+            width: contentWidth
+            height: contentHeight
 
-            poppedup: true
+            MDate {
+                id: dateInfo
+            }
 
+            currentDate: dateInfo.currentDate()
+        }
+        Button {
+            anchors.bottom: parent.bottom
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            text: ">>"
+
+            onClicked: calendar.setCurrentMonth( calendar.visibleYear, calendar.visibleMonth+1 )
         }
     }
-
-    Component.onCompleted: calendar.setCurrentMonth( 2013, 8 )
 }
