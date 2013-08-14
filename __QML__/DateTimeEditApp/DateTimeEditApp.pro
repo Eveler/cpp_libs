@@ -46,6 +46,5 @@ RESOURCES += \
 
 OTHER_FILES += \
     content/DateTimeEditApp.qml \
-    content/DateTimeEdit.qml \
-    content/Calendar.qml
+    content/DateTimeEdit.qml
 

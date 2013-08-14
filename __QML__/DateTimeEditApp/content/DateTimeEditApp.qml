@@ -31,16 +31,22 @@ ApplicationWindow {
         RectangularGlow {
             id: effect
             anchors.fill: calendar
-            glowRadius: 5
-            spread: 0.2
-            color: "#66000000"
-            cornerRadius: glowRadius*2
+            glowRadius: 10
+            spread: 0.1
+            color: "#ff000000"
+            cornerRadius: glowRadius
+            rotation: calendar.rotation
         }
         Calendar {
             id: calendar
             anchors.centerIn: parent
-            width: contentWidth
-            height: contentHeight
+            width: parent.width*0.8
+            height: parent.height*0.8
+
+            rotation: ( width > height ? 0 : 90 )
+            Behavior on rotation {
+                NumberAnimation { duration: 200 }
+            }
 
             MDate {
                 id: dateInfo
