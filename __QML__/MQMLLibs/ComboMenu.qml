@@ -37,6 +37,7 @@ Item {
     property int poppedupWidth: 100
 
     readonly property int currentIndex: dataContainer.currentIndex
+    readonly property int count: dataContainer.listModel.count
 
     Component {
         id: menuDelegate
@@ -90,47 +91,9 @@ Item {
 
         property int currentIndex: -1
 
-        property ListModel listModel: ListModel {
-            ListElement {
-                element_Text: "Доверенность"
-            }
-            ListElement {
-                element_Text: "Заявление"
-            }
-            ListElement {
-                element_Text: "Заявление о приостановке"
-            }
-            ListElement {
-                element_Text: "Заявление об аннулировании"
-            }
-            ListElement {
-                element_Text: "Паспорт гражданина РФ"
-            }
-            ListElement {
-                element_Text: "Справка"
-            }
-        }
+        property ListModel listModel: ListModel {}
 
-        property ListModel visibleModel: ListModel {
-            ListElement {
-                element_Text: "Доверенность"
-            }
-            ListElement {
-                element_Text: "Заявление"
-            }
-            ListElement {
-                element_Text: "Заявление о приостановке"
-            }
-            ListElement {
-                element_Text: "Заявление об аннулировании"
-            }
-            ListElement {
-                element_Text: "Паспорт гражданина РФ"
-            }
-            ListElement {
-                element_Text: "Справка"
-            }
-        }
+        property ListModel visibleModel: ListModel {}
 
         function append( model, value ) {
             model.append( { "element_Text": value } )
@@ -195,13 +158,13 @@ Item {
         return result
     }
 
-    function value( index ) {
+    function visibleValue( index ) {
         if ( index < 0 || index >= visibleItemsCount ) return ""
 
         return dataContainer.visibleModel.get( index ).element_Text
     }
 
-    function select( index ) {
+    function selectVisible( index ) {
         if ( index < 0 || index >= visibleItemsCount ) return
 
         listView.select( index )

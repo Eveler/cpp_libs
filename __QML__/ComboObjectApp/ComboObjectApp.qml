@@ -1,7 +1,7 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.0
 import QtQuick.Window 2.0
-import "content"
+import com.mihail.qmlcomponents 1.0
 
 ApplicationWindow {
     id: applicationWindow
@@ -30,6 +30,13 @@ ApplicationWindow {
             fontPixelSize: 14
             fontFamily: "Pluto Bold"
 
+            Component.onCompleted: {
+                append( "Доверенность" )
+                append( "Заявление" )
+                append( "Заявление о приостановке" )
+                append( "Заявление об аннулировании" )
+                append( "Паспорт гражданина РФ" )
+            }
         }
 
         ComboObject {

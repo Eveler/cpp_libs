@@ -21,6 +21,9 @@ Item {
 
     property Component delegate: null
 
+    readonly property int count: menu.count
+    readonly property string currentText: input_text.text
+
     RectangularGlow {
         id: effect
         anchors.fill: rect_ContentBackground
@@ -73,16 +76,24 @@ Item {
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         anchors.right: parent.right
-        width: image_MenuButton.width
+        width: height
+
+        visible: ( comboObject.count > 0 )
 
         color: "transparent"
 
         Image {
             id: image_MenuButton
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.right: parent.right
-            width: 24
-            height: 24
+            anchors.centerIn: parent
+            width: 20
+            height: 20
+
+            rotation: ( menu.poppedup ? 0 : 180 )
+            Behavior on rotation {
+                NumberAnimation { duration: 200 }
+            }
+
+            source: "ComboObjectImages/arrow.png"
         }
 
         MouseArea {
@@ -100,7 +111,8 @@ Item {
         anchors.top: parent.top
         anchors.left: rect_LabelBackground.right
         anchors.bottom: parent.bottom
-        anchors.right: rect_MenuButton.left
+        anchors.right: ( comboObject.count > 0 ? rect_MenuButton.left : parent.right )
+        anchors.rightMargin: ( comboObject.count > 0 ? 0 : rect_ContentBackground.radius )
 
         color: "#55ffffff"
 
@@ -138,9 +150,9 @@ Item {
             {
                 if ( count === 1 && text.length > 0 )
                 {
-                    if ( menu.currentValue === menu.value( index ) )
+                    if ( menu.currentValue === menu.visibleValue( index ) )
                         text = menu.currentValue
-                    else menu.select( index )
+                    else menu.selectVisible( index )
                 }
                 menu.poppedup = false
             }
@@ -161,11 +173,19 @@ Item {
 
         onCurrentIndexChanged: {
             input_text.search = false
-            input_text.text = value( currentIndex )
+            input_text.text = visibleValue( currentIndex )
             input_text.search = true
             menu.poppedup = false
         }
 
-        property string currentValue: value( currentIndex )
+        property string currentValue: visibleValue( currentIndex )
+    }
+
+    function clear() {
+        menu.clear()
+    }
+
+    function append( value ) {
+        menu.append( value )
     }
 }
