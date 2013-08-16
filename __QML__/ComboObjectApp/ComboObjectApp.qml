@@ -37,6 +37,8 @@ ApplicationWindow {
                 append( "Заявление об аннулировании" )
                 append( "Паспорт гражданина РФ" )
             }
+
+//            onTextIndexChanged: console.debug( "onTextIndexChanged "+textIndex )
         }
 
         ComboObject {
@@ -50,7 +52,6 @@ ApplicationWindow {
             fontPixelSize: 14
             fontFamily: "Pluto Bold"
             label: "Тип документа"
-
         }
     }
 }

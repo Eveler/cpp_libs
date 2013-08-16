@@ -148,10 +148,14 @@ Item {
         for ( var index = 0; index < dataContainer.listModel.count; index++ )
         {
             var modelText = dataContainer.listModel.get( index ).element_Text
-            if ( modelText.toUpperCase().search( value.toUpperCase() ) === 0 )
+            if ( modelText.toUpperCase() === value.toUpperCase() )
             {
                 if ( result === -1 )
-                    result = dataContainer.visibleModel.count
+                    result = index
+                dataContainer.append( dataContainer.visibleModel, modelText )
+            }
+            else if ( modelText.toUpperCase().search( value.toUpperCase() ) === 0 )
+            {
                 dataContainer.append( dataContainer.visibleModel, modelText )
             }
         }
@@ -168,5 +172,14 @@ Item {
         if ( index < 0 || index >= visibleItemsCount ) return
 
         listView.select( index )
+    }
+
+    function originalIndex( visibleIndex ) {
+        if ( visibleIndex < 0 || visibleIndex >= visibleItemsCount ) return -1
+
+        for ( var index = visibleIndex; index < visibleItemsCount; index++ )
+            if ( visibleValue( index ) === dataContainer.listModel.get( index ).element_Text )
+                return  index
+        return -1
     }
 }

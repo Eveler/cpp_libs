@@ -22,7 +22,16 @@ Item {
     property Component delegate: null
 
     readonly property int count: menu.count
-    readonly property string currentText: input_text.text
+    readonly property string text: input_text.text
+    readonly property int textIndex: dataContainer.textIndex
+//    onTextIndexChanged: console.debug( textIndex )
+
+    QtObject {
+        id: dataContainer
+
+        property int textIndex: -1
+        onTextIndexChanged: console.debug( textIndex )
+    }
 
     RectangularGlow {
         id: effect
@@ -150,12 +159,16 @@ Item {
             {
                 if ( count === 1 && text.length > 0 )
                 {
-                    if ( menu.currentValue === menu.visibleValue( index ) )
+                    if ( menu.currentValue === menu.visibleValue( 0 ) )
                         text = menu.currentValue
-                    else menu.selectVisible( index )
+                    else menu.selectVisible( 0 )
                 }
                 menu.poppedup = false
             }
+
+            dataContainer.textIndex = -1
+            if ( index > -1 )
+                dataContainer.textIndex = index
         }
     }
 
