@@ -177,8 +177,9 @@ Item {
     function originalIndex( visibleIndex ) {
         if ( visibleIndex < 0 || visibleIndex >= visibleItemsCount ) return -1
 
-        for ( var index = visibleIndex; index < visibleItemsCount; index++ )
-            if ( visibleValue( index ) === dataContainer.listModel.get( index ).element_Text )
+        var value = visibleValue( visibleIndex )
+        for ( var index = visibleIndex; index < count; index++ )
+            if ( value === dataContainer.listModel.get( index ).element_Text )
                 return  index
         return -1
     }

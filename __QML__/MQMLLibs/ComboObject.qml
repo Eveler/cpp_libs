@@ -16,6 +16,7 @@ Item {
     property bool fontBold: text_Label.font.bold
     property int fontPixelSize: text_Label.font.pixelSize
     property string fontFamily: text_Label.font.family
+    property bool checkVisible: false
 
     property int maxVisibleItemsCount: 15
 
@@ -24,13 +25,11 @@ Item {
     readonly property int count: menu.count
     readonly property string text: input_text.text
     readonly property int textIndex: dataContainer.textIndex
-//    onTextIndexChanged: console.debug( textIndex )
 
     QtObject {
         id: dataContainer
 
         property int textIndex: -1
-        onTextIndexChanged: console.debug( textIndex )
     }
 
     RectangularGlow {
@@ -146,7 +145,38 @@ Item {
 
         property bool search: true
 
+        Image {
+            id: image_Checked
+            anchors.top: parent.top
+            anchors.left: parent.right
+            anchors.leftMargin: -(parent.height+3)
+
+            width: parent.height
+            height: width
+
+            visible: ( comboObject.checkVisible && comboObject.count > 0 )
+
+//            scale: ( comboObject.textIndex > -1 ? 1.0 : 0.0 )
+//            Behavior on scale {
+//                SpringAnimation { spring: 2; damping: 0.2 }
+//            }
+
+            source: ( comboObject.textIndex > -1 ?
+                         "ComboObjectImages/check.png" :"ComboObjectImages/stop.png" )
+            onSourceChanged: {
+                anim_Source.stop()
+                anim_Source.start()
+            }
+
+            SequentialAnimation {
+                id: anim_Source
+                NumberAnimation { target: image_Checked; property: "scale"; from: 1.0; to: 1.3; easing.type: Easing.OutBack; duration: 300 }
+                NumberAnimation { target: image_Checked; property: "scale"; from: 1.3; to: 1.0; easing.type: Easing.OutBack; duration: 300 }
+            }
+        }
+
         onTextChanged: {
+            dataContainer.textIndex = -1
             if ( !search ) return
 
             var index = menu.find( text )
@@ -166,7 +196,6 @@ Item {
                 menu.poppedup = false
             }
 
-            dataContainer.textIndex = -1
             if ( index > -1 )
                 dataContainer.textIndex = index
         }
@@ -187,6 +216,7 @@ Item {
         onCurrentIndexChanged: {
             input_text.search = false
             input_text.text = visibleValue( currentIndex )
+            dataContainer.textIndex = originalIndex( currentIndex )
             input_text.search = true
             menu.poppedup = false
         }
