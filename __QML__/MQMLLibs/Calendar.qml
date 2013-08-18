@@ -7,11 +7,6 @@ import com.mihail.qmlcomponents 1.0
 Item {
     id: calendar
 
-    onWidthChanged: {
-        if ( width === 0 && listView.currentIndex > 0 )
-            listView.model.remove( 0 )
-    }
-
     property int contentWidth: ( listView.currentItem ?
                                     listView.currentItem.width+(rect_ContentBackground.radius*2) : 0 )
     property int contentHeight: ( listView.currentItem ?
@@ -28,19 +23,18 @@ Item {
     readonly property int visibleYear: dataContainer.dateModel.get( listView.currentIndex ).yearValue
     readonly property int visibleMonth: dataContainer.dateModel.get( listView.currentIndex ).monthValue
 
+    property date minimumDate: "0001-01-01"
     property date currentDate: minimumDate
     signal clicked
 
     property bool changeDateOnHover: false
 
-    property date minimumDate: "0001-01-01"
 
     Component {
         id: component_Header
 
         Item {
             id: headerItem
-            height: 35
 
             Rectangle {
                 anchors.fill: parent
@@ -56,7 +50,6 @@ Item {
                 width: parent.width/2
 
                 clip: true
-                snapMode: ListView.SnapOneItem
                 interactive: false
 
                 property int currentMonth: headerItem.parent.visibleMonth
@@ -64,15 +57,8 @@ Item {
                     if ( model.count === 0 )
                         for ( var month = 1; month < 13; month++ )
                             model.append( { "month": month } )
-                    if ( firstStart )
-                    {
-                        currentIndex = -1
-                        firstStart = false
-                    }
                     currentIndex = currentMonth-1
                 }
-
-                property bool firstStart: true
 
                 model: ListModel {}
                 delegate: Item {
@@ -111,9 +97,9 @@ Item {
 
             SpinBox {
                 anchors.top: parent.top
+                anchors.left: list_Months.right
                 anchors.bottom: parent.bottom
-                anchors.right: parent.right
-                width: parent.width/2
+                anchors.right: rect_TodayButton.left
 
                 font.pixelSize: 15
 
@@ -132,6 +118,35 @@ Item {
                         property color selectionColor: "#55ffffff"
                         property color selectedTextColor: "white"
                     }
+                }
+            }
+
+            Rectangle {
+                id: rect_TodayButton
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                anchors.right: parent.right
+                anchors.margins: 2
+                width: height
+
+                radius: 3
+
+                color: ( mouse_TodayButton.containsMouse ? "#55000000" : "transparent" )
+
+                Image {
+                    anchors.fill: parent
+                    anchors.margins: 2
+
+                    source: "CalendarImages/today.png"
+                }
+
+                MouseArea {
+                    id: mouse_TodayButton
+                    anchors.fill: parent
+
+                    hoverEnabled: true
+
+                    onClicked: headerItem.parent.toCurrentDate()
                 }
             }
         }
@@ -195,13 +210,8 @@ Item {
                 for ( var day = 0; day < dateInfo.daysInMonth( year, month ); day++ )
                 {
                     date = dateInfo.addDays( date, 1 )
-//                    console.debug( "Calendar.qml -- "+"onMonthChanged  0: "+date.toString() )
-//                    console.debug( "Calendar.qml -- "+"onMonthChanged  1: "+calendarItem.parent.parent.currentDate.toString() )
                     if ( calendarItem.parent.parent.currentDate.toString() === date.toString() )
-                    {
-//                        console.debug( "Calendar.qml -- "+"onMonthChanged  2: "+date.toString() )
                         selectIndex = grid_Content.model.count
-                    }
                     grid_Content.model.append( { "dateValue": date } )
                 }
 
@@ -393,7 +403,7 @@ Item {
         anchors.right: parent.right
         anchors.margins: rect_ContentBackground.radius
 
-        height: headerLoader.item.height
+        height: ( parent.height > 35 ? 35 : parent.height )
 
         property int visibleYear: calendar.visibleYear
         property int visibleMonth: calendar.visibleMonth
@@ -413,6 +423,7 @@ Item {
         function prevYear() { listView.prevYear() }
         function nextYear() { listView.prevYear() }
         function setYear( year ) { listView.setYear( year ) }
+        function toCurrentDate() { listView.setCurrentMonth( calendar.currentDate.getFullYear(), calendar.currentDate.getMonth()+1 ) }
     }
 
     ListView {
@@ -433,7 +444,6 @@ Item {
 
         readonly property date currentDate: calendar.currentDate
         onCurrentDateChanged: {
-            console.debug( "Calendar.qml -- "+"currentDate: "+currentDate )
             listView.setCurrentMonth( currentDate.getFullYear(), currentDate.getMonth()+1 )
         }
 
@@ -588,5 +598,9 @@ Item {
         opacity: text_ClickedDate.opacity
         scale: text_ClickedDate.scale
         source: text_ClickedDate
+    }
+
+    function toCurrentDate() {
+        headerContainer.toCurrentDate()
     }
 }

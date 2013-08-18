@@ -7,14 +7,6 @@ import com.mihail.qmlcomponents 1.0
 Item {
     id: calendar
 
-//    onWidthChanged: {
-//        if ( width === 0 )
-//        {
-//            if ( listView.currentIndex > 0 ) listView.model.remove( 0 )
-//            else if ( listView.count > 1 ) listView.model.remove( 1 )
-//        }
-//    }
-
     property int contentWidth: ( listView.currentItem ?
                                     listView.currentItem.width+(rect_ContentBackground.radius*2) : 0 )
     property int contentHeight: ( listView.currentItem ?
@@ -43,7 +35,6 @@ Item {
 
         Item {
             id: headerItem
-//            height: ( parent.height > 35 ? 35 : parent.height )
 
             Rectangle {
                 anchors.fill: parent
@@ -59,7 +50,6 @@ Item {
                 width: parent.width/2
 
                 clip: true
-                snapMode: ListView.SnapOneItem
                 interactive: false
 
                 property int currentMonth: headerItem.parent.visibleMonth
@@ -67,15 +57,8 @@ Item {
                     if ( model.count === 0 )
                         for ( var month = 1; month < 13; month++ )
                             model.append( { "month": month } )
-                    if ( firstStart )
-                    {
-                        currentIndex = -1
-                        firstStart = false
-                    }
                     currentIndex = currentMonth-1
                 }
-
-                property bool firstStart: true
 
                 model: ListModel {}
                 delegate: Item {
@@ -227,13 +210,8 @@ Item {
                 for ( var day = 0; day < dateInfo.daysInMonth( year, month ); day++ )
                 {
                     date = dateInfo.addDays( date, 1 )
-//                    console.debug( "Calendar.qml -- "+"onMonthChanged  0: "+date.toString() )
-//                    console.debug( "Calendar.qml -- "+"onMonthChanged  1: "+calendarItem.parent.parent.currentDate.toString() )
                     if ( calendarItem.parent.parent.currentDate.toString() === date.toString() )
-                    {
-//                        console.debug( "Calendar.qml -- "+"onMonthChanged  2: "+date.toString() )
                         selectIndex = grid_Content.model.count
-                    }
                     grid_Content.model.append( { "dateValue": date } )
                 }
 
@@ -466,7 +444,6 @@ Item {
 
         readonly property date currentDate: calendar.currentDate
         onCurrentDateChanged: {
-//            console.debug( "Calendar.qml -- "+"currentDate: "+currentDate )
             listView.setCurrentMonth( currentDate.getFullYear(), currentDate.getMonth()+1 )
         }
 

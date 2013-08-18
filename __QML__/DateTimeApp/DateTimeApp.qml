@@ -1,7 +1,7 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.0
 import QtQuick.Window 2.0
-//import com.mihail.qmlcomponents 1.0
+import com.mihail.qmlcomponents 1.0
 
 ApplicationWindow {
     title: qsTr("Hello World")
@@ -25,6 +25,10 @@ ApplicationWindow {
             height: contentHeight
 
             anchors.centerIn: parent
+
+            MDate { id: dateInfo }
+
+            currentDate: dateInfo.currentDate()
         }
     }
 }
