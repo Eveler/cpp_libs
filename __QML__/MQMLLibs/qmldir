@@ -1,4 +1,5 @@
 module com.mihail.qmlcomponents
 plugin MQMLLibs
 Calendar 1.0 Calendar.qml
+DateButton 1.0 DateButton.qml
 ComboObject 1.0 ComboObject.qml

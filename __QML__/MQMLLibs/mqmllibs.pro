@@ -18,7 +18,8 @@ HEADERS += \
 OTHER_FILES = qmldir \
     Calendar.qml \
     ComboObject.qml \
-    ComboMenu.qml
+    ComboMenu.qml \
+    DateButton.qml
 
 !equals(_PRO_FILE_PWD_, $$OUT_PWD) {
     copy_qmldir.target = $$OUT_PWD/qmldir

@@ -156,11 +156,6 @@ Item {
 
             visible: ( comboObject.checkVisible && comboObject.count > 0 )
 
-//            scale: ( comboObject.textIndex > -1 ? 1.0 : 0.0 )
-//            Behavior on scale {
-//                SpringAnimation { spring: 2; damping: 0.2 }
-//            }
-
             source: ( comboObject.textIndex > -1 ?
                          "ComboObjectImages/check.png" :"ComboObjectImages/stop.png" )
             onSourceChanged: {

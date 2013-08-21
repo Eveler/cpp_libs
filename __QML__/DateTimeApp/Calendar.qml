@@ -25,6 +25,10 @@ Item {
 
     property date minimumDate: "0001-01-01"
     property date currentDate: minimumDate
+    onCurrentDateChanged: {
+        if ( currentDate < minimumDate ) currentDate = minimumDate
+    }
+
     signal clicked
 
     property bool changeDateOnHover: false
@@ -454,7 +458,6 @@ Item {
         }
 
         function nextMonth() {
-            var newIndex = listView.currentIndex+1
             var year = listView.model.get( listView.currentIndex ).yearValue
             var month = listView.model.get( listView.currentIndex ).monthValue
             if ( month === 12 )
@@ -479,7 +482,6 @@ Item {
         }
 
         function nextYear() {
-            var newIndex = listView.currentIndex+1
             var year = listView.model.get( listView.currentIndex ).yearValue
             var month = listView.model.get( listView.currentIndex ).monthValue
             year++
@@ -501,6 +503,12 @@ Item {
         function setCurrentMonth( year, month ) {
             var oldIndex = listView.currentIndex
             var newIndex = oldIndex
+
+            if ( year < calendar.minimumDate.getFullYear() ||
+                    ( year === calendar.minimumDate.getFullYear() &&
+                     month < calendar.minimumDate.getMonth()+1 ) )
+                return;
+
             if ( newIndex === -1 )
             {
                 newIndex = 0

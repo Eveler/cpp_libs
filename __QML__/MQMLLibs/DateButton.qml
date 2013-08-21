@@ -8,7 +8,8 @@ Item {
     height: 62
 
     readonly property int contentWidth: rect_LabelBackground.width+
-                                        input_text.contentWidth+10+
+                                        input_text.contentWidth+
+                                        image_Checked.width+10+
                                         rect_MenuButton.width
     readonly property int contentHeight: text_Label.contentHeight+8
 
@@ -19,6 +20,11 @@ Item {
     property Component delegate: null
 
     property alias currentDate: loader_Calendar.currentDate
+    property date minimumDate: "0001-01-01"
+
+    property string replacementText
+
+    property bool checkVisible: false
 
     RectangularGlow {
         id: effect
@@ -54,6 +60,8 @@ Item {
         id: text_Label
         anchors.fill: rect_LabelBackground
         anchors.margins: 2
+
+        clip: true
 
         visible: text.length > 0
 
@@ -117,7 +125,9 @@ Item {
     TextInput {
         id: input_text
         anchors.fill: rect_TextBackground
-        anchors.leftMargin: 5
+        anchors.rightMargin: image_Checked.width+5
+
+        clip: true
 
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
@@ -128,11 +138,41 @@ Item {
 
         readOnly: true
 
-        text: Qt.formatDate( loader_Calendar.currentDate, "dd.MM.yyyy" )
+        property string value: Qt.formatDate( loader_Calendar.currentDate, "dd.MM.yyyy" )
+
+        text: ( value === Qt.formatDate( dateButton.minimumDate, "dd.MM.yyyy" ) &&
+               dateButton.replacementText.length > 0 ?
+                   dateButton.replacementText : value )
 
         selectByMouse: true
+    }
 
-        property bool search: true
+    Image {
+        id: image_Checked
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.right: rect_MenuButton.left
+
+        width: parent.height
+        height: width
+
+        opacity: ( dateButton.checkVisible ? 1.0 : 0.01 )
+        Behavior on opacity {
+            NumberAnimation { duration: 200 }
+        }
+
+        source: ( input_text.text === input_text.value ?
+                     "DateButtonImages/check.png" :"DateButtonImages/stop.png" )
+        onSourceChanged: {
+            anim_Source.stop()
+            anim_Source.start()
+        }
+
+        SequentialAnimation {
+            id: anim_Source
+            NumberAnimation { target: image_Checked; property: "scale"; from: 1.0; to: 1.3; easing.type: Easing.OutBack; duration: 300 }
+            NumberAnimation { target: image_Checked; property: "scale"; from: 1.3; to: 1.0; easing.type: Easing.OutBack; duration: 300 }
+        }
     }
 
     Component {
@@ -144,7 +184,7 @@ Item {
     Loader {
         id: loader_Calendar
 
-        property date currentDate
+        property date currentDate: dateButton.minimumDate
 
         onLoaded: {
             item.anchors.fill = loader_Calendar
@@ -222,11 +262,16 @@ Item {
         }
         onStarted: {
             loader_Calendar.enabled = false
-            if ( poppedup ) loader_Calendar.sourceComponent = component_Calendar
+            if ( poppedup )
+                loader_Calendar.sourceComponent = component_Calendar
         }
         onStopped: {
             if ( !poppedup ) loader_Calendar.sourceComponent = null
-            else loader_Calendar.item.currentDate = loader_Calendar.currentDate
+            else
+            {
+                loader_Calendar.item.minimumDate = dateButton.minimumDate
+                loader_Calendar.item.currentDate = loader_Calendar.currentDate
+            }
             loader_Calendar.enabled = true
         }
     }
