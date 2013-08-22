@@ -51,6 +51,28 @@ ApplicationWindow {
             fontBold: true
             fontPixelSize: 14
             fontFamily: "Pluto Bold"
+
+            checkVisible: true
+
+            Component.onCompleted: {
+                append( "Доверенность" )
+                append( "Заявление" )
+                append( "Заявление о приостановке" )
+                append( "Заявление об аннулировании" )
+                append( "Паспорт гражданина РФ" )
+            }
+        }
+
+        ComboObject {
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+
+            width: 300
+            height: contentHeight
+
+            fontBold: true
+            fontPixelSize: 14
+            fontFamily: "Pluto Bold"
             label: "Тип документа"
         }
     }

@@ -1,5 +1,6 @@
 import QtQuick 2.1
 import QtGraphicalEffects 1.0
+import com.mihail.qmlcomponents 1.0
 
 Item {
     id: comboMenu
@@ -33,11 +34,17 @@ Item {
     property int fontPixelSize
     property string fontFamily
 
-    property bool poppedup: false
+    property alias poppedup: popupController.poppedup
     property int poppedupWidth: 100
 
     readonly property int currentIndex: dataContainer.currentIndex
     readonly property int count: dataContainer.listModel.count
+
+    PopupController {
+        id: popupController
+
+        poppedup: false
+    }
 
     Component {
         id: menuDelegate
