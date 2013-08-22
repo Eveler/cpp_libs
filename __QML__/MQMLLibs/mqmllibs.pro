@@ -6,14 +6,23 @@ CONFIG += qt plugin
 TARGET = $$qtLibraryTarget($$TARGET)
 uri = com.mihail.qmlcomponents
 
+INCLUDEPATH += \
+    PopupControllers/
+
 # Input
 SOURCES += \
     mqmllibs_plugin.cpp \
-    mdate.cpp
+    mdate.cpp \
+    melectrodoc.cpp \
+    popupcontroller.cpp \
+    PopupControllers/popupcontrollers.cpp
 
 HEADERS += \
     mqmllibs_plugin.h \
-    mdate.h
+    mdate.h \
+    melectrodoc.h \
+    popupcontroller.h \
+    PopupControllers/popupcontrollers.h
 
 OTHER_FILES = qmldir \
     Calendar.qml \

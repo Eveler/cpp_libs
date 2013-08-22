@@ -58,7 +58,7 @@ Item {
                 anchors.margins: 2
 
                 text: element_Text
-                color: "white"
+//                color: "white"
                 font.bold: comboMenu.fontBold
                 font.pixelSize: comboMenu.fontPixelSize
                 font.family: comboMenu.fontFamily
@@ -113,7 +113,7 @@ Item {
         id: rect_ContentBackground
         anchors.fill: parent
 
-        color: "#66000000"
+        color: "#66ffffff"
     }
 
 

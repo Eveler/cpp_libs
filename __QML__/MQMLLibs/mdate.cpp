@@ -1,7 +1,6 @@
 #include "mdate.h"
 
 
-
 MDate::MDate(QQuickItem *parent) :
     QQuickItem(parent)
 {

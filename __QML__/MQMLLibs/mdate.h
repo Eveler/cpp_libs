@@ -9,7 +9,9 @@
 class MDate : public QQuickItem
 {
     Q_OBJECT
+
 public:
+
     explicit MDate(QQuickItem *parent = 0);
 
     Q_INVOKABLE QDate currentDate() const;

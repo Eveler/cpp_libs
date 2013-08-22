@@ -26,6 +26,8 @@ Item {
     readonly property string text: input_text.text
     readonly property int textIndex: dataContainer.textIndex
 
+    readonly property alias poppedup: menu.poppedup
+
     QtObject {
         id: dataContainer
 

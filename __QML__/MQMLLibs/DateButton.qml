@@ -1,6 +1,7 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.0
 import QtGraphicalEffects 1.0
+import com.mihail.qmlcomponents 1.0
 
 Item {
     id: dateButton
@@ -9,7 +10,7 @@ Item {
 
     readonly property int contentWidth: rect_LabelBackground.width+
                                         input_text.contentWidth+
-                                        image_Checked.width+10+
+                                        ( dateButton.checkVisible ? image_Checked.width : 0 )+10+
                                         rect_MenuButton.width
     readonly property int contentHeight: text_Label.contentHeight+8
 
@@ -26,13 +27,15 @@ Item {
 
     property bool checkVisible: false
 
+    readonly property alias poppedup: popupController.poppedup
+
     RectangularGlow {
         id: effect
         anchors.fill: rect_ContentBackground
         glowRadius: 5
         spread: 0.2
         color: "#66000000"
-        visible: popAnimation.poppedup
+        visible: popupController.poppedup
         cornerRadius: rect_ContentBackground.radius + glowRadius
     }
     Rectangle {
@@ -89,7 +92,7 @@ Item {
             width: 20
             height: 20
 
-            rotation: ( popAnimation.poppedup ? 0 : 180 )
+            rotation: ( popupController.poppedup ? 0 : 180 )
             Behavior on rotation {
                 NumberAnimation { duration: 200 }
             }
@@ -103,7 +106,7 @@ Item {
 
             hoverEnabled: true
 
-            onClicked: popAnimation.poppedup = !popAnimation.poppedup
+            onClicked: popupController.poppedup = !popupController.poppedup
         }
     }
 
@@ -125,7 +128,7 @@ Item {
     TextInput {
         id: input_text
         anchors.fill: rect_TextBackground
-        anchors.rightMargin: image_Checked.width+5
+        anchors.rightMargin: ( dateButton.checkVisible ? image_Checked.width : 0 )+5
 
         clip: true
 
@@ -195,7 +198,7 @@ Item {
             glowRadius: 5
             spread: 0.2
             color: "#66000000"
-            visible: popAnimation.poppedup
+            visible: popupController.poppedup
             cornerRadius: glowRadius
         }
 
@@ -204,38 +207,43 @@ Item {
 
             onClicked: {
                 loader_Calendar.currentDate = loader_Calendar.item.currentDate
+                popupController.poppedup = false
             }
+        }
+    }
+
+    PopupController {
+        id: popupController
+
+        poppedup: false
+        onPoppedupChanged: {
+            popAnimation.stop()
+
+            if ( poppedup )
+            {
+                popAnimation.widthFrom = 0
+                popAnimation.widthTo = 250
+                popAnimation.heightFrom = 0
+                popAnimation.heightTo = 200
+                popAnimation.duration = 1500
+                popAnimation.easingType = Easing.OutElastic
+            }
+            else
+            {
+                popAnimation.widthFrom = 250
+                popAnimation.widthTo = 0
+                popAnimation.heightFrom = 200
+                popAnimation.heightTo = 0
+                popAnimation.duration = 300
+                popAnimation.easingType = Easing.InBack
+            }
+
+            popAnimation.start()
         }
     }
 
     ParallelAnimation {
         id: popAnimation
-
-        property bool poppedup: false
-        onPoppedupChanged: {
-            stop()
-
-            if ( poppedup )
-            {
-                widthFrom = 0
-                widthTo = 250
-                heightFrom = 0
-                heightTo = 200
-                duration = 1000
-                easingType = Easing.OutElastic
-            }
-            else
-            {
-                widthFrom = 250
-                widthTo = 0
-                heightFrom = 200
-                heightTo = 0
-                duration = 300
-                easingType = Easing.InBack
-            }
-
-            start()
-        }
 
         property int widthFrom
         property int widthTo
