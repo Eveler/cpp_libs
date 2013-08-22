@@ -7,22 +7,22 @@ TARGET = $$qtLibraryTarget($$TARGET)
 uri = com.mihail.qmlcomponents
 
 INCLUDEPATH += \
-    PopupControllers/
+    PopupController/
 
 # Input
 SOURCES += \
     mqmllibs_plugin.cpp \
     mdate.cpp \
     melectrodoc.cpp \
-    popupcontroller.cpp \
-    PopupControllers/popupcontrollers.cpp
+    popuppanel.cpp \
+    PopupController/popupcontroller.cpp
 
 HEADERS += \
     mqmllibs_plugin.h \
     mdate.h \
     melectrodoc.h \
-    popupcontroller.h \
-    PopupControllers/popupcontrollers.h
+    popuppanel.h \
+    PopupController/popupcontroller.h
 
 OTHER_FILES = qmldir \
     Calendar.qml \

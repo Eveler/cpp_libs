@@ -212,7 +212,7 @@ Item {
         }
     }
 
-    PopupController {
+    PopupPanel {
         id: popupController
 
         poppedup: false

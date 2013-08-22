@@ -2,7 +2,7 @@ import QtQuick 2.1
 import QtGraphicalEffects 1.0
 import com.mihail.qmlcomponents 1.0
 
-Item {
+PopupPanel {
     id: comboMenu
     width: ( poppedup ? poppedupWidth : 0 )
     Behavior on width {
@@ -34,17 +34,17 @@ Item {
     property int fontPixelSize
     property string fontFamily
 
-    property alias poppedup: popupController.poppedup
+//    property alias poppedup: popupController.poppedup
     property int poppedupWidth: 100
 
     readonly property int currentIndex: dataContainer.currentIndex
     readonly property int count: dataContainer.listModel.count
 
-    PopupController {
-        id: popupController
+//    PopupPanel {
+//        id: popupController
 
-        poppedup: false
-    }
+//        poppedup: false
+//    }
 
     Component {
         id: menuDelegate
