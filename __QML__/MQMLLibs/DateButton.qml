@@ -82,7 +82,8 @@ Item {
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         anchors.right: parent.right
-        width: image_MenuButton.width
+
+        width: height
 
         color: "transparent"
 
@@ -156,8 +157,7 @@ Item {
         anchors.bottom: parent.bottom
         anchors.right: rect_MenuButton.left
 
-        width: parent.height
-        height: width
+        width: height
 
         opacity: ( dateButton.checkVisible ? 1.0 : 0.01 )
         Behavior on opacity {
