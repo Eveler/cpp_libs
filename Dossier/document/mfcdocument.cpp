@@ -3,6 +3,7 @@
 #include "amslogger.h"
 
 QHash< MFCDocument*,int > MFCDocument::instances=QHash< MFCDocument*,int >();
+QHash< QUuid, MFCDocument * > MFCDocument::doclist=QHash< QUuid, MFCDocument * >();
 
 MFCDocument::MFCDocument(QObject *parent) :
     QObject(parent)
@@ -30,6 +31,7 @@ MFCDocument::~MFCDocument()
                <<") deleted directly from destructor! "
                  "Use MFCDocument::remove(doc) instead!";
     instances.remove(this);
+    doclist.remove( uuid() );
   }
   if(m_pages!=NULL) delete m_pages;
   if(m_attachments!=NULL) delete m_attachments;
@@ -52,6 +54,7 @@ MFCDocument *MFCDocument::instance(QString doc_type, QDate doc_date,
   doc->setDate(doc_date);
   doc->setCreateDate(doc_createdate);
   instances.insert(doc,1);
+  doclist.insert( QUuid::createUuid(), doc );
   QStringList props;
   foreach(QByteArray pn,doc->dynamicPropertyNames())
     props<<pn+" = "+doc->property(pn).toString();
@@ -302,9 +305,20 @@ QString MFCDocument::errorString(){
   return errStr;
 }
 
+QUuid MFCDocument::uuid()
+{
+    return doclist.key( this, QUuid() );
+}
+
+MFCDocument * MFCDocument::document( QUuid uuid )
+{
+    return doclist.value( uuid, NULL );
+}
+
 void MFCDocument::remove(MFCDocument *doc){
   if(instances.contains(doc)){
     instances[doc]--;
+    doclist.remove( doc->uuid() );
     LogDebug()<<doc->type()<<"("<<doc<<") referenced now"<<instances.value(doc)
              <<"times";
     if(instances.value(doc)<=0){

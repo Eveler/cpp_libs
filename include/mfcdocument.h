@@ -2,6 +2,8 @@
 #define MFCDOCUMENT_H
 
 #include <QObject>
+
+#include <QUuid>
 #include <QString>
 #include <QDate>
 #include <QByteArray>
@@ -67,6 +69,9 @@ public:
 
   QString errorString();
 
+  QUuid uuid();
+  static MFCDocument *document( QUuid uuid );
+
 signals:
   void type_Changed();
   void name_Changed();
@@ -89,6 +94,7 @@ private slots:
 
 private:
   static QHash< MFCDocument*,int > instances;
+  static QHash< QUuid, MFCDocument * > doclist;
   QString m_Type;
   QString m_Name;
   QString m_Series;
