@@ -23,6 +23,7 @@ public:
     void setSource( QString source );
 
     int pagesCount();
+    Q_INVOKABLE QString page( int index );
 
 
 signals:

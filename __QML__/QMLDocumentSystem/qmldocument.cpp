@@ -23,11 +23,13 @@ QString QMLDocument::source() const
 
 void QMLDocument::setSource( QString source )
 {
+    int oldPagesCount = 0;
     if ( p->m__Source != NULL )
     {
         disconnect( p->m__Source, SIGNAL(destroyed()), this, SLOT(documentRemoved()) );
         disconnect( p->m__Source->pages(), SIGNAL(countChanged(int)),
                     this, SIGNAL(pagesCountChanged()) );
+        oldPagesCount = pagesCount();
         p->m__Source = NULL;
     }
     MFCDocument *document = MFCDocument::document( QUuid( source ) );
@@ -37,16 +39,7 @@ void QMLDocument::setSource( QString source )
         connect( p->m__Source, SIGNAL(destroyed()), SLOT(documentRemoved()) );
         connect( p->m__Source->pages(), SIGNAL(countChanged(int)), SIGNAL(pagesCountChanged()) );
     }
-    qWarning() << p->m__Source;
-    qWarning() << p->m__Source->pages()->count();
-    qWarning() << p->m__Source->type();
-    qWarning() << p->m__Source->name();
-    qWarning() << p->m__Source->series();
-    qWarning() << p->m__Source->number();
-    qWarning() << p->m__Source->date();
-    qWarning() << p->m__Source->createDate();
-    qWarning() << p->m__Source->expiresDate();
-    emit pagesCountChanged();
+    if ( oldPagesCount != pagesCount() ) emit pagesCountChanged();
     emit sourceChanged();
 }
 
@@ -54,6 +47,13 @@ int QMLDocument::pagesCount()
 {
     if ( p->m__Source == NULL ) return 0;
     return p->m__Source->pages()->count();
+}
+
+QString QMLDocument::page( int index )
+{
+    if ( index < 0 || index >= pagesCount() ) return QString();
+
+    return tr( "image://qmldocumentprovider/%1/%2" ).arg( source() ).arg( index );
 }
 
 QMLDocument::~QMLDocument()

@@ -64,13 +64,7 @@ QString QMLDocumentLoader::document( int index )
         return QUuid::createUuid().toString();
 
     MFCDocument *doc = m__Docmanager->declarDocuments()->documents()[index];
-    if ( !m__Docmanager->loadDocument( doc ) )
-        qWarning( "Warning: document not loaded!" );
-//    if ( !m__Docmanager->loadDocument( doc ) )
-//    {
-//        qWarning( "Error: while loading document!" );
-//        return QUuid::createUuid().toString();
-//    }
+    m__Docmanager->loadDocument( doc );
     return doc->uuid().toString();
 }
 
