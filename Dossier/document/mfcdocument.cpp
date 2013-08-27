@@ -33,8 +33,8 @@ MFCDocument::~MFCDocument()
     instances.remove(this);
     doclist.remove( uuid() );
   }
-  if(m_pages!=NULL) delete m_pages;
-  if(m_attachments!=NULL) delete m_attachments;
+  delete m_pages;
+  delete m_attachments;
 }
 
 MFCDocument *MFCDocument::instance(QString doc_type, QDate doc_date,
@@ -70,8 +70,10 @@ MFCDocument *MFCDocument::instance(QString doc_type, QDate doc_date,
 bool MFCDocument::copyFrom(MFCDocument *doc){
   if(doc==NULL) return false;
 
-  if(m_attachments!=NULL) delete m_attachments;
-  if(m_pages!=NULL) delete m_pages;
+  delete m_attachments;
+  m_attachments=new DocAttachments;
+  delete m_pages;
+  m_pages=new MFCDocumentPages;
 
   setType(doc->type());
   setName(doc->name());
@@ -182,7 +184,6 @@ void MFCDocument::setUrl(const QString docUrl){
 }
 
 void MFCDocument::addPage(MFCDocumentPage &page){
-  if(m_pages==NULL) m_pages=new MFCDocumentPages;
 //  else changed=true;
   m_pages->addPage(page);
 }
@@ -192,7 +193,6 @@ bool MFCDocument::replacePage(const int pageNum, MFCDocumentPage &newPage){
     error(pageNum<0?tr("Номер страницы меньше 0"):tr("Ошибочный объект страницы"));
     return false;
   }
-  if(m_pages==NULL) m_pages=new MFCDocumentPages;
   if(!m_pages->removePage(pageNum)){
     error(tr("Ошибка при удалении страницы: %1").arg(m_pages->errorString()));
     return false;
@@ -207,14 +207,12 @@ bool MFCDocument::replacePage(const int pageNum, MFCDocumentPage &newPage){
 
 void MFCDocument::addAttachment(const QString fileName, const QString mimeType,
                                 const QByteArray &fileData){
-  if(m_attachments==NULL) m_attachments=new DocAttachments;
 //  else changed=true;
   DocAttachment *att=new DocAttachment(fileName,mimeType,fileData);
   m_attachments->addAttachment(*att);
 }
 
 void MFCDocument::addAttachment(DocAttachment &attachment){
-  if(m_attachments==NULL) m_attachments=new DocAttachments;
 //  else changed=true;
   m_attachments->addAttachment(attachment);
 }
@@ -264,7 +262,7 @@ const QString & MFCDocument::url(){
 }
 
 bool MFCDocument::havePages(){
-  return m_pages!=NULL && m_pages->count()>0;
+  return m_pages->count()>0;
 }
 
 MFCDocumentPages *MFCDocument::pages(){
@@ -272,7 +270,7 @@ MFCDocumentPages *MFCDocument::pages(){
 }
 
 bool MFCDocument::haveAttachments(){
-  return m_attachments!=NULL && m_attachments->count()>0;
+  return m_attachments->count()>0;
 }
 
 DocAttachments *MFCDocument::attachments(){
@@ -351,8 +349,8 @@ void MFCDocument::init(){
   m_Expires = QDate();
   m_Agency=QString();
   m_CreateDate = QDateTime::currentDateTime();
-  m_pages=NULL;
-  m_attachments=NULL;
+  m_pages=new MFCDocumentPages;
+  m_attachments=new DocAttachments;
   m_url=QString();
   connect(this,SIGNAL(destroyed()),SLOT(remove()));
 }

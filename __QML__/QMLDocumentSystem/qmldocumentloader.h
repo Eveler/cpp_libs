@@ -4,7 +4,7 @@
 #include <QQuickItem>
 
 
-class QMLDocumentLoader_P;
+class Docmanager;
 
 class QMLDocumentLoader : public QQuickItem
 {
@@ -12,7 +12,8 @@ class QMLDocumentLoader : public QQuickItem
     Q_DISABLE_COPY(QMLDocumentLoader)
     Q_PROPERTY(QString connectionName READ connectionName
                WRITE setConnectionName NOTIFY connectionNameChanged)
-    Q_PROPERTY(QList<QString> documents READ documents NOTIFY documentsChanged)
+    Q_PROPERTY(int count READ count NOTIFY countChanged)
+    Q_PROPERTY(int progress READ progress NOTIFY progressChanged)
 
 public:
     explicit QMLDocumentLoader(QQuickItem *parent = 0);
@@ -20,24 +21,30 @@ public:
     QString connectionName();
     void setConnectionName( QString connectionName );
 
-    const QList<QString> & documents() const;
+    int count();
+    int progress() const;
 
-    Q_INVOKABLE void setDeclar( int delcarId );
-    Q_INVOKABLE void loadDocument( int docIndex );
+    Q_INVOKABLE void loadDocuments( int declarId );
+    Q_INVOKABLE QString document( int index );
 
 
 signals:
-    void documentsChanged();
     void connectionNameChanged();
+    void countChanged();
+    void progressChanged();
 
 
 public slots:
 
 
 private:
-    QMLDocumentLoader_P *p;
-
     QString m__ConnectionName;
+    Docmanager *m__Docmanager;
+    int m__DataTransferProgress;
+
+
+private slots:
+    void dataTransferProgress( qint64 current,qint64 total );
 };
 
 #endif // QMLDOCUMENTLOADER_H

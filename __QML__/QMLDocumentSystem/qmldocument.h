@@ -13,6 +13,7 @@ class QMLDocument : public QQuickItem
     Q_OBJECT
     Q_DISABLE_COPY(QMLDocument)
     Q_PROPERTY(QString source READ source WRITE setSource NOTIFY sourceChanged)
+    Q_PROPERTY(int pagesCount READ pagesCount NOTIFY pagesCountChanged)
 
 public:
     QMLDocument(QQuickItem *parent = 0);
@@ -21,9 +22,12 @@ public:
     QString source() const;
     void setSource( QString source );
 
+    int pagesCount();
+
 
 signals:
     void sourceChanged();
+    void pagesCountChanged();
 
 
 private:

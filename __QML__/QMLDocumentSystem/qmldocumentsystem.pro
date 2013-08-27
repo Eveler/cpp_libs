@@ -23,14 +23,14 @@ SOURCES += \
     qmldocument.cpp \
     qmldocument_p.cpp \
     qmldocumentloader.cpp \
-    qmldocumentloader_p.cpp
+    qmldocumentpageprovider.cpp
 
 HEADERS += \
     qmldocumentsystem_plugin.h \
     qmldocument.h \
     qmldocument_p.h \
     qmldocumentloader.h \
-    qmldocumentloader_p.h
+    qmldocumentpageprovider.h
 
 OTHER_FILES = qmldir
 
