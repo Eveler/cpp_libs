@@ -14,6 +14,7 @@ class QMLDocument : public QQuickItem
     Q_DISABLE_COPY(QMLDocument)
     Q_PROPERTY(QString source READ source WRITE setSource NOTIFY sourceChanged)
     Q_PROPERTY(int pagesCount READ pagesCount NOTIFY pagesCountChanged)
+    Q_PROPERTY(int attachmentsCount READ attachmentsCount NOTIFY attachmentsCountChanged)
 
 public:
     QMLDocument(QQuickItem *parent = 0);
@@ -22,13 +23,18 @@ public:
     QString source() const;
     void setSource( QString source );
 
-    int pagesCount();
+    int pagesCount() const;
     Q_INVOKABLE QString page( int index );
+
+    int attachmentsCount() const;
+
+    Q_INVOKABLE bool isValid() const;
 
 
 signals:
     void sourceChanged();
     void pagesCountChanged();
+    void attachmentsCountChanged();
 
 
 private:

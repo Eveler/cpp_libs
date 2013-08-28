@@ -14,20 +14,24 @@ DocAttachment::~DocAttachment(){
   delete m_File;
 }
 
-QString DocAttachment::fileName(){
+QString DocAttachment::fileName() const
+{
   return fName;
 }
 
-QString DocAttachment::mimeType(){
+QString DocAttachment::mimeType() const
+{
   return mType;
 }
 
-QByteArray DocAttachment::data(){
+QByteArray DocAttachment::data() const
+{
   m_File->seek(0);
   return m_File->readAll();
 }
 
-QIODevice *DocAttachment::device(){
+QIODevice *DocAttachment::device() const
+{
   return m_File;
 }
 

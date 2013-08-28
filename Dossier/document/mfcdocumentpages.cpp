@@ -1,6 +1,7 @@
 #include "mfcdocumentpages.h"
 
-MFCDocumentPages::MFCDocumentPages()
+MFCDocumentPages::MFCDocumentPages( QObject *parent ) :
+    QObject(parent)
 {
   m_Pages = QList<MFCDocumentPage *>();
 

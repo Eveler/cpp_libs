@@ -30,6 +30,7 @@ QPixmap QMLDocumentPageProvider::requestPixmap(
                       "\nidList.count" << idList.count() <<
                       "\nuuid.isNull" << uuid.isNull() <<
                       "\ndoc" << doc;
+        if ( size != NULL ) *size = nullPixmap.size();
         return nullPixmap;
     }
 
@@ -41,11 +42,13 @@ QPixmap QMLDocumentPageProvider::requestPixmap(
                       "\nindex < 0" << (index < 0) <<
                       "\nindex >= doc->pages()->count()" << (index >= doc->pages()->count()) <<
                       "\nindex" << index;
+        if ( size != NULL ) *size = nullPixmap.size();
         return nullPixmap;
     }
 
     QPixmap pixmap;
     pixmap.loadFromData( doc->pages()->getPage( index )->getBody() );
+    if ( size != NULL ) *size = pixmap.size();
 
 //        QPixmap pixmap(requestedSize.width() > 0 ? requestedSize.width() : width,
 //                       requestedSize.height() > 0 ? requestedSize.height() : height);

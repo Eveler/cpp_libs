@@ -229,9 +229,9 @@ bool ElectroDoc_v2::setDocument(MFCDocument *document){
     ui->pBar_Scan->setVisible(true);
     ui->wgt_ExtDoc->setVisible(true);
     for(int a=0;a<m_Document->attachments()->count();a++){
-      if(!m_Document->attachments()->getAttachment(a)->fileName().isEmpty())
+      if(!m_Document->attachments()->getAttachment(a).fileName().isEmpty())
         ui->lstWgt_Attachments->addItem(
-              m_Document->attachments()->getAttachment(a)->fileName());
+              m_Document->attachments()->getAttachment(a).fileName());
       ui->pBar_Scan->setValue(a+1);
     }
     ui->pBar_Scan->setVisible(false);
@@ -790,10 +790,10 @@ void ElectroDoc_v2::saveToFile(){
     }
     if(m_Document->haveAttachments()){
       for(int pIdx = 0; pIdx < m_Document->attachments()->count(); pIdx++ ){
-        DocAttachment *att=m_Document->attachments()->getAttachment(pIdx);
-        QFile f(fi.absolutePath()+"/"+att->fileName());
+        DocAttachment att=m_Document->attachments()->getAttachment(pIdx);
+        QFile f(fi.absolutePath()+"/"+att.fileName());
         f.open(QFile::WriteOnly);
-        f.write(att->data());
+        f.write(att.data());
         f.close();
       }
     }
@@ -940,7 +940,7 @@ void ElectroDoc_v2::openAttachment(){
     tmpFileName=QDir::tempPath()+"/"+fileName;
     QFile f(tmpFileName);
     f.open(QFile::WriteOnly);
-    f.write(m_Document->attachments()->getAttachment(fileName)->data());
+    f.write(m_Document->attachments()->getAttachment(fileName).data());
     f.close();
     fWatcher->addPath(tmpFileName);
     QProcess p(this);
@@ -966,7 +966,7 @@ void ElectroDoc_v2::openAttachment(){
             tr("Возможно у Вас в системе отсутствует обработчик данного типа файлов. "
                "Сообщите данные, указанные ниже, ИТ специалисту.\n\nFileName: ")+
             fileName+"\nMIMEType: "+
-            m_Document->attachments()->getAttachment(fileName)->mimeType()+
+            m_Document->attachments()->getAttachment(fileName).mimeType()+
             "\nOperating system: "+opSys+
             "\nCommand: "+exeName+"\nCommand output:\n"+
 #ifdef Q_OS_WIN

@@ -48,7 +48,6 @@ public:
   bool replacePage(const int pageNum,MFCDocumentPage &newPage);
   void addAttachment(const QString fileName,const QString mimeType,
                      const QByteArray &fileData);
-  void addAttachment(DocAttachment &attachment);
 
   const QString & type();
   const QString & name();

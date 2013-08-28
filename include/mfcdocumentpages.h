@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include "mfcdocumentpage.h"
+
 #include "export/dossier_export.h"
 
 
@@ -12,7 +13,7 @@ class DOSSIER_EXPORT MFCDocumentPages: public QObject
     Q_OBJECT
 
 public:
-  MFCDocumentPages();
+  MFCDocumentPages( QObject *parent = 0 );
   ~MFCDocumentPages();
   int addPage( MFCDocumentPage &page );
   bool insertPage( int intoPos, MFCDocumentPage &page );

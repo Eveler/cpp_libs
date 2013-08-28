@@ -71,9 +71,9 @@ bool MFCDocument::copyFrom(MFCDocument *doc){
   if(doc==NULL) return false;
 
   delete m_attachments;
-  m_attachments=new DocAttachments;
+  m_attachments=new DocAttachments( this );
   delete m_pages;
-  m_pages=new MFCDocumentPages;
+  m_pages=new MFCDocumentPages( this );
 
   setType(doc->type());
   setName(doc->name());
@@ -87,8 +87,8 @@ bool MFCDocument::copyFrom(MFCDocument *doc){
 
   if(doc->haveAttachments())
     for(int i=0;i<doc->attachments()->count();i++){
-      DocAttachment *att=doc->attachments()->getAttachment(i);
-      addAttachment(att->fileName(),att->mimeType(),att->data());
+      DocAttachment att=doc->attachments()->getAttachment(i);
+      addAttachment(att.fileName(),att.mimeType(),att.data());
     }
 
   if(doc->havePages()){
@@ -208,13 +208,7 @@ bool MFCDocument::replacePage(const int pageNum, MFCDocumentPage &newPage){
 void MFCDocument::addAttachment(const QString fileName, const QString mimeType,
                                 const QByteArray &fileData){
 //  else changed=true;
-  DocAttachment *att=new DocAttachment(fileName,mimeType,fileData);
-  m_attachments->addAttachment(*att);
-}
-
-void MFCDocument::addAttachment(DocAttachment &attachment){
-//  else changed=true;
-  m_attachments->addAttachment(attachment);
+  m_attachments->addAttachment( fileName, mimeType, fileData );
 }
 
 const QString & MFCDocument::type()
@@ -292,7 +286,7 @@ int MFCDocument::size(){
   int s=0;
   if(haveAttachments())
     for(int a=0;a<attachments()->count();a++)
-      s+=attachments()->getAttachment(a)->device()->size();
+      s+=attachments()->getAttachment(a).device()->size();
   if(havePages())
     for(int p=0;p<pages()->count();p++)
       s+=pages()->getPage(p)->device()->size();
@@ -349,8 +343,8 @@ void MFCDocument::init(){
   m_Expires = QDate();
   m_Agency=QString();
   m_CreateDate = QDateTime::currentDateTime();
-  m_pages=new MFCDocumentPages;
-  m_attachments=new DocAttachments;
+  m_pages=new MFCDocumentPages( this );
+  m_attachments=new DocAttachments( this );
   m_url=QString();
   connect(this,SIGNAL(destroyed()),SLOT(remove()));
 }

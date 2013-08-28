@@ -150,9 +150,9 @@ bool FtpDocsStorage::saveZip(MFCDocument* doc,const QString fileName){
     stream<<"[ATTACHMENTS]\n";
     stream<<"count="<<atts->count()<<"\n";
     for(int a=0;a<atts->count();a++){
-      DocAttachment *att=atts->getAttachment(a);
-      stream<<"filename"<<a<<"="<<att->fileName()<<"\n";
-      stream<<"mimetype"<<a<<"="<<att->mimeType()<<"\n";
+      DocAttachment att=atts->getAttachment(a);
+      stream<<"filename"<<a<<"="<<att.fileName()<<"\n";
+      stream<<"mimetype"<<a<<"="<<att.mimeType()<<"\n";
       stream<<"file"<<a<<"="<<"attachment"<<a<<"\n";
     }
   }
@@ -185,10 +185,10 @@ bool FtpDocsStorage::saveZip(MFCDocument* doc,const QString fileName){
     qDebug()<<"attachments.count():"<<atts->count();
 #endif
     for(int a=0;a<atts->count();a++){
-      DocAttachment *att=atts->getAttachment(a);
+      DocAttachment att=atts->getAttachment(a);
 #ifndef QT_NO_DEBUG
-      qDebug()<<"Archiving doc attachment"<<tr("attachment")+att->fileName()<<
-             "size ="<<att->device()->size();
+      qDebug()<<"Archiving doc attachment"<<tr("attachment")+att.fileName()<<
+             "size ="<<att.device()->size();
 #endif
       zinfo=QuaZipNewInfo(tr("attachment%1").arg(a));
       zinfo.internalAttr=0660;
@@ -199,7 +199,7 @@ bool FtpDocsStorage::saveZip(MFCDocument* doc,const QString fileName){
                   zipErrStr(zipf.getZipError());
         return false;
       }
-      zipf.write(att->data());
+      zipf.write(att.data());
       zipf.close();
       if(zipf.getZipError()!=UNZ_OK){
         errStr=tr("Ошибка при добавлении вложения в архив: ")+
@@ -328,11 +328,9 @@ bool FtpDocsStorage::loadZip(QString fileName, MFCDocument *doc){
         setError(tr("Ошибка при чтении архива: ")+zipErrStr(zip.getZipError()));
         return false;
       }
-      DocAttachment *att=new DocAttachment(
-            requisites.value(tr("ATTACHMENTS/filename%1").arg(a)).toString(),
-            requisites.value(tr("ATTACHMENTS/mimetype%1").arg(a)).toString(),
-            zip.readAll());
-      doc->addAttachment(*att);
+      doc->addAttachment( requisites.value(tr("ATTACHMENTS/filename%1").arg(a)).toString(),
+                          requisites.value(tr("ATTACHMENTS/mimetype%1").arg(a)).toString(),
+                          zip.readAll() );
       zip.close();
     }
   }
