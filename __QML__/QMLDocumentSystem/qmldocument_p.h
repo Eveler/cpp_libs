@@ -18,6 +18,7 @@ public slots:
 
 private:
     MFCDocument *m__Source;
+    QList<MFCDocumentPage *> m__AddedPages;
 
     explicit QMLDocument_P(QMLDocument *parent);
 

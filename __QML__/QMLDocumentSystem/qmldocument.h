@@ -27,8 +27,14 @@ public:
     Q_INVOKABLE QString page( int index );
 
     int attachmentsCount() const;
+    Q_INVOKABLE QString attachmentName( int index );
+    Q_INVOKABLE bool openAttachment( int index );
 
     Q_INVOKABLE bool isValid() const;
+
+    Q_INVOKABLE void reset();
+
+    Q_INVOKABLE void addPage();
 
 
 signals:

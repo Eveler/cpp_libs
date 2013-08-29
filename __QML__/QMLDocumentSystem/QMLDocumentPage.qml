@@ -25,7 +25,7 @@ Image {
                     qmlDocumentPage.document.isValid() &&
                      qmlDocumentPage.index > -1 &&
                      qmlDocumentPage.index < qmlDocumentPage.document.pagesCount )
-                dataSource.source = qmlDocumentPage.document.page( 0 )
+                dataSource.source = qmlDocumentPage.document.page( qmlDocumentPage.index )
             else dataSource.source = ""
         }
     }

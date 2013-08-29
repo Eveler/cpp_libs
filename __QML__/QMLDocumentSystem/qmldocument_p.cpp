@@ -2,7 +2,8 @@
 
 QMLDocument_P::QMLDocument_P(QMLDocument *parent) :
     QObject(parent),
-    m__Source( NULL )
+    m__Source(NULL),
+    m__AddedPages(QList<MFCDocumentPage *>())
 {
 }
 

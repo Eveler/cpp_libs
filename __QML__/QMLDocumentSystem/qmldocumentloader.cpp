@@ -9,6 +9,7 @@ QMLDocumentLoader::QMLDocumentLoader(QQuickItem *parent) :
     QQuickItem(parent),
     m__ConnectionName(QString()),
     m__Docmanager(NULL),
+    m__DeclarId(-1),
     m__DataTransferProgress(0)
 {
 }
@@ -36,7 +37,28 @@ void QMLDocumentLoader::setConnectionName( QString connectionName )
              SLOT(dataTransferProgress(qint64,qint64)) );
     emit connectionNameChanged();
     m__DataTransferProgress = 0;
-    loadDocuments( -1 );
+    m__Docmanager->setDeclar( -1 );
+}
+
+int QMLDocumentLoader::declar() const
+{
+    return m__DeclarId;
+}
+
+void QMLDocumentLoader::setDeclar( int declarId )
+{
+    if ( m__Docmanager == NULL ) connectionName();
+    int oldCount = count();
+    m__Docmanager->unsetDeclar();
+    m__Docmanager->setDeclar( declarId );
+    if ( m__DeclarId != declarId )
+    {
+        m__DeclarId = declarId;
+        emit declarChanged();
+        emit countChanged();
+    }
+    if ( oldCount != count() )
+        emit countChanged();
 }
 
 int QMLDocumentLoader::count()
@@ -48,14 +70,6 @@ int QMLDocumentLoader::count()
 int QMLDocumentLoader::progress() const
 {
     return m__DataTransferProgress;
-}
-
-void QMLDocumentLoader::loadDocuments( int declarId )
-{
-    if ( m__Docmanager == NULL ) connectionName();
-    m__Docmanager->unsetDeclar();
-    m__Docmanager->setDeclar( declarId );
-    emit countChanged();
 }
 
 QString QMLDocumentLoader::document( int index )

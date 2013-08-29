@@ -71,9 +71,48 @@ int QMLDocument::attachmentsCount() const
     return p->m__Source->attachments()->count();
 }
 
+QString QMLDocument::attachmentName( int index )
+{
+    if ( index < 0 || index >= pagesCount() ) return QString();
+
+    return p->m__Source->attachments()->getAttachment( index ).fileName();
+}
+
+bool QMLDocument::openAttachment( int index )
+{
+    if ( index < 0 || index >= pagesCount() ) return false;
+
+    return true;
+}
+
 bool QMLDocument::isValid() const
 {
     return (source() != QUuid().toString() );
+}
+
+void QMLDocument::reset()
+{
+    if ( p->m__Source == NULL ) return;
+
+    foreach (MFCDocumentPage *page, p->m__AddedPages)
+        for ( int index = 0; index < p->m__Source->pages()->count(); index++ )
+            if ( p->m__Source->pages()->getPage( index ) == page )
+            {
+                p->m__AddedPages.removeOne( page );
+                p->m__Source->pages()->removePage( index );
+                index = p->m__Source->pages()->count();
+            }
+}
+
+void QMLDocument::addPage()
+{
+    if ( p->m__Source == NULL ) return;
+
+    QByteArray ba;
+
+    MFCDocumentPage *page = new MFCDocumentPage( "", ba );
+    p->m__Source->addPage( *page );
+    p->m__AddedPages << page;
 }
 
 QMLDocument::~QMLDocument()
