@@ -1,6 +1,7 @@
 TEMPLATE = lib
 TARGET = QMLDocumentSystem
 QT += qml quick sql
+greaterThan( QT_MAJOR_VERSION, 4 ) QT += widgets printsupport
 CONFIG += qt plugin
 
 TARGET = $$qtLibraryTarget($$TARGET)

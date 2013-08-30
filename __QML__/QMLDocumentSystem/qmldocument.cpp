@@ -14,6 +14,9 @@ QMLDocument::QMLDocument(QQuickItem *parent):
     // setFlag(ItemHasContents, true);
 
     p = new QMLDocument_P( this );
+    connect( p, SIGNAL(pagesCountChanged()), SIGNAL(pagesCountChanged()) );
+    connect( p, SIGNAL(pageAdded(int)), SIGNAL(pageAdded(int)) );
+    connect( p, SIGNAL(pageRemoved(int)), SIGNAL(pageRemoved(int)) );
 }
 
 QString QMLDocument::source() const
@@ -94,25 +97,32 @@ void QMLDocument::reset()
 {
     if ( p->m__Source == NULL ) return;
 
+    int addedCount = p->m__AddedPages.count();
     foreach (MFCDocumentPage *page, p->m__AddedPages)
-        for ( int index = 0; index < p->m__Source->pages()->count(); index++ )
+        for ( int index = p->m__Source->pages()->count()-1; index > -1; index-- )
             if ( p->m__Source->pages()->getPage( index ) == page )
             {
                 p->m__AddedPages.removeOne( page );
                 p->m__Source->pages()->removePage( index );
                 index = p->m__Source->pages()->count();
+                emit pageRemoved( index );
             }
+    if ( addedCount > 0 ) emit pagesCountChanged();
+}
+
+void QMLDocument::configureScanner()
+{
+    if ( p->m__Source == NULL ) return;
+
+    p->configureScanner();
 }
 
 void QMLDocument::addPage()
 {
     if ( p->m__Source == NULL ) return;
 
-    QByteArray ba;
-
-    MFCDocumentPage *page = new MFCDocumentPage( "", ba );
-    p->m__Source->addPage( *page );
-    p->m__AddedPages << page;
+    p->m__ReplacePage = -1;
+    p->doScan();
 }
 
 QMLDocument::~QMLDocument()

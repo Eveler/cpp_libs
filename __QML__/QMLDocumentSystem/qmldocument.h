@@ -34,12 +34,15 @@ public:
 
     Q_INVOKABLE void reset();
 
+    Q_INVOKABLE void configureScanner();
     Q_INVOKABLE void addPage();
 
 
 signals:
     void sourceChanged();
     void pagesCountChanged();
+    void pageAdded( int index );
+    void pageRemoved( int index );
     void attachmentsCountChanged();
 
 
