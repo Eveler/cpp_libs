@@ -190,4 +190,14 @@ PopupPanel {
                 return  index
         return -1
     }
+
+    function indexOf( value ) {
+        for ( var index = 0; index < dataContainer.listModel.count; index++ )
+        {
+            var modelText = dataContainer.listModel.get( index ).element_Text
+            if ( modelText.toUpperCase() === value.toUpperCase() )
+                return index
+        }
+        return -1
+    }
 }

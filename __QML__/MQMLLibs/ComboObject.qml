@@ -42,6 +42,8 @@ Item {
         color: "#66000000"
         visible: menu.poppedup
         cornerRadius: rect_ContentBackground.radius + glowRadius
+
+        opacity: ( comboObject.enabled ? 1.0 : 0.5 )
     }
     Rectangle {
         id: rect_ContentBackground
@@ -51,6 +53,8 @@ Item {
         color: "#66000000"
         border.color: "#66000000"
         radius: 5
+
+        opacity: ( comboObject.enabled ? 1.0 : 0.5 )
     }
 
     Rectangle {
@@ -63,6 +67,8 @@ Item {
         visible: text_Label.text.length > 0
 
         color: "transparent"
+
+        opacity: ( comboObject.enabled ? 1.0 : 0.5 )
     }
     Text {
         id: text_Label
@@ -79,6 +85,8 @@ Item {
         font.pixelSize: comboObject.fontPixelSize
         font.family: ( comboObject.fontFamily.length === 0 ? "Consolas" : comboObject.fontFamily )
         color: "white"
+
+        opacity: ( comboObject.enabled ? 1.0 : 0.5 )
     }
 
     Rectangle {
@@ -87,6 +95,8 @@ Item {
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         width: height
+
+        opacity: ( comboObject.enabled ? 1.0 : 0.5 )
 
         visible: ( comboObject.count > 0 )
 
@@ -124,6 +134,8 @@ Item {
         anchors.right: ( comboObject.count > 0 ? rect_MenuButton.left : parent.right )
         anchors.rightMargin: ( comboObject.count > 0 ? 0 : rect_ContentBackground.radius )
 
+        opacity: ( comboObject.enabled ? 1.0 : 0.5 )
+
         color: "#55ffffff"
 
         MouseArea {
@@ -144,6 +156,8 @@ Item {
         font.bold: comboObject.fontBold
         font.pixelSize: comboObject.fontPixelSize
         font.family: comboObject.fontFamily
+
+        opacity: ( comboObject.enabled ? 1.0 : 0.5 )
 
         property bool search: true
 
@@ -227,5 +241,16 @@ Item {
 
     function append( value ) {
         menu.append( value )
+    }
+
+    function setText( value ) {
+        if ( count === 0 )
+        {
+            input_text.text = value
+            return true
+        }
+        var index = menu.indexOf( value )
+        if ( index > -1 ) input_text.text = value
+        return ( index > -1 )
     }
 }

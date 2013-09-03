@@ -37,6 +37,8 @@ Item {
         color: "#66000000"
         visible: popupController.poppedup
         cornerRadius: rect_ContentBackground.radius + glowRadius
+
+        opacity: ( dateButton.enabled ? 1.0 : 0.5 )
     }
     Rectangle {
         id: rect_ContentBackground
@@ -46,6 +48,8 @@ Item {
         color: "#66000000"
         border.color: "#66000000"
         radius: 5
+
+        opacity: ( dateButton.enabled ? 1.0 : 0.5 )
     }
 
     Rectangle {
@@ -58,6 +62,8 @@ Item {
         visible: text_Label.text.length > 0
 
         color: "transparent"
+
+        opacity: ( dateButton.enabled ? 1.0 : 0.5 )
     }
     Text {
         id: text_Label
@@ -75,6 +81,8 @@ Item {
         font.pixelSize: dateButton.fontPixelSize
         font.family: ( dateButton.fontFamily.length === 0 ? "Consolas" : dateButton.fontFamily )
         color: "white"
+
+        opacity: ( dateButton.enabled ? 1.0 : 0.5 )
     }
 
     Rectangle {
@@ -86,6 +94,8 @@ Item {
         width: height
 
         color: "transparent"
+
+        opacity: ( dateButton.enabled ? 1.0 : 0.5 )
 
         Image {
             id: image_MenuButton
@@ -120,6 +130,8 @@ Item {
 
         color: "#55ffffff"
 
+        opacity: ( dateButton.enabled ? 1.0 : 0.5 )
+
         MouseArea {
             anchors.fill: parent
 
@@ -141,6 +153,8 @@ Item {
         font.family: dateButton.fontFamily
 
         readOnly: true
+
+        opacity: ( dateButton.enabled ? 1.0 : 0.5 )
 
         property string value: Qt.formatDate( loader_Calendar.currentDate, "dd.MM.yyyy" )
 

@@ -2,6 +2,7 @@
 
 #include <QMessageBox>
 #include <QApplication>
+#include <QFileInfo>
 
 
 #define SCANAPP_PATH qApp->applicationDirPath()+"/MFCScanProject.exe"
@@ -59,6 +60,31 @@ void QMLDocument_P::doScan()
 #endif
 }
 
+void QMLDocument_P::fromFile( QString path )
+{
+    QPixmap pixmap;
+    QString format = QFileInfo( path ).suffix().toUpper();
+    if( pixmap.load( path, format.toLocal8Bit() ) )
+    {
+        if( pixmap.width() > 1700 )
+            pixmap = pixmap.scaledToWidth( 1700, Qt::SmoothTransformation );
+        if( pixmap.height() > 2338 )
+            pixmap = pixmap.scaledToHeight( 2338, Qt::SmoothTransformation );
+
+        if ( m__ReplacePage == -1 )
+        {
+            int pageNum = m__Source->pages()->count()+1;
+            MFCDocumentPage *page = new MFCDocumentPage(
+                        tr( "Страница %1 (Скан %1)" ).arg( pageNum ), pixmap );
+            m__Source->addPage( *page );
+            m__AddedPages << page;
+            emit pageAdded( pageNum-1 );
+            emit pagesCountChanged();
+        }
+    }
+    else QMessageBox::warning( NULL, "Ошибка", "Не удалось получить изображение!" );
+}
+
 #ifdef Q_OS_WIN
 //void QMLDocument_P::scanProcessStarted()
 //{
@@ -83,37 +109,38 @@ void QMLDocument_P::readyReadScanProcessOutput()
     {
         result = result.remove( 0, result.indexOf( tr( "scan: success" ) )+
                                 tr( "scan: success | " ).length() );
-        QPixmap pixmap;
-        if(pixmap.load(result,"PNG"))
-        {
-            if( pixmap.width() > 1700 )
-                pixmap = pixmap.scaledToWidth( 1700, Qt::SmoothTransformation );
-            if( pixmap.height() > 2338 )
-                pixmap = pixmap.scaledToHeight( 2338, Qt::SmoothTransformation );
+        fromFile( result );
+//        QPixmap pixmap;
+//        if(pixmap.load(result,"PNG"))
+//        {
+//            if( pixmap.width() > 1700 )
+//                pixmap = pixmap.scaledToWidth( 1700, Qt::SmoothTransformation );
+//            if( pixmap.height() > 2338 )
+//                pixmap = pixmap.scaledToHeight( 2338, Qt::SmoothTransformation );
 
-            if ( m__ReplacePage == -1 )
-            {
-                int pageNum = m__Source->pages()->count()+1;
-                MFCDocumentPage *page = new MFCDocumentPage(
-                            tr( "Страница %1 (Скан %1)" ).arg( pageNum ), pixmap );
-                m__Source->addPage( *page );
-                m__AddedPages << page;
-                emit pageAdded( pageNum-1 );
-                emit pagesCountChanged();
-            }
-            //            else
-            //            {
-            //                MFCDocumentPage *page=new MFCDocumentPage(
-            //                      m__Source->pages()->getPage( m__ReplacePage )->getPageName(), pixmap );
-            //                m__AddedPages.replace(
-            //                            m__AddedPages.indexOf(
-            //                                m__Source->pages()->getPage( m__ReplacePage ) ), page );
-            //                m__Source->replacePage( m__ReplacePage, *page );
-            //                emit pageAdded( m__ReplacePage );
-            //                emit pagesCountChanged();
-            //            }
-        }
-        else QMessageBox::warning( NULL, "Ошибка", "Не удалось получить изображение!" );
+//            if ( m__ReplacePage == -1 )
+//            {
+//                int pageNum = m__Source->pages()->count()+1;
+//                MFCDocumentPage *page = new MFCDocumentPage(
+//                            tr( "Страница %1 (Скан %1)" ).arg( pageNum ), pixmap );
+//                m__Source->addPage( *page );
+//                m__AddedPages << page;
+//                emit pageAdded( pageNum-1 );
+//                emit pagesCountChanged();
+//            }
+//            //            else
+//            //            {
+//            //                MFCDocumentPage *page=new MFCDocumentPage(
+//            //                      m__Source->pages()->getPage( m__ReplacePage )->getPageName(), pixmap );
+//            //                m__AddedPages.replace(
+//            //                            m__AddedPages.indexOf(
+//            //                                m__Source->pages()->getPage( m__ReplacePage ) ), page );
+//            //                m__Source->replacePage( m__ReplacePage, *page );
+//            //                emit pageAdded( m__ReplacePage );
+//            //                emit pagesCountChanged();
+//            //            }
+//        }
+//        else QMessageBox::warning( NULL, "Ошибка", "Не удалось получить изображение!" );
         if ( QFile( result ).exists() ) QFile( result ).remove();
     }
 }

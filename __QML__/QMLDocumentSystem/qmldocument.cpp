@@ -35,6 +35,13 @@ void QMLDocument::setSource( QString source )
                     this, SIGNAL(pagesCountChanged()) );
         disconnect( p->m__Source->attachments(), SIGNAL(countChanged(int)),
                     this, SIGNAL(attachmentsCountChanged()) );
+        disconnect( p->m__Source, SIGNAL(type_Changed()), this, SIGNAL(typeChanged()) );
+        disconnect( p->m__Source, SIGNAL(name_Changed()), this, SIGNAL(nameChanged()) );
+        disconnect( p->m__Source, SIGNAL(series_Changed()), this, SIGNAL(seriesChanged()) );
+        disconnect( p->m__Source, SIGNAL(number_Changed()), this, SIGNAL(numberChanged()) );
+        disconnect( p->m__Source, SIGNAL(date_Changed()), this, SIGNAL(docdateChanged()) );
+        disconnect( p->m__Source, SIGNAL(expiresDate_Changed()),
+                    this, SIGNAL(docexpiresChanged()) );
         p->m__Source = NULL;
     }
     MFCDocument *document = MFCDocument::document( QUuid( source ) );
@@ -46,6 +53,12 @@ void QMLDocument::setSource( QString source )
                  SIGNAL(pagesCountChanged()) );
         connect( p->m__Source->attachments(), SIGNAL(countChanged(int)),
                  SIGNAL(attachmentsCountChanged()) );
+        connect( p->m__Source, SIGNAL(type_Changed()), SIGNAL(typeChanged()) );
+        connect( p->m__Source, SIGNAL(name_Changed()), SIGNAL(nameChanged()) );
+        connect( p->m__Source, SIGNAL(series_Changed()), SIGNAL(seriesChanged()) );
+        connect( p->m__Source, SIGNAL(number_Changed()), SIGNAL(numberChanged()) );
+        connect( p->m__Source, SIGNAL(date_Changed()), SIGNAL(docdateChanged()) );
+        connect( p->m__Source, SIGNAL(expiresDate_Changed()), SIGNAL(docexpiresChanged()) );
     }
     if ( oldDocument != p->m__Source )
     {
@@ -93,11 +106,11 @@ bool QMLDocument::isValid() const
     return (source() != QUuid().toString() );
 }
 
-void QMLDocument::reset()
+void QMLDocument::resetContent()
 {
     if ( p->m__Source == NULL ) return;
 
-    int addedCount = p->m__AddedPages.count();
+    int addedPagesCount = p->m__AddedPages.count();
     foreach (MFCDocumentPage *page, p->m__AddedPages)
         for ( int index = p->m__Source->pages()->count()-1; index > -1; index-- )
             if ( p->m__Source->pages()->getPage( index ) == page )
@@ -107,7 +120,7 @@ void QMLDocument::reset()
                 index = p->m__Source->pages()->count();
                 emit pageRemoved( index );
             }
-    if ( addedCount > 0 ) emit pagesCountChanged();
+    if ( addedPagesCount > 0 ) emit pagesCountChanged();
 }
 
 void QMLDocument::configureScanner()
@@ -117,12 +130,129 @@ void QMLDocument::configureScanner()
     p->configureScanner();
 }
 
-void QMLDocument::addPage()
+void QMLDocument::scanPage()
 {
     if ( p->m__Source == NULL ) return;
 
     p->m__ReplacePage = -1;
     p->doScan();
+}
+
+void QMLDocument::addPage( QUrl path )
+{
+//    qWarning() << path.isValid() << path;
+    if ( p->m__Source == NULL || !path.isValid() ) return;
+
+    p->m__ReplacePage = -1;
+    p->fromFile( path.toLocalFile() );
+}
+
+bool QMLDocument::removablePage( int index )
+{
+    if ( p->m__Source == NULL
+         || index < 0 || index >= p->m__Source->pages()->count() )
+        return false;
+
+    MFCDocumentPage *page = p->m__Source->pages()->getPage( index );
+    return p->m__AddedPages.contains( page );
+}
+
+void QMLDocument::removePage( int index )
+{
+    if ( p->m__Source == NULL
+         || index < 0 || index >= p->m__Source->pages()->count() )
+        return;
+
+    MFCDocumentPage *page = p->m__Source->pages()->getPage( index );
+    if ( !p->m__AddedPages.contains( page ) ) return;
+
+    p->m__AddedPages.removeOne( page );
+    p->m__Source->pages()->removePage( index );
+    emit pageRemoved( index );
+}
+
+QString QMLDocument::type() const
+{
+    if ( p->m__Source == NULL ) return QString();
+
+    return p->m__Source->type();
+}
+
+void QMLDocument::setType( const QString &type )
+{
+    if ( p->m__Source == NULL ) return;
+
+    return p->m__Source->setType( type );
+}
+
+QString QMLDocument::name() const
+{
+    if ( p->m__Source == NULL ) return QString();
+
+    return p->m__Source->name();
+}
+
+void QMLDocument::setName( const QString &name )
+{
+    if ( p->m__Source == NULL ) return;
+
+    return p->m__Source->setName( name );
+}
+
+QString QMLDocument::series() const
+{
+    if ( p->m__Source == NULL ) return QString();
+
+    return p->m__Source->series();
+}
+
+void QMLDocument::setSeries( const QString &series )
+{
+    if ( p->m__Source == NULL ) return;
+
+    return p->m__Source->setSeries( series );
+}
+
+QString QMLDocument::number() const
+{
+    if ( p->m__Source == NULL ) return QString();
+
+    return p->m__Source->number();
+}
+
+void QMLDocument::setNumber( const QString &number )
+{
+    if ( p->m__Source == NULL ) return;
+
+    return p->m__Source->setNumber( number );
+}
+
+QDate QMLDocument::docdate() const
+{
+    if ( p->m__Source == NULL ) return QDate();
+
+    return p->m__Source->date();
+}
+
+void QMLDocument::setDocdate( const QDate &docdate )
+{
+    if ( p->m__Source == NULL ) return;
+
+    return p->m__Source->setDate( docdate );
+}
+
+QDate QMLDocument::docexpires() const
+{
+    if ( p->m__Source == NULL ) return QDate();
+
+    return p->m__Source->expiresDate();
+}
+
+void QMLDocument::setDocexpires( const QDate &docexpires )
+{
+    if ( p->m__Source == NULL ) return;
+
+    return p->m__Source->setExpiresDate( docexpires );
 }
 
 QMLDocument::~QMLDocument()

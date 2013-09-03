@@ -18,7 +18,9 @@ Image {
         id: dataSource
 
         property string source: ""
-        onSourceChanged: qmlDocumentPage.source = dataSource.source
+        onSourceChanged: {
+            qmlDocumentPage.source = dataSource.source
+        }
     }
 
     Connections {
@@ -28,11 +30,12 @@ Image {
     }
 
     function updatePage() {
+        dataSource.source = ""
         if ( qmlDocumentPage.document !== null &&
                 qmlDocumentPage.document.isValid() &&
                  qmlDocumentPage.index > -1 &&
                  qmlDocumentPage.index < qmlDocumentPage.document.pagesCount )
             dataSource.source = qmlDocumentPage.document.page( qmlDocumentPage.index )
-        else dataSource.source = ""
+        qmlDocumentPage.update()
     }
 }

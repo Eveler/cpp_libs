@@ -35,6 +35,12 @@ QPixmap QMLDocumentPageProvider::requestPixmap(
     }
 
     int index = idList.last().toInt( &ok );
+//    if ( index == 1 )
+//    {
+//        qWarning() << "QMLDocumentPageProvider" <<
+//                      "\ndoc->pages()->count()" << doc->pages()->count() <<
+//                      "\ngetPageName" << doc->pages()->getPage( index )->getPageName();
+//    }
     if ( !ok || index < 0 || index >= doc->pages()->count() )
     {
         qWarning() << "QMLDocumentPageProvider error! Level 2:" <<

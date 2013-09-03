@@ -4,7 +4,8 @@
 #include "mcalculationalcolumn.h"
 #include "mcalculationalrow.h"
 #include "mcalculationalmodel.h"
-//#include "mcalculationalrowprivate.h"
+
+#include "amslogger.h"
 
 
 MAbstractRowCalculationAlgorithm::MAbstractRowCalculationAlgorithm( MCalculationalRow *writableRow ) :

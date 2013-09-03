@@ -38,6 +38,7 @@ private:
 
     void configureScanner();
     void doScan();
+    void fromFile( QString path );
 
 
 private slots:
