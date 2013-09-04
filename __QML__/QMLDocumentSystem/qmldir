@@ -1,4 +1,5 @@
 module com.mihail.qmldocumentsystem
 plugin QMLDocumentSystem
 QMLDocumentPage 1.0 QMLDocumentPage.qml
+ElectroDoc 1.0 ElectroDoc.qml
 

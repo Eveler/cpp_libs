@@ -227,32 +227,32 @@ void QMLDocument::setNumber( const QString &number )
     return p->m__Source->setNumber( number );
 }
 
-QDate QMLDocument::docdate() const
+QDateTime QMLDocument::docdate() const
 {
-    if ( p->m__Source == NULL ) return QDate();
+    if ( p->m__Source == NULL ) return QDateTime();
 
-    return p->m__Source->date();
+    return QDateTime( p->m__Source->date() );
 }
 
-void QMLDocument::setDocdate( const QDate &docdate )
+void QMLDocument::setDocdate( const QDateTime &docdate )
 {
     if ( p->m__Source == NULL ) return;
 
-    return p->m__Source->setDate( docdate );
+    return p->m__Source->setDate( docdate.date() );
 }
 
-QDate QMLDocument::docexpires() const
+QDateTime QMLDocument::docexpires() const
 {
-    if ( p->m__Source == NULL ) return QDate();
+    if ( p->m__Source == NULL ) return QDateTime();
 
-    return p->m__Source->expiresDate();
+    return QDateTime( p->m__Source->expiresDate() );
 }
 
-void QMLDocument::setDocexpires( const QDate &docexpires )
+void QMLDocument::setDocexpires( const QDateTime &docexpires )
 {
     if ( p->m__Source == NULL ) return;
 
-    return p->m__Source->setExpiresDate( docexpires );
+    return p->m__Source->setExpiresDate( docexpires.date() );
 }
 
 QMLDocument::~QMLDocument()

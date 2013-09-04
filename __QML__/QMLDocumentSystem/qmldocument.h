@@ -19,8 +19,8 @@ class QMLDocument : public QQuickItem
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(QString series READ series WRITE setSeries NOTIFY seriesChanged)
     Q_PROPERTY(QString number READ number WRITE setNumber NOTIFY numberChanged)
-    Q_PROPERTY(QDate docdate READ docdate WRITE setDocdate NOTIFY docdateChanged)
-    Q_PROPERTY(QDate docexpires READ docexpires WRITE setDocexpires NOTIFY docexpiresChanged)
+    Q_PROPERTY(QDateTime docdate READ docdate WRITE setDocdate NOTIFY docdateChanged)
+    Q_PROPERTY(QDateTime docexpires READ docexpires WRITE setDocexpires NOTIFY docexpiresChanged)
 
 public:
     QMLDocument(QQuickItem *parent = 0);
@@ -58,11 +58,11 @@ public:
     QString number() const;
     void setNumber( const QString &number );
 
-    QDate docdate() const;
-    void setDocdate( const QDate &docdate );
+    QDateTime docdate() const;
+    void setDocdate ( const QDateTime &docdate );
 
-    QDate docexpires() const;
-    void setDocexpires( const QDate &docexpires );
+    QDateTime docexpires() const;
+    void setDocexpires( const QDateTime &docexpires );
 
 
 signals:
