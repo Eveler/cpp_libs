@@ -82,6 +82,14 @@ QString QMLDocumentLoader::document( int index )
     return doc->uuid().toString();
 }
 
+bool QMLDocumentLoader::save()
+{
+    if ( m__Docmanager == NULL ) return false;
+
+    if ( !m__Docmanager->saveDocuments() ) return false;
+    return m__Docmanager->saveDeleteDocuments();
+}
+
 void QMLDocumentLoader::dataTransferProgress( qint64 current,qint64 total )
 {
     m__DataTransferProgress = (int)((qreal)current/(qreal)total*100.);
