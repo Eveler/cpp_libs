@@ -16,6 +16,8 @@ class User : public QObject
 
 public:
     explicit User( UserList *parent = 0 );
+    explicit User( UserList *parent, const User &other );
+    explicit User( UserList *parent, User *link );
     ~User();
 
 
@@ -26,6 +28,7 @@ public slots:
 
 
 private:
+    void resetIndex();
 };
 
 QML_DECLARE_TYPE(User)

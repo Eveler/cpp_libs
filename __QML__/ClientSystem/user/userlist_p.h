@@ -3,14 +3,24 @@
 
 #include <QThread>
 
+#include <QHash>
+
+
+class UserList;
+class User;
+
 class UserList_P : public QThread
 {
     Q_OBJECT
+    friend class UserList;
+
+
 public:
-    explicit UserList_P(QObject *parent = 0);
 
 
 signals:
+    void sendError( QString errorText );
+    void sendUser( User *user );
 
 
 public slots:
@@ -21,8 +31,16 @@ protected:
 
 
 private:
-    int operationId;
-    int opInThread;
+    int m__ErrorLastId;
+    QHash<int, QString> m__Errors;
+    QString m__ConnectionName;
+    QList<User *> m__Users;
+
+    explicit UserList_P( UserList *parent );
+    ~UserList_P();
+
+    UserList * p_dptr() const;
+
 };
 
 #endif // USERLIST_P_H

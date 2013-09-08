@@ -8,7 +8,24 @@ User::User( UserList *parent ) :
 {
 }
 
+User::User( UserList *parent, const User &other ) :
+    QObject(parent)
+{
+
+}
+
+User::User( UserList *parent, User *link ) :
+    QObject(parent)
+{
+
+}
+
 User::~User()
+{
+
+}
+
+void User::resetIndex()
 {
 
 }

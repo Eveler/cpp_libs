@@ -18,7 +18,7 @@ public:
     UserList(QObject *parent = 0);
     ~UserList();
 
-    Q_INVOKABLE QString error( int operationId ) const;
+    Q_INVOKABLE QString error( int errorId ) const;
 
     const QString & connectionName() const;
     bool setConnectionName( const QString &connectionName ) const;
@@ -27,11 +27,25 @@ public:
 
     int count() const;
 
+    Q_INVOKABLE User * user( int index ) const;
+
 
 signals:
-    void lastError( int operationId );
-    void connectionNameChanged();
-    void countChanged();
+    void errorAdded( int errorId ) const;
+    void connectionNameChanged() const;
+    void countChanged() const;
+    void userAdded( User *user ) const;
+    void userRemoved( int index ) const;
+
+
+private:
+    UserList_P *p;
+
+
+private slots:
+    void receivedError( QString errorText ) const;
+    void receivedUser( User *user ) const;
+    void userDestroyed();
 };
 
 QML_DECLARE_TYPE(UserList)

@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = ClientSystem
-QT += qml quick
+QT += qml quick sql
 CONFIG += qt plugin
 
 TARGET = $$qtLibraryTarget($$TARGET)
