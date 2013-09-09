@@ -20,6 +20,8 @@ public:
     explicit User( UserList *parent, User *link );
     ~User();
 
+    Q_INVOKABLE UserList * userList() const;
+
 
 signals:
 

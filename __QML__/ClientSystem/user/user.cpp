@@ -25,6 +25,11 @@ User::~User()
 
 }
 
+UserList * User::userList() const
+{
+    return qobject_cast<UserList *>( parent() );
+}
+
 void User::resetIndex()
 {
 
