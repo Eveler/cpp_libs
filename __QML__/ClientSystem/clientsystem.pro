@@ -11,13 +11,17 @@ SOURCES += \
     clientsystem_plugin.cpp \
     user/userlist.cpp \
     user/user.cpp \
-    user/userlist_p.cpp
+    user/userlist_p.cpp \
+    user/user_p.cpp \
+    user/userinfo.cpp
 
 HEADERS += \
     clientsystem_plugin.h \
     user/userlist.h \
     user/user.h \
-    user/userlist_p.h
+    user/userlist_p.h \
+    user/user_p.h \
+    user/userinfo.h
 
 OTHER_FILES = qmldir
 

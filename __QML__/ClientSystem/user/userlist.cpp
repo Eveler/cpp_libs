@@ -88,6 +88,11 @@ User * UserList::user( int index ) const
     return p->m__Users[index];
 }
 
+int UserList::userIndex( User *user ) const
+{
+    return p->m__Users.indexOf( user );
+}
+
 void UserList::receivedError( QString errorText ) const
 {
     int errorId = p->m__ErrorLastId++;

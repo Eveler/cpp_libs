@@ -28,6 +28,7 @@ public:
     int count() const;
 
     Q_INVOKABLE User * user( int index ) const;
+    Q_INVOKABLE int userIndex( User *user ) const;
 
 
 signals:
