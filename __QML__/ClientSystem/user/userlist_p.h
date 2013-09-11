@@ -3,11 +3,10 @@
 
 #include <QThread>
 
+#include "userlist.h"
+
 #include <QHash>
 
-
-class UserList;
-class User;
 
 class UserList_P : public QThread
 {
@@ -20,7 +19,7 @@ public:
 
 signals:
     void sendError( QString errorText );
-    void sendUser( User *user );
+    void sendUserInfo( UserInfo );
 
 
 public slots:
@@ -31,6 +30,7 @@ protected:
 
 
 private:
+    bool m__Successfully;
     int m__ErrorLastId;
     QHash<int, QString> m__Errors;
     QString m__ConnectionName;

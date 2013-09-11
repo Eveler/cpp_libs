@@ -18,6 +18,9 @@ class User : public QObject, public UserInfo
     friend class UserList;
     Q_PROPERTY(int index READ index NOTIFY indexChanged)
     Q_PROPERTY(QVariant identifier READ identifier WRITE setIdentifier NOTIFY identifierChanged)
+    Q_PROPERTY(QString surname READ surname WRITE setSurname NOTIFY surnameChanged)
+    Q_PROPERTY(QString firstname READ firstname WRITE setFirstname NOTIFY firstnameChanged)
+    Q_PROPERTY(QString lastname READ lastname WRITE setLastname NOTIFY lastnameChanged)
 
 
 public:
@@ -30,12 +33,25 @@ public:
 
     int index() const;
 
+    QVariant identifier() const;
     void setIdentifier( QVariant identifier );
+
+    const QString & surname() const;
+    void setSurname(  const QString &surname );
+
+    const QString & firstname() const;
+    void setFirstname(  const QString &firstname );
+
+    const QString & lastname() const;
+    void setLastname(  const QString &lastname );
 
 
 signals:
     void indexChanged();
     void identifierChanged();
+    void surnameChanged();
+    void firstnameChanged();
+    void lastnameChanged();
 
 
 public slots:

@@ -22,6 +22,9 @@ public slots:
 
 
 private:
+    User *m__Link;
+    QString m__NullString;
+
     explicit User_P( User *parent );
 
     User *p_dptr() const;

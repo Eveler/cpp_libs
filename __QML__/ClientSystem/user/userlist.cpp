@@ -15,6 +15,10 @@ UserList::UserList(QObject *parent):
     // setFlag(ItemHasContents, true);
 
     p = new UserList_P( this );
+    connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
+//    timer = new QTimer( this );
+//    connect( timer, SIGNAL(timeout()), SLOT(timerFinished()) );
+    loop = new QEventLoop( this );
 }
 
 UserList::~UserList()
@@ -73,7 +77,7 @@ bool UserList::load() const
     }
 
     p->start();
-    return true;
+    return ( loop->exec() == 0 );
 }
 
 int UserList::count() const
@@ -93,6 +97,15 @@ int UserList::userIndex( User *user ) const
     return p->m__Users.indexOf( user );
 }
 
+//void UserList::timerFinished()
+//{
+//}
+
+void UserList::threadFinished()
+{
+    loop->exit( ( p->m__Successfully ? 0 : 1 ) );
+}
+
 void UserList::receivedError( QString errorText ) const
 {
     int errorId = p->m__ErrorLastId++;
@@ -100,11 +113,9 @@ void UserList::receivedError( QString errorText ) const
     emit errorAdded( errorId );
 }
 
-void UserList::receivedUser( User *user ) const
+void UserList::receivedUserInfo( UserInfo userInfo ) const
 {
-    User *newUser = new User( p->p_dptr(), user );
-    delete user;
-    user = NULL;
+    User *newUser = new User( p->p_dptr(), userInfo );
     p->m__Users << newUser;
     connect( newUser, SIGNAL(destroyed()), SLOT(userDestroyed()) );
     emit userAdded( newUser );

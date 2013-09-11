@@ -41,11 +41,15 @@ signals:
 
 private:
     UserList_P *p;
+//    QTimer *timer;
+    QEventLoop *loop;
 
 
 private slots:
+//    void timerFinished();
+    void threadFinished();
     void receivedError( QString errorText ) const;
-    void receivedUser( User *user ) const;
+    void receivedUserInfo( UserInfo userInfo ) const;
     void userDestroyed();
 };
 

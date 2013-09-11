@@ -2,7 +2,9 @@
 
 
 User_P::User_P(User *parent) :
-    QObject(parent)
+    QObject(parent),
+    m__Link(NULL),
+    m__NullString(QString())
 {
 }
 
