@@ -1,39 +1,38 @@
 #ifndef USERLIST_H
 #define USERLIST_H
 
-#include "user.h"
+#include <QObject>
+
+#include "userinfo.h"
+
+#include <QtQml>
 
 
 class UserList_P;
+class UserLoader;
+class User;
 
 class UserList : public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY(UserList)
-    Q_PROPERTY(QString connectionName READ connectionName
-               WRITE setConnectionName NOTIFY connectionNameChanged)
     Q_PROPERTY(int count READ count NOTIFY countChanged)
+    friend class UserLoader;
+
 
 public:
     UserList(QObject *parent = 0);
     ~UserList();
 
-    Q_INVOKABLE QString error( int errorId ) const;
-
-    const QString & connectionName() const;
-    bool setConnectionName( const QString &connectionName ) const;
-
-    Q_INVOKABLE bool load() const;
-
     int count() const;
+    Q_INVOKABLE void clear() const;
 
     Q_INVOKABLE User * user( int index ) const;
     Q_INVOKABLE int userIndex( User *user ) const;
+    Q_INVOKABLE User * addLink( User *link ) const;
 
 
 signals:
-    void errorAdded( int errorId ) const;
-    void connectionNameChanged() const;
     void countChanged() const;
     void userAdded( User *user ) const;
     void userRemoved( int index ) const;
@@ -41,14 +40,9 @@ signals:
 
 private:
     UserList_P *p;
-//    QTimer *timer;
-    QEventLoop *loop;
 
 
 private slots:
-//    void timerFinished();
-    void threadFinished();
-    void receivedError( QString errorText ) const;
     void receivedUserInfo( UserInfo userInfo ) const;
     void userDestroyed();
 };

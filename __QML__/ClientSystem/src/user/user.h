@@ -21,12 +21,18 @@ class User : public QObject, public UserInfo
     Q_PROPERTY(QString surname READ surname WRITE setSurname NOTIFY surnameChanged)
     Q_PROPERTY(QString firstname READ firstname WRITE setFirstname NOTIFY firstnameChanged)
     Q_PROPERTY(QString lastname READ lastname WRITE setLastname NOTIFY lastnameChanged)
+    Q_PROPERTY(int post READ post WRITE setPost NOTIFY postChanged)
+    Q_PROPERTY(int department READ department WRITE setDepartment NOTIFY departmentChanged)
+    Q_PROPERTY(bool isactive READ isactive WRITE setIsactive NOTIFY isactiveChanged)
+    Q_PROPERTY(bool dismissed READ dismissed WRITE setDismissed NOTIFY dismissedChanged)
+    Q_PROPERTY(QString dblogin READ dblogin WRITE setDblogin NOTIFY dbloginChanged)
+    Q_PROPERTY(int direction READ direction WRITE setDirection NOTIFY directionChanged)
 
 
 public:
-    explicit User( UserList *parent = 0 );
-    explicit User( UserList *parent, const UserInfo &info );
-    explicit User( UserList *parent, User *link );
+    User( UserList *parent = 0 );
+    User( UserList *parent, const UserInfo &info );
+    User( UserList *parent, User *link );
     ~User();
 
     Q_INVOKABLE UserList * userList() const;
@@ -45,6 +51,24 @@ public:
     const QString & lastname() const;
     void setLastname(  const QString &lastname );
 
+    int post() const;
+    void setPost( int post );
+
+    int department() const;
+    void setDepartment( int department );
+
+    bool isactive() const;
+    void setIsactive( bool isactive );
+
+    bool dismissed() const;
+    void setDismissed( bool dismissed );
+
+    const QString & dblogin() const;
+    void setDblogin( const QString &dblogin );
+
+    int direction() const;
+    void setDirection( int direction );
+
 
 signals:
     void indexChanged();
@@ -52,6 +76,12 @@ signals:
     void surnameChanged();
     void firstnameChanged();
     void lastnameChanged();
+    void postChanged();
+    void departmentChanged();
+    void isactiveChanged();
+    void dismissedChanged();
+    void dbloginChanged();
+    void directionChanged();
 
 
 public slots:
@@ -59,8 +89,6 @@ public slots:
 
 private:
     User_P *p;
-
-    void resetIndex();
 };
 
 QML_DECLARE_TYPE(User)

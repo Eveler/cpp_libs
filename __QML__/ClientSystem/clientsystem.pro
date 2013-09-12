@@ -7,21 +7,45 @@ TARGET = $$qtLibraryTarget($$TARGET)
 uri = com.mihail.clientsystem
 
 # Input
+INCLUDEPATH += src/
+
 SOURCES += \
     clientsystem_plugin.cpp \
-    user/userlist.cpp \
-    user/user.cpp \
-    user/userlist_p.cpp \
-    user/user_p.cpp \
-    user/userinfo.cpp
+    src/user/userlist.cpp \
+    src/user/user.cpp \
+    src/user/userlist_p.cpp \
+    src/user/user_p.cpp \
+    src/user/userinfo.cpp \
+    src/user/userloader.cpp \
+    src/user/userloader_p.cpp \
+    src/procedure/procedureinfo.cpp \
+    src/procedure/procedure.cpp \
+    src/procedure/procedure_p.cpp \
+    src/procedure/procedurelist.cpp \
+    src/procedure/procedurelist_p.cpp \
+    src/procedure/procedureloader.cpp \
+    src/procedure/procedureloader_p.cpp \
+    src/recipient/recipientinfo.cpp \
+    src/recipient/recipient.cpp
 
 HEADERS += \
     clientsystem_plugin.h \
-    user/userlist.h \
-    user/user.h \
-    user/userlist_p.h \
-    user/user_p.h \
-    user/userinfo.h
+    src/user/userlist.h \
+    src/user/user.h \
+    src/user/userlist_p.h \
+    src/user/user_p.h \
+    src/user/userinfo.h \
+    src/user/userloader.h \
+    src/user/userloader_p.h \
+    src/procedure/procedureinfo.h \
+    src/procedure/procedure.h \
+    src/procedure/procedure_p.h \
+    src/procedure/procedurelist.h \
+    src/procedure/procedurelist_p.h \
+    src/procedure/procedureloader.h \
+    src/procedure/procedureloader_p.h \
+    src/recipient/recipientinfo.h \
+    src/recipient/recipient.h
 
 OTHER_FILES = qmldir
 
@@ -48,4 +72,17 @@ installPath = $$[QT_INSTALL_QML]/$$replace(uri, \\., /)
 qmldir.path = $$installPath
 target.path = $$installPath
 INSTALLS += target qmldir
+}
+
+CONFIG(release, debug|release){
+  OBJECTS_DIR = ./temp/$$TARGET/release
+  MOC_DIR = ./temp/$$TARGET/release
+  RCC_DIR = ./temp/$$TARGET/release
+  UI_DIR = ./temp/$$TARGET/release
+}
+CONFIG(debug, debug|release){
+  OBJECTS_DIR = ./temp/$$TARGET/debug
+  MOC_DIR = ./temp/$$TARGET/debug
+  RCC_DIR = ./temp/$$TARGET/debug
+  UI_DIR = ./temp/$$TARGET/debug
 }

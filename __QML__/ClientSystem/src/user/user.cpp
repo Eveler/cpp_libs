@@ -3,6 +3,7 @@
 #include "user_p.h"
 #include "userlist.h"
 
+
 #define INFO_REF UserInfo *info = static_cast<UserInfo *>( p->p_dptr() );
 
 User::User( UserList *parent ) :
@@ -130,7 +131,128 @@ void User::setLastname( const QString &lastname )
     emit lastnameChanged();
 }
 
-void User::resetIndex()
+int User::post() const
 {
+    if ( parent() == NULL ) return -1;
 
+    INFO_REF
+
+    if ( p->m__Link != NULL ) return p->m__Link->post();
+    return info->post();
+}
+
+void User::setPost( int post )
+{
+    if ( parent() == NULL ) return;
+
+    INFO_REF
+
+    if ( p->m__Link != NULL ) p->m__Link->setPost( post );
+    else info->setPost( post );
+    emit postChanged();
+}
+
+int User::department() const
+{
+    if ( parent() == NULL ) return -1;
+
+    INFO_REF
+
+    if ( p->m__Link != NULL ) return p->m__Link->department();
+    return info->department();
+}
+
+void User::setDepartment( int department )
+{
+    if ( parent() == NULL ) return;
+
+    INFO_REF
+
+    if ( p->m__Link != NULL ) p->m__Link->setDepartment( department );
+    else info->setDepartment( department );
+    emit departmentChanged();
+}
+
+bool User::isactive() const
+{
+    if ( parent() == NULL ) return -1;
+
+    INFO_REF
+
+    if ( p->m__Link != NULL ) return p->m__Link->isactive();
+    return info->isactive();
+}
+
+void User::setIsactive( bool isactive )
+{
+    if ( parent() == NULL ) return;
+
+    INFO_REF
+
+    if ( p->m__Link != NULL ) p->m__Link->setIsactive( isactive );
+    else info->setIsactive( isactive );
+    emit isactiveChanged();
+}
+
+bool User::dismissed() const
+{
+    if ( parent() == NULL ) return -1;
+
+    INFO_REF
+
+    if ( p->m__Link != NULL ) return p->m__Link->dismissed();
+    return info->dismissed();
+}
+
+void User::setDismissed( bool dismissed )
+{
+    if ( parent() == NULL ) return;
+
+    INFO_REF
+
+    if ( p->m__Link != NULL ) p->m__Link->setDismissed( dismissed );
+    else info->setDismissed( dismissed );
+    emit dismissedChanged();
+}
+
+const QString & User::dblogin() const
+{
+    if ( parent() == NULL ) return p->m__NullString;
+
+    INFO_REF
+
+    if ( p->m__Link != NULL ) return p->m__Link->dblogin();
+    return info->dblogin();
+}
+
+void User::setDblogin( const QString &dblogin )
+{
+    if ( parent() == NULL ) return;
+
+    INFO_REF
+
+    if ( p->m__Link != NULL ) p->m__Link->setDblogin( dblogin );
+    else info->setDblogin( dblogin );
+    emit dbloginChanged();
+}
+
+int User::direction() const
+{
+    if ( parent() == NULL ) return -1;
+
+    INFO_REF
+
+    if ( p->m__Link != NULL ) return p->m__Link->direction();
+    return info->direction();
+}
+
+void User::setDirection( int direction )
+{
+    if ( parent() == NULL ) return;
+
+    INFO_REF
+
+    if ( p->m__Link != NULL ) p->m__Link->setDirection( direction );
+    else info->setDirection( direction );
+    emit directionChanged();
 }

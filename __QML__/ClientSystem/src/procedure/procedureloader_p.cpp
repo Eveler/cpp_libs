@@ -1,4 +1,4 @@
-#include "userlist_p.h"
+#include "procedureloader_p.h"
 
 #include <QSqlDatabase>
 #include <QSqlError>
@@ -7,7 +7,7 @@
 #include <QSqlField>
 
 
-void UserList_P::run()
+void ProcedureLoader_P::run()
 {
     m__Successfully = true;
     QSqlDatabase db = QSqlDatabase::database( p_dptr()->connectionName() );
@@ -30,8 +30,8 @@ void UserList_P::run()
         return;
     }
     QSqlQuery qry( db );
-    if ( !qry.exec( tr( "SELECT id AS identifier, surname, aname AS firstname,"
-                        " lastname FROM users ORDER BY surname, aname, lastname" ) ) )
+    if ( !qry.exec( tr( "SELECT proc_id AS identifier, proc_name AS name"
+                        " FROM proc_tbl ORDER BY proc_name" ) ) )
     {
         m__Successfully = false;
         emit sendError( tr( "Query error:\n%1" ).arg( qry.lastError().text() ) );
@@ -39,34 +39,31 @@ void UserList_P::run()
     }
     while ( qry.next() )
     {
-        UserInfo info;
+        ProcedureInfo info;
         info.setIdentifier( qry.record().value( tr( "identifier" ) ) );
-        info.setSurname( qry.record().value( tr( "surname" ) ).toString() );
-        info.setFirstname( qry.record().value( tr( "firstname" ) ).toString() );
-        info.setLastname( qry.record().value( tr( "lastname" ) ).toString() );
-        emit sendUserInfo( info );
+        info.setName( qry.record().value( tr( "name" ) ).toString() );
+        emit sendProcedureInfo( info );
     }
 }
 
-UserList_P::UserList_P( UserList *parent ) :
+ProcedureLoader_P::ProcedureLoader_P( ProcedureLoader *parent ) :
     QThread(parent),
     m__Successfully(true),
     m__ErrorLastId(-1),
     m__Errors(QHash<int, QString>()),
     m__ConnectionName(QString()),
-    m__Users(QList<User *>())
+    m__Source(NULL)
 {
     connect( this, SIGNAL(sendError(QString)), parent, SLOT(receivedError(QString)) );
-    qRegisterMetaType<UserInfo>( "UserInfo" );
-    connect( this, SIGNAL(sendUserInfo(UserInfo)), parent, SLOT(receivedUserInfo(UserInfo)) );
+    qRegisterMetaType<ProcedureInfo>("ProcedureInfo");
 }
 
-UserList_P::~UserList_P()
+ProcedureLoader_P::~ProcedureLoader_P()
 {
+    m__Source = NULL;
 }
 
-UserList * UserList_P::p_dptr() const
+ProcedureLoader * ProcedureLoader_P::p_dptr() const
 {
-    return qobject_cast<UserList *>( parent() );
+    return qobject_cast<ProcedureLoader *>( parent() );
 }
-
