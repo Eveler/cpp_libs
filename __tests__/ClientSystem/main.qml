@@ -22,7 +22,9 @@ ApplicationWindow {
     UserList {
         id: userList
 
-        onCountChanged: console.debug(
+        onCountChanged: {
+            if ( count > 0 )
+                console.debug(
                             user( count-1 ).index+" : ["+
                             user( count-1 ).identifier+", "+
                             user( count-1 ).surname+", "+
@@ -34,6 +36,7 @@ ApplicationWindow {
                             user( count-1 ).dismissed+", "+
                             user( count-1 ).dblogin+", "+
                             user( count-1 ).direction+"]" )
+        }
     }
 
     ProcedureLoader {
@@ -49,10 +52,79 @@ ApplicationWindow {
     ProcedureList {
         id: procedureList
 
-        onCountChanged: console.debug(
+        onCountChanged: {
+            if ( count > 0 )
+                console.debug(
                             procedure( count-1 ).index+" : ["+
                             procedure( count-1 ).identifier+", "+
                             procedure( count-1 ).name+"]" )
+        }
+    }
+
+    RecipientLoader {
+        id: recipientLoader
+
+        source: recipientList
+
+        onErrorAdded: {
+            console.debug( error( errorId ) )
+        }
+    }
+
+    RecipientList {
+        id: recipientList
+
+        onCountChanged: {
+            if ( count > 0 )
+                console.debug(
+                            recipient( count-1 ).index+" : ["+
+                            recipient( count-1 ).identifier+", "+
+                            recipient( count-1 ).name+"]" )
+        }
+    }
+
+    DepartmentLoader {
+        id: departmentLoader
+
+        source: departmentList
+
+        onErrorAdded: {
+            console.debug( error( errorId ) )
+        }
+    }
+
+    DepartmentList {
+        id: departmentList
+
+        onCountChanged: {
+            if ( count > 0 )
+                console.debug(
+                            department( count-1 ).index+" : ["+
+                            department( count-1 ).identifier+", "+
+                            department( count-1 ).name+"]" )
+        }
+    }
+
+    DoctypeLoader {
+        id: doctypeLoader
+
+        source: doctypeList
+
+        onErrorAdded: {
+            console.debug( error( errorId ) )
+        }
+    }
+
+    DoctypeList {
+        id: doctypeList
+
+        onCountChanged: {
+            if ( count > 0 )
+                console.debug(
+                            doctype( count-1 ).index+" : ["+
+                            doctype( count-1 ).identifier+", "+
+                            doctype( count-1 ).name+"]" )
+        }
     }
 
 
@@ -65,19 +137,23 @@ ApplicationWindow {
             text: "Загрузка"
 
             onClicked: {
-                while ( loadstatuses.count > 0 ) loadstatuses.remove( 0 )
                 progress.value = 0
-                progress.max = 2
+                progress.max = 5
                 progress.animated = true
 
-                loadstatuses.append( {"statusText": "Пользователи"} )
-                console.debug( "userLoader: "+userLoader.load() )
-                progress.value++
-                loadstatuses.remove( 0 )
-                loadstatuses.append( {"statusText": "Наименования действий/процедур"} )
-                console.debug( "procedureLoader: "+procedureLoader.load() )
-                progress.value++
+                nextStatus( "Пользователи", userLoader )
+                nextStatus( "Наименования действий/процедур", procedureLoader )
+                nextStatus( "Наименования адресатов", recipientLoader )
+                nextStatus( "Наименования местонахождений", departmentLoader )
+                nextStatus( "Наименования документов", doctypeLoader )
                 progress.animated = false
+            }
+
+            function nextStatus( statusText, guideLoader ) {
+                while ( loadstatuses.count > 0 ) loadstatuses.remove( 0 )
+                loadstatuses.append( {"statusText": statusText} )
+                console.debug( statusText+": "+guideLoader.load() )
+                progress.value++
             }
         }
     }

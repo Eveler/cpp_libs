@@ -26,7 +26,26 @@ SOURCES += \
     src/procedure/procedureloader.cpp \
     src/procedure/procedureloader_p.cpp \
     src/recipient/recipientinfo.cpp \
-    src/recipient/recipient.cpp
+    src/recipient/recipient.cpp \
+    src/recipient/recipient_p.cpp \
+    src/recipient/recipientlist.cpp \
+    src/recipient/recipientlist_p.cpp \
+    src/recipient/recipientloader.cpp \
+    src/recipient/recipientloader_p.cpp \
+    src/department/departmentloader_p.cpp \
+    src/department/departmentloader.cpp \
+    src/department/departmentlist_p.cpp \
+    src/department/departmentlist.cpp \
+    src/department/departmentinfo.cpp \
+    src/department/department_p.cpp \
+    src/department/department.cpp \
+    src/doctype/doctypeloader_p.cpp \
+    src/doctype/doctypeloader.cpp \
+    src/doctype/doctypelist_p.cpp \
+    src/doctype/doctypelist.cpp \
+    src/doctype/doctypeinfo.cpp \
+    src/doctype/doctype_p.cpp \
+    src/doctype/doctype.cpp
 
 HEADERS += \
     clientsystem_plugin.h \
@@ -45,7 +64,26 @@ HEADERS += \
     src/procedure/procedureloader.h \
     src/procedure/procedureloader_p.h \
     src/recipient/recipientinfo.h \
-    src/recipient/recipient.h
+    src/recipient/recipient.h \
+    src/recipient/recipient_p.h \
+    src/recipient/recipientlist.h \
+    src/recipient/recipientlist_p.h \
+    src/recipient/recipientloader.h \
+    src/recipient/recipientloader_p.h \
+    src/department/departmentloader_p.h \
+    src/department/departmentloader.h \
+    src/department/departmentlist_p.h \
+    src/department/departmentlist.h \
+    src/department/departmentinfo.h \
+    src/department/department_p.h \
+    src/department/department.h \
+    src/doctype/doctypeloader_p.h \
+    src/doctype/doctypeloader.h \
+    src/doctype/doctypelist_p.h \
+    src/doctype/doctypelist.h \
+    src/doctype/doctypeinfo.h \
+    src/doctype/doctype_p.h \
+    src/doctype/doctype.h
 
 OTHER_FILES = qmldir
 

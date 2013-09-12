@@ -1,33 +1,33 @@
-#ifndef RECIPIENT_H
-#define RECIPIENT_H
+#ifndef DOCTYPE_H
+#define DOCTYPE_H
 
 #include <QObject>
 
-#include "recipientinfo.h"
+#include "doctypeinfo.h"
 
 #include <QtQml>
 
 
-class Recipient_P;
-class RecipientList;
+class Doctype_P;
+class DoctypeList;
 
-class Recipient : public QObject, public RecipientInfo
+class Doctype : public QObject, public DoctypeInfo
 {
     Q_OBJECT
-    Q_DISABLE_COPY(Recipient)
-    friend class RecipientList;
+    Q_DISABLE_COPY(Doctype)
+    friend class DoctypeList;
     Q_PROPERTY(int index READ index NOTIFY indexChanged)
     Q_PROPERTY(QVariant identifier READ identifier WRITE setIdentifier NOTIFY identifierChanged)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
 
 
 public:
-    Recipient( RecipientList *parent = 0 );
-    Recipient( RecipientList *parent, const RecipientInfo &info );
-    Recipient( RecipientList *parent, Recipient *link );
-    ~Recipient();
+    Doctype( DoctypeList *parent = 0 );
+    Doctype( DoctypeList *parent, const DoctypeInfo &info );
+    Doctype( DoctypeList *parent, Doctype *link );
+    ~Doctype();
 
-    Q_INVOKABLE RecipientList * recipientList() const;
+    Q_INVOKABLE DoctypeList * doctypeList() const;
 
     int index() const;
 
@@ -48,9 +48,9 @@ public slots:
 
 
 private:
-    Recipient_P *p;
+    Doctype_P *p;
 };
 
-QML_DECLARE_TYPE(Recipient)
+QML_DECLARE_TYPE(Doctype)
 
-#endif // RECIPIENT_H
+#endif // DOCTYPE_H

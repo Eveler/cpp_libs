@@ -1,33 +1,33 @@
-#ifndef RECIPIENT_H
-#define RECIPIENT_H
+#ifndef DEPARTMENT_H
+#define DEPARTMENT_H
 
 #include <QObject>
 
-#include "recipientinfo.h"
+#include "departmentinfo.h"
 
 #include <QtQml>
 
 
-class Recipient_P;
-class RecipientList;
+class Department_P;
+class DepartmentList;
 
-class Recipient : public QObject, public RecipientInfo
+class Department : public QObject, public DepartmentInfo
 {
     Q_OBJECT
-    Q_DISABLE_COPY(Recipient)
-    friend class RecipientList;
+    Q_DISABLE_COPY(Department)
+    friend class DepartmentList;
     Q_PROPERTY(int index READ index NOTIFY indexChanged)
     Q_PROPERTY(QVariant identifier READ identifier WRITE setIdentifier NOTIFY identifierChanged)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
 
 
 public:
-    Recipient( RecipientList *parent = 0 );
-    Recipient( RecipientList *parent, const RecipientInfo &info );
-    Recipient( RecipientList *parent, Recipient *link );
-    ~Recipient();
+    Department( DepartmentList *parent = 0 );
+    Department( DepartmentList *parent, const DepartmentInfo &info );
+    Department( DepartmentList *parent, Department *link );
+    ~Department();
 
-    Q_INVOKABLE RecipientList * recipientList() const;
+    Q_INVOKABLE DepartmentList * departmentList() const;
 
     int index() const;
 
@@ -48,9 +48,9 @@ public slots:
 
 
 private:
-    Recipient_P *p;
+    Department_P *p;
 };
 
-QML_DECLARE_TYPE(Recipient)
+QML_DECLARE_TYPE(Department)
 
-#endif // RECIPIENT_H
+#endif // DEPARTMENT_H

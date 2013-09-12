@@ -1,7 +1,7 @@
 #ifndef PROCEDURELOADER_P_H
 #define PROCEDURELOADER_P_H
 
-#include <QObject>
+#include <QThread>
 
 #include "procedureloader.h"
 #include "procedurelist.h"
