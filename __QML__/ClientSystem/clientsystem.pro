@@ -45,7 +45,21 @@ SOURCES += \
     src/doctype/doctypelist.cpp \
     src/doctype/doctypeinfo.cpp \
     src/doctype/doctype_p.cpp \
-    src/doctype/doctype.cpp
+    src/doctype/doctype.cpp \
+    src/callstatus/callstatusloader_p.cpp \
+    src/callstatus/callstatusloader.cpp \
+    src/callstatus/callstatuslist_p.cpp \
+    src/callstatus/callstatuslist.cpp \
+    src/callstatus/callstatusinfo.cpp \
+    src/callstatus/callstatus_p.cpp \
+    src/callstatus/callstatus.cpp \
+    src/human/humanloader_p.cpp \
+    src/human/humanloader.cpp \
+    src/human/humanlist_p.cpp \
+    src/human/humanlist.cpp \
+    src/human/humaninfo.cpp \
+    src/human/human_p.cpp \
+    src/human/human.cpp
 
 HEADERS += \
     clientsystem_plugin.h \
@@ -83,7 +97,21 @@ HEADERS += \
     src/doctype/doctypelist.h \
     src/doctype/doctypeinfo.h \
     src/doctype/doctype_p.h \
-    src/doctype/doctype.h
+    src/doctype/doctype.h \
+    src/callstatus/callstatusloader_p.h \
+    src/callstatus/callstatusloader.h \
+    src/callstatus/callstatuslist_p.h \
+    src/callstatus/callstatuslist.h \
+    src/callstatus/callstatusinfo.h \
+    src/callstatus/callstatus_p.h \
+    src/callstatus/callstatus.h \
+    src/human/humanloader_p.h \
+    src/human/humanloader.h \
+    src/human/humanlist_p.h \
+    src/human/humanlist.h \
+    src/human/humaninfo.h \
+    src/human/human_p.h \
+    src/human/human.h
 
 OTHER_FILES = qmldir
 

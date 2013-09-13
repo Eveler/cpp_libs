@@ -19,6 +19,14 @@
 #include "doctype/doctype.h"
 #include "doctype/doctypelist.h"
 #include "doctype/doctypeloader.h"
+/// ============================================================================
+#include "callstatus/callstatus.h"
+#include "callstatus/callstatuslist.h"
+#include "callstatus/callstatusloader.h"
+/// ============================================================================
+#include "human/human.h"
+#include "human/humanlist.h"
+#include "human/humanloader.h"
 
 #include <qqml.h>
 
@@ -42,15 +50,25 @@ void ClientSystemPlugin::registerTypes(const char *uri)
     qmlRegisterType<RecipientList>(uri, 1, 0, "RecipientList");
     qmlRegisterType<RecipientLoader>(uri, 1, 0, "RecipientLoader");
 
-    /// About department
+    /// About departments
     qmlRegisterType<Department>(uri, 1, 0, "Department");
     qmlRegisterType<DepartmentList>(uri, 1, 0, "DepartmentList");
     qmlRegisterType<DepartmentLoader>(uri, 1, 0, "DepartmentLoader");
 
-    /// About doctype
+    /// About doctypes
     qmlRegisterType<Doctype>(uri, 1, 0, "Doctype");
     qmlRegisterType<DoctypeList>(uri, 1, 0, "DoctypeList");
     qmlRegisterType<DoctypeLoader>(uri, 1, 0, "DoctypeLoader");
+
+    /// About callstatuses
+    qmlRegisterType<Callstatus>(uri, 1, 0, "Callstatus");
+    qmlRegisterType<CallstatusList>(uri, 1, 0, "CallstatusList");
+    qmlRegisterType<CallstatusLoader>(uri, 1, 0, "CallstatusLoader");
+
+    /// About humans
+    qmlRegisterType<Human>(uri, 1, 0, "Human");
+    qmlRegisterType<HumanList>(uri, 1, 0, "HumanList");
+    qmlRegisterType<HumanLoader>(uri, 1, 0, "HumanLoader");
 }
 
 

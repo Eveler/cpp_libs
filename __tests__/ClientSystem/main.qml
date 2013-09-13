@@ -21,22 +21,6 @@ ApplicationWindow {
 
     UserList {
         id: userList
-
-        onCountChanged: {
-            if ( count > 0 )
-                console.debug(
-                            user( count-1 ).index+" : ["+
-                            user( count-1 ).identifier+", "+
-                            user( count-1 ).surname+", "+
-                            user( count-1 ).firstname+", "+
-                            user( count-1 ).lastname+", "+
-                            user( count-1 ).post+", "+
-                            user( count-1 ).department+", "+
-                            user( count-1 ).isactive+", "+
-                            user( count-1 ).dismissed+", "+
-                            user( count-1 ).dblogin+", "+
-                            user( count-1 ).direction+"]" )
-        }
     }
 
     ProcedureLoader {
@@ -52,13 +36,13 @@ ApplicationWindow {
     ProcedureList {
         id: procedureList
 
-        onCountChanged: {
-            if ( count > 0 )
-                console.debug(
-                            procedure( count-1 ).index+" : ["+
-                            procedure( count-1 ).identifier+", "+
-                            procedure( count-1 ).name+"]" )
-        }
+//        onCountChanged: {
+//            if ( count > 0 )
+//                console.debug(
+//                            procedure( count-1 ).index+" : ["+
+//                            procedure( count-1 ).identifier+", "+
+//                            procedure( count-1 ).name+"]" )
+//        }
     }
 
     RecipientLoader {
@@ -73,14 +57,6 @@ ApplicationWindow {
 
     RecipientList {
         id: recipientList
-
-        onCountChanged: {
-            if ( count > 0 )
-                console.debug(
-                            recipient( count-1 ).index+" : ["+
-                            recipient( count-1 ).identifier+", "+
-                            recipient( count-1 ).name+"]" )
-        }
     }
 
     DepartmentLoader {
@@ -95,14 +71,6 @@ ApplicationWindow {
 
     DepartmentList {
         id: departmentList
-
-        onCountChanged: {
-            if ( count > 0 )
-                console.debug(
-                            department( count-1 ).index+" : ["+
-                            department( count-1 ).identifier+", "+
-                            department( count-1 ).name+"]" )
-        }
     }
 
     DoctypeLoader {
@@ -117,14 +85,34 @@ ApplicationWindow {
 
     DoctypeList {
         id: doctypeList
+    }
 
-        onCountChanged: {
-            if ( count > 0 )
-                console.debug(
-                            doctype( count-1 ).index+" : ["+
-                            doctype( count-1 ).identifier+", "+
-                            doctype( count-1 ).name+"]" )
+    CallstatusLoader {
+        id: callstatusLoader
+
+        source: callstatusList
+
+        onErrorAdded: {
+            console.debug( error( errorId ) )
         }
+    }
+
+    CallstatusList {
+        id: callstatusList
+    }
+
+    HumanLoader {
+        id: humanLoader
+
+        source: humanList
+
+        onErrorAdded: {
+            console.debug( error( errorId ) )
+        }
+    }
+
+    HumanList {
+        id: humanList
     }
 
 
@@ -138,7 +126,7 @@ ApplicationWindow {
 
             onClicked: {
                 progress.value = 0
-                progress.max = 5
+                progress.max = 7
                 progress.animated = true
 
                 nextStatus( "Пользователи", userLoader )
@@ -146,13 +134,16 @@ ApplicationWindow {
                 nextStatus( "Наименования адресатов", recipientLoader )
                 nextStatus( "Наименования местонахождений", departmentLoader )
                 nextStatus( "Наименования документов", doctypeLoader )
+                nextStatus( "Наименования статусов звонка", callstatusLoader )
+                nextStatus( "Граждане", humanLoader )
                 progress.animated = false
             }
 
             function nextStatus( statusText, guideLoader ) {
-                while ( loadstatuses.count > 0 ) loadstatuses.remove( 0 )
                 loadstatuses.append( {"statusText": statusText} )
-                console.debug( statusText+": "+guideLoader.load() )
+                guideLoader.load()
+                console.debug( statusText+": "+guideLoader.source.count )
+                loadstatuses.remove( 0 )
                 progress.value++
             }
         }
@@ -182,26 +173,19 @@ ApplicationWindow {
                 verticalAlignment: Text.AlignVCenter
 
                 text: statusText
-
-                Timer {
-                    id: deleter
-                    interval: 2000
-                    onTriggered: {
-                        loadstatuses.remove( model.index )
-                    }
-                }
-
-                Component.onCompleted: deleter.running = true
             }
 
             add: Transition {
                 ParallelAnimation {
                     NumberAnimation { properties: "x"; from: width; duration: 200 }
-                    NumberAnimation { properties: "opacity"; from: 0.0; to: 1.0; duration: 20 }
+                    NumberAnimation { properties: "opacity"; from: 0.0; to: 1.0; duration: 200 }
                 }
             }
             remove: Transition {
-                NumberAnimation { properties: "opacity"; from: 1.0; to: 0.0; duration: 200 }
+                ParallelAnimation {
+                    NumberAnimation { properties: "x"; duration: 200 }
+                    NumberAnimation { properties: "opacity"; from: 1.0; to: 0.0; duration: 1000 }
+                }
             }
         }
 
