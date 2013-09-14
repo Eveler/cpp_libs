@@ -16,7 +16,7 @@ class DepartmentLoader : public QObject
     Q_DISABLE_COPY(DepartmentLoader)
     Q_PROPERTY(QString connectionName READ connectionName
                WRITE setConnectionName NOTIFY connectionNameChanged)
-    Q_PROPERTY(DepartmentList* source READ source WRITE setSource NOTIFY sourceChanged)
+    Q_PROPERTY(DepartmentList* source READ source NOTIFY sourceChanged)
 
 
 public:
@@ -32,7 +32,6 @@ public:
     Q_INVOKABLE Department * create() const;
 
     DepartmentList * source() const;
-    void setSource( DepartmentList * source ) const;
 
 
 signals:
@@ -51,10 +50,19 @@ private:
     QEventLoop *loop;
 
 private slots:
+    void newSource() const;
     void threadFinished();
     void receivedError( QString errorText ) const;
 };
 
 QML_DECLARE_TYPE(DepartmentLoader)
+
+static QObject * departmentLoader_Provider( QQmlEngine *engine, QJSEngine *scriptEngine )
+{
+    Q_UNUSED(engine)
+    Q_UNUSED(scriptEngine)
+
+    return new DepartmentLoader();
+}
 
 #endif // DEPARTMENTLOADER_H

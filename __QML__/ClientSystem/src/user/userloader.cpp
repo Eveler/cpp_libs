@@ -9,6 +9,7 @@ UserLoader::UserLoader(QObject *parent) :
     QObject(parent)
 {
     p = new UserLoader_P( this );
+    newSource();
     connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
     loop = new QEventLoop( this );
 }
@@ -16,6 +17,7 @@ UserLoader::UserLoader(QObject *parent) :
 UserLoader::~UserLoader()
 {
     p->m__Errors.clear();
+    disconnect( p->m__Source, SIGNAL(destroyed()), this, SLOT(newSource()) );
     delete p;
     p = NULL;
 }
@@ -76,22 +78,12 @@ UserList * UserLoader::source() const
     return p->m__Source;
 }
 
-void UserLoader::setSource( UserList * source ) const
+void UserLoader::newSource() const
 {
-    if ( p->isRunning() )
-    {
-        receivedError( tr( "Процесс загрузки списка пользователей занят" ) );
-        return;
-    }
-
-    if ( p->m__Source != NULL )
-        disconnect( p, SIGNAL(sendUserInfo(UserInfo)),
-                    p->m__Source, SLOT(receivedUserInfo(UserInfo)) );
-
-    p->m__Source = source;
-    if ( p->m__Source != NULL )
-        connect( p, SIGNAL(sendUserInfo(UserInfo)),
-                 p->m__Source, SLOT(receivedUserInfo(UserInfo)) );
+    p->m__Source = new UserList( p->p_dptr() );
+    connect( p->m__Source, SIGNAL(destroyed()), SLOT(newSource()) );
+    connect( p, SIGNAL(sendUserInfo(UserInfo)),
+             p->m__Source, SLOT(receivedUserInfo(UserInfo)) );
 }
 
 void UserLoader::threadFinished()

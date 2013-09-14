@@ -16,7 +16,7 @@ class HumanLoader : public QObject
     Q_DISABLE_COPY(HumanLoader)
     Q_PROPERTY(QString connectionName READ connectionName
                WRITE setConnectionName NOTIFY connectionNameChanged)
-    Q_PROPERTY(HumanList* source READ source WRITE setSource NOTIFY sourceChanged)
+    Q_PROPERTY(HumanList* source READ source NOTIFY sourceChanged)
 
 
 public:
@@ -32,7 +32,6 @@ public:
     Q_INVOKABLE Human * create() const;
 
     HumanList * source() const;
-    void setSource( HumanList * source ) const;
 
 
 signals:
@@ -51,10 +50,19 @@ private:
     QEventLoop *loop;
 
 private slots:
+    void newSource() const;
     void threadFinished();
     void receivedError( QString errorText ) const;
 };
 
 QML_DECLARE_TYPE(HumanLoader)
+
+static QObject * humanLoader_Provider( QQmlEngine *engine, QJSEngine *scriptEngine )
+{
+    Q_UNUSED(engine)
+    Q_UNUSED(scriptEngine)
+
+    return new HumanLoader();
+}
 
 #endif // HUMANLOADER_H

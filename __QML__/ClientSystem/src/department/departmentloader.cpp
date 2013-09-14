@@ -9,6 +9,7 @@ DepartmentLoader::DepartmentLoader(QObject *parent) :
     QObject(parent)
 {
     p = new DepartmentLoader_P( this );
+    newSource();
     connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
     loop = new QEventLoop( this );
 }
@@ -16,6 +17,7 @@ DepartmentLoader::DepartmentLoader(QObject *parent) :
 DepartmentLoader::~DepartmentLoader()
 {
     p->m__Errors.clear();
+    disconnect( p->m__Source, SIGNAL(destroyed()), this, SLOT(newSource()) );
     delete p;
     p = NULL;
 }
@@ -76,22 +78,12 @@ DepartmentList * DepartmentLoader::source() const
     return p->m__Source;
 }
 
-void DepartmentLoader::setSource( DepartmentList * source ) const
+void DepartmentLoader::newSource() const
 {
-    if ( p->isRunning() )
-    {
-        receivedError( tr( "Процесс загрузки списка пользователей занят" ) );
-        return;
-    }
-
-    if ( p->m__Source != NULL )
-        disconnect( p, SIGNAL(sendDepartmentInfo(DepartmentInfo)),
-                    p->m__Source, SLOT(receivedDepartmentInfo(DepartmentInfo)) );
-
-    p->m__Source = source;
-    if ( p->m__Source != NULL )
-        connect( p, SIGNAL(sendDepartmentInfo(DepartmentInfo)),
-                 p->m__Source, SLOT(receivedDepartmentInfo(DepartmentInfo)) );
+    p->m__Source = new DepartmentList( p->p_dptr() );
+    connect( p->m__Source, SIGNAL(destroyed()), SLOT(newSource()) );
+    connect( p, SIGNAL(sendDepartmentInfo(DepartmentInfo)),
+             p->m__Source, SLOT(receivedDepartmentInfo(DepartmentInfo)) );
 }
 
 void DepartmentLoader::threadFinished()

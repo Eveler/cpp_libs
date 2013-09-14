@@ -9,110 +9,53 @@ ApplicationWindow {
     width: 500
     height: 350
 
-    UserLoader {
-        id: userLoader
-
-        source: userList
-
+    Connections {
+        target: UserLoader
         onErrorAdded: {
-            console.debug( error( errorId ) )
+            console.debug( UserLoader.error( errorId ) )
         }
     }
 
-    UserList {
-        id: userList
-    }
-
-    ProcedureLoader {
-        id: procedureLoader
-
-        source: procedureList
-
+    Connections {
+        target: ProcedureLoader
         onErrorAdded: {
-            console.debug( error( errorId ) )
+            console.debug( ProcedureLoader.error( errorId ) )
         }
     }
 
-    ProcedureList {
-        id: procedureList
-
-//        onCountChanged: {
-//            if ( count > 0 )
-//                console.debug(
-//                            procedure( count-1 ).index+" : ["+
-//                            procedure( count-1 ).identifier+", "+
-//                            procedure( count-1 ).name+"]" )
-//        }
-    }
-
-    RecipientLoader {
-        id: recipientLoader
-
-        source: recipientList
-
+    Connections {
+        target: RecipientLoader
         onErrorAdded: {
-            console.debug( error( errorId ) )
+            console.debug( RecipientLoader.error( errorId ) )
         }
     }
 
-    RecipientList {
-        id: recipientList
-    }
-
-    DepartmentLoader {
-        id: departmentLoader
-
-        source: departmentList
-
+    Connections {
+        target: DepartmentLoader
         onErrorAdded: {
-            console.debug( error( errorId ) )
+            console.debug( DepartmentLoader.error( errorId ) )
         }
     }
 
-    DepartmentList {
-        id: departmentList
-    }
-
-    DoctypeLoader {
-        id: doctypeLoader
-
-        source: doctypeList
-
+    Connections {
+        target: DoctypeLoader
         onErrorAdded: {
-            console.debug( error( errorId ) )
+            console.debug( DoctypeLoader.error( errorId ) )
         }
     }
 
-    DoctypeList {
-        id: doctypeList
-    }
-
-    CallstatusLoader {
-        id: callstatusLoader
-
-        source: callstatusList
-
+    Connections {
+        target: CallstatusLoader
         onErrorAdded: {
-            console.debug( error( errorId ) )
+            console.debug( CallstatusLoader.error( errorId ) )
         }
     }
 
-    CallstatusList {
-        id: callstatusList
-    }
-
-    HumanLoader {
-        id: humanLoader
-
-        source: humanList
-
+    Connections {
+        target: HumanLoader
         onErrorAdded: {
-            console.debug( error( errorId ) )
+            console.debug( HumanLoader.error( errorId ) )
         }
-    }
-
-    HumanList {
-        id: humanList
     }
 
 
@@ -129,13 +72,13 @@ ApplicationWindow {
                 progress.max = 7
                 progress.animated = true
 
-                nextStatus( "Пользователи", userLoader )
-                nextStatus( "Наименования действий/процедур", procedureLoader )
-                nextStatus( "Наименования адресатов", recipientLoader )
-                nextStatus( "Наименования местонахождений", departmentLoader )
-                nextStatus( "Наименования документов", doctypeLoader )
-                nextStatus( "Наименования статусов звонка", callstatusLoader )
-                nextStatus( "Граждане", humanLoader )
+                nextStatus( "Пользователи", UserLoader )
+                nextStatus( "Наименования действий/процедур", ProcedureLoader )
+                nextStatus( "Наименования адресатов", RecipientLoader )
+                nextStatus( "Наименования местонахождений", DepartmentLoader )
+                nextStatus( "Наименования документов", DoctypeLoader )
+                nextStatus( "Наименования статусов звонка", CallstatusLoader )
+                nextStatus( "Граждане", HumanLoader )
                 progress.animated = false
             }
 

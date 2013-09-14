@@ -10,7 +10,8 @@
 void UserLoader_P::run()
 {
     m__Successfully = true;
-    QSqlDatabase db = QSqlDatabase::database( p_dptr()->connectionName() );
+    QSqlDatabase db = QSqlDatabase::database( p_dptr()->connectionName(), false );
+    db.open();
     if ( !db.isValid() )
     {
         m__Successfully = false;
@@ -70,6 +71,7 @@ UserLoader_P::UserLoader_P( UserLoader *parent ) :
 
 UserLoader_P::~UserLoader_P()
 {
+    delete m__Source;
     m__Source = NULL;
 }
 

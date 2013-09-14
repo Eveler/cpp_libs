@@ -10,7 +10,8 @@
 void HumanLoader_P::run()
 {
     m__Successfully = true;
-    QSqlDatabase db = QSqlDatabase::database( p_dptr()->connectionName() );
+    QSqlDatabase db = QSqlDatabase::database( p_dptr()->connectionName(), false );
+    db.open();
     if ( !db.isValid() )
     {
         m__Successfully = false;
@@ -62,6 +63,7 @@ HumanLoader_P::HumanLoader_P( HumanLoader *parent ) :
 
 HumanLoader_P::~HumanLoader_P()
 {
+    delete m__Source;
     m__Source = NULL;
 }
 

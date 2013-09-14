@@ -9,6 +9,7 @@ DoctypeLoader::DoctypeLoader(QObject *parent) :
     QObject(parent)
 {
     p = new DoctypeLoader_P( this );
+    newSource();
     connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
     loop = new QEventLoop( this );
 }
@@ -16,6 +17,7 @@ DoctypeLoader::DoctypeLoader(QObject *parent) :
 DoctypeLoader::~DoctypeLoader()
 {
     p->m__Errors.clear();
+    disconnect( p->m__Source, SIGNAL(destroyed()), this, SLOT(newSource()) );
     delete p;
     p = NULL;
 }
@@ -76,22 +78,12 @@ DoctypeList * DoctypeLoader::source() const
     return p->m__Source;
 }
 
-void DoctypeLoader::setSource( DoctypeList * source ) const
+void DoctypeLoader::newSource() const
 {
-    if ( p->isRunning() )
-    {
-        receivedError( tr( "Процесс загрузки списка пользователей занят" ) );
-        return;
-    }
-
-    if ( p->m__Source != NULL )
-        disconnect( p, SIGNAL(sendDoctypeInfo(DoctypeInfo)),
-                    p->m__Source, SLOT(receivedDoctypeInfo(DoctypeInfo)) );
-
-    p->m__Source = source;
-    if ( p->m__Source != NULL )
-        connect( p, SIGNAL(sendDoctypeInfo(DoctypeInfo)),
-                 p->m__Source, SLOT(receivedDoctypeInfo(DoctypeInfo)) );
+    p->m__Source = new DoctypeList( p->p_dptr() );
+    connect( p->m__Source, SIGNAL(destroyed()), SLOT(newSource()) );
+    connect( p, SIGNAL(sendDoctypeInfo(DoctypeInfo)),
+             p->m__Source, SLOT(receivedDoctypeInfo(DoctypeInfo)) );
 }
 
 void DoctypeLoader::threadFinished()

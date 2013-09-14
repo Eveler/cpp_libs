@@ -9,6 +9,7 @@ HumanLoader::HumanLoader(QObject *parent) :
     QObject(parent)
 {
     p = new HumanLoader_P( this );
+    newSource();
     connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
     loop = new QEventLoop( this );
 }
@@ -16,6 +17,7 @@ HumanLoader::HumanLoader(QObject *parent) :
 HumanLoader::~HumanLoader()
 {
     p->m__Errors.clear();
+    disconnect( p->m__Source, SIGNAL(destroyed()), this, SLOT(newSource()) );
     delete p;
     p = NULL;
 }
@@ -76,22 +78,12 @@ HumanList * HumanLoader::source() const
     return p->m__Source;
 }
 
-void HumanLoader::setSource( HumanList * source ) const
+void HumanLoader::newSource() const
 {
-    if ( p->isRunning() )
-    {
-        receivedError( tr( "Процесс загрузки списка пользователей занят" ) );
-        return;
-    }
-
-    if ( p->m__Source != NULL )
-        disconnect( p, SIGNAL(sendHumanInfo(HumanInfo)),
-                    p->m__Source, SLOT(receivedHumanInfo(HumanInfo)) );
-
-    p->m__Source = source;
-    if ( p->m__Source != NULL )
-        connect( p, SIGNAL(sendHumanInfo(HumanInfo)),
-                 p->m__Source, SLOT(receivedHumanInfo(HumanInfo)) );
+    p->m__Source = new HumanList( p->p_dptr() );
+    connect( p->m__Source, SIGNAL(destroyed()), SLOT(newSource()) );
+    connect( p, SIGNAL(sendHumanInfo(HumanInfo)),
+             p->m__Source, SLOT(receivedHumanInfo(HumanInfo)) );
 }
 
 void HumanLoader::threadFinished()

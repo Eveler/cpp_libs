@@ -16,7 +16,7 @@ class RecipientLoader : public QObject
     Q_DISABLE_COPY(RecipientLoader)
     Q_PROPERTY(QString connectionName READ connectionName
                WRITE setConnectionName NOTIFY connectionNameChanged)
-    Q_PROPERTY(RecipientList* source READ source WRITE setSource NOTIFY sourceChanged)
+    Q_PROPERTY(RecipientList* source READ source NOTIFY sourceChanged)
 
 
 public:
@@ -32,7 +32,6 @@ public:
     Q_INVOKABLE Recipient * create() const;
 
     RecipientList * source() const;
-    void setSource( RecipientList * source ) const;
 
 
 signals:
@@ -51,10 +50,19 @@ private:
     QEventLoop *loop;
 
 private slots:
+    void newSource() const;
     void threadFinished();
     void receivedError( QString errorText ) const;
 };
 
 QML_DECLARE_TYPE(RecipientLoader)
+
+static QObject * recipientLoader_Provider( QQmlEngine *engine, QJSEngine *scriptEngine )
+{
+    Q_UNUSED(engine)
+    Q_UNUSED(scriptEngine)
+
+    return new RecipientLoader();
+}
 
 #endif // RECIPIENTLOADER_H

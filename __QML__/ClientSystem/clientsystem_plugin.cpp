@@ -36,39 +36,39 @@ void ClientSystemPlugin::registerTypes(const char *uri)
     // @uri com.mihail.clientsystem
 
     /// About users
-    qmlRegisterType<User>(uri, 1, 0, "User");
-    qmlRegisterType<UserList>(uri, 1, 0, "UserList");
-    qmlRegisterType<UserLoader>(uri, 1, 0, "UserLoader");
+    qmlRegisterType<User>( uri, 1, 0, "User" );
+    qmlRegisterType<UserList>( uri, 1, 0, "UserList" );
+    qmlRegisterSingletonType<UserLoader>( uri, 1, 0, "UserLoader", userLoader_Provider );
 
     /// About procedures
-    qmlRegisterType<Procedure>(uri, 1, 0, "Procedure");
-    qmlRegisterType<ProcedureList>(uri, 1, 0, "ProcedureList");
-    qmlRegisterType<ProcedureLoader>(uri, 1, 0, "ProcedureLoader");
+    qmlRegisterType<Procedure>( uri, 1, 0, "Procedure" );
+    qmlRegisterType<ProcedureList>( uri, 1, 0, "ProcedureList" );
+    qmlRegisterSingletonType<ProcedureLoader>( uri, 1, 0, "ProcedureLoader", procedureLoader_Provider );
 
     /// About recipients
-    qmlRegisterType<Recipient>(uri, 1, 0, "Recipient");
-    qmlRegisterType<RecipientList>(uri, 1, 0, "RecipientList");
-    qmlRegisterType<RecipientLoader>(uri, 1, 0, "RecipientLoader");
+    qmlRegisterType<Recipient>( uri, 1, 0, "Recipient" );
+    qmlRegisterType<RecipientList>( uri, 1, 0, "RecipientList" );
+    qmlRegisterSingletonType<RecipientLoader>( uri, 1, 0, "RecipientLoader", recipientLoader_Provider );
 
     /// About departments
-    qmlRegisterType<Department>(uri, 1, 0, "Department");
-    qmlRegisterType<DepartmentList>(uri, 1, 0, "DepartmentList");
-    qmlRegisterType<DepartmentLoader>(uri, 1, 0, "DepartmentLoader");
+    qmlRegisterType<Department>( uri, 1, 0, "Department" );
+    qmlRegisterType<DepartmentList>( uri, 1, 0, "DepartmentList" );
+    qmlRegisterSingletonType<DepartmentLoader>( uri, 1, 0, "DepartmentLoader", departmentLoader_Provider );
 
     /// About doctypes
-    qmlRegisterType<Doctype>(uri, 1, 0, "Doctype");
-    qmlRegisterType<DoctypeList>(uri, 1, 0, "DoctypeList");
-    qmlRegisterType<DoctypeLoader>(uri, 1, 0, "DoctypeLoader");
+    qmlRegisterType<Doctype>( uri, 1, 0, "Doctype" );
+    qmlRegisterType<DoctypeList>( uri, 1, 0, "DoctypeList" );
+    qmlRegisterSingletonType<DoctypeLoader>( uri, 1, 0, "DoctypeLoader", doctypeLoader_Provider );
 
     /// About callstatuses
-    qmlRegisterType<Callstatus>(uri, 1, 0, "Callstatus");
-    qmlRegisterType<CallstatusList>(uri, 1, 0, "CallstatusList");
-    qmlRegisterType<CallstatusLoader>(uri, 1, 0, "CallstatusLoader");
+    qmlRegisterType<Callstatus>( uri, 1, 0, "Callstatus" );
+    qmlRegisterType<CallstatusList>( uri, 1, 0, "CallstatusList" );
+    qmlRegisterSingletonType<CallstatusLoader>( uri, 1, 0, "CallstatusLoader", callstatusLoader_Provider );
 
     /// About humans
-    qmlRegisterType<Human>(uri, 1, 0, "Human");
-    qmlRegisterType<HumanList>(uri, 1, 0, "HumanList");
-    qmlRegisterType<HumanLoader>(uri, 1, 0, "HumanLoader");
+    qmlRegisterType<Human>( uri, 1, 0, "Human" );
+    qmlRegisterType<HumanList>( uri, 1, 0, "HumanList" );
+    qmlRegisterSingletonType<HumanLoader>( uri, 1, 0, "HumanLoader", humanLoader_Provider );
 }
 
 

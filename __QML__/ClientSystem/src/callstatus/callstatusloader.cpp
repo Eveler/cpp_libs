@@ -9,6 +9,7 @@ CallstatusLoader::CallstatusLoader(QObject *parent) :
     QObject(parent)
 {
     p = new CallstatusLoader_P( this );
+    newSource();
     connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
     loop = new QEventLoop( this );
 }
@@ -16,6 +17,7 @@ CallstatusLoader::CallstatusLoader(QObject *parent) :
 CallstatusLoader::~CallstatusLoader()
 {
     p->m__Errors.clear();
+    disconnect( p->m__Source, SIGNAL(destroyed()), this, SLOT(newSource()) );
     delete p;
     p = NULL;
 }
@@ -76,22 +78,12 @@ CallstatusList * CallstatusLoader::source() const
     return p->m__Source;
 }
 
-void CallstatusLoader::setSource( CallstatusList * source ) const
+void CallstatusLoader::newSource() const
 {
-    if ( p->isRunning() )
-    {
-        receivedError( tr( "Процесс загрузки списка пользователей занят" ) );
-        return;
-    }
-
-    if ( p->m__Source != NULL )
-        disconnect( p, SIGNAL(sendCallstatusInfo(CallstatusInfo)),
-                    p->m__Source, SLOT(receivedCallstatusInfo(CallstatusInfo)) );
-
-    p->m__Source = source;
-    if ( p->m__Source != NULL )
-        connect( p, SIGNAL(sendCallstatusInfo(CallstatusInfo)),
-                 p->m__Source, SLOT(receivedCallstatusInfo(CallstatusInfo)) );
+    p->m__Source = new CallstatusList( p->p_dptr() );
+    connect( p->m__Source, SIGNAL(destroyed()), SLOT(newSource()) );
+    connect( p, SIGNAL(sendCallstatusInfo(CallstatusInfo)),
+             p->m__Source, SLOT(receivedCallstatusInfo(CallstatusInfo)) );
 }
 
 void CallstatusLoader::threadFinished()

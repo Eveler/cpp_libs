@@ -9,6 +9,7 @@ RecipientLoader::RecipientLoader(QObject *parent) :
     QObject(parent)
 {
     p = new RecipientLoader_P( this );
+    newSource();
     connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
     loop = new QEventLoop( this );
 }
@@ -16,6 +17,7 @@ RecipientLoader::RecipientLoader(QObject *parent) :
 RecipientLoader::~RecipientLoader()
 {
     p->m__Errors.clear();
+    disconnect( p->m__Source, SIGNAL(destroyed()), this, SLOT(newSource()) );
     delete p;
     p = NULL;
 }
@@ -76,22 +78,12 @@ RecipientList * RecipientLoader::source() const
     return p->m__Source;
 }
 
-void RecipientLoader::setSource( RecipientList * source ) const
+void RecipientLoader::newSource() const
 {
-    if ( p->isRunning() )
-    {
-        receivedError( tr( "Процесс загрузки списка пользователей занят" ) );
-        return;
-    }
-
-    if ( p->m__Source != NULL )
-        disconnect( p, SIGNAL(sendRecipientInfo(RecipientInfo)),
-                    p->m__Source, SLOT(receivedRecipientInfo(RecipientInfo)) );
-
-    p->m__Source = source;
-    if ( p->m__Source != NULL )
-        connect( p, SIGNAL(sendRecipientInfo(RecipientInfo)),
-                 p->m__Source, SLOT(receivedRecipientInfo(RecipientInfo)) );
+    p->m__Source = new RecipientList( p->p_dptr() );
+    connect( p->m__Source, SIGNAL(destroyed()), SLOT(newSource()) );
+    connect( p, SIGNAL(sendRecipientInfo(RecipientInfo)),
+             p->m__Source, SLOT(receivedRecipientInfo(RecipientInfo)) );
 }
 
 void RecipientLoader::threadFinished()

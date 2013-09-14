@@ -10,7 +10,8 @@
 void DoctypeLoader_P::run()
 {
     m__Successfully = true;
-    QSqlDatabase db = QSqlDatabase::database( p_dptr()->connectionName() );
+    QSqlDatabase db = QSqlDatabase::database( p_dptr()->connectionName(), false );
+    db.open();
     if ( !db.isValid() )
     {
         m__Successfully = false;
@@ -60,6 +61,7 @@ DoctypeLoader_P::DoctypeLoader_P( DoctypeLoader *parent ) :
 
 DoctypeLoader_P::~DoctypeLoader_P()
 {
+    delete m__Source;
     m__Source = NULL;
 }
 

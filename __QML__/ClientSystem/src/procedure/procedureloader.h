@@ -16,7 +16,7 @@ class ProcedureLoader : public QObject
     Q_DISABLE_COPY(ProcedureLoader)
     Q_PROPERTY(QString connectionName READ connectionName
                WRITE setConnectionName NOTIFY connectionNameChanged)
-    Q_PROPERTY(ProcedureList* source READ source WRITE setSource NOTIFY sourceChanged)
+    Q_PROPERTY(ProcedureList* source READ source NOTIFY sourceChanged)
 
 
 public:
@@ -32,7 +32,6 @@ public:
     Q_INVOKABLE Procedure * create() const;
 
     ProcedureList * source() const;
-    void setSource( ProcedureList * source ) const;
 
 
 signals:
@@ -51,10 +50,19 @@ private:
     QEventLoop *loop;
 
 private slots:
+    void newSource() const;
     void threadFinished();
     void receivedError( QString errorText ) const;
 };
 
 QML_DECLARE_TYPE(ProcedureLoader)
+
+static QObject * procedureLoader_Provider( QQmlEngine *engine, QJSEngine *scriptEngine )
+{
+    Q_UNUSED(engine)
+    Q_UNUSED(scriptEngine)
+
+    return new ProcedureLoader();
+}
 
 #endif // PROCEDURELOADER_H

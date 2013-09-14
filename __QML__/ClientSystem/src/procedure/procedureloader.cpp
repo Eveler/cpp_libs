@@ -9,6 +9,7 @@ ProcedureLoader::ProcedureLoader(QObject *parent) :
     QObject(parent)
 {
     p = new ProcedureLoader_P( this );
+    newSource();
     connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
     loop = new QEventLoop( this );
 }
@@ -16,6 +17,7 @@ ProcedureLoader::ProcedureLoader(QObject *parent) :
 ProcedureLoader::~ProcedureLoader()
 {
     p->m__Errors.clear();
+    disconnect( p->m__Source, SIGNAL(destroyed()), this, SLOT(newSource()) );
     delete p;
     p = NULL;
 }
@@ -76,22 +78,12 @@ ProcedureList * ProcedureLoader::source() const
     return p->m__Source;
 }
 
-void ProcedureLoader::setSource( ProcedureList * source ) const
+void ProcedureLoader::newSource() const
 {
-    if ( p->isRunning() )
-    {
-        receivedError( tr( "Процесс загрузки списка пользователей занят" ) );
-        return;
-    }
-
-    if ( p->m__Source != NULL )
-        disconnect( p, SIGNAL(sendProcedureInfo(ProcedureInfo)),
-                    p->m__Source, SLOT(receivedProcedureInfo(ProcedureInfo)) );
-
-    p->m__Source = source;
-    if ( p->m__Source != NULL )
-        connect( p, SIGNAL(sendProcedureInfo(ProcedureInfo)),
-                 p->m__Source, SLOT(receivedProcedureInfo(ProcedureInfo)) );
+    p->m__Source = new ProcedureList( p->p_dptr() );
+    connect( p->m__Source, SIGNAL(destroyed()), SLOT(newSource()) );
+    connect( p, SIGNAL(sendProcedureInfo(ProcedureInfo)),
+             p->m__Source, SLOT(receivedProcedureInfo(ProcedureInfo)) );
 }
 
 void ProcedureLoader::threadFinished()
