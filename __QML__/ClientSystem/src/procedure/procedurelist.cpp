@@ -60,6 +60,8 @@ int ProcedureList::procedureIndex( Procedure *procedure ) const
 
 Procedure * ProcedureList::addLink( Procedure *link ) const
 {
+    if ( p->m__Procedures.contains( link ) ) return link;
+
     Procedure *newProcedure = new Procedure( p->p_dptr(), link );
     p->m__Procedures << newProcedure;
     connect( newProcedure, SIGNAL(destroyed()), SLOT(procedureDestroyed()) );

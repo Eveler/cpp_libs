@@ -36,6 +36,7 @@ private:
     QHash<int, QString> m__Errors;
     QString m__ConnectionName;
     CallstatusList *m__Source;
+    QVariant m__LoadIdentifier;
 
     explicit CallstatusLoader_P( CallstatusLoader *parent );
     ~CallstatusLoader_P();

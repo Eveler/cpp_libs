@@ -31,8 +31,17 @@ void CallstatusLoader_P::run()
         return;
     }
     QSqlQuery qry( db );
-    if ( !qry.exec( tr( "SELECT id AS identifier, status AS name"
-                        " FROM call_statuses ORDER BY status" ) ) )
+    QString query;
+    if ( m__LoadIdentifier.isValid() )
+    {
+        query = tr( "SELECT id AS identifier, status AS name"
+                    " FROM call_statuses"
+                    " WHERE id=%1 ORDER BY status" ).arg( m__LoadIdentifier.toInt() );
+        m__LoadIdentifier.clear();
+    }
+    else query = tr( "SELECT id AS identifier, status AS name"
+                     " FROM call_statuses ORDER BY status" );
+    if ( !qry.exec( query ) )
     {
         m__Successfully = false;
         emit sendError( tr( "Query error:\n%1" ).arg( qry.lastError().text() ) );
@@ -40,8 +49,7 @@ void CallstatusLoader_P::run()
     }
     while ( qry.next() )
     {
-        CallstatusInfo info;
-        info.setIdentifier( qry.record().value( tr( "identifier" ) ) );
+        CallstatusInfo info( qry.record().value( tr( "identifier" ) ) );
         info.setName( qry.record().value( tr( "name" ) ).toString() );
         emit sendCallstatusInfo( info );
     }
@@ -53,10 +61,11 @@ CallstatusLoader_P::CallstatusLoader_P( CallstatusLoader *parent ) :
     m__ErrorLastId(-1),
     m__Errors(QHash<int, QString>()),
     m__ConnectionName(QString()),
-    m__Source(NULL)
+    m__Source(NULL),
+    m__LoadIdentifier(QVariant())
 {
     connect( this, SIGNAL(sendError(QString)), parent, SLOT(receivedError(QString)) );
-    qRegisterMetaType<CallstatusInfo>("CallstatusInfo");
+    qRegisterMetaType<CallstatusInfo>( "CallstatusInfo" );
 }
 
 CallstatusLoader_P::~CallstatusLoader_P()

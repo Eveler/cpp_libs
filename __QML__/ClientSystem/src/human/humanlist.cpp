@@ -60,6 +60,8 @@ int HumanList::humanIndex( Human *human ) const
 
 Human * HumanList::addLink( Human *link ) const
 {
+    if ( p->m__Humans.contains( link ) ) return link;
+
     Human *newHuman = new Human( p->p_dptr(), link );
     p->m__Humans << newHuman;
     connect( newHuman, SIGNAL(destroyed()), SLOT(humanDestroyed()) );

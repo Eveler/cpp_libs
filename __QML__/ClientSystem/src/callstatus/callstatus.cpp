@@ -57,17 +57,6 @@ QVariant Callstatus::identifier() const
     return info->identifier();
 }
 
-void Callstatus::setIdentifier( QVariant identifier )
-{
-    if ( parent() == NULL ) return;
-
-    INFO_REF
-
-    if ( p->m__Link != NULL ) p->m__Link->setIdentifier( identifier );
-    else info->setIdentifier( identifier );
-    emit identifierChanged();
-}
-
 const QString & Callstatus::name() const
 {
     if ( parent() == NULL ) return p->m__NullString;

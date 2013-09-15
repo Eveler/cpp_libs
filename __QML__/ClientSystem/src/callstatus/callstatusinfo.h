@@ -8,11 +8,11 @@ class CallstatusInfo
 {
 public:
     CallstatusInfo();
+    CallstatusInfo( QVariant identifier );
     CallstatusInfo( const CallstatusInfo &other );
     ~CallstatusInfo();
 
     QVariant identifier() const;
-    void setIdentifier( QVariant identifier );
 
     const QString & name() const;
     void setName( const QString &name );

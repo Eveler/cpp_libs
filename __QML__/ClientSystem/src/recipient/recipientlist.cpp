@@ -60,6 +60,8 @@ int RecipientList::recipientIndex( Recipient *recipient ) const
 
 Recipient * RecipientList::addLink( Recipient *link ) const
 {
+    if ( p->m__Recipients.contains( link ) ) return link;
+
     Recipient *newRecipient = new Recipient( p->p_dptr(), link );
     p->m__Recipients << newRecipient;
     connect( newRecipient, SIGNAL(destroyed()), SLOT(recipientDestroyed()) );

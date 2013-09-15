@@ -23,7 +23,7 @@ public slots:
 
 
 private:
-    QList<Callstatus *> m__Callstatuss;
+    QList<Callstatus *> m__Callstatuses;
 
     explicit CallstatusList_P( CallstatusList *parent );
     ~CallstatusList_P();

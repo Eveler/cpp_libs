@@ -30,6 +30,7 @@ public:
     Q_INVOKABLE Callstatus * callstatus( int index ) const;
     Q_INVOKABLE int callstatusIndex( Callstatus *callstatus ) const;
     Q_INVOKABLE Callstatus * addLink( Callstatus *link ) const;
+    Q_INVOKABLE Callstatus * find( QVariant identifier ) const;
 
 
 signals:
@@ -43,7 +44,8 @@ private:
 
 
 private slots:
-    void receivedCallstatusInfo( CallstatusInfo callstatusInfo ) const;
+    void addCallstatus( CallstatusInfo callstatusInfo ) const;
+    void editCallstatus( CallstatusInfo callstatusInfo ) const;
     void callstatusDestroyed();
 };
 

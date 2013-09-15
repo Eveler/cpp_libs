@@ -17,7 +17,7 @@ class Callstatus : public QObject, public CallstatusInfo
     Q_DISABLE_COPY(Callstatus)
     friend class CallstatusList;
     Q_PROPERTY(int index READ index NOTIFY indexChanged)
-    Q_PROPERTY(QVariant identifier READ identifier WRITE setIdentifier NOTIFY identifierChanged)
+    Q_PROPERTY(QVariant identifier READ identifier)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
 
 
@@ -32,7 +32,6 @@ public:
     int index() const;
 
     QVariant identifier() const;
-    void setIdentifier( QVariant identifier );
 
     const QString & name() const;
     void setName(  const QString &name );
@@ -40,7 +39,6 @@ public:
 
 signals:
     void indexChanged();
-    void identifierChanged();
     void nameChanged();
 
 

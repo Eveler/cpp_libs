@@ -63,6 +63,7 @@ ApplicationWindow {
         anchors.fill: parent
 
         Button {
+            id: buttonLoad
             anchors.centerIn: parent
 
             text: "Загрузка"
@@ -88,6 +89,18 @@ ApplicationWindow {
                 console.debug( statusText+": "+guideLoader.source.count )
                 loadstatuses.remove( 0 )
                 progress.value++
+            }
+        }
+
+        Button {
+            anchors.top: buttonLoad.bottom
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            text: "Перезагрузить"
+
+            onClicked: {
+                CallstatusLoader.load( 1 )
+                console.debug( CallstatusLoader.source.count+" : "+CallstatusLoader.source.callstatus( 0 ).name )
             }
         }
     }

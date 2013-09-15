@@ -60,6 +60,8 @@ int DoctypeList::doctypeIndex( Doctype *doctype ) const
 
 Doctype * DoctypeList::addLink( Doctype *link ) const
 {
+    if ( p->m__Doctypes.contains( link ) ) return link;
+
     Doctype *newDoctype = new Doctype( p->p_dptr(), link );
     p->m__Doctypes << newDoctype;
     connect( newDoctype, SIGNAL(destroyed()), SLOT(doctypeDestroyed()) );

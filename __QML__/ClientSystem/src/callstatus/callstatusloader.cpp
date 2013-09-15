@@ -62,8 +62,26 @@ bool CallstatusLoader::load() const
         return false;
     }
 
-    emit started();
     p->m__Source->clear();
+    emit started();
+    connect( p, SIGNAL(sendCallstatusInfo(CallstatusInfo)),
+             p->m__Source, SLOT(addCallstatus(CallstatusInfo)) );
+    p->start();
+    return ( loop->exec() == 0 );
+}
+
+bool CallstatusLoader::load( QVariant identifier ) const
+{
+    if ( p->isRunning() )
+    {
+        receivedError( tr( "Процесс загрузки списка пользователей занят" ) );
+        return false;
+    }
+
+    p->m__LoadIdentifier.setValue( identifier );
+    emit started();
+    connect( p, SIGNAL(sendCallstatusInfo(CallstatusInfo)),
+             p->m__Source, SLOT(editCallstatus(CallstatusInfo)) );
     p->start();
     return ( loop->exec() == 0 );
 }
@@ -82,12 +100,14 @@ void CallstatusLoader::newSource() const
 {
     p->m__Source = new CallstatusList( p->p_dptr() );
     connect( p->m__Source, SIGNAL(destroyed()), SLOT(newSource()) );
-    connect( p, SIGNAL(sendCallstatusInfo(CallstatusInfo)),
-             p->m__Source, SLOT(receivedCallstatusInfo(CallstatusInfo)) );
 }
 
 void CallstatusLoader::threadFinished()
 {
+    disconnect( p, SIGNAL(sendCallstatusInfo(CallstatusInfo)),
+                p->m__Source, SLOT(addCallstatus(CallstatusInfo)) );
+    disconnect( p, SIGNAL(sendCallstatusInfo(CallstatusInfo)),
+                p->m__Source, SLOT(editCallstatus(CallstatusInfo)) );
     loop->exit( ( p->m__Successfully ? 0 : 1 ) );
     emit finished();
 }

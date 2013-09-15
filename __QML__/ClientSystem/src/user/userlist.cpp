@@ -60,6 +60,8 @@ int UserList::userIndex( User *user ) const
 
 User * UserList::addLink( User *link ) const
 {
+    if ( p->m__Users.contains( link ) ) return link;
+
     User *newUser = new User( p->p_dptr(), link );
     p->m__Users << newUser;
     connect( newUser, SIGNAL(destroyed()), SLOT(userDestroyed()) );

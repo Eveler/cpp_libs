@@ -60,6 +60,8 @@ int DepartmentList::departmentIndex( Department *department ) const
 
 Department * DepartmentList::addLink( Department *link ) const
 {
+    if ( p->m__Departments.contains( link ) ) return link;
+
     Department *newDepartment = new Department( p->p_dptr(), link );
     p->m__Departments << newDepartment;
     connect( newDepartment, SIGNAL(destroyed()), SLOT(departmentDestroyed()) );

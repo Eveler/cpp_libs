@@ -3,7 +3,7 @@
 
 CallstatusList_P::CallstatusList_P( CallstatusList *parent ) :
     QObject(parent),
-    m__Callstatuss(QList<Callstatus *>())
+    m__Callstatuses(QList<Callstatus *>())
 {
 }
 

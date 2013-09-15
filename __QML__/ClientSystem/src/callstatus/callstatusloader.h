@@ -29,6 +29,7 @@ public:
     bool setConnectionName( const QString &connectionName ) const;
 
     Q_INVOKABLE bool load() const;
+    Q_INVOKABLE bool load( QVariant identifier ) const;
     Q_INVOKABLE Callstatus * create() const;
 
     CallstatusList * source() const;
