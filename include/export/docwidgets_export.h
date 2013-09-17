@@ -1,0 +1,12 @@
+#ifndef DOCWIDGETS_GLOBAL_H
+#define DOCWIDGETS_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(DOCWIDGETS_LIBRARY)
+#  define DOCWIDGETSSHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define DOCWIDGETSSHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // DOCWIDGETS_GLOBAL_H

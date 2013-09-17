@@ -237,6 +237,36 @@ void AbstractDocListSaver::documentSaveDone(QString path){
     return;
   }
   curDoc->setUrl(path);
+
+  /*Сохраняем document_metadata************************************************/
+  QList< QByteArray > pn=curDoc->dynamicPropertyNames();
+  if(pn.contains(tr("Страниц").toLocal8Bit())
+     || pn.contains(tr("Оригиналов").toLocal8Bit())
+     || pn.contains(tr("Копий").toLocal8Bit())){
+    qryStr="INSERT INTO document_metadata (documents_id,original_number,"
+        "copy_number,pages) VALUES (%1,%2,%3,%4)";
+    qryStr=qryStr.arg(id.toString());
+    if(curDoc->property(tr("Оригиналов").toLocal8Bit()).isNull())
+      qryStr=qryStr.arg("NULL");
+    else
+      qryStr=qryStr.arg(curDoc->property(tr("Оригиналов").toLocal8Bit()).toInt());
+    if(curDoc->property(tr("Копий").toLocal8Bit()).isNull())
+      qryStr=qryStr.arg("NULL");
+    else
+      qryStr=qryStr.arg(curDoc->property(tr("Копий").toLocal8Bit()).toInt());
+    if(curDoc->property(tr("Страниц").toLocal8Bit()).isNull())
+      qryStr=qryStr.arg("NULL");
+    else
+      qryStr=qryStr.arg(curDoc->property(tr("Страниц").toLocal8Bit()).toInt());
+    if(!qry.exec(qryStr)){
+      setError(tr("Ошибка сохранения метаданных документа в БД: %1 \nQUERY: %2")
+               .arg(qry.lastError().text()).arg(qry.lastQuery()));
+      loop->exit(-1);
+      return;
+    }
+  }
+  /************************************************Сохраняем document_metadata*/
+
   emit documentSaved(curDoc,id);
   curDoc=NULL;
 

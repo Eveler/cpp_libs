@@ -254,7 +254,9 @@ bool DocumentsModel::addDocument(const QString doc_type, const QDate doc_date,
                                  const QString doc_agency,
                                  const QDateTime doc_created,
                                  const QVariant id, const bool isNew){
-  MFCDocument *doc=MFCDocument::instance(doc_type,doc_date,doc_created,this);
+  MFCDocument *doc=MFCDocument::instance(
+        doc_type,doc_name,doc_series,doc_number,doc_date,doc_expires,doc_agency,
+        doc_created,QString(),this);
   doc->setName(doc_name);
   doc->setSeries(doc_series);
   doc->setNumber(doc_number);

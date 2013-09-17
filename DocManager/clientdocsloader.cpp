@@ -63,8 +63,14 @@ DocumentsModel *ClientDocsLoader::load(QVariant foreignID){
   while(qry.next()){
     MFCDocument *doc=MFCDocument::instance(
           qry.record().field("type").value().toString(),
+          qry.record().field("name").value().toString(),
+          qry.record().field("series").value().toString(),
+          qry.record().field("number").value().toString(),
           qry.record().field("date").value().toDate(),
-          qry.record().field("created").value().toDateTime(),this);
+          qry.record().field("expires").value().toDate(),
+          qry.record().field("agency").value().toString(),
+          qry.record().field("created").value().toDateTime(),
+          qry.record().field("url").value().toString(),this);
     connectDocument2Loader(doc);
 //    connect(doc,SIGNAL(needBody(QString,MFCDocument*)),
 //            docStorage,SLOT(load(QString,MFCDocument*)));

@@ -2,9 +2,9 @@
 #define MFCWIDGET_H
 
 #include <QWidget>
-#include "export/dossier_export.h"
+#include "export/docwidgets_export.h"
 
-class DOSSIER_EXPORT MFCWidget : public QWidget
+class DOCWIDGETSSHARED_EXPORT MFCWidget : public QWidget
 {
   Q_OBJECT
 public:
