@@ -30,6 +30,8 @@ public:
 
     Q_INVOKABLE QString document( int index );
 
+    Q_INVOKABLE bool save();
+
 
 signals:
     void connectionNameChanged();
