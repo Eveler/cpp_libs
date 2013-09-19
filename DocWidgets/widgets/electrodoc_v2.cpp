@@ -58,6 +58,8 @@ ElectroDoc_v2::ElectroDoc_v2(QWidget *parent) :
   title=tr("Электронный документ");
   setModified(false);
   saved=false;
+
+  ui->tBt_ScanReplace->setVisible(false);
 }
 
 ElectroDoc_v2::~ElectroDoc_v2()

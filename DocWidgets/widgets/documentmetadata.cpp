@@ -9,7 +9,8 @@ DocumentMetadata::DocumentMetadata(MFCDocument *doc, QWidget *parent) :
 {
   ui->setupUi(this);
 
-  pages=ui->spBox_Pages->value();
+  if(doc->havePages()) ui->spBox_Pages->setValue(doc->pages()->count());
+  else pages=ui->spBox_Pages->value();
   original_number=ui->spBox_OriginalNumber->value();
   copy_number=ui->spBox_CopyNumber->value();
   QDialogButtonBox *bb=ui->buttonBox;
