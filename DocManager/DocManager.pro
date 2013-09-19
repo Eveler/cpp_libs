@@ -50,8 +50,6 @@ HEADERS += \
     ../include/clientdocssaver.h \
     ../include/clientdocsloader.h
 
-FORMS +=
-
 RESOURCES +=
 
 greaterThan(QT_MAJOR_VERSION, 4) {

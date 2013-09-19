@@ -5,7 +5,6 @@
 #-------------------------------------------------
 
 QT     += network
-greaterThan( QT_MAJOR_VERSION, 4 ) QT += widgets printsupport
 
 TARGET = Dossier
 TEMPLATE = lib
@@ -28,12 +27,8 @@ SOURCES += \
     document/docattachments.cpp \
     document/mfcdocumentpages.cpp \
     document/mfcdocumentpage.cpp \
-    widgets/electrodoc_v2.cpp \
-    widgets/docpagesviewer.cpp \
     storages/ftp/ftpdocsstorage.cpp \
     storages/abstractdocsstorage.cpp \
-    widgets/docpagewidget.cpp \
-    widgets/mfcwidget.cpp
 
 HEADERS += \
     ../include/mfcdocument.h \
@@ -41,18 +36,10 @@ HEADERS += \
     ../include/mfcdocumentpage.h \
     ../include/docattachments.h \
     ../include/docattachment.h \
-    ../include/electrodoc_v2.h \
-    ../include/docpagesviewer.h \
-    ../include/mfcwidget.h \
     ../include/ftpdocsstorage.h \
     ../include/abstractdocsstorage.h \
-    ../include/docpagewidget.h
 
-FORMS += \
-    widgets/electrodoc_v2.ui
-
-RESOURCES += \
-        widgets/electrodoc_icons.qrc
+RESOURCES +=
 
 greaterThan(QT_MAJOR_VERSION, 4) {
   LIBS += -L../bin_qt5

@@ -1,0 +1,3 @@
+[submodule "qt-coding"]
+	path = qt-coding
+	url = https://github.com/francescmm/qt-coding.git

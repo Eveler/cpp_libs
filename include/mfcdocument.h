@@ -31,8 +31,11 @@ private:
   ~MFCDocument();
 
 public:
-  static MFCDocument *instance(QString doc_type, QDate doc_date,
-                               QDateTime doc_createdate, QObject *parent=0);
+  static MFCDocument *instance(QString doc_type, QString doc_name,
+                               QString doc_series, QString doc_number,
+                               QDate doc_date, QDate doc_expires,
+                               QString doc_agency, QDateTime doc_createdate,
+                               QString doc_url, QObject *parent=0);
 
   bool copyFrom(MFCDocument *doc);
   void setType( const QString &doc_type );

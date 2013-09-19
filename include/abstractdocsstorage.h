@@ -6,6 +6,7 @@
 #include <QPair>
 #include <QDebug>
 #include "mfcdocument.h"
+#include "export/dossier_export.h"
 
 /** \brief \class AbstractDocsStorage - базовый класс для реализации подсистемы
 хранения документов во внешней системе (сервере). Спроектирован по шаблону
@@ -13,7 +14,7 @@ Singleton.
   Для получения ссылки на экземпляр класса служит \a addStorage. Для удаления
 \a removeStorage
 */
-class AbstractDocsStorage : public QObject
+class DOSSIER_EXPORT AbstractDocsStorage : public QObject
 {
   Q_OBJECT
 

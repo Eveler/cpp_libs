@@ -37,11 +37,17 @@ MFCDocument::~MFCDocument()
   delete m_attachments;
 }
 
-MFCDocument *MFCDocument::instance(QString doc_type, QDate doc_date,
-                                   QDateTime doc_createdate,QObject *parent){
+MFCDocument *MFCDocument::instance(QString doc_type,QString doc_name,
+                                   QString doc_series,QString doc_number,
+                                   QDate doc_date,QDate doc_expires,
+                                   QString doc_agency,QDateTime doc_createdate,
+                                   QString doc_url,QObject *parent){
   foreach(MFCDocument *doc,instances.keys()){
     if(doc->type()==doc_type && doc->date()==doc_date
-       && doc->createDate()==doc_createdate){
+       && doc->createDate()==doc_createdate && doc->number()==doc_number
+       && doc->name()==doc_name && doc->series()==doc_series
+       && doc->expiresDate()==doc_expires && doc->agency()==doc_agency
+       && doc->url()==doc_url){
       instances[doc]++;
       LogDebug()<<doc->type()<<"("<<doc<<") referenced now"<<instances.value(doc)
                <<"times";

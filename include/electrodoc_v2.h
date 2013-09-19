@@ -17,13 +17,13 @@
 #include "mfcdocument.h"
 //#include "macros.h"
 #include "docpagesviewer.h"
-#include "export/dossier_export.h"
+#include "export/docwidgets_export.h"
 
 namespace Ui {
 class ElectroDoc_v2;
 }
 
-class DOSSIER_EXPORT ElectroDoc_v2 : public MFCWidget
+class DOCWIDGETSSHARED_EXPORT ElectroDoc_v2 : public MFCWidget
 {
   Q_OBJECT
   Q_PROPERTY(bool m_modified READ isModified WRITE setModified)
