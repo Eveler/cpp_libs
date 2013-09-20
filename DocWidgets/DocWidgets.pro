@@ -38,8 +38,8 @@ FORMS += \
 RESOURCES += \
     widgets/electrodoc_icons.qrc
 
-INSTALL_TO_DOCWIDGETSTEST = E:/devel/Libs/__tests__/DocWidgetsTest/bin
-QT_INSTALL_WIN_LIB = $$INSTALL_TO_DOCWIDGETSTEST
+INSTALL_TO_TICKETCHOICE = E:/devel/Tests/bin
+INSTALL_WIN_LIB = $$INSTALL_TO_TICKETCHOICE
 
 unix:!symbian {
 
@@ -52,7 +52,7 @@ unix:!symbian {
 }
 
 win32 {
-    target.path = $$QT_INSTALL_WIN_LIB
+    target.path = $$INSTALL_WIN_LIB
     INSTALLS += target
 }
 

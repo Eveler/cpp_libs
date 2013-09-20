@@ -25,6 +25,24 @@ HEADERS += \
     ../include/smtp.h \
     ../include/amslogger.h
 
+INSTALL_TO_TICKETCHOICE = E:/devel/Tests/bin
+INSTALL_WIN_LIB = $$INSTALL_TO_TICKETCHOICE
+
+unix:!symbian {
+
+    maemo5 {
+        target.path = /opt/usr/lib
+    } else {
+        target.path = /usr/lib
+    }
+    INSTALLS += target
+}
+
+win32 {
+    target.path = $$INSTALL_WIN_LIB
+    INSTALLS += target
+}
+
 greaterThan(QT_MAJOR_VERSION, 4) {
   DESTDIR = ../bin_qt5
   DLLDESTDIR = ../bin_qt5

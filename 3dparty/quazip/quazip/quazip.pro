@@ -29,24 +29,42 @@ zip.h
 
 SOURCES += *.c *.cpp
 
+#unix:!symbian {
+#    headers.path=$$PREFIX/include/quazip
+#    headers.files=$$HEADERS
+#    target.path=$$PREFIX/lib
+#    INSTALLS += headers target
+
+#  OBJECTS_DIR=.obj
+#  MOC_DIR=.moc
+
+#}
+
+#win32 {
+#    headers.path=$$PREFIX/include/quazip
+#    headers.files=$$HEADERS
+#    target.path=$$PREFIX/lib
+#    INSTALLS += headers target
+#    # workaround for qdatetime.h macro bug
+#    DEFINES += NOMINMAX
+#}
+
+INSTALL_TO_TICKETCHOICE = E:/devel/Tests/bin
+INSTALL_WIN_LIB = $$INSTALL_TO_TICKETCHOICE
+
 unix:!symbian {
-    headers.path=$$PREFIX/include/quazip
-    headers.files=$$HEADERS
-    target.path=$$PREFIX/lib
-    INSTALLS += headers target
 
-  OBJECTS_DIR=.obj
-  MOC_DIR=.moc
-
+    maemo5 {
+        target.path = /opt/usr/lib
+    } else {
+        target.path = /usr/lib
+    }
+    INSTALLS += target
 }
 
 win32 {
-    headers.path=$$PREFIX/include/quazip
-    headers.files=$$HEADERS
-    target.path=$$PREFIX/lib
-    INSTALLS += headers target
-    # workaround for qdatetime.h macro bug
-    DEFINES += NOMINMAX
+    target.path = $$INSTALL_WIN_LIB
+    INSTALLS += target
 }
 
 
