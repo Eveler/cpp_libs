@@ -14,6 +14,8 @@ CONFIG(debug, debug|release): TARGET = $${TARGET}d
 
 TEMPLATE = lib
 
+include(../install_path.pri)
+
 DEFINES += EXPORT_LIB_MFCCORE
 
 INCLUDEPATH += ./ \
@@ -32,9 +34,6 @@ symbian {
     addFiles.path = !:/sys/bin
     DEPLOYMENT += addFiles
 }
-
-INSTALL_TO_TICKETCHOICE = E:/devel/Tests/bin
-INSTALL_WIN_LIB = $$INSTALL_TO_TICKETCHOICE
 
 unix:!symbian {
 

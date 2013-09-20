@@ -9,6 +9,8 @@ QT       += gui network
 TARGET = HtmlReport
 TEMPLATE = lib
 
+include(../install_path.pri)
+
 DEFINES += HTMLREPORT_LIBRARY
 
 SOURCES += htmlreport.cpp
@@ -18,9 +20,6 @@ HEADERS += ../include/htmlreport.h
 INCLUDEPATH += ./ \
     ../include/ \
     ../include/export
-
-INSTALL_TO_TICKETCHOICE = E:/devel/Tests/bin
-INSTALL_WIN_LIB = $$INSTALL_TO_TICKETCHOICE
 
 unix:!symbian {
 

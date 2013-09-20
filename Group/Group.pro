@@ -6,6 +6,8 @@ CONFIG(debug, debug|release): TARGET = $${TARGET}d
 
 TEMPLATE = lib
 
+include(../install_path.pri)
+
 DEFINES += EXPORT_LIB_GROUP
 
 INCLUDEPATH += ./ \
@@ -24,11 +26,17 @@ symbian {
 }
 
 unix:!symbian {
+
     maemo5 {
         target.path = /opt/usr/lib
     } else {
         target.path = /usr/lib
     }
+    INSTALLS += target
+}
+
+win32 {
+    target.path = $$INSTALL_WIN_LIB
     INSTALLS += target
 }
 

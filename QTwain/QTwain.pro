@@ -10,6 +10,8 @@ greaterThan( QT_MAJOR_VERSION, 4 ) QT += widgets
 TARGET = QTwain
 TEMPLATE = lib
 
+include(../install_path.pri)
+
 DEFINES += QTWAIN_LIBRARY
 
 
@@ -35,10 +37,6 @@ HEADERS += \
     ../include/dib.h
 
 RESOURCES +=
-
-INSTALL_TO_MFCScanProject = E:/devel/MFCScanProject/bin
-INSTALL_TO_TICKETCHOICE = E:/devel/Tests/bin
-INSTALL_WIN_LIB = $$INSTALL_TO_TICKETCHOICE
 
 unix:!symbian {
 
@@ -78,7 +76,3 @@ CONFIG(debug, debug|release){
   UI_DIR = ../temp/$$TARGET/debug
 }
 
-lessThan(QT_MAJOR_VERSION,5){
-win32:LIBS += -L"./twain" \
-    -lGdi32
-}

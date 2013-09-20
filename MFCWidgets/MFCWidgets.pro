@@ -6,6 +6,8 @@ TARGET = MFCWidgets
 CONFIG(debug, debug|release): TARGET = $${TARGET}d
 #CONFIG += create_prl
 
+include(../install_path.pri)
+
 TEMPLATE = lib
 
 DEFINES += EXPORT_LIB_MWIDGETS
@@ -31,11 +33,17 @@ symbian {
 }
 
 unix:!symbian {
+
     maemo5 {
         target.path = /opt/usr/lib
     } else {
         target.path = /usr/lib
     }
+    INSTALLS += target
+}
+
+win32 {
+    target.path = $$INSTALL_WIN_LIB
     INSTALLS += target
 }
 

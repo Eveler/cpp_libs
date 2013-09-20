@@ -5,11 +5,12 @@
 #-------------------------------------------------
 
 QT       += core gui
+greaterThan( QT_MAJOR_VERSION, 4 ) QT += widgets
 
 TARGET = muCalculator
 TEMPLATE = lib
 
-greaterThan( QT_MAJOR_VERSION, 4 ) QT += widgets
+include(../install_path.pri)
 
 DEFINES += EXPORT_LIB_MUCALCULATOR
 
@@ -20,9 +21,6 @@ INCLUDEPATH += ./ \
     ../include/ \
     ./QMathParser_1_0/ \
     ./QMathParser_1_0/muParser/
-
-INSTALL_TO_TICKETCHOICE = E:/devel/Tests/bin
-INSTALL_WIN_LIB = $$INSTALL_TO_TICKETCHOICE
 
 unix:!symbian {
 

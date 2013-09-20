@@ -49,8 +49,7 @@ SOURCES += *.c *.cpp
 #    DEFINES += NOMINMAX
 #}
 
-INSTALL_TO_TICKETCHOICE = E:/devel/Tests/bin
-INSTALL_WIN_LIB = $$INSTALL_TO_TICKETCHOICE
+include(../../../install_path.pri)
 
 unix:!symbian {
 

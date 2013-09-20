@@ -6,6 +6,8 @@ CONFIG(debug, debug|release): TARGET = $${TARGET}d
 
 TEMPLATE = lib
 
+include(../install_path.pri)
+
 DEFINES += FTPENGINE_LIBRARY
 #DEFINES += FTPENGINE_DEBUG
 
@@ -27,9 +29,6 @@ symbian {
     addFiles.path = !:/sys/bin
     DEPLOYMENT += addFiles
 }
-
-INSTALL_TO_TICKETCHOICE = E:/devel/Tests/bin
-INSTALL_WIN_LIB = $$INSTALL_TO_TICKETCHOICE
 
 unix:!symbian {
 

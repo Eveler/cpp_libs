@@ -11,6 +11,8 @@ TEMPLATE = lib
 #CONFIG += staticlib release
 #CONFIG += create_prl
 
+include(../install_path.pri)
+
 DEFINES += AMSLOGGER_BUILD
 
 INCLUDEPATH += ./ \
@@ -24,9 +26,6 @@ SOURCES += \
 HEADERS += \
     ../include/smtp.h \
     ../include/amslogger.h
-
-INSTALL_TO_TICKETCHOICE = E:/devel/Tests/bin
-INSTALL_WIN_LIB = $$INSTALL_TO_TICKETCHOICE
 
 unix:!symbian {
 

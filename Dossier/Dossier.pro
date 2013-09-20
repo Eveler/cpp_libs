@@ -12,9 +12,8 @@ TEMPLATE = lib
 #CONFIG += create_prl
 
 DEFINES += DOSSIER_LIBRARY
-#DEFINES += QUAZIP_STATIC
 
-#include(../3dparty/quazip/quazip.pri)
+include(../install_path.pri)
 include(storages/ftp/ftpdocsstorage.pri)
 
 INCLUDEPATH += ./ \
@@ -39,9 +38,6 @@ HEADERS += \
     ../include/abstractdocsstorage.h \
 
 RESOURCES +=
-
-INSTALL_TO_TICKETCHOICE = E:/devel/Tests/bin
-INSTALL_WIN_LIB = $$INSTALL_TO_TICKETCHOICE
 
 unix:!symbian {
 
