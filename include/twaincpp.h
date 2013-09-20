@@ -6,7 +6,10 @@
 #define TWCPP_CANCELALL (2)
 #define TWCPP_DOTRANSFER (0)
 
-class CTwain
+#include "export/qtwain_export_lib.h"
+
+
+class EXPORT_QTWAIN CTwain
 {
 public:
   CTwain(HWND hWnd = NULL);

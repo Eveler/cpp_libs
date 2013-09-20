@@ -19,6 +19,13 @@
 #include "docpagesviewer.h"
 #include "export/docwidgets_export.h"
 
+#ifdef Q_OS_WIN
+#include "qtwaininterface.h"
+#include "qtwain.h"
+#include "dib.h"
+#endif
+
+
 namespace Ui {
 class ElectroDoc_v2;
 }
@@ -63,15 +70,16 @@ signals:
 
 protected:
   void closeEvent(QCloseEvent *e);
+  bool nativeEvent(const QByteArray &eventType, void *message, long *result);
+  bool winEvent( MSG *message, long */*result*/ );
 
 private:
-  enum ScanPageState {Scan_NULL=0,Scan_NewPage,Scan_ReplacePage};
   Ui::ElectroDoc_v2 *ui;
   QVBoxLayout *vblPages;
 #ifdef Q_OS_WIN
-  QProcess *scanProcess;
+  QPixmap *m_pPixmap;
+  QTwainInterface *m_pTwain;
 #endif
-  ScanPageState scanState;
   MFCDocument *m_Document;
   MFCDocument *originalDocument;
   int previousScaleValue;
@@ -91,7 +99,12 @@ private:
                      const QByteArray& fileData);
   bool replacePage(const int pageNum,const QPixmap &pixmap);
   void loadExtFile(const QString fName);
-  void setScanState(ElectroDoc_v2::ScanPageState state);
+
+#ifdef Q_OS_WIN
+  void initTWAIN();
+  void releaseTWAIN();
+#endif
+
 
 public slots:
   void showProgress(qint64 done,qint64 total);
@@ -105,13 +118,11 @@ private slots:
   void zoomOut();
 #ifdef Q_OS_WIN
   void scannerConfigTriggered();
-  void readyReadScanProcessOutput();
+  void scannerStart();
+  void pixmapAcquired( QPixmap *pix );
 #endif
   void loadImage();
   void loadAttachment();
-  void doScan(ScanPageState state=Scan_NewPage);
-  void scanNew();
-  void scanReplace();
   void setVisiblePage(int pageNum);
   void movePage(const int from,const int to);
   void moveCurrentPageUp();

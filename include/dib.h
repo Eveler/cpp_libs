@@ -1,7 +1,11 @@
 #ifndef _DIB_H_
 #define _DIB_H_
 #include "twain.h"
-class CDIB
+
+#include "export/qtwain_export_lib.h"
+
+
+class EXPORT_QTWAIN CDIB
 {
 public:
   CDIB(HANDLE hDib=NULL,int nBits=8);

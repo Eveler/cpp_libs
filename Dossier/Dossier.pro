@@ -18,8 +18,7 @@ DEFINES += DOSSIER_LIBRARY
 include(storages/ftp/ftpdocsstorage.pri)
 
 INCLUDEPATH += ./ \
-    ../include/ \
-    ../include/export
+    ../include/
 
 SOURCES += \
     document/mfcdocument.cpp \
@@ -40,6 +39,24 @@ HEADERS += \
     ../include/abstractdocsstorage.h \
 
 RESOURCES +=
+
+INSTALL_TO_DOCWIDGETSTEST = E:/devel/Libs/__tests__/DocWidgetsTest/bin
+QT_INSTALL_WIN_LIB = $$INSTALL_TO_DOCWIDGETSTEST
+
+unix:!symbian {
+
+    maemo5 {
+        target.path = /opt/usr/lib
+    } else {
+        target.path = /usr/lib
+    }
+    INSTALLS += target
+}
+
+win32 {
+    target.path = $$QT_INSTALL_WIN_LIB
+    INSTALLS += target
+}
 
 greaterThan(QT_MAJOR_VERSION, 4) {
   LIBS += -L../bin_qt5

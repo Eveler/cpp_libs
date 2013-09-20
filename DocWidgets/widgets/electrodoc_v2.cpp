@@ -45,11 +45,6 @@ ElectroDoc_v2::ElectroDoc_v2(QWidget *parent) :
 
   setReadOnly(false);
   setRestrictQuality();
-#ifdef Q_OS_WIN
-  scanProcess = new QProcess( this );
-  connect( scanProcess, SIGNAL(readyReadStandardOutput()),
-           this, SLOT(readyReadScanProcessOutput()) );
-#endif
   fWatcher=new QFileSystemWatcher(this);
   connect(fWatcher,SIGNAL(fileChanged(QString)),this,SLOT(fileChanged(QString)));
 
@@ -58,19 +53,17 @@ ElectroDoc_v2::ElectroDoc_v2(QWidget *parent) :
   title=tr("Электронный документ");
   setModified(false);
   saved=false;
-
-  ui->tBt_ScanReplace->setVisible(false);
+  m_pTwain = NULL;
 }
 
 ElectroDoc_v2::~ElectroDoc_v2()
 {
-#ifdef Q_OS_WIN
-  if( scanProcess->pid() != 0 ) scanProcess->kill();
-  delete scanProcess;
-#endif
   clear();
   delete viewer;
   delete fWatcher;
+#ifdef Q_OS_WIN
+  releaseTWAIN();
+#endif
   delete ui;
 }
 
@@ -383,6 +376,21 @@ void ElectroDoc_v2::closeEvent(QCloseEvent *e){
   QWidget::closeEvent(e);
 }
 
+bool ElectroDoc_v2::nativeEvent( const QByteArray &eventType, void *message, long *result )
+{
+    Q_UNUSED(eventType);
+    if ( m_pTwain != NULL )
+        return winEvent( (MSG*)message, result );
+    else return MFCWidget::nativeEvent( eventType, message, result );
+}
+
+bool ElectroDoc_v2::winEvent( MSG *message, long */*result*/ )
+{
+    if ( m_pTwain != NULL )
+        m_pTwain->processMessage(*message);
+    return false;
+}
+
 void ElectroDoc_v2::addPage(const QString &pName, const QPixmap &pixmap){
   if(pixmap.isNull()){
     setError(tr("Ошибка при добавлении изображения"));
@@ -393,6 +401,7 @@ void ElectroDoc_v2::addPage(const QString &pName, const QPixmap &pixmap){
           QString(),QString(),QString(),QString(),QDate(),QDate(),QString(),
           QDateTime(),QString());
   }
+//  pixmap.d
   MFCDocumentPage *pg=new MFCDocumentPage(pName,pixmap);
   m_Document->addPage(*pg);
 
@@ -402,6 +411,7 @@ void ElectroDoc_v2::addPage(const QString &pName, const QPixmap &pixmap){
     ui->lWgt_Pages->setCurrentRow( 0 );
   }
   setModified(true);
+  viewer->documentChanged(m_Document);
 }
 
 void ElectroDoc_v2::addAttachment(const QString fileName,
@@ -519,6 +529,24 @@ void ElectroDoc_v2::loadExtFile(const QString fName){
   }
 }
 
+void ElectroDoc_v2::initTWAIN()
+{
+    m_pTwain = new QTwain( NULL );
+    m_pTwain->setParent( this );
+    m_pTwain->setEmitPixmaps();
+    QObject::connect( m_pTwain, SIGNAL(pixmapAcquired(QPixmap*)),
+                      SLOT(pixmapAcquired(QPixmap*)) );
+}
+
+void ElectroDoc_v2::releaseTWAIN()
+{
+    if ( m_pTwain != NULL )
+    {
+        delete m_pTwain;
+        m_pTwain = NULL;
+    }
+}
+
 void ElectroDoc_v2::showProgress(qint64 done, qint64 total){
   ui->pBar_Scan->setMaximum(total);
   ui->pBar_Scan->setValue(done);
@@ -546,59 +574,26 @@ void ElectroDoc_v2::zoomOut(){
 
 #ifdef Q_OS_WIN
 void ElectroDoc_v2::scannerConfigTriggered(/*pos*/){
-  if( scanProcess->pid() != 0 ) scanProcess->kill();
-  scanProcess->start( "./MFCScanProject.exe -select_source" );
-  scanProcess->waitForStarted();
+    releaseTWAIN();
+    initTWAIN();
+    m_pTwain->selectSource();
 }
 
-void ElectroDoc_v2::readyReadScanProcessOutput(){
-  QString result = QVariant( scanProcess->readAllStandardOutput() ).toString();
-  if ( result.contains( tr( "select_source: fail" ) ) )
-    QMessageBox::warning( this, tr( "Выбор устройства" ),
-                          tr( "Не удалось выбрать устройство сканирования!" ) );
-  else if ( result.contains( tr( "scan: fail" ) ) )
-    QMessageBox::warning( this, tr( "Сканирование" ), tr( "Не удалось сканировать документ!" ) );
-  else if ( result.contains( tr( "scan: success" ) ) )
-  {
-    result = result.remove( 0, result.indexOf( tr( "scan: success" ) )+
-                            tr( "scan: success | " ).length() );
-    QPixmap pixmap;
-    if(pixmap.load(result,"PNG"))
-    {
-      if(restrictQuality){
-        if(pixmap.width()>/*3508*/1700)
-          pixmap=pixmap.scaledToWidth(/*3508*/1700,Qt::SmoothTransformation);
-        if(pixmap.height()>/*4961*/2338)
-          pixmap=pixmap.scaledToHeight(/*4961*/2338,Qt::SmoothTransformation);
-      }
+void ElectroDoc_v2::scannerStart()
+{
+    releaseTWAIN();
+    initTWAIN();
+    m_pTwain->acquire();
+}
 
-      switch ( scanState )
-      {
-      case Scan_NewPage:
-      {
-        addPage(tr("Страница %1 (Скан %2)").arg(ui->lWgt_Pages->count()+1).arg(
-                  ui->lWgt_Pages->count()+1),
-                pixmap);
-        break;
-      }
-      case Scan_ReplacePage:
-      {
-        if ( !replacePage( ui->lWgt_Pages->currentRow(), pixmap ) )
-          QMessageBox::warning( this, "Ошибка", errStr );
+void ElectroDoc_v2::pixmapAcquired( QPixmap *pix )
+{
+    if ( pix == NULL ) return;
 
-        break;
-      }
-      default:
-        break;
-      }
-
-      viewer->documentChanged(m_Document);
-
-    }
-    else QMessageBox::warning( this, "Ошибка", "Не удалось получить изображение!" );
-    if ( QFile( result ).exists() ) QFile( result ).remove();
-  }
-  ui->tBt_SaveDocument->setEnabled(true);
+    addPage( tr("Страница %1 (Скан %2)").arg(ui->lWgt_Pages->count()+1).arg(
+                 ui->lWgt_Pages->count()+1), *pix );
+    delete pix;
+    pix = NULL;
 }
 #endif
 
@@ -642,31 +637,6 @@ void ElectroDoc_v2::loadAttachment(){
   if(fName.length()==0) return;
   ui->wgt_ExtDoc->setVisible(true);
   loadExtFile(fName);
-}
-
-void ElectroDoc_v2::doScan(ScanPageState state){
-  ui->tBt_SaveDocument->setEnabled(false);
-  scanState = state;
-  switch(scanState){
-  case Scan_NULL:
-    break;
-  case Scan_NewPage:
-  case Scan_ReplacePage:
-#ifdef Q_OS_WIN
-    if( scanProcess->pid() != 0 ) scanProcess->kill();
-    scanProcess->start( "./MFCScanProject.exe -scan" );
-    scanProcess->waitForStarted();
-#endif
-    break;
-  }
-}
-
-void ElectroDoc_v2::scanNew(){
-  doScan(Scan_NewPage);
-}
-
-void ElectroDoc_v2::scanReplace(){
-  doScan(Scan_ReplacePage);
 }
 
 void ElectroDoc_v2::setVisiblePage(int pageNum){

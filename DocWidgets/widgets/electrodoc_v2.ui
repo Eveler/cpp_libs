@@ -641,7 +641,7 @@ QToolButton::pressed
         </property>
        </widget>
       </item>
-      <item row="0" column="11">
+      <item row="0" column="10">
        <widget class="QProgressBar" name="pBar_Scan">
         <property name="minimumSize">
          <size>
@@ -673,7 +673,7 @@ QProgressBar::chunk
         </property>
        </widget>
       </item>
-      <item row="0" column="12">
+      <item row="0" column="11">
        <spacer name="horizontalSpacer_3">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -686,7 +686,7 @@ QProgressBar::chunk
         </property>
        </spacer>
       </item>
-      <item row="0" column="10">
+      <item row="0" column="9">
        <spacer name="horizontalSpacer_4">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -703,27 +703,13 @@ QProgressBar::chunk
        </spacer>
       </item>
       <item row="0" column="6">
-       <widget class="QToolButton" name="tBt_ScanReplace">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>Сканировать и
-заменить лист</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="7">
        <widget class="Line" name="line_3">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
         </property>
        </widget>
       </item>
-      <item row="0" column="8">
+      <item row="0" column="7">
        <widget class="QToolButton" name="tBt_LoadExt">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -1870,7 +1856,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>tBt_Load</tabstop>
   <tabstop>tBt_SelectSource</tabstop>
   <tabstop>tBt_ScanNew</tabstop>
-  <tabstop>tBt_ScanReplace</tabstop>
   <tabstop>tBt_LoadExt</tabstop>
   <tabstop>lstWgt_Attachments</tabstop>
   <tabstop>tBt_OpenExt</tabstop>
@@ -2010,26 +1995,10 @@ p, li { white-space: pre-wrap; }
    <sender>tBt_ScanNew</sender>
    <signal>clicked()</signal>
    <receiver>ElectroDoc_v2</receiver>
-   <slot>scanNew()</slot>
+   <slot>scannerStart()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>202</x>
-     <y>18</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>400</x>
-     <y>341</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>tBt_ScanReplace</sender>
-   <signal>clicked()</signal>
-   <receiver>ElectroDoc_v2</receiver>
-   <slot>scanReplace()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>291</x>
      <y>18</y>
     </hint>
     <hint type="destinationlabel">
@@ -2318,7 +2287,7 @@ p, li { white-space: pre-wrap; }
   <slot>scaleToOriginal()</slot>
   <slot>loadImage()</slot>
   <slot>scannerConfigTriggered()</slot>
-  <slot>scanNew()</slot>
+  <slot>scannerStart()</slot>
   <slot>scanReplace()</slot>
   <slot>setVisiblePage(int)</slot>
   <slot>zoomIn()</slot>

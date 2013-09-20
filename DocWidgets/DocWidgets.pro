@@ -15,7 +15,6 @@ DEFINES += DOCWIDGETS_LIBRARY
 
 INCLUDEPATH += ./ \
     ../include/ \
-    ../include/export
 
 SOURCES += \
     widgets/mfcwidget.cpp \
@@ -39,12 +38,21 @@ FORMS += \
 RESOURCES += \
     widgets/electrodoc_icons.qrc
 
+INSTALL_TO_DOCWIDGETSTEST = E:/devel/Libs/__tests__/DocWidgetsTest/bin
+QT_INSTALL_WIN_LIB = $$INSTALL_TO_DOCWIDGETSTEST
+
 unix:!symbian {
+
     maemo5 {
         target.path = /opt/usr/lib
     } else {
         target.path = /usr/lib
     }
+    INSTALLS += target
+}
+
+win32 {
+    target.path = $$QT_INSTALL_WIN_LIB
     INSTALLS += target
 }
 
@@ -71,4 +79,4 @@ CONFIG(debug, debug|release){
   UI_DIR = ../temp/$$TARGET/debug
 }
 
-LIBS += -lDossier
+LIBS += -lDossier -lQTwain

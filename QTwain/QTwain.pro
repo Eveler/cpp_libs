@@ -14,8 +14,7 @@ DEFINES += QTWAIN_LIBRARY
 
 
 INCLUDEPATH += ./ \
-    ../include/ \
-    ../include/export
+    ../include/
 
 SOURCES += \
     twain/twaincpp.cpp \
@@ -26,19 +25,20 @@ SOURCES += \
     twain/dibfile.c
 
 HEADERS += \
-    twain/twaincpp.h \
-    twain/twain.h \
+    ../include/twaincpp.h \
+    ../include/twain.h \
     twain/stdafx.h \
     ../include/qtwaininterface.h \
     ../include/qtwain.h \
     twain/dibutil.h \
     twain/dibapi.h \
-    twain/dib.h
+    ../include/dib.h
 
 RESOURCES +=
 
-INSTALL_TO = E:/devel/MFCScanProject/bin
-QT_INSTALL_WIN_LIB = $$INSTALL_TO
+INSTALL_TO_MFCScanProject = E:/devel/MFCScanProject/bin
+INSTALL_TO_DOCWIDGETSTEST = E:/devel/Libs/__tests__/DocWidgetsTest/bin
+QT_INSTALL_WIN_LIB = $$INSTALL_TO_DOCWIDGETSTEST
 
 unix:!symbian {
 

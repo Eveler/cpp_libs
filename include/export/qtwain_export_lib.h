@@ -1,6 +1,8 @@
 #ifndef QTWAIN_EXPORT_LIB_H
 #define QTWAIN_EXPORT_LIB_H
 
+#include <QtGlobal>
+
 #ifdef QTWAIN_LIBRARY
 #define EXPORT_QTWAIN Q_DECL_EXPORT
 #else
