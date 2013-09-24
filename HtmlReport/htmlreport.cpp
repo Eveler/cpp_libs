@@ -216,10 +216,6 @@ bool HtmlReport::assign(const QString &section, const QString &key,
     setError(tr("Секция %1 отсутствует в отчёте").arg(section));
     return false;
   }
-  if(!sectionsModels.contains(section)){
-    setError(tr("Модель данных секции %1 не определена").arg(section));
-    return false;
-  }
   if(!sectionsKeys.value(section).contains(key)){
     setError(tr("Ключ %1 отсутствует в секции %2").arg(key).arg(section));
     return false;
