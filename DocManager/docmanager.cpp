@@ -440,7 +440,7 @@ bool Docmanager::loadDocument(MFCDocument *doc){
     timer->start();
     loop->exec();
   }
-  return doc->isValid();
+  return doc->haveAttachments() || doc->havePages();
 }
 
 bool Docmanager::removeNewDocument(MFCDocument *doc){
@@ -667,7 +667,6 @@ bool Docmanager::saveDeleteDocuments(){
 }
 
 void Docmanager::clear(){
-  LogDebug()<<"clear() BEGIN";
   errStr.clear();
   cancelDownload();
 
@@ -721,7 +720,6 @@ void Docmanager::clear(){
   allDocs->clear();
   foreach(MFCDocument *doc,newDocs->documents()) MFCDocument::remove(doc);
   newDocs->clear();
-  LogDebug()<<"clear() END";
 }
 
 void Docmanager::cancelDownload(){

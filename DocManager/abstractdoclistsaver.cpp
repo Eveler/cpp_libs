@@ -244,7 +244,7 @@ void AbstractDocListSaver::documentSaveDone(QString path){
      || pn.contains(tr("Оригиналов").toLocal8Bit())
      || pn.contains(tr("Копий").toLocal8Bit())){
     qryStr="INSERT INTO document_metadata (documents_id,original_number,"
-        "copy_number,pages) VALUES (%1,%2,%3,%4)";
+        "copy_number,original_pages,copy_pages) VALUES (%1,%2,%3,%4,%5)";
     qryStr=qryStr.arg(id.toString());
     if(curDoc->property(tr("Оригиналов").toLocal8Bit()).isNull())
       qryStr=qryStr.arg("NULL");
@@ -254,10 +254,16 @@ void AbstractDocListSaver::documentSaveDone(QString path){
       qryStr=qryStr.arg("NULL");
     else
       qryStr=qryStr.arg(curDoc->property(tr("Копий").toLocal8Bit()).toInt());
-    if(curDoc->property(tr("Страниц").toLocal8Bit()).isNull())
+    if(curDoc->property(tr("Листов_оригинала").toLocal8Bit()).isNull())
       qryStr=qryStr.arg("NULL");
     else
-      qryStr=qryStr.arg(curDoc->property(tr("Страниц").toLocal8Bit()).toInt());
+      qryStr=qryStr.arg(
+            curDoc->property(tr("Листов_оригинала").toLocal8Bit()).toInt());
+    if(curDoc->property(tr("Листов_копии").toLocal8Bit()).isNull())
+      qryStr=qryStr.arg("NULL");
+    else
+      qryStr=qryStr.arg(
+            curDoc->property(tr("Листов_копии").toLocal8Bit()).toInt());
     if(!qry.exec(qryStr)){
       setError(tr("Ошибка сохранения метаданных документа в БД: %1 \nQUERY: %2")
                .arg(qry.lastError().text()).arg(qry.lastQuery()));

@@ -378,17 +378,15 @@ void ElectroDoc_v2::closeEvent(QCloseEvent *e){
 
 bool ElectroDoc_v2::nativeEvent( const QByteArray &eventType, void *message, long *result )
 {
-    Q_UNUSED(eventType);
-    if ( m_pTwain != NULL )
-        return winEvent( (MSG*)message, result );
-    else return MFCWidget::nativeEvent( eventType, message, result );
+  Q_UNUSED(eventType);
+  return winEvent( (MSG*)message, result );
 }
 
 bool ElectroDoc_v2::winEvent( MSG *message, long */*result*/ )
 {
-    if ( m_pTwain != NULL )
-        m_pTwain->processMessage(*message);
-    return false;
+  if ( m_pTwain != NULL )
+    m_pTwain->processMessage(*message);
+  return false;
 }
 
 void ElectroDoc_v2::addPage(const QString &pName, const QPixmap &pixmap){

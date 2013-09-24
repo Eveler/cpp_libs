@@ -77,4 +77,5 @@ CONFIG(debug, debug|release){
   UI_DIR = ../temp/$$TARGET/debug
 }
 
-LIBS += -lAMSLogger -lFTPEngine -lquazip
+CONFIG(release, debug|release) LIBS += -lAMSLogger -lFTPEngine -lquazip
+CONFIG(debug, debug|release) LIBS += -lAMSLogger -lFTPEngined -lquazip

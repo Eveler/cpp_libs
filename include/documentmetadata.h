@@ -21,8 +21,6 @@ public:
   void setAcceptEnabled(bool enabled=true);
 
 private slots:
-  void on_spBox_Pages_valueChanged(int arg1);
-
   void on_spBox_OriginalNumber_valueChanged(int arg1);
 
   void on_spBox_CopyNumber_valueChanged(int arg1);
@@ -34,10 +32,15 @@ private slots:
   bool canAccept() const;
   void on_buttonBox_accepted();
 
+  void on_spBox_OriginalPages_valueChanged(int arg1);
+
+  void on_spBox_CopyPages_valueChanged(int arg1);
+
 private:
   Ui::DocumentMetadata *ui;
   MFCDocument *document;
-  int pages;
+  int original_pages;
+  int copy_pages;
   int original_number;
   int copy_number;
 };
