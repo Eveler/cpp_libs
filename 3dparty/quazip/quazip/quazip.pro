@@ -49,8 +49,6 @@ SOURCES += *.c *.cpp
 #    DEFINES += NOMINMAX
 #}
 
-include(../../../install_path.pri)
-
 unix:!symbian {
 
     maemo5 {

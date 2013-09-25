@@ -13,7 +13,6 @@ TEMPLATE = lib
 
 DEFINES += DOSSIER_LIBRARY
 
-include(../install_path.pri)
 include(storages/ftp/ftpdocsstorage.pri)
 
 INCLUDEPATH += ./ \

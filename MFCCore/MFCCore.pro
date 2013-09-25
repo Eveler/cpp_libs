@@ -14,8 +14,6 @@ CONFIG(debug, debug|release): TARGET = $${TARGET}d
 
 TEMPLATE = lib
 
-include(../install_path.pri)
-
 DEFINES += EXPORT_LIB_MFCCORE
 
 INCLUDEPATH += ./ \
