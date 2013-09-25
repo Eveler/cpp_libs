@@ -13,7 +13,6 @@ TEMPLATE = lib
 
 DEFINES += DOSSIER_LIBRARY
 
-include(../install_path.pri)
 include(storages/ftp/ftpdocsstorage.pri)
 
 INCLUDEPATH += ./ \
@@ -77,4 +76,5 @@ CONFIG(debug, debug|release){
   UI_DIR = ../temp/$$TARGET/debug
 }
 
-LIBS += -lAMSLogger -lFTPEngine -lquazip
+CONFIG(release, debug|release) LIBS += -lAMSLogger -lFTPEngine -lquazip
+CONFIG(debug, debug|release) LIBS += -lAMSLogger -lFTPEngined -lquazip

@@ -6,8 +6,6 @@ CONFIG(debug, debug|release): TARGET = $${TARGET}d
 
 TEMPLATE = lib
 
-include(../install_path.pri)
-
 DEFINES += EXPORT_LIB_POST
 
 INCLUDEPATH += ./ \
@@ -51,7 +49,11 @@ greaterThan(QT_MAJOR_VERSION, 4) {
   DESTDIR = ../bin_qt5
   DLLDESTDIR = ../bin_qt5
 
-  LIBS += -L../bin_qt5/ \
+CONFIG(debug, debug|release) LIBS += -L../bin_qt5/ \
+    -lMFCCored \
+    -lDirectiond
+
+CONFIG(release, debug|release) LIBS += -L../bin_qt5/ \
       $$LIB_LIST
 }
 

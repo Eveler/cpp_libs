@@ -6,8 +6,6 @@ CONFIG(debug, debug|release): TARGET = $${TARGET}d
 
 TEMPLATE = lib
 
-include(../install_path.pri)
-
 DEFINES += EXPORT_LIB_MEMBER
 
 INCLUDEPATH += ./ \
@@ -42,7 +40,7 @@ win32 {
 LIB_LIST = \
     -lMFCCore \
     -lPost \
-    -lGroup \
+    -lGroup
 
 greaterThan(QT_MAJOR_VERSION, 4) {
   INCLUDEPATH += \
@@ -51,7 +49,12 @@ greaterThan(QT_MAJOR_VERSION, 4) {
   DESTDIR = ../bin_qt5
   DLLDESTDIR = ../bin_qt5
 
-  LIBS += -L../bin_qt5/ \
+ CONFIG(debug, debug|release) LIBS += -L../bin_qt5/ \
+    -lMFCCored \
+    -lPostd \
+    -lGroupd
+
+ CONFIG(release, debug|release) LIBS += -L../bin_qt5/ \
       $$LIB_LIST
 }
 
