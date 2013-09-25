@@ -11,6 +11,10 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += printsupport
 TARGET = DocWidgets
 TEMPLATE = lib
 
+exists( ../install_path.pri ){
+    include(../install_path.pri)
+}
+
 DEFINES += DOCWIDGETS_LIBRARY
 
 INCLUDEPATH += ./ \

@@ -6,6 +6,10 @@ CONFIG(debug, debug|release): TARGET = $${TARGET}d
 
 TEMPLATE = lib
 
+exists( ../install_path.pri ){
+    include(../install_path.pri)
+}
+
 DEFINES += EXPORT_LIB_GROUP
 
 INCLUDEPATH += ./ \
