@@ -10,6 +10,10 @@ greaterThan( QT_MAJOR_VERSION, 4 ) QT += widgets
 TARGET = QTwain
 TEMPLATE = lib
 
+exists( ../install_path.pri ){
+    include(../install_path.pri)
+}
+
 DEFINES += QTWAIN_LIBRARY
 
 

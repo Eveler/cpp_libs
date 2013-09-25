@@ -58,6 +58,7 @@ public:
 
   void reset();
   void clear();
+  void removeSection( const QString &name );
 
   QString errorString() const {return errStr;}
 

@@ -245,6 +245,13 @@ void HtmlReport::clear(){
   errStr.clear();
 }
 
+void HtmlReport::removeSection( const QString &name )
+{
+    repSections.remove( name );
+    sectionsKeys.remove( name );
+    sectionsModels.remove( name );
+}
+
 QString HtmlReport::generate(){
   if(repData.isEmpty()){
     setError(tr("Отчёт пуст"));

@@ -9,6 +9,10 @@ QT       += gui network
 TARGET = HtmlReport
 TEMPLATE = lib
 
+exists( ../install_path.pri ){
+    include(../install_path.pri)
+}
+
 DEFINES += HTMLREPORT_LIBRARY
 
 SOURCES += htmlreport.cpp

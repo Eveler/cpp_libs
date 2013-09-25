@@ -8,6 +8,10 @@ INCLUDEPATH += .
 DEFINES += QUAZIP_BUILD
 CONFIG(staticlib): DEFINES += QUAZIP_STATIC
 
+exists( ../../../install_path.pri ){
+    include(../../../install_path.pri)
+}
+
 # Input
 HEADERS += \
 crypt.h \

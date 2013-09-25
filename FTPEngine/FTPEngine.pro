@@ -6,6 +6,10 @@ CONFIG(debug, debug|release): TARGET = $${TARGET}d
 
 TEMPLATE = lib
 
+exists( ../install_path.pri ){
+    include(../install_path.pri)
+}
+
 DEFINES += FTPENGINE_LIBRARY
 #DEFINES += FTPENGINE_DEBUG
 

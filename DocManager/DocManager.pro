@@ -10,6 +10,10 @@ TEMPLATE = lib
 #CONFIG += staticlib release
 #CONFIG += create_prl
 
+exists( ../install_path.pri ){
+    include(../install_path.pri)
+}
+
 DEFINES += DOCMANAGER_LIBRARY
 
 #include(../mDossier/storages/ftp/ftpdocsstorage.pri)
