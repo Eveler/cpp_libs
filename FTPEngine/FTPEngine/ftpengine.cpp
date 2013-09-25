@@ -47,6 +47,7 @@ FTPEngine::~FTPEngine()
   m__Buffer = NULL;
 
   clearCommands();
+  if(m__CurrentCommand) delete m__CurrentCommand;
   m__CurrentCommand = NULL;
 
   while ( !m__DirInfo.isEmpty() )
@@ -495,7 +496,14 @@ void FTPEngine::clearCommands()
   while ( !m__Commands.isEmpty() )
   {
     FTPCommandsPool *commandsPool = m__Commands.takeFirst();
-    m__CommandIODevice.remove( commandsPool->mainCommand() );
+
+    QPair<FileInfo *, QIODevice *> iod=m__CommandIODevice.take(
+          commandsPool->mainCommand());
+    if(iod.first) delete iod.first;
+    iod.first=NULL;
+//    if(iod.second) delete iod.second;
+
+//    m__CommandIODevice.remove( commandsPool->mainCommand() );
     delete commandsPool;
   }
 }

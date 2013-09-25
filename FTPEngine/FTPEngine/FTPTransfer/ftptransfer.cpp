@@ -21,6 +21,8 @@ FTPTransfer::~FTPTransfer()
   m__Server = NULL;
   m__Client = NULL;
 //  loop->deleteLater();
+  if(m__Buffer) delete m__Buffer;
+  if(transfer) delete transfer;
   delete loop;
 }
 

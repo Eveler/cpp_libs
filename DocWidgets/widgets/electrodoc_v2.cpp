@@ -163,9 +163,11 @@ bool ElectroDoc_v2::setDetails(const Details details, const QVariant val){
     }else ui->cBox_DocAgency->setCurrentIndex(-1);
     break;
   case CreateDate:
+    if(!m_Document) return false;
     m_Document->setCreateDate(val.toDateTime());
     break;
   case Url:
+    if(!m_Document) return false;
     m_Document->setUrl(val.toString());
     break;
   }
@@ -432,6 +434,7 @@ void ElectroDoc_v2::addAttachment(const QString fileName,
 }
 
 void ElectroDoc_v2::removeSelectedAttachments(){
+  if(!m_Document) return;
   if(ui->lstWgt_Attachments->selectedItems().count()==0) return;
   QList< QListWidgetItem* > items=ui->lstWgt_Attachments->selectedItems();
   foreach(QListWidgetItem* item,items){
@@ -443,7 +446,7 @@ void ElectroDoc_v2::removeSelectedAttachments(){
 }
 
 bool ElectroDoc_v2::replacePage(const int pageNum, const QPixmap &pixmap){
-  if(pageNum<0 || pixmap.isNull()){
+  if(!m_Document || pageNum<0 || pixmap.isNull()){
     setError(tr("Ошибка при замене изображения"));
     return false;
   }
@@ -652,8 +655,8 @@ void ElectroDoc_v2::setVisiblePage(int pageNum){
 }
 
 void ElectroDoc_v2::movePage(const int from, const int to){
-  if(from<0 || to<0 || from==to || from>m_Document->pages()->count() ||
-     to>m_Document->pages()->count())
+  if(!m_Document || from<0 || to<0 || from==to
+     || from>m_Document->pages()->count() || to>m_Document->pages()->count())
     return;
   MFCDocumentPage *page1=new MFCDocumentPage(
         m_Document->pages()->getPage(from)->getPageName(),
@@ -688,6 +691,7 @@ void ElectroDoc_v2::moveCurrentPageDown(){
 }
 
 void ElectroDoc_v2::removeCurrentPage(){
+  if(!m_Document) return;
   int pageNum=ui->lWgt_Pages->currentRow();
   if(pageNum<0) return;
   if(!m_Document->pages()->removePage(pageNum)){
@@ -702,6 +706,7 @@ void ElectroDoc_v2::removeCurrentPage(){
 }
 
 void ElectroDoc_v2::rotate(const int angle){
+  if(!m_Document) return;
   QPixmap pix=QPixmap();
   int pageNum=ui->lWgt_Pages->currentRow();
   if(pageNum<0) return;
@@ -777,7 +782,7 @@ void ElectroDoc_v2::saveToFile(){
 }
 
 void ElectroDoc_v2::print(){
-  if(!m_Document->havePages()) return;
+  if(!m_Document || !m_Document->havePages()) return;
   QPrinter *printer=new QPrinter;
   QPrintPreviewDialog *printPreview=new QPrintPreviewDialog( printer );
 
@@ -887,7 +892,12 @@ void ElectroDoc_v2::confirm(){
     originalDocument=MFCDocument::instance(
           QString(),QString(),QString(),QString(),QDate(),QDate(),QString(),
           QDateTime(),QString());
-    originalDocument->copyFrom(m_Document);
+    if(!m_Document){
+      setError(tr("Ссылка на документ пуста"));
+      MFCDocument::remove(originalDocument);
+      originalDocument=NULL;
+    }else
+      originalDocument->copyFrom(m_Document);
   }
   canJustClose=true;
   saved=true;
@@ -903,7 +913,7 @@ void ElectroDoc_v2::reject(){
 }
 
 void ElectroDoc_v2::fileChanged(QString fName){
-  if(isReadOnly) return;
+  if(isReadOnly || !m_Document) return;
   QFileInfo fi(fName);
   if(fi.exists()){
     m_Document->attachments()->removeAttachment(fi.fileName());
@@ -913,6 +923,7 @@ void ElectroDoc_v2::fileChanged(QString fName){
 }
 
 void ElectroDoc_v2::openAttachment(){
+  if(!m_Document) return;
   if(ui->lstWgt_Attachments->selectedItems().count()==0) return;
   if(tmpFileName.length()>0) QFile::remove(tmpFileName);
   foreach(QListWidgetItem* item,ui->lstWgt_Attachments->selectedItems()){

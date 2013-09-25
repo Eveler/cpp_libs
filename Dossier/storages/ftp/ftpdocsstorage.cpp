@@ -33,8 +33,10 @@ FtpDocsStorage::FtpDocsStorage(const QString storageName,
 }
 
 FtpDocsStorage::~FtpDocsStorage(){
+  LogDebug()<<"~FtpDocsStorage() BEGIN";
 //  if(ftpEng) ftpEng->deleteLater();
   cancel();
+  LogDebug()<<"~FtpDocsStorage() END";
 }
 
 FtpDocsStorage &FtpDocsStorage::addStorage(const QString storageName){
@@ -267,11 +269,14 @@ bool FtpDocsStorage::saveZip(MFCDocument* doc,const QString fileName){
 }
 
 bool FtpDocsStorage::loadZip(QString fileName, MFCDocument *doc){
+  LogDebug()<<"loadZip("<<fileName<<",MFCDocument*) BEGIN";
   if(fileName.isEmpty() || !doc) return false;
   // обрабатываем архив и создаём MFCDocument
   QuaZipFile zip(fileName,"requisites.ini");
   if(!zip.open(QIODevice::ReadOnly)){
-    setError(tr("Ошибка при чтении архива: ")+zipErrStr(zip.getZipError()));
+    QFileInfo fi(fileName);
+    setError(tr("Ошибка при чтении архива: ")+zipErrStr(zip.getZipError())+
+             tr(" размер файла: %1").arg(fi.size()));
     return false;
   }
   QTemporaryFile reqFile("temp/requisites.ini");
@@ -360,6 +365,7 @@ bool FtpDocsStorage::loadZip(QString fileName, MFCDocument *doc){
   qDebug()<<"document:"<<doc->name()<<doc->series()<<doc->number()<<doc->date()<<
          "- created";
 #endif
+  LogDebug()<<"loadZip("<<fileName<<",MFCDocument*) END";
   return true;
 }
 
@@ -562,6 +568,7 @@ bool FtpDocsStorage::load(QString fileName, MFCDocument *doc){
 }
 
 void FtpDocsStorage::cancel(){
+  LogDebug()<<"cancel() BEGIN";
   if(ftpEng){
 //    ftpEng->deleteLater();
     delete ftpEng;
@@ -584,4 +591,5 @@ void FtpDocsStorage::cancel(){
   docsDone=1;
   docCount=1;
   isDownloading=false;
+  LogDebug()<<"cancel() END";
 }
