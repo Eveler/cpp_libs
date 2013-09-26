@@ -96,6 +96,15 @@ bool DocumentMetadata::canAccept() const
 
 void DocumentMetadata::on_buttonBox_accepted()
 {
+  if(original_number!=ui->spBox_OriginalNumber->value())
+    original_number=ui->spBox_OriginalNumber->value();
+  if(original_pages!=ui->spBox_OriginalPages->value())
+    original_pages=ui->spBox_OriginalPages->value();
+  if(copy_number!=ui->spBox_CopyNumber->value())
+    copy_number=ui->spBox_CopyNumber->value();
+  if(copy_pages!=ui->spBox_CopyPages->value())
+    copy_pages=ui->spBox_CopyPages->value();
+
   if(original_pages>0)
     document->setProperty(tr("Листов_оригинала").toLocal8Bit(),original_pages);
   if(copy_pages>0)
