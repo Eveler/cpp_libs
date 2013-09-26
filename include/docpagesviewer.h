@@ -57,9 +57,9 @@ signals:
   void progress(int,int);
 
 private slots:
-  void clear();
 
 public slots:
+  void clear();
   void timedOut();
   void documentChanged(MFCDocument *document);
   void scale(int percent);

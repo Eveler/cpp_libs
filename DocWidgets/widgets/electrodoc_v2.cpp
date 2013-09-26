@@ -324,6 +324,7 @@ void ElectroDoc_v2::setRestrictQuality(const bool r){
 void ElectroDoc_v2::clear(){
   ui->lWgt_Pages->clear();
   ui->lstWgt_Attachments->clear();
+  viewer->clear();
   if(m_Document!=NULL){
     MFCDocument::remove(m_Document);
     m_Document=NULL;

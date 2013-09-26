@@ -123,6 +123,7 @@ void DocPagesViewer::setPixmap(DocPageWidget *l){
 void DocPagesViewer::clear(){
   foreach(DocPageWidget *l,labels) delete l;
   labels.clear();
+  if(verticalScrollBar()) verticalScrollBar()->setValue(0);
 }
 
 void DocPagesViewer::timedOut(){
