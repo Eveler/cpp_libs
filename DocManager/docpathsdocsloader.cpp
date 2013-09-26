@@ -68,7 +68,7 @@ DocumentsModel *DocpathsDocsLoader::load(QVariant foreignID){
           qry.record().field("expires").value().toDate(),
           qry.record().field("agency").value().toString(),
           qry.record().field("created").value().toDateTime(),
-          qry.record().field("url").value().toString(),this);
+          qry.record().field("url").value().toString());
     connectDocument2Loader(doc);
     for(int f=0;f<qry.record().count();f++){
       if(skipNames.contains(qry.record().fieldName(f))) continue;

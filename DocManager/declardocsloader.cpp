@@ -69,7 +69,7 @@ DocumentsModel *DeclarDocsLoader::load(QVariant foreignID){
           qry.record().field("expires").value().toDate(),
           qry.record().field("agency").value().toString(),
           qry.record().field("created").value().toDateTime(),
-          qry.record().field("url").value().toString(),this);
+          qry.record().field("url").value().toString());
     connectDocument2Loader(doc);
 //    connect(doc,SIGNAL(needBody(QString,MFCDocument*)),
 //            docStorage,SLOT(load(QString,MFCDocument*)));
