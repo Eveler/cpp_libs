@@ -53,7 +53,9 @@ ElectroDoc_v2::ElectroDoc_v2(QWidget *parent) :
   title=tr("Электронный документ");
   setModified(false);
   saved=false;
+#ifdef Q_OS_WIN
   m_pTwain = NULL;
+#endif
 }
 
 ElectroDoc_v2::~ElectroDoc_v2()
@@ -379,18 +381,22 @@ void ElectroDoc_v2::closeEvent(QCloseEvent *e){
   QWidget::closeEvent(e);
 }
 
+#ifdef Q_OS_WIN
 bool ElectroDoc_v2::nativeEvent( const QByteArray &eventType, void *message, long *result )
 {
   Q_UNUSED(eventType);
   return winEvent( (MSG*)message, result );
 }
+#endif
 
+#ifdef Q_OS_WIN
 bool ElectroDoc_v2::winEvent( MSG *message, long */*result*/ )
 {
   if ( m_pTwain != NULL )
     m_pTwain->processMessage(*message);
   return false;
 }
+#endif
 
 void ElectroDoc_v2::addPage(const QString &pName, const QPixmap &pixmap){
   if(pixmap.isNull()){
@@ -531,6 +537,7 @@ void ElectroDoc_v2::loadExtFile(const QString fName){
   }
 }
 
+#ifdef Q_OS_WIN
 void ElectroDoc_v2::initTWAIN()
 {
     m_pTwain = new QTwain( NULL );
@@ -548,6 +555,7 @@ void ElectroDoc_v2::releaseTWAIN()
         m_pTwain = NULL;
     }
 }
+#endif
 
 void ElectroDoc_v2::showProgress(qint64 done, qint64 total){
   ui->pBar_Scan->setMaximum(total);

@@ -80,4 +80,7 @@ CONFIG(debug, debug|release){
   UI_DIR = ../temp/$$TARGET/debug
 }
 
-LIBS += -lDossier -lQTwain
+LIBS += -lDossier
+win32 {
+LIBS += -lQTwain
+}
