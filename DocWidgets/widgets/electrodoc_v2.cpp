@@ -12,6 +12,7 @@
 #include <QTextDecoder>
 #include <QMetaEnum>
 #include "ftpdocsstorage.h"
+#include "amslogger.h"
 
 ElectroDoc_v2::ElectroDoc_v2(QWidget *parent) :
   MFCWidget(parent),
@@ -187,7 +188,11 @@ void ElectroDoc_v2::setReadOnly(const bool readOnly){
     connect(ui->tBt_SaveDocument,SIGNAL(clicked()),this,SLOT(confirm()));
     ui->tBt_SaveDocument->setText(tr("Да, документ верный"));
 //    setCanJustClose(false);
-  }else ui->tBt_SaveDocument->setText(tr("Сохранить документ"));
+  }else{
+    disconnect(ui->tBt_SaveDocument,SIGNAL(clicked()),this,SLOT(confirm()));
+    connect(ui->tBt_SaveDocument,SIGNAL(clicked()),this,SLOT(save()));
+    ui->tBt_SaveDocument->setText(tr("Сохранить документ"));
+  }
 }
 
 void ElectroDoc_v2::setCanEditBody(const bool enabled){
@@ -329,8 +334,8 @@ void ElectroDoc_v2::clear(){
   ui->lEdit_DocSer->clear();
   ui->cBox_DocAgency->setCurrentIndex(-1);
   ui->cBox_DocType->setCurrentIndex(-1);
-  ui->dEdit_DocDate->clear();
-  ui->dEdit_DocExpires->clear();
+  ui->dEdit_DocDate->setDate(QDate());
+  ui->dEdit_DocExpires->setDate(QDate());
   ui->lWgt_Pages->clear();
   ui->lstWgt_Attachments->clear();
   viewer->clear();
@@ -346,7 +351,10 @@ bool ElectroDoc_v2::isModified(){
 }
 
 void ElectroDoc_v2::setModified(const bool m){
-  if(!m && isReadOnly) return;
+  if(!m && isReadOnly){
+    m_modified=false;
+    return;
+  }
   m_modified=m;
   setWindowTitle(title+(m?" *":""));
 }
