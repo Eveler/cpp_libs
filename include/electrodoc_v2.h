@@ -70,8 +70,10 @@ signals:
 
 protected:
   void closeEvent(QCloseEvent *e);
+#ifdef Q_OS_WIN
   bool nativeEvent(const QByteArray &eventType, void *message, long *result);
   bool winEvent( MSG *message, long */*result*/ );
+#endif
 
 private:
   Ui::ElectroDoc_v2 *ui;
