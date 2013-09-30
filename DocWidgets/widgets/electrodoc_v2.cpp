@@ -324,6 +324,13 @@ void ElectroDoc_v2::setRestrictQuality(const bool r){
 }
 
 void ElectroDoc_v2::clear(){
+  ui->lEdit_DocName->clear();
+  ui->lEdit_DocNum->clear();
+  ui->lEdit_DocSer->clear();
+  ui->cBox_DocAgency->setCurrentIndex(-1);
+  ui->cBox_DocType->setCurrentIndex(-1);
+  ui->dEdit_DocDate->clear();
+  ui->dEdit_DocExpires->clear();
   ui->lWgt_Pages->clear();
   ui->lstWgt_Attachments->clear();
   viewer->clear();
