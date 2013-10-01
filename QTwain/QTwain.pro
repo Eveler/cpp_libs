@@ -15,6 +15,7 @@ exists( ../install_path.pri ){
 }
 
 DEFINES += QTWAIN_LIBRARY
+DEFINES += NOMINMAX
 
 
 INCLUDEPATH += ./ \

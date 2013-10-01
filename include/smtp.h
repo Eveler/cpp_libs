@@ -25,7 +25,9 @@ private slots:
     void readyRead();
     void connected();
 
+#ifdef _DEBUG_
   void stateChanged( QAbstractSocket::SocketState socketState );
+#endif
   void errorReceived( QAbstractSocket::SocketError socketError );
   void disconnected();
 

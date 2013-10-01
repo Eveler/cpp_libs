@@ -20,9 +20,10 @@ QVariant muCalculator::calc( QString expression, int decCount )
   {
     p.SetExpr(expression_buffer);
     double result = p.Eval();
-    char buffer[expression_array.size()+1];
-    sprintf(buffer,"%f",result);
-    result_buffer = buffer;
+//    char buffer[expression_array.size()+1];
+//    sprintf(buffer,"%f",result);
+//    result_buffer = buffer;
+    result_buffer=QObject::tr("%1").arg(result).toLocal8Bit().constData();
   }
   catch(mu::Parser::exception_type &e)
   {

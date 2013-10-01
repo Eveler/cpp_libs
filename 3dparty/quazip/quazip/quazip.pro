@@ -44,14 +44,15 @@ SOURCES += *.c *.cpp
 
 #}
 
-#win32 {
+win32 {
+##     DEFINES+=ZLIB_WINAPI
 #    headers.path=$$PREFIX/include/quazip
 #    headers.files=$$HEADERS
 #    target.path=$$PREFIX/lib
 #    INSTALLS += headers target
 #    # workaround for qdatetime.h macro bug
-#    DEFINES += NOMINMAX
-#}
+    DEFINES += NOMINMAX
+}
 
 unix:!symbian {
 
@@ -95,11 +96,20 @@ symbian {
     }
 }
 
+#INCLUDEPATH += $$[QT_INSTALL_HEADERS/get]/QtZlib
+contains(QT_CONFIG, system-zlib) {
+    if(unix|win32-g++*): LIBS_PRIVATE += -lz
+    else:                LIBS += zdll.lib
+} else {
+    INCLUDEPATH += $$[QT_INSTALL_HEADERS/get]/QtZlib
+}
+
 greaterThan(QT_MAJOR_VERSION, 4) {
   INCLUDEPATH += \
       ../../../bin_qt5 \
       ../../../include
-  LIBS += -lz
+#  !win32-msvc*:LIBS += -lz
+#  win32-msvc*:LIBS += zdll.lib
 
   DESTDIR = ../../../bin_qt5
   DLLDESTDIR = ../../../bin_qt5
