@@ -25,6 +25,8 @@
 #include "dib.h"
 #endif
 
+#include <QEventLoop>
+
 
 namespace Ui {
 class ElectroDoc_v2;
@@ -36,20 +38,16 @@ class DOCWIDGETSSHARED_EXPORT ElectroDoc_v2 : public MFCWidget
   Q_PROPERTY(bool m_modified READ isModified WRITE setModified)
   Q_ENUMS(Details)
 public:
-  enum Details{Type,Name,Series,Number,Date,ExpiresDate,Agency,CreateDate,Url};
+  enum Details{Type,Name,Series,Number,Date,ExpiresDate,Agency,CreateDate};
+  enum State { Create = 0, Read, Check };
   explicit ElectroDoc_v2(QWidget *parent = 0);
   ~ElectroDoc_v2();
   /// Наполнение справочников
-  void setGuides(const QHash<QString,QStringList> &guides);
+  void setDoctypes( QStringList doctypes );
   /// Заполнение реквизитов
-  bool setDetails(const QHash<QString,QVariant> &details);
   bool setDetails(const Details details,const QVariant val=QVariant());
 
-  void setReadOnly(const bool readOnly=true);
-  void setCanEditBody(const bool enabled=true);
-  void setCanEditDetails(const bool enabled=true);
-  void setCanEditAttachments(const bool enabled=true);
-  void setCanJustClose(const bool can=true);
+  void setState( State state = Create );
   bool setDocument(MFCDocument *document);
   MFCDocument *document() const;
   QString errorString();
@@ -59,8 +57,8 @@ public:
   bool isModified();
   void setModified(const bool m);
   QString detailsName(const Details details) const;
-  QToolButton *tBt_RejectDocument();
-  QToolButton *tBt_SaveDocument();
+
+  int exec( bool maximized = true );
 
 signals:
   void error(QString);
@@ -93,6 +91,9 @@ private:
   bool isReadOnly;
   QString tmpFileName;
   bool canJustClose;
+  QEventLoop *loop;
+
+  void setReadOnly(const bool readOnly=true);
 
   void addPage(const QString &pName,const QPixmap &pixmap);
   void addAttachment(const QString fileName,const QString mimeType,

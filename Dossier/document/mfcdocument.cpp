@@ -2,7 +2,7 @@
 #include "mfcdocument.h"
 #include "amslogger.h"
 
-QHash< MFCDocument*,int > MFCDocument::instances=QHash< MFCDocument*,int >();
+QList<MFCDocument *> MFCDocument::instances = QList<MFCDocument *>();
 QHash< QUuid, MFCDocument * > MFCDocument::doclist=QHash< QUuid, MFCDocument * >();
 
 MFCDocument::MFCDocument(QObject *parent) :
@@ -30,27 +30,26 @@ MFCDocument::~MFCDocument()
     LogWarning()<<"Document"<<this<<"("<<props.join("; ")
                <<") deleted directly from destructor! "
                  "Use MFCDocument::remove(doc) instead!";
-    instances.remove(this);
+    instances.removeOne(this);
     doclist.remove( uuid() );
   }
   delete m_pages;
+  m_pages = NULL;
   delete m_attachments;
+  m_attachments = NULL;
 }
 
-MFCDocument *MFCDocument::instance(QString doc_type,QString doc_name,
-                                   QString doc_series,QString doc_number,
-                                   QDate doc_date,QDate doc_expires,
-                                   QString doc_agency,QDateTime doc_createdate,
-                                   QString doc_url,QObject *parent){
-  foreach(MFCDocument *doc,instances.keys()){
+MFCDocument *MFCDocument::instance(QString doc_type, QString doc_name,
+                                   QString doc_series, QString doc_number,
+                                   QDate doc_date, QDate doc_expires,
+                                   QString doc_agency, QDateTime doc_createdate,
+                                   QObject *parent){
+  foreach ( MFCDocument *doc,instances )
+  {
     if(doc->type()==doc_type && doc->date()==doc_date
        && doc->createDate()==doc_createdate && doc->number()==doc_number
        && doc->name()==doc_name && doc->series()==doc_series
-       && doc->expiresDate()==doc_expires && doc->agency()==doc_agency
-       && doc->url()==doc_url){
-      instances[doc]++;
-      LogDebug()<<doc->type()<<"("<<doc<<") referenced now"<<instances.value(doc)
-               <<"times";
+       && doc->expiresDate()==doc_expires && doc->agency()==doc_agency){
       return doc;
     }
   }
@@ -59,7 +58,39 @@ MFCDocument *MFCDocument::instance(QString doc_type,QString doc_name,
   doc->setType(doc_type);
   doc->setDate(doc_date);
   doc->setCreateDate(doc_createdate);
-  instances.insert(doc,1);
+  instances << doc;
+  doclist.insert( QUuid::createUuid(), doc );
+  QStringList props;
+  foreach(QByteArray pn,doc->dynamicPropertyNames())
+    props<<pn+" = "+doc->property(pn).toString();
+  for(int i=0;i<doc->metaObject()->propertyCount();i++){
+    QMetaProperty p=doc->metaObject()->property(i);
+    QVariant v=doc->property(p.name());
+    props<<tr(p.name())+" = "+(v.isNull() || !v.isValid()?"<NULL>":v.toString());
+  }
+  LogDebug()<<"Created instance "<<doc<<" ("<<props.join("; ")<<")";
+  return doc;
+}
+
+MFCDocument * MFCDocument::instance( MFCDocumentIOProvider *provider, QObject *parent )
+{
+  MFCDocument *doc = new MFCDocument( parent );
+  if ( !provider->load( doc ) ) return NULL;
+
+  foreach( MFCDocument *idoc, instances )
+  {
+    if( idoc->type()==doc->type() && idoc->date()==doc->date() &&
+        idoc->createDate()==doc->createDate() && idoc->number()==doc->number() &&
+        idoc->name()==doc->name() && idoc->series()==doc->series() &&
+        idoc->expiresDate()==doc->expiresDate() && idoc->agency()==doc->agency())
+    {
+      delete doc;
+      doc = NULL;
+      return idoc;
+    }
+  }
+
+  instances << doc;
   doclist.insert( QUuid::createUuid(), doc );
   QStringList props;
   foreach(QByteArray pn,doc->dynamicPropertyNames())
@@ -89,7 +120,6 @@ bool MFCDocument::copyFrom(MFCDocument *doc){
   setExpiresDate(doc->expiresDate());
   setAgency(doc->agency());
   setCreateDate(doc->createDate());
-  setUrl(doc->url());
 
   if(doc->haveAttachments())
     for(int i=0;i<doc->attachments()->count();i++){
@@ -181,14 +211,6 @@ void MFCDocument::setCreateDate( QDateTime doc_createdate )
   emit propertyChanged("createdate",doc_createdate);
 }
 
-void MFCDocument::setUrl(const QString docUrl){
-  if(!m_url.isNull() && docUrl!=m_url &&
-     (havePages() || haveAttachments())) changed=true;
-  m_url=docUrl;
-  emit urlChanged();
-  emit propertyChanged("url",docUrl);
-}
-
 void MFCDocument::addPage(MFCDocumentPage &page){
 //  else changed=true;
   m_pages->addPage(page);
@@ -257,10 +279,6 @@ const QDateTime & MFCDocument::createDate()
   return m_CreateDate;
 }
 
-const QString & MFCDocument::url(){
-  return m_url;
-}
-
 bool MFCDocument::havePages(){
   return m_pages->count()>0;
 }
@@ -284,7 +302,6 @@ bool MFCDocument::isChanged(){
 bool MFCDocument::isValid(){
   bool is=(havePages() || haveAttachments()) && !m_Type.isEmpty() &&
       m_Date.isValid();
-  if(!is) emit needBody(url(),this);
   return is;
 }
 
@@ -313,25 +330,22 @@ MFCDocument * MFCDocument::document( QUuid uuid )
     return doclist.value( uuid, NULL );
 }
 
+void MFCDocument::removeAll()
+{
+  while ( !instances.isEmpty() )
+  {
+    MFCDocument *doc = instances.takeFirst();
+    delete doc;
+  }
+  doclist.clear();
+}
+
 void MFCDocument::remove(MFCDocument *doc){
-  if(instances.contains(doc)){
-    instances[doc]--;
-    doclist.remove( doc->uuid() );
-    LogDebug()<<doc->type()<<"("<<doc<<") referenced now"<<instances.value(doc)
-             <<"times";
-    if(instances.value(doc)<=0){
-      instances.remove(doc);
-      QStringList props;
-      foreach(QByteArray pn,doc->dynamicPropertyNames())
-        props<<pn+" = "+doc->property(pn).toString();
-      for(int i=0;i<doc->metaObject()->propertyCount();i++){
-        QMetaProperty p=doc->metaObject()->property(i);
-        QVariant v=doc->property(p.name());
-        props<<tr(p.name())+" = "+(v.isNull() || !v.isValid()?"<NULL>":v.toString());
-      }
-      LogDebug()<<"Removed instance "<<doc<<" ("<<props.join("; ")<<")";
-      delete doc;
-    }
+  if( instances.contains( doc ) )
+  {
+    instances.removeOne(doc);
+    doclist.remove( doclist.key( doc ) );
+    delete doc;
   }
 }
 
@@ -351,7 +365,6 @@ void MFCDocument::init(){
   m_CreateDate = QDateTime::currentDateTime();
   m_pages=new MFCDocumentPages( this );
   m_attachments=new DocAttachments( this );
-  m_url=QString();
   connect(this,SIGNAL(destroyed()),SLOT(remove()));
 }
 

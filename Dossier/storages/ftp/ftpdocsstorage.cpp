@@ -450,7 +450,7 @@ void FtpDocsStorage::ftpAnswer(FTPEngine::Command cmd, bool res){
     if(!curDoc)
       curDoc=MFCDocument::instance(
             QString(),QString(),QString(),QString(),QDate(),QDate(),QString(),
-            QDateTime(),QString(),this);
+            QDateTime(),this);
     if(!arc){
       arc=qobject_cast< QFile* >(ftpEng->buffer());
     }

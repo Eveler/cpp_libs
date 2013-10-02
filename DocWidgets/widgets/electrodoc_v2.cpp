@@ -15,10 +15,11 @@
 
 ElectroDoc_v2::ElectroDoc_v2(QWidget *parent) :
   MFCWidget(parent),
-  ui(new Ui::ElectroDoc_v2)
+  ui(new Ui::ElectroDoc_v2),
+  loop(new QEventLoop(this))
 {
   ui->setupUi(this);
-  setCanJustClose();
+  canJustClose = true;
 
   ui->lstWgt_Attachments->clear();
   viewer=new DocPagesViewer(ui->wgt_Pages);
@@ -67,143 +68,87 @@ ElectroDoc_v2::~ElectroDoc_v2()
   delete ui;
 }
 
-void ElectroDoc_v2::setGuides(const QHash<QString, QStringList> &guides){
-  if(guides.contains(tr("doctypes"))){
-    ui->cBox_DocType->setModel(new QStandardItemModel(ui->cBox_DocType));
-    ui->cBox_DocType->clear();
-    ui->cBox_DocType->addItems(guides.value(tr("doctypes")));
-    ui->cBox_DocType->setCurrentIndex(-1);
-  }
-
-  if(guides.contains(tr("docagency"))){
-    ui->cBox_DocAgency->setModel(new QStandardItemModel(ui->cBox_DocType));
-    ui->cBox_DocAgency->clear();
-    ui->cBox_DocAgency->addItems(guides.value(tr("docagency")));
-    ui->cBox_DocAgency->setCurrentIndex(-1);
-  }
+void ElectroDoc_v2::setDoctypes( QStringList doctypes )
+{
+  ui->cBox_DocType->clear();
+  ui->cBox_DocType->addItems( doctypes );
+  ui->cBox_DocType->setCurrentIndex(-1);
 }
 
-bool ElectroDoc_v2::setDetails(const QHash<QString,QVariant> &details){
-  int cBoxIdx=-1;
-  if(!details.value("docTypeId").isNull()){
-    cBoxIdx=ui->cBox_DocType->findData(details.value("docTypeId"),Qt::DisplayRole);
-    ui->cBox_DocType->setCurrentIndex(cBoxIdx);
-    if(ui->cBox_DocType->currentIndex()<0)
-      ui->cBox_DocType->setCurrentIndex(
-            ui->cBox_DocType->findText(details.value("docTypeId").toString()));
-    if(ui->cBox_DocType->currentIndex()==-1){
-      setError(tr("Не удалось найти ID типа документа: %1").arg(
-                 details.value("docTypeId").toString()));
-      return false;
-    }
-  }
-  ui->lEdit_DocName->setText(details.value("docName").toString());
-  ui->lEdit_DocSer->setText(details.value("docSer").toString());
-  ui->lEdit_DocNum->setText(details.value("docNum").toString());
-  ui->dEdit_DocDate->setDate(details.value("docDate").toDate());
-  ui->dEdit_DocExpires->setDate(details.value("docExpires").toDate());
-  if(!details.value("docAgencyId").isNull()){
-    cBoxIdx=ui->cBox_DocAgency->findData(details.value("docAgencyId"),Qt::DisplayRole);
-    ui->cBox_DocAgency->setCurrentIndex(cBoxIdx);
-    if(ui->cBox_DocAgency->currentIndex()<0)
-      ui->cBox_DocAgency->setCurrentIndex(
-            ui->cBox_DocAgency->findText(details.value("docAgencyId").toString()));
-    if(ui->cBox_DocAgency->currentIndex()==-1){
-      setError(tr("Не удалось найти ID органа, выдавшего документ: %1").arg(
-                 details.value("docAgencyId").toString()));
-      return false;
-    }
-  }
-  return true;
-}
-
-bool ElectroDoc_v2::setDetails(const Details details, const QVariant val){
+bool ElectroDoc_v2::setDetails(const Details details, const QVariant val)
+{
   switch(details){
-  case Type:
-    if(!val.isNull()){
-      int cBoxIdx=ui->cBox_DocType->findData(val,Qt::DisplayRole);
-      ui->cBox_DocType->setCurrentIndex(cBoxIdx);
-      if(ui->cBox_DocType->currentIndex()<0)
-        ui->cBox_DocType->setCurrentIndex(
-              ui->cBox_DocType->findText(val.toString()));
-      if(ui->cBox_DocType->currentIndex()==-1){
-        setError(tr("Не удалось найти ID типа документа: %1").arg(
-                   val.toString()));
+    case Type:
+      ui->cBox_DocType->setCurrentIndex( ui->cBox_DocType->findText( val.toString() ) );
+      if( ui->cBox_DocType->currentIndex() == -1 )
+      {
+        setError( tr( "Не удалось найти тип документа: %1" ).arg( val.toString() ) );
         return false;
       }
-    }else ui->cBox_DocType->setCurrentIndex(-1);
-    break;
-  case Name:
-    ui->lEdit_DocName->setText(val.toString());
-    break;
-  case Series:
-    ui->lEdit_DocSer->setText(val.toString());
-    break;
-  case Number:
-    ui->lEdit_DocNum->setText(val.toString());
-    break;
-  case Date:
-    ui->dEdit_DocDate->setDate(val.toDate());
-    break;
-  case ExpiresDate:
-    ui->dEdit_DocExpires->setDate(val.toDate());
-    break;
-  case Agency:
-    if(!val.isNull()){
-      int cBoxIdx=ui->cBox_DocAgency->findData(val,Qt::DisplayRole);
-      ui->cBox_DocAgency->setCurrentIndex(cBoxIdx);
-      if(ui->cBox_DocAgency->currentIndex()<0)
-        ui->cBox_DocAgency->setCurrentIndex(
-              ui->cBox_DocAgency->findText(val.toString()));
-      if(ui->cBox_DocAgency->currentIndex()==-1){
-        setError(tr("Не удалось найти ID органа, выдавшего документ: %1").arg(
-                   val.toString()));
-        return false;
-      }
-    }else ui->cBox_DocAgency->setCurrentIndex(-1);
-    break;
-  case CreateDate:
-    if(!m_Document) return false;
-    m_Document->setCreateDate(val.toDateTime());
-    break;
-  case Url:
-    if(!m_Document) return false;
-    m_Document->setUrl(val.toString());
-    break;
+      break;
+    case Name:
+      ui->lEdit_DocName->setText(val.toString());
+      break;
+    case Series:
+      ui->lEdit_DocSer->setText(val.toString());
+      break;
+    case Number:
+      ui->lEdit_DocNum->setText(val.toString());
+      break;
+    case Date:
+      ui->dEdit_DocDate->setDate(val.toDate());
+      break;
+    case ExpiresDate:
+      ui->dEdit_DocExpires->setDate(val.toDate());
+      break;
+    case Agency:
+      if(!val.isNull()){
+        int cBoxIdx=ui->cBox_DocAgency->findData(val,Qt::DisplayRole);
+        ui->cBox_DocAgency->setCurrentIndex(cBoxIdx);
+        if(ui->cBox_DocAgency->currentIndex()<0)
+          ui->cBox_DocAgency->setCurrentIndex(
+                ui->cBox_DocAgency->findText(val.toString()));
+        if(ui->cBox_DocAgency->currentIndex()==-1){
+          setError(tr("Не удалось найти ID органа, выдавшего документ: %1").arg(
+                     val.toString()));
+          return false;
+        }
+      }else ui->cBox_DocAgency->setCurrentIndex(-1);
+      break;
+    case CreateDate:
+      if(!m_Document) return false;
+      m_Document->setCreateDate(val.toDateTime());
+      break;
   }
   return true;
 }
 
-void ElectroDoc_v2::setReadOnly(const bool readOnly){
-  isReadOnly=readOnly;
-  setCanEditDetails(!isReadOnly);
-  setCanEditBody(!isReadOnly);
-  setCanEditAttachments(!isReadOnly);
-//  ui->tBt_SaveDocument->setDisabled(isReadOnly);
-  if(isReadOnly){
-    disconnect(ui->tBt_SaveDocument,SIGNAL(clicked()),this,SLOT(save()));
-    connect(ui->tBt_SaveDocument,SIGNAL(clicked()),this,SLOT(confirm()));
-    ui->tBt_SaveDocument->setText(tr("Да, документ верный"));
-//    setCanJustClose(false);
-  }else ui->tBt_SaveDocument->setText(tr("Сохранить документ"));
-}
-
-void ElectroDoc_v2::setCanEditBody(const bool enabled){
-  ui->wgt_ToolBar->setEnabled(enabled);
-//  ui->wgt_PageEdit->setEnabled(enabled);
-}
-
-void ElectroDoc_v2::setCanEditDetails(const bool enabled){
-  ui->wgt_Details->setEnabled( enabled );
-}
-
-void ElectroDoc_v2::setCanEditAttachments(const bool enabled){
-  ui->tBt_RemoveExt->setEnabled(enabled);
-  ui->tBt_LoadExt->setEnabled(enabled);
-}
-
-void ElectroDoc_v2::setCanJustClose(const bool can){
-  canJustClose=can;
+void ElectroDoc_v2::setState( State state )
+{
+  switch (state)
+  {
+    case Create:
+      canJustClose = true;
+      setReadOnly( false );
+      ui->tBt_SaveDocument->setVisible( true );
+      ui->tBt_RejectDocument->setVisible( true );
+      ui->tBt_RejectDocument->setText( tr( "Отмена" ) );
+      break;
+    case Check:
+      canJustClose = false;
+      setReadOnly( true );
+      ui->tBt_SaveDocument->setVisible( true );
+      ui->tBt_RejectDocument->setVisible( true );
+      ui->tBt_RejectDocument->setText( tr( "Отмена" ) );
+      break;
+    default:
+      canJustClose = true;
+      setReadOnly( true );
+      ui->tBt_SaveDocument->setVisible( false );
+      ui->tBt_RejectDocument->setVisible( true );
+      ui->tBt_RejectDocument->setText( tr( "Закрыть" ) );
+      break;
+  }
 }
 
 bool ElectroDoc_v2::setDocument(MFCDocument *document){
@@ -214,9 +159,7 @@ bool ElectroDoc_v2::setDocument(MFCDocument *document){
 //  m_Document=document;
   originalDocument=document;
   if(m_Document==NULL)
-    m_Document=MFCDocument::instance(
-          QString(),QString(),QString(),QString(),QDate(),QDate(),QString(),
-          QDateTime(),QString());
+    m_Document=MFCDocument::instance();
   m_Document->copyFrom(document);
 
   ui->pBar_Scan->setFormat( tr("Загрузка: %p%") );
@@ -347,12 +290,12 @@ QString ElectroDoc_v2::detailsName(const Details details) const{
   return tr(en.valueToKey(details));
 }
 
-QToolButton *ElectroDoc_v2::tBt_RejectDocument(){
-  return ui->tBt_RejectDocument;
-}
-
-QToolButton *ElectroDoc_v2::tBt_SaveDocument(){
-  return ui->tBt_SaveDocument;
+int ElectroDoc_v2::exec( bool maximized )
+{
+  if ( loop->isRunning() ) return -1;
+  if ( maximized ) showMaximized();
+  else show();
+  return loop->exec();
 }
 
 void ElectroDoc_v2::closeEvent(QCloseEvent *e){
@@ -360,22 +303,35 @@ void ElectroDoc_v2::closeEvent(QCloseEvent *e){
     int answer=QMessageBox::question(this,tr("Внимание"),
                                      tr("Документ изменён! Выйти без сохранения"),
                                      tr("Да"),tr("Нет"));
-    if(answer<1){
+    if( answer < 1 )
+    {
       e->accept();
       emit closed();
-    }else{
+      loop->exit();
+    }
+    else
+    {
       e->ignore();
       setVisible(true);
       return;
     }
-  }else if(saved && canJustClose){
+  }
+  else if( saved && canJustClose )
+  {
     emit saveCompleted(true,originalDocument/*m_Document*/);
     emit closed();
-  }else if(!canJustClose){
+    loop->exit();
+  }
+  else if(!canJustClose){
     e->ignore();
     setVisible(true);
     return;
-  }else emit closed();
+  }
+  else
+  {
+    loop->exit();
+    emit closed();
+  }
   QWidget::closeEvent(e);
 }
 
@@ -392,15 +348,27 @@ bool ElectroDoc_v2::winEvent( MSG *message, long */*result*/ )
   return false;
 }
 
+void ElectroDoc_v2::setReadOnly(const bool readOnly){
+  isReadOnly=readOnly;
+  ui->wgt_ToolBar->setEnabled( !isReadOnly );
+  ui->wgt_PageEdit->setEnabled( !isReadOnly );
+  ui->wgt_Details->setEnabled( !isReadOnly );
+  ui->tBt_RemoveExt->setEnabled( !isReadOnly );
+  ui->tBt_LoadExt->setEnabled( !isReadOnly );
+  if(isReadOnly){
+    disconnect(ui->tBt_SaveDocument,SIGNAL(clicked()),this,SLOT(save()));
+    connect(ui->tBt_SaveDocument,SIGNAL(clicked()),this,SLOT(confirm()));
+    ui->tBt_SaveDocument->setText(tr("Да, документ верный"));
+  }else ui->tBt_SaveDocument->setText(tr("Сохранить документ"));
+}
+
 void ElectroDoc_v2::addPage(const QString &pName, const QPixmap &pixmap){
   if(pixmap.isNull()){
     setError(tr("Ошибка при добавлении изображения"));
     return;
   }
   if(m_Document==NULL){
-    m_Document=MFCDocument::instance(
-          QString(),QString(),QString(),QString(),QDate(),QDate(),QString(),
-          QDateTime(),QString());
+    m_Document=MFCDocument::instance();
   }
 //  pixmap.d
   MFCDocumentPage *pg=new MFCDocumentPage(pName,pixmap);
@@ -420,9 +388,7 @@ void ElectroDoc_v2::addAttachment(const QString fileName,
                                   const QByteArray &fileData){
   if(fileName.isEmpty()) return;
   if(m_Document==NULL){
-    m_Document=MFCDocument::instance(
-          QString(),QString(),QString(),QString(),QDate(),QDate(),QString(),
-          QDateTime(),QString());
+    m_Document=MFCDocument::instance();
   }
 
   if(ui->lstWgt_Attachments->findItems(fileName,Qt::MatchExactly).count()==0){
@@ -813,8 +779,6 @@ void ElectroDoc_v2::doPrint(QPrinter *printer){
 
 void ElectroDoc_v2::save(){
   if(!ui->tBt_SaveDocument->isEnabled()) return;
-  ui->tBt_SaveDocument->setEnabled(false);
-  qApp->processEvents();
 
   QString needFillText;
   if(ui->cBox_DocType->currentIndex()==-1) needFillText=ui->label_1->text()+"\n";
@@ -827,14 +791,14 @@ void ElectroDoc_v2::save(){
     QMessageBox::warning(this,tr("Внимание!"),
                          tr("Для сохранения документа необходимо заполнить\n\n")+
                          needFillText);
-    ui->tBt_SaveDocument->setEnabled(true);
     return;
   }
 
   needFillText.clear();
   if(ui->cBox_DocType->findText(ui->cBox_DocType->currentText())<0)
     needFillText=ui->label_1->text()+"\n";
-  if(ui->cBox_DocAgency->findText(ui->cBox_DocAgency->currentText())<0)
+  if( ui->cBox_DocAgency->currentIndex() > -1 &&
+      ui->cBox_DocAgency->findText( ui->cBox_DocAgency->currentText() ) < 0 )
     needFillText+=ui->label_5->text()+"\n";
   if(!needFillText.isEmpty()){
     QMessageBox::warning(this,tr("Внимание!"),
@@ -863,6 +827,8 @@ void ElectroDoc_v2::save(){
     }
     msg = NULL;
   }
+  ui->tBt_SaveDocument->setEnabled(false);
+  qApp->processEvents();
   m_Document->setType( ui->cBox_DocType->currentText() );
   m_Document->setName( ui->lEdit_DocName->text().simplified() );
   m_Document->setSeries( ui->lEdit_DocSer->text().simplified() );
@@ -877,9 +843,7 @@ void ElectroDoc_v2::save(){
 
 //  hide();
   if(originalDocument==NULL){
-    originalDocument=MFCDocument::instance(
-          QString(),QString(),QString(),QString(),QDate(),QDate(),QString(),
-          QDateTime(),QString());
+    originalDocument=MFCDocument::instance();
   }
   if(isModified() && !isReadOnly) originalDocument->copyFrom(m_Document);
   setModified(false);
@@ -890,9 +854,7 @@ void ElectroDoc_v2::save(){
 
 void ElectroDoc_v2::confirm(){
   if(originalDocument==NULL){
-    originalDocument=MFCDocument::instance(
-          QString(),QString(),QString(),QString(),QDate(),QDate(),QString(),
-          QDateTime(),QString());
+    originalDocument=MFCDocument::instance();
     if(!m_Document){
       setError(tr("Ссылка на документ пуста"));
       MFCDocument::remove(originalDocument);

@@ -30,6 +30,8 @@ SOURCES += \
     document/mfcdocumentpage.cpp \
     storages/ftp/ftpdocsstorage.cpp \
     storages/abstractdocsstorage.cpp \
+    providers/mfcdocumentioprovider.cpp \
+    providers/mfcdocumentzipper.cpp
 
 HEADERS += \
     ../include/mfcdocument.h \
@@ -39,6 +41,8 @@ HEADERS += \
     ../include/docattachment.h \
     ../include/ftpdocsstorage.h \
     ../include/abstractdocsstorage.h \
+    ../include/mfcdocumentioprovider.h \
+    ../include/mfcdocumentzipper.h
 
 RESOURCES +=
 
