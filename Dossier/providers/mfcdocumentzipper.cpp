@@ -8,6 +8,9 @@
 #include <QObject>
 #include <QTemporaryFile>
 #include <QSettings>
+#include <QMetaProperty>
+#include <QImageReader>
+#include <QBuffer>
 
 
 MFCDocumentZipper::MFCDocumentZipper( QObject *parent ) :
@@ -130,7 +133,162 @@ bool MFCDocumentZipper::load( MFCDocument *doc )
 
 bool MFCDocumentZipper::save( MFCDocument *doc )
 {
+  QuaZip zip( m__FilePath );
+  if(!zip.open(QuaZip::mdCreate)){
+    setError( tr( "Ошибка при создании архива: " )+zipErrStr(zip.getZipError()) );
+    return false;
+  }
 
+  QuaZipFile zipf(&zip);
+  QuaZipNewInfo zinfo=QuaZipNewInfo("");
+
+  // сохраним реквизиты документа //////////////////////////////////////////////
+#ifndef QT_NO_DEBUG
+  qDebug()<<"Archiving doc requisites";
+#endif
+  zinfo=QuaZipNewInfo(tr("requisites.ini"));
+  zinfo.internalAttr=0660;
+  zinfo.externalAttr=0660;
+  if(!zipf.open(QIODevice::WriteOnly,zinfo)){
+    setError( tr( "Ошибка при добавлении реквизитов в архив: ")+
+              zipErrStr(zipf.getZipError()) );
+    return false;
+  }
+  QTextStream stream(&zipf);
+  stream.setCodec("UTF-8");
+  stream<<"[FORMAT]\n";
+  stream<<"version=1.0\n";
+  stream<<"[e-Doc]"<<"\n";
+  const QMetaObject *mobj=doc->metaObject();
+  for(int i=mobj->propertyOffset();i<mobj->propertyCount();i++){
+    QMetaProperty p=mobj->property(i);
+    stream<<p.name()<<"=";
+    if(p.type()==QVariant::DateTime)
+      stream<<doc->property(p.name()).toDateTime().toString(
+                "dd.MM.yyyy hh:mm:ss.zzz")<<"\n";
+    else if(p.type()==QVariant::Date)
+      stream<<doc->property(p.name()).toDateTime().toString(
+                "dd.MM.yyyy")<<"\n";
+    else stream<<"\""<<doc->property(p.name()).toString()<<"\"\n";
+  }
+  if(doc->haveAttachments()){
+    DocAttachments *atts=doc->attachments();
+    stream<<"[ATTACHMENTS]\n";
+    stream<<"count="<<atts->count()<<"\n";
+    for(int a=0;a<atts->count();a++){
+      DocAttachment att=atts->getAttachment(a);
+      stream<<"filename"<<a<<"="<<att.fileName()<<"\n";
+      stream<<"mimetype"<<a<<"="<<att.mimeType()<<"\n";
+      stream<<"file"<<a<<"="<<"attachment"<<a<<"\n";
+    }
+  }
+  if(doc->havePages()){
+    MFCDocumentPages *pages=doc->pages();
+    stream<<"[PAGES]\n";
+    stream<<"count="<<pages->count()<<"\n";
+    for(int p=0;p<pages->count();p++){
+      MFCDocumentPage *page=pages->getPage(p);
+      stream<<"name"<<p<<"="<<page->getPageName()<<"\n";
+      stream<<"file"<<p<<"="<<"page"<<p<<".jpg\n";
+    }
+  }
+  stream.flush();
+  zipf.close();
+  if(zipf.getZipError()!=UNZ_OK){
+    setError( tr( "Ошибка при добавлении реквизитов в архив: ")+
+              zipErrStr(zipf.getZipError()) );
+    return false;
+  }
+  ////////////////////////////////////////////// сохраним реквизиты документа //
+
+  // сохраним вложение (документ, созданный в сторонней программе) /////////////
+  if(doc->haveAttachments()){
+#ifndef QT_NO_DEBUG
+    qDebug()<<"Archiving doc attachments";
+#endif
+    DocAttachments *atts=doc->attachments();
+#ifndef QT_NO_DEBUG
+    qDebug()<<"attachments.count():"<<atts->count();
+#endif
+    for(int a=0;a<atts->count();a++){
+      DocAttachment att=atts->getAttachment(a);
+#ifndef QT_NO_DEBUG
+      qDebug()<<"Archiving doc attachment"<<tr("attachment")+att.fileName()<<
+             "size ="<<att.device()->size();
+#endif
+      zinfo=QuaZipNewInfo(tr("attachment%1").arg(a));
+      zinfo.internalAttr=0660;
+      zinfo.externalAttr=0660;
+      if(!zipf.open(QIODevice::WriteOnly,
+                    QuaZipNewInfo(zinfo))){
+        setError( tr( "Ошибка при добавлении вложения в архив: ")+
+                  zipErrStr(zipf.getZipError()) );
+        return false;
+      }
+      zipf.write(att.data());
+      zipf.close();
+      if(zipf.getZipError()!=UNZ_OK){
+        setError( tr( "Ошибка при добавлении вложения в архив: ")+
+                  zipErrStr(zipf.getZipError()) );
+        return false;
+      }
+    }
+  }
+  ///////////// сохраним вложение (документ, созданный в сторонней программе) //
+
+  // сохраним страницы /////////////////////////////////////////////////////////
+  if(doc->havePages()){
+#ifndef QT_NO_DEBUG
+    qDebug()<<"Archiving doc pages";
+#endif
+    MFCDocumentPages *pages=doc->pages();
+#ifndef QT_NO_DEBUG
+    qDebug()<<"pages.count():"<<pages->count();
+#endif
+    for(int p=0;p<pages->count();p++){
+      MFCDocumentPage *page=pages->getPage(p);
+#ifndef QT_NO_DEBUG
+      qDebug()<<"Archiving doc page:"<<
+             tr("page%1_%2").arg(p).arg(page->getPageName());
+#endif
+      zinfo=QuaZipNewInfo(tr("page%1.jpg").arg(p));
+      zinfo.internalAttr=0660;
+      zinfo.externalAttr=0660;
+      if(!zipf.open(QIODevice::WriteOnly,
+                    QuaZipNewInfo(zinfo))){
+        setError( tr( "Ошибка при добавлении страницы %1 в архив: ").arg(p+1)+
+                  zipErrStr(zipf.getZipError()) );
+        return false;
+      }
+      page->device()->seek(0);
+      QImageReader ir(page->device());
+      if(ir.format().toUpper()!="JPG" || ir.format().toUpper()!="JPEG"){
+        QBuffer buf;
+        QImage im;
+        im=ir.read();
+        if(im.isNull()){
+          setError( tr( "Ошибка при обработке страницы %1: %2").arg(p+1).arg(ir.errorString()) );
+          return false;
+        }
+        buf.open(QBuffer::ReadWrite);
+        im.save(&buf,"JPG");
+        zipf.write(buf.buffer());
+      }else zipf.write(page->getBody());
+      zipf.close();
+      if(zipf.getZipError()!=UNZ_OK){
+        setError( tr( "Ошибка при добавлении страницы %1 в архив: ").arg(p+1)+
+                  zipErrStr(zipf.getZipError()) );
+        return false;
+      }
+//      emit dataTransferProgress(p+1,pages->count(),tr("Обработка: %p%"));
+      emit dataTransferProgress( p+1, pages->count() );
+    }
+  }
+  ///////////////////////////////////////////////////////// сохраним страницы //
+
+  zip.close();
+
+  return true;
 }
 
 QString MFCDocumentZipper::zipErrStr( int errn )
