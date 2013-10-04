@@ -57,18 +57,6 @@ MFCDocument *MFCDocument::instance(QString doc_type, QString doc_name,
   return doc;
 }
 
-QStringList MFCDocument::instance_list(){
-  QStringList list;
-  foreach(MFCDocument *doc,instances.keys()){
-    QString str;
-    QTextStream ts(&str);
-    ts<<doc;
-    list<<tr("%1( %2 ) ref count = %3").arg(str)
-          .arg(document_properties(doc).join("; ")).arg(instances.value(doc));
-  }
-  return list;
-}
-
 QStringList MFCDocument::document_properties(MFCDocument *doc){
   QStringList props;
   foreach(QByteArray pn,doc->dynamicPropertyNames())
