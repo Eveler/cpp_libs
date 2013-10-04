@@ -13,8 +13,8 @@ ClientDocsLoader::ClientDocsLoader(QSqlDatabase db,
 }
 
 ClientDocsLoader::~ClientDocsLoader(){
-  LogDebug()<<"~ClientDocsLoader() BEGIN";
-  LogDebug()<<"~ClientDocsLoader() END";
+//  LogDebug()<<"~ClientDocsLoader() BEGIN";
+//  LogDebug()<<"~ClientDocsLoader() END";
 }
 
 DocumentsModel *ClientDocsLoader::load(QVariant foreignID){
@@ -49,7 +49,7 @@ DocumentsModel *ClientDocsLoader::load(QVariant foreignID){
                     "WHERE cd.clients_id=%1 "
 //                    "  AND (d.expires>=now()::date OR d.expires IS NULL) "
                     "  AND cd.documents_id=d.id AND d.doctype_id=dt.id "
-                    "ORDER BY d.created DESC")
+                    "ORDER BY d.id,d.created DESC,cd.added DESC")
       .arg(foreignID.toString());
   QSqlQuery qry(DB);
   if(!qry.exec(strQry)){
@@ -61,17 +61,36 @@ DocumentsModel *ClientDocsLoader::load(QVariant foreignID){
   QStringList skipNames;
   skipNames<<"id"<<"documents_id"<<"doctype_id";
   while(qry.next()){
-    MFCDocument *doc=MFCDocument::instance(
-          qry.record().field("type").value().toString(),
-          qry.record().field("name").value().toString(),
-          qry.record().field("series").value().toString(),
-          qry.record().field("number").value().toString(),
-          qry.record().field("date").value().toDate(),
-          qry.record().field("expires").value().toDate(),
-          qry.record().field("agency").value().toString(),
-          qry.record().field("created").value().toDateTime(),
-          qry.record().field("url").value().toString());
-    connectDocument2Loader(doc);
+    MFCDocument *doc=NULL;
+    foreach(MFCDocument *d,docListModel->documents()){
+      if(docListModel->documentID(d).toString()==
+         qry.record().value("documents_id").toString()){
+        doc=d;
+        break;
+      }
+    }
+    if(!doc){
+      doc=MFCDocument::instance(
+            qry.record().field("type").value().toString(),
+            qry.record().field("name").value().toString(),
+            qry.record().field("series").value().toString(),
+            qry.record().field("number").value().toString(),
+            qry.record().field("date").value().toDate(),
+            qry.record().field("expires").value().toDate(),
+            qry.record().field("agency").value().toString(),
+            qry.record().field("created").value().toDateTime(),
+            qry.record().field("url").value().toString());
+//      doc->setProperty("created_in",tr("%1 (%2)").arg(__FILE__).arg(__LINE__));
+
+      connectDocument2Loader(doc);
+      for(int f=0;f<qry.record().count();f++){
+        if(skipNames.contains(qry.record().fieldName(f))) continue;
+        doc->setProperty(qry.record().fieldName(f).toLocal8Bit(),qry.value(f));
+      }
+      doc->setProperty("initial",QVariant(QVariant::Bool));
+
+      docListModel->addDocument(doc,qry.record().value("documents_id"),false);
+    }
 //    connect(doc,SIGNAL(needBody(QString,MFCDocument*)),
 //            docStorage,SLOT(load(QString,MFCDocument*)));
 
@@ -84,13 +103,6 @@ DocumentsModel *ClientDocsLoader::load(QVariant foreignID){
 //    doc->setSeries(qry.record().value("docseries").toString());
 //    doc->setType(qry.record().value("aname").toString());
 //    doc->setUrl(qry.record().value("url").toString());
-    for(int f=0;f<qry.record().count();f++){
-      if(skipNames.contains(qry.record().fieldName(f))) continue;
-      doc->setProperty(qry.record().fieldName(f).toLocal8Bit(),qry.value(f));
-    }
-    doc->setProperty("initial",QVariant(QVariant::Bool));
-
-    docListModel->addDocument(doc,qry.record().value("documents_id"),false);
   }
 
   return docListModel;

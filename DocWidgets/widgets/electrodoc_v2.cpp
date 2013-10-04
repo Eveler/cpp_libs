@@ -225,6 +225,7 @@ bool ElectroDoc_v2::setDocument(MFCDocument *document){
           QString(),QString(),QString(),QString(),QDate(),QDate(),QString(),
           QDateTime(),QString());
   m_Document->copyFrom(document);
+//  m_Document->setProperty("created_in",tr("%1 (%2)").arg(__FILE__).arg(__LINE__));
 
   ui->pBar_Scan->setFormat( tr("Загрузка: %p%") );
 
@@ -422,6 +423,7 @@ void ElectroDoc_v2::addPage(const QString &pName, const QPixmap &pixmap){
     m_Document=MFCDocument::instance(
           QString(),QString(),QString(),QString(),QDate(),QDate(),QString(),
           QDateTime(),QString());
+//    m_Document->setProperty("created_in",tr("%1 (%2)").arg(__FILE__).arg(__LINE__));
   }
 //  pixmap.d
   MFCDocumentPage *pg=new MFCDocumentPage(pName,pixmap);
@@ -444,6 +446,7 @@ void ElectroDoc_v2::addAttachment(const QString fileName,
     m_Document=MFCDocument::instance(
           QString(),QString(),QString(),QString(),QDate(),QDate(),QString(),
           QDateTime(),QString());
+//    m_Document->setProperty("created_in",tr("%1 (%2)").arg(__FILE__).arg(__LINE__));
   }
 
   if(ui->lstWgt_Attachments->findItems(fileName,Qt::MatchExactly).count()==0){
@@ -903,6 +906,7 @@ void ElectroDoc_v2::save(){
     originalDocument=MFCDocument::instance(
           QString(),QString(),QString(),QString(),QDate(),QDate(),QString(),
           QDateTime(),QString());
+//    originalDocument->setProperty("created_in",tr("%1 (%2)").arg(__FILE__).arg(__LINE__));
   }
   if(isModified() && !isReadOnly) originalDocument->copyFrom(m_Document);
   setModified(false);
@@ -916,6 +920,7 @@ void ElectroDoc_v2::confirm(){
     originalDocument=MFCDocument::instance(
           QString(),QString(),QString(),QString(),QDate(),QDate(),QString(),
           QDateTime(),QString());
+//    originalDocument->setProperty("created_in",tr("%1 (%2)").arg(__FILE__).arg(__LINE__));
     if(!m_Document){
       setError(tr("Ссылка на документ пуста"));
       MFCDocument::remove(originalDocument);

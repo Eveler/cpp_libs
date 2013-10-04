@@ -40,6 +40,8 @@ public:
                                QString doc_agency=QString(),
                                QDateTime doc_createdate=QDateTime::currentDateTime(),
                                QString doc_url=QString(), QObject *parent=0);
+  static QStringList instance_list();
+  static QStringList document_properties(MFCDocument *doc);
 
   bool copyFrom(MFCDocument *doc);
   void setType( const QString &doc_type );

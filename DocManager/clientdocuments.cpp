@@ -40,6 +40,7 @@ void ClientDocuments::load(QSqlDatabase db){
     ownLoader=true;
   }
   doclistModel=loader->load(ID);
+  doclistModel->setObjectName(tr("ClientDocuments_model_%1").arg(ID.toString()));
   sortedModel->setSourceModel(doclistModel);
   sortedModel->sort(doclistModel->findColumn("created"),Qt::DescendingOrder);
 }

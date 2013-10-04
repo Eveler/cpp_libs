@@ -20,6 +20,10 @@ public:
   void setCancelEnabled(bool enabled=true);
   void setAcceptEnabled(bool enabled=true);
 
+public slots:
+  void setOriginalPages(int p);
+  void setCopyPages(int p);
+
 private slots:
   void on_spBox_OriginalNumber_valueChanged(int arg1);
 

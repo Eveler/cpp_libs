@@ -19,15 +19,7 @@ MFCDocument::~MFCDocument()
 //  delete m_Number;
 //  delete m_Agency;
   if(instances.contains(this)){
-    QStringList props;
-    foreach(QByteArray pn,dynamicPropertyNames())
-      props<<pn+" = "+property(pn).toString();
-    for(int i=0;i<metaObject()->propertyCount();i++){
-      QMetaProperty p=metaObject()->property(i);
-      QVariant v=property(p.name());
-      props<<tr(p.name())+" = "+(v.isNull() || !v.isValid()?"<NULL>":v.toString());
-    }
-    LogWarning()<<"Document"<<this<<"("<<props.join("; ")
+    LogWarning()<<"Document"<<this<<"("<<document_properties(this).join("; ")
                <<") deleted directly from destructor! "
                  "Use MFCDocument::remove(doc) instead!";
     instances.remove(this);
@@ -61,6 +53,24 @@ MFCDocument *MFCDocument::instance(QString doc_type,QString doc_name,
   doc->setCreateDate(doc_createdate);
   instances.insert(doc,1);
   doclist.insert( QUuid::createUuid(), doc );
+  LogDebug()<<"Created instance "<<doc<<" ("
+           <<document_properties(doc).join("; ")<<")";
+  return doc;
+}
+
+QStringList MFCDocument::instance_list(){
+  QStringList list;
+  foreach(MFCDocument *doc,instances.keys()){
+    QString str;
+    QTextStream ts(&str);
+    ts<<doc;
+    list<<tr("%1( %2 ) ref count = %3").arg(str)
+          .arg(document_properties(doc).join("; ")).arg(instances.value(doc));
+  }
+  return list;
+}
+
+QStringList MFCDocument::document_properties(MFCDocument *doc){
   QStringList props;
   foreach(QByteArray pn,doc->dynamicPropertyNames())
     props<<pn+" = "+doc->property(pn).toString();
@@ -69,8 +79,7 @@ MFCDocument *MFCDocument::instance(QString doc_type,QString doc_name,
     QVariant v=doc->property(p.name());
     props<<tr(p.name())+" = "+(v.isNull() || !v.isValid()?"<NULL>":v.toString());
   }
-  LogDebug()<<"Created instance "<<doc<<" ("<<props.join("; ")<<")";
-  return doc;
+  return props;
 }
 
 bool MFCDocument::copyFrom(MFCDocument *doc){
@@ -314,22 +323,16 @@ MFCDocument * MFCDocument::document( QUuid uuid )
 }
 
 void MFCDocument::remove(MFCDocument *doc){
+  if(!doc) return;
   if(instances.contains(doc)){
     instances[doc]--;
-    doclist.remove( doc->uuid() );
     LogDebug()<<doc->type()<<"("<<doc<<") referenced now"<<instances.value(doc)
              <<"times";
     if(instances.value(doc)<=0){
+      doclist.remove( doc->uuid() );
       instances.remove(doc);
-      QStringList props;
-      foreach(QByteArray pn,doc->dynamicPropertyNames())
-        props<<pn+" = "+doc->property(pn).toString();
-      for(int i=0;i<doc->metaObject()->propertyCount();i++){
-        QMetaProperty p=doc->metaObject()->property(i);
-        QVariant v=doc->property(p.name());
-        props<<tr(p.name())+" = "+(v.isNull() || !v.isValid()?"<NULL>":v.toString());
-      }
-      LogDebug()<<"Removed instance "<<doc<<" ("<<props.join("; ")<<")";
+      LogDebug()<<"Removed instance "<<doc<<" ("<<
+                  document_properties(doc).join("; ")<<")";
       delete doc;
     }
   }
