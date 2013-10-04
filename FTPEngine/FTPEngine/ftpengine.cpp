@@ -484,7 +484,7 @@ void FTPEngine::executeCommand( QString text )
 //  qint64 result = m__Socket->write(
 //        QTextCodec::codecForName( "IBM 866" )->fromUnicode( command ) );
 //#else
-  qint64 result = m__Socket->write( command.toUtf8() );
+  /*qint64 result = */m__Socket->write( command.toUtf8() );
 //#endif
 #ifdef FTPENGINE_DEBUG
   LogDebug() << QString( "Written bytes: " ) << result;

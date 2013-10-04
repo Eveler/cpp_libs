@@ -42,6 +42,8 @@ public:
                                QDateTime doc_createdate=QDateTime::currentDateTime(),
                                QObject *parent=0);
   static MFCDocument * instance( MFCDocumentIOProvider *provider, QObject *parent = NULL );
+  static QStringList instance_list();
+  static QStringList document_properties(MFCDocument *doc);
 
   bool copyFrom(MFCDocument *doc);
   void setType( const QString &doc_type );

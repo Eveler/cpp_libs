@@ -10,8 +10,8 @@ DocumentMetadata::DocumentMetadata(MFCDocument *doc, QWidget *parent) :
   ui->setupUi(this);
 
   if(doc->havePages()){
-    ui->spBox_OriginalPages->setValue(doc->pages()->count());
-    ui->spBox_CopyPages->setValue(doc->pages()->count());
+    setOriginalPages(doc->pages()->count());
+    setCopyPages(doc->pages()->count());
   }else{
     original_pages=ui->spBox_OriginalPages->value();
     copy_pages=ui->spBox_CopyPages->value();
@@ -53,6 +53,16 @@ void DocumentMetadata::setAcceptEnabled(bool enabled)
       b->setEnabled(enabled);
     }
   }
+}
+
+void DocumentMetadata::setOriginalPages(int p)
+{
+  ui->spBox_OriginalPages->setValue(p);
+}
+
+void DocumentMetadata::setCopyPages(int p)
+{
+  ui->spBox_CopyPages->setValue(p);
 }
 
 void DocumentMetadata::on_spBox_OriginalNumber_valueChanged(int arg1)

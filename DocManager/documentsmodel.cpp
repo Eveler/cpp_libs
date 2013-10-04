@@ -8,33 +8,32 @@ DocumentsModel::DocumentsModel(QObject *parent):QAbstractItemModel(parent),
 }
 
 DocumentsModel::~DocumentsModel(){
-  LogDebug()<<"~DocumentsModel() BEGIN";
+//  LogDebug()<<"~DocumentsModel() BEGIN";
   clear();
-  LogDebug()<<"~DocumentsModel() END";
+//  LogDebug()<<"~DocumentsModel() END";
 }
 
 int DocumentsModel::rowCount(const QModelIndex &/*parent*/) const{
   if(!isNewVisible){
     int c=0;
-    foreach(MFCDocument *doc,docs)
-      if(!newDocs.contains(doc)) c++;
+    foreach(MFCDocument *doc,docs) if(!newDocs.contains(doc)) c++;
     return c;
   }
   return docs.count();
 }
 
 int DocumentsModel::columnCount(const QModelIndex &/*parent*/) const{
-  if(rowCount()>0){
-    int c=0;
-    foreach(MFCDocument *doc,docs){
-      int ind=doc->metaObject()->propertyOffset();
-      // columnCount = obj.propertyCount()+"id"+dynamicPropertyNames().count()
-      int cd=doc->metaObject()->propertyCount()+1-ind+
-          doc->dynamicPropertyNames().count();
-      if(cd>c) c=cd;
-    }
-    return c;
-  }else return 0;
+//  if(rowCount()>0){
+//    int c=0;
+//    foreach(MFCDocument *doc,docs){
+//      int ind=doc->metaObject()->propertyOffset();
+//      int cd=doc->metaObject()->propertyCount()+1-ind+
+//          doc->dynamicPropertyNames().count();
+//      if(cd>c) c=cd;
+//    }
+//    return c;
+//  }else return 0;
+  return columnsNames.count();
 }
 
 QVariant DocumentsModel::headerData(int section, Qt::Orientation orientation,
@@ -48,22 +47,22 @@ QVariant DocumentsModel::headerData(int section, Qt::Orientation orientation,
   }
 
   int c=columnCount();
-//  if(section==c-1) return "id";
   if(section>=c) return QVariant();
+  return columnsNames.value(section);
 
-  MFCDocument *doc=docs.values().first();
-  if(!doc) return QVariant();
-  QString pName=propertyName(doc,section);
+//  MFCDocument *doc=docs.values().first();
+//  if(!doc) return QVariant();
+//  QString pName=propertyName(doc,section);
 
-  if(pName=="type") return tr("Вид");
-  else if(pName=="name") return tr("Наименование\n(крат. содержание)");
-  else if(pName=="series") return tr("Серия");
-  else if(pName=="number") return tr("№");
-  else if(pName=="date") return tr("Дата выдачи");
-  else if(pName=="expires") return tr("Действителен до");
-  else if(pName=="agency") return tr("Выдан");
-  else if(pName=="created") return tr("Создан в базе");
-  else return pName;
+//  if(pName=="type") return tr("Вид");
+//  else if(pName=="name") return tr("Наименование\n(крат. содержание)");
+//  else if(pName=="series") return tr("Серия");
+//  else if(pName=="number") return tr("№");
+//  else if(pName=="date") return tr("Дата выдачи");
+//  else if(pName=="expires") return tr("Действителен до");
+//  else if(pName=="agency") return tr("Выдан");
+//  else if(pName=="created") return tr("Создан в базе");
+//  else return pName;
 }
 
 QModelIndex DocumentsModel::index(int row, int column,
@@ -73,7 +72,7 @@ QModelIndex DocumentsModel::index(int row, int column,
   if(row>=rowCount()) return QModelIndex();
   if(column>=columnCount()) return QModelIndex();
   if(!isNewVisible && newDocs.contains(docs.value(row))) return QModelIndex();
-  return createIndex(row,column,docs.value(row));
+  return createIndex(row,column/*,docs.value(row)*/);
 }
 
 QModelIndex DocumentsModel::parent(const QModelIndex &/*child*/) const{
@@ -89,9 +88,12 @@ QVariant DocumentsModel::data(const QModelIndex &index, int role) const{
 
 //  if(index.column()==columnCount()-1) return ids.value(index.row());
 
-  MFCDocument *doc=docs.value(index.row());
+  int row=index.row();
+  if(!isNewVisible) while(newDocs.contains(docs.value(row))) row++;
+  MFCDocument *doc=docs.value(row);
   if(!doc) return QVariant();
-  return doc->property(propertyName(doc,index.column()));
+  return doc->property(/*propertyName(doc,index.column())*/
+                       pnConvert(columnsNames.value(index.column()).toString()).toLocal8Bit());
 }
 
 Qt::ItemFlags DocumentsModel::flags(const QModelIndex &index) const{
@@ -120,17 +122,18 @@ int DocumentsModel::findColumn(QString name) const{
 }
 
 void DocumentsModel::clear(){
-  LogDebug()<<"~clear() BEGIN";
+//  LogDebug()<<"clear() "<<objectName()<<" BEGIN";
   foreach(MFCDocument *doc,docs){
 //    LogDebug()<<"doc ="<<doc;
-    doc->disconnect(this);
+//    doc->disconnect(this);
+    disconnect(doc,0,this,0);
 //    MFCDocument::remove(doc);
   }
   docs.clear();
 //  ids.clear();
   newDocs.clear();
   removedIDs.clear();
-  LogDebug()<<"~clear() END";
+//  LogDebug()<<"clear() END";
 }
 
 QList< MFCDocument* > DocumentsModel::documents() const{
@@ -160,17 +163,17 @@ MFCDocument* DocumentsModel::document(const QVariant &id) const{
 }
 
 QVariant DocumentsModel::documentID(MFCDocument *doc) const{
-//  QVariant id;
-//  if(!doc) return id;
+//  LogDebug()<<"documentID(MFCDocument*) BEGIN";
+  if(!doc) return QVariant();
+//  LogDebug()<<"doc="<<doc;
+  if(!docs.values().contains(doc)){
+//    LogDebug()<<"documentID("<<doc<<") END";
+    return QVariant();
+  }
 
-//  foreach(int r,docs.keys(doc)){
-//    QVariant rid=ids.value(r);
-//    if(!rid.isNull()) id=rid;
-//  }
-
-//  LogDebug()<<"type ="<<doc->type()<<"id ="<<id;
-//  return id;
-  return doc->property("id");
+  QVariant id=doc->property("id");
+//  LogDebug()<<"documentID("<<doc<<") END";
+  return id;
 }
 
 bool DocumentsModel::isNew(MFCDocument *doc) const{
@@ -226,11 +229,14 @@ bool DocumentsModel::addDocument(MFCDocument *doc, const QVariant id,
   }
 
   int rCount=docs.count();
-  if(isNewVisible || !isNew) beginInsertRows(QModelIndex(),rCount,rCount);
+  int correction=isNewVisible?0:newDocs.count();
+  if(isNewVisible || !isNew)
+    beginInsertRows(QModelIndex(),rCount-correction,rCount-correction);
 
   /*QMap< int,MFCDocument* >::iterator i=*/docs.insert(rCount,doc);
 //  doc->setParent(this);
-  connect(doc,SIGNAL(destroyed(QObject*)),SLOT(documentDestroyed(QObject*)));
+  connect(doc,SIGNAL(destroyed(QObject*)),SLOT(documentDestroyed(QObject*)),
+          Qt::UniqueConnection);
 //  QMap< int,QVariant >::iterator ii=ids.insert(rCount,id);
 //  LogDebug()<<"r ="<<ii.key()<<"ID ="<<ii.value();
 //  LogDebug()<<doc->type()<<"rCount ="<<rCount<<"r ="<<i.key()<<"id ="<<id<<
@@ -239,6 +245,28 @@ bool DocumentsModel::addDocument(MFCDocument *doc, const QVariant id,
   if(isNew){
 //    LogDebug()<<"as new";
     newDocs.append(doc);
+  }
+
+  if(doc->metaObject()->propertyCount()-doc->metaObject()->propertyOffset()+
+     doc->dynamicPropertyNames().count()>columnsNames.count()
+     && (isNewVisible || !isNew)){
+
+    if(columnsNames.count()==0)
+      for(int section=doc->metaObject()->propertyOffset();
+          section<doc->metaObject()->propertyCount();section++){
+        QString pName=pnConvert(doc->metaObject()->property(section).name());
+        columnsNames<<pName;
+      }
+
+    foreach(QByteArray pn,doc->dynamicPropertyNames())
+      if(!columnsNames.contains(pn)){
+        beginInsertColumns(QModelIndex(),columnsNames.count(),
+                           columnsNames.count());
+//        LogDebug()<<"insert column"<<QLocale::system().quoteString(pn)
+//                 <<"to"<<columnsNames.count()<<"section";
+        columnsNames<<pn;
+        endInsertColumns();
+      }
   }
 
   if(isNewVisible || !isNew) endInsertRows();
@@ -257,6 +285,7 @@ bool DocumentsModel::addDocument(const QString doc_type, const QDate doc_date,
   MFCDocument *doc=MFCDocument::instance(
         doc_type,doc_name,doc_series,doc_number,doc_date,doc_expires,doc_agency,
         doc_created,QString(),this);
+//  doc->setProperty("created_in",tr("%1 (%2)").arg(__FILE__).arg(__LINE__));
   doc->setName(doc_name);
   doc->setSeries(doc_series);
   doc->setNumber(doc_number);
@@ -267,50 +296,44 @@ bool DocumentsModel::addDocument(const QString doc_type, const QDate doc_date,
 }
 
 bool DocumentsModel::removeDocument(MFCDocument *doc){
-  LogDebug()<<"removeDocument("<<doc<<")"<<this;
-  if(!doc) return false;
-  QList< int > i=docs.keys(doc);
-  if(i.count()<=0) return false;
-
-//  LogDebug()<<"about to remove Document("<<doc<<")"<<this;
-  foreach(int r,i){
-//    LogDebug()<<r;
-    beginRemoveRows(QModelIndex(),r,r);
-    newDocs.removeAll(doc);
-//    QVariant id=ids.take(r);
-    QVariant id=documentID(doc);
-    if(!id.isNull()) removedIDs<<id;
-    docs.remove(r);
-    recalc();
-    endRemoveRows();
-  }
-//  LogDebug()<<"removed Document("<<doc<<")"<<this;
-  emit documentRemoved(doc);
-  return true;
+//  LogDebug()<<"removeDocument()"<<objectName()<<"("<<this<<") BEGIN";
+  QVariant id=documentID(doc);
+  if(!id.isNull()) removedIDs<<id;
+  bool res=removeDocument_p(doc);
+  if(res) emit documentRemoved(doc);
+//  LogDebug()<<"removeDocument("<<doc<<") END";
+  return res;
 }
 
 bool DocumentsModel::removeDocument(const int row){
+//  LogDebug()<<"removeDocument("<<row<<") BEGIN";
   if(row<0 || row>=rowCount()) return false;
 
   beginRemoveRows(QModelIndex(),row,row);
   MFCDocument *doc=docs.take(row);
-//  QVariant id=ids.take(row);
   QVariant id=documentID(doc);
   if(!id.isNull()) removedIDs<<id;
   newDocs.removeAll(doc);
   recalc();
   endRemoveRows();
   emit documentRemoved(doc);
+//  LogDebug()<<"removeDocument("<<row<<") ("<<doc<<") END";
   return true;
 }
 
 void DocumentsModel::documentDestroyed(QObject *obj){
-  LogDebug()<<"documentDestroyed("<<obj<<")"<<this;
+//  LogDebug()<<"documentDestroyed(QObject*)"<<objectName()<<"("<<this<<") BEGIN";
+  if(!obj) return;
+//  LogDebug()<<"obj="<<obj;
   MFCDocument *doc=static_cast< MFCDocument* >(obj);
-  if(doc && docs.values().contains(doc)) removeDocument(doc);
+  if(doc && docs.values().contains(doc)){
+    removeDocument_p(doc);
+  }
+//  LogDebug()<<"documentDestroyed("<<doc<<") "<<objectName()<<" END";
 }
 
 void DocumentsModel::recalc(){
+//  LogDebug()<<"recalc() BEGIN";
   QList< int > keys=docs.keys();
   for(int r=0;r<rowCount();r++){
     int key=keys.value(r,-1);
@@ -321,6 +344,23 @@ void DocumentsModel::recalc(){
 //      ids.insert(r,id);
     }
   }
+//  LogDebug()<<"recalc() END";
+}
+
+bool DocumentsModel::removeDocument_p(MFCDocument *doc){
+  if(!doc) return false;
+//  LogDebug()<<"doc="<<doc;
+  QList< int > i=docs.keys(doc);
+  if(i.count()<=0) return false;
+
+  newDocs.removeAll(doc);
+  foreach(int r,i){
+    beginRemoveRows(QModelIndex(),r,r);
+    docs.remove(r);
+    endRemoveRows();
+  }
+  recalc();
+  return true;
 }
 
 QByteArray DocumentsModel::propertyName(QObject *obj, int idx) const{
@@ -332,4 +372,26 @@ QByteArray DocumentsModel::propertyName(QObject *obj, int idx) const{
   }
   return obj->metaObject()->property(
         idx+obj->metaObject()->propertyOffset()).name();
+}
+
+QString DocumentsModel::pnConvert(QString pn) const
+{
+  QString pName=pn;
+  if(pName=="type") pName=tr("Вид");
+  else if(pName=="name") pName=tr("Наименование\n(крат. содержание)");
+  else if(pName=="series") pName=tr("Серия");
+  else if(pName=="number") pName=tr("№");
+  else if(pName=="date") pName=tr("Дата выдачи");
+  else if(pName=="expires") pName=tr("Действителен до");
+  else if(pName=="agency") pName=tr("Выдан");
+  else if(pName=="created") pName=tr("Создан в базе");
+  else if(pName==tr("Вид")) pName="type";
+  else if(pName==tr("Наименование\n(крат. содержание)")) pName="name";
+  else if(pName==tr("Серия")) pName="series";
+  else if(pName==tr("№")) pName="number";
+  else if(pName==tr("Дата выдачи")) pName="date";
+  else if(pName==tr("Действителен до")) pName="expires";
+  else if(pName==tr("Выдан")) pName="agency";
+  else if(pName==tr("Создан в базе")) pName="created";
+  return pName;
 }

@@ -12,6 +12,7 @@
 #include <QTextDecoder>
 #include <QMetaEnum>
 #include "mfcdocumentzipper.h"
+#include "amslogger.h"
 
 ElectroDoc_v2::ElectroDoc_v2(QWidget *parent) :
   MFCWidget(parent),
@@ -54,7 +55,9 @@ ElectroDoc_v2::ElectroDoc_v2(QWidget *parent) :
   title=tr("Электронный документ");
   setModified(false);
   saved=false;
+#ifdef Q_OS_WIN
   m_pTwain = NULL;
+#endif
 }
 
 ElectroDoc_v2::~ElectroDoc_v2()
@@ -161,6 +164,7 @@ bool ElectroDoc_v2::setDocument(MFCDocument *document){
   if(m_Document==NULL)
     m_Document=MFCDocument::instance();
   m_Document->copyFrom(document);
+//  m_Document->setProperty("created_in",tr("%1 (%2)").arg(__FILE__).arg(__LINE__));
 
   ui->pBar_Scan->setFormat( tr("Загрузка: %p%") );
 
@@ -265,6 +269,13 @@ void ElectroDoc_v2::setRestrictQuality(const bool r){
 }
 
 void ElectroDoc_v2::clear(){
+  ui->lEdit_DocName->clear();
+  ui->lEdit_DocNum->clear();
+  ui->lEdit_DocSer->clear();
+  ui->cBox_DocAgency->setCurrentIndex(-1);
+  ui->cBox_DocType->setCurrentIndex(-1);
+  ui->dEdit_DocDate->setDate(QDate());
+  ui->dEdit_DocExpires->setDate(QDate());
   ui->lWgt_Pages->clear();
   ui->lstWgt_Attachments->clear();
   viewer->clear();
@@ -280,7 +291,10 @@ bool ElectroDoc_v2::isModified(){
 }
 
 void ElectroDoc_v2::setModified(const bool m){
-  if(!m && isReadOnly) return;
+  if(!m && isReadOnly){
+    m_modified=false;
+    return;
+  }
   m_modified=m;
   setWindowTitle(title+(m?" *":""));
 }
@@ -335,18 +349,22 @@ void ElectroDoc_v2::closeEvent(QCloseEvent *e){
   QWidget::closeEvent(e);
 }
 
+#ifdef Q_OS_WIN
 bool ElectroDoc_v2::nativeEvent( const QByteArray &eventType, void *message, long *result )
 {
   Q_UNUSED(eventType);
   return winEvent( (MSG*)message, result );
 }
+#endif
 
+#ifdef Q_OS_WIN
 bool ElectroDoc_v2::winEvent( MSG *message, long */*result*/ )
 {
   if ( m_pTwain != NULL )
     m_pTwain->processMessage(*message);
   return false;
 }
+#endif
 
 void ElectroDoc_v2::setReadOnly(const bool readOnly){
   isReadOnly=readOnly;
@@ -369,6 +387,7 @@ void ElectroDoc_v2::addPage(const QString &pName, const QPixmap &pixmap){
   }
   if(m_Document==NULL){
     m_Document=MFCDocument::instance();
+//    m_Document->setProperty("created_in",tr("%1 (%2)").arg(__FILE__).arg(__LINE__));
   }
 //  pixmap.d
   MFCDocumentPage *pg=new MFCDocumentPage(pName,pixmap);
@@ -389,6 +408,7 @@ void ElectroDoc_v2::addAttachment(const QString fileName,
   if(fileName.isEmpty()) return;
   if(m_Document==NULL){
     m_Document=MFCDocument::instance();
+//    m_Document->setProperty("created_in",tr("%1 (%2)").arg(__FILE__).arg(__LINE__));
   }
 
   if(ui->lstWgt_Attachments->findItems(fileName,Qt::MatchExactly).count()==0){
@@ -497,6 +517,7 @@ void ElectroDoc_v2::loadExtFile(const QString fName){
   }
 }
 
+#ifdef Q_OS_WIN
 void ElectroDoc_v2::initTWAIN()
 {
     m_pTwain = new QTwain( NULL );
@@ -514,6 +535,7 @@ void ElectroDoc_v2::releaseTWAIN()
         m_pTwain = NULL;
     }
 }
+#endif
 
 void ElectroDoc_v2::showProgress(qint64 done, qint64 total){
   ui->pBar_Scan->setMaximum(total);
@@ -842,6 +864,7 @@ void ElectroDoc_v2::save(){
 //  hide();
   if(originalDocument==NULL){
     originalDocument=MFCDocument::instance();
+//    originalDocument->setProperty("created_in",tr("%1 (%2)").arg(__FILE__).arg(__LINE__));
   }
   if(isModified() && !isReadOnly) originalDocument->copyFrom(m_Document);
   setModified(false);
@@ -853,6 +876,7 @@ void ElectroDoc_v2::save(){
 void ElectroDoc_v2::confirm(){
   if(originalDocument==NULL){
     originalDocument=MFCDocument::instance();
+//    originalDocument->setProperty("created_in",tr("%1 (%2)").arg(__FILE__).arg(__LINE__));
     if(!m_Document){
       setError(tr("Ссылка на документ пуста"));
       MFCDocument::remove(originalDocument);

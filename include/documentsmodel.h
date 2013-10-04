@@ -59,13 +59,16 @@ private slots:
 
 private:
   QMap< int,MFCDocument* > docs;
+  QVariantList columnsNames;
 //  QMap< int,QVariant > ids;
   QList< MFCDocument* > newDocs;
   QVariantList removedIDs;
 
   bool isNewVisible;
 
+  bool removeDocument_p(MFCDocument *doc);
   QByteArray propertyName(QObject *obj,int idx) const;
+  QString pnConvert(QString pn) const;
 };
 
 #endif // DOCUMENTSMODEL_H

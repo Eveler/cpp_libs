@@ -128,5 +128,6 @@ AMSLOGGER_EXPORT AMSLogger logFatal(QString file,int line);
 #define LogCritical() logCritical(__FILE__,__LINE__)
 #define LogWarning() logWarning(__FILE__,__LINE__)
 #define LogDebug() logDebug(__FILE__,__LINE__)
+#define QUOTED_STR(str) QLocale::system().quoteString(str)
 
 #endif // AMSLOGGER_H

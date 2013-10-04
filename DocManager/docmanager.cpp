@@ -20,13 +20,15 @@ Docmanager::Docmanager(QSqlDatabase db, QObject *parent) :
   newDocs(new DocumentsModel(this)),
   curDocpathsDocs(NULL)
 {
+  allDocs->setObjectName("allDocs_model");
+  newDocs->setObjectName("newDocs_model");
   timer->setInterval(10000);
   connect(timer,SIGNAL(timeout()),SLOT(timeout()));
   connect(this,SIGNAL(dataTransferProgress(qint64,qint64)),SLOT(updateTimer()));
 }
 
 Docmanager::~Docmanager(){
-  LogDebug()<<"~Docmanager() BEGIN";
+//  LogDebug()<<"~Docmanager() BEGIN";
   clear();
 //  timer->deleteLater();
   delete timer;
@@ -46,7 +48,7 @@ Docmanager::~Docmanager(){
     MFCDocument *doc=docs.takeFirst();
     MFCDocument::remove(doc);
   }
-  LogDebug()<<"~Docmanager() END";
+//  LogDebug()<<"~Docmanager() END";
 }
 
 //void Docmanager::setDocumentsStorage(AbstractDocsStorage *storage){
@@ -680,7 +682,7 @@ void Docmanager::clear(){
     di.remove();
     DocumentsModel *dm=dd->documents();
     foreach(MFCDocument *doc,dm->documents()){
-      dm->removeDocument(doc);
+//      dm->removeDocument(doc);
       MFCDocument::remove(doc);
     }
     delete dd;
@@ -697,7 +699,7 @@ void Docmanager::clear(){
     ci.remove();
     DocumentsModel *dm=cd->documents();
     foreach(MFCDocument *doc,dm->documents()){
-      dm->removeDocument(doc);
+//      dm->removeDocument(doc);
       MFCDocument::remove(doc);
     }
     delete cd;
@@ -709,16 +711,22 @@ void Docmanager::clear(){
 //    declarDocs->deleteLater();
     DocumentsModel *dm=declarDocs->documents();
     foreach(MFCDocument *doc,dm->documents()){
-      dm->removeDocument(doc);
+//      dm->removeDocument(doc);
       MFCDocument::remove(doc);
     }
     delete declarDocs;
     declarDocs=NULL;
   }
 
-  foreach(MFCDocument *doc,allDocs->documents()) MFCDocument::remove(doc);
+  foreach(MFCDocument *doc,allDocs->documents()){
+//    allDocs->removeDocument(doc);
+    MFCDocument::remove(doc);
+  }
   allDocs->clear();
-  foreach(MFCDocument *doc,newDocs->documents()) MFCDocument::remove(doc);
+  foreach(MFCDocument *doc,newDocs->documents()){
+//    newDocs->removeDocument(doc);
+    MFCDocument::remove(doc);
+  }
   newDocs->clear();
 }
 
@@ -762,13 +770,18 @@ void Docmanager::allDocsAdd(MFCDocument *doc){
 }
 
 void Docmanager::allDocsRemove(MFCDocument *doc){
+//  LogDebug()<<"allDocsRemove(MFCDocument*) BEGIN";
   if(!doc) return;
+//  LogDebug()<<"doc="<<doc;
   QHashIterator< DocpathsDocuments*,QVariant > di(docpathsDocs);
   while(di.hasNext()){
     di.next();
     if(declarDocs && !declarDocs->documents()->documents().contains(doc))
       di.key()->documents()->removeDocument(doc);
-    else if(di.key()->documents()->documents().contains(doc)) return;
+    else if(di.key()->documents()->documents().contains(doc)){
+//      LogDebug()<<"allDocsRemove("<<doc<<") END";
+      return;
+    }
   }
   if(declarDocs && sender()!=declarDocs && !doc->property("initial").toBool() &&
      toAdd2All(doc)){
@@ -778,17 +791,22 @@ void Docmanager::allDocsRemove(MFCDocument *doc){
   }
   if(!allDocs->isNew(doc) && declarDocs &&
      declarDocs->documents()->documents().contains(doc)){
+//    LogDebug()<<"allDocsRemove("<<doc<<") END";
     return;
   }
   QHashIterator< ClientDocuments*,QVariant > ci(clientsDocs);
   while(ci.hasNext()){
     ci.next();
-    if(ci.key()->documents()->documents().contains(doc)) return;
+    if(ci.key()->documents()->documents().contains(doc)){
+//      LogDebug()<<"allDocsRemove("<<doc<<") END";
+      return;
+    }
   }
 
   if(allDocs->documents().contains(doc)) allDocs->removeDocument(doc);
   if(newDocs->documents().contains(doc)) newDocs->removeDocument(doc);
   MFCDocument::remove(doc);
+//  LogDebug()<<"allDocsRemove("<<doc<<") END";
 }
 
 void Docmanager::set_error(QString str,QString file,int line){
@@ -848,18 +866,25 @@ QVariant Docmanager::documentID(MFCDocument *doc) const{
 }
 
 bool Docmanager::toAdd2All(MFCDocument *doc) const{
+//  LogDebug()<<"toAdd2All(MFCDocument*) BEGIN";
   if(!doc) return false;
+//  LogDebug()<<"doc="<<doc;
   bool toAdd=false;
   if(!allDocs->documents().contains(doc)){
     toAdd=true;
     QString type=doc->type();
     QDate date=doc->date();
     QDateTime created=doc->createDate();
+    QString number=doc->number();
+    QString series=doc->series();
+    QString name=doc->name();
     foreach(MFCDocument *d,allDocs->documents())
-      if(d->type()==type && d->date()==date && d->createDate()==created){
+      if(d->type()==type && d->date()==date && d->createDate()==created
+         && d->number()==number && d->series()==series && d->name()==name){
         toAdd=false;
         break;
       }
   }
+//  LogDebug()<<"toAdd2All("<<doc<<") END";
   return toAdd;
 }

@@ -33,10 +33,10 @@ FtpDocsStorage::FtpDocsStorage(const QString storageName,
 }
 
 FtpDocsStorage::~FtpDocsStorage(){
-  LogDebug()<<"~FtpDocsStorage() BEGIN";
+//  LogDebug()<<"~FtpDocsStorage() BEGIN";
 //  if(ftpEng) ftpEng->deleteLater();
   cancel();
-  LogDebug()<<"~FtpDocsStorage() END";
+//  LogDebug()<<"~FtpDocsStorage() END";
 }
 
 FtpDocsStorage &FtpDocsStorage::addStorage(const QString storageName){
@@ -81,7 +81,7 @@ bool FtpDocsStorage::connectToHost(const QString uName, const QString pass,
             SLOT(ftpAnswer(FTPEngine::Command,bool)));
     connect(ftpEng,SIGNAL(loadProgress(qint64,qint64,QString)),
             SLOT(ftpTransferProgress(qint64,qint64)));
-    connect(ftpEng,SIGNAL(ftpAnswer(QString,int)),SLOT(ftpAnswer(QString,int)));
+//    connect(ftpEng,SIGNAL(ftpAnswer(QString,int)),SLOT(ftpAnswer(QString,int)));
   }
   QUrl url;
   url.setScheme("ftp");
@@ -269,7 +269,7 @@ bool FtpDocsStorage::saveZip(MFCDocument* doc,const QString fileName){
 }
 
 bool FtpDocsStorage::loadZip(QString fileName, MFCDocument *doc){
-  LogDebug()<<"loadZip("<<fileName<<",MFCDocument*) BEGIN";
+//  LogDebug()<<"loadZip("<<fileName<<",MFCDocument*) BEGIN";
   if(fileName.isEmpty() || !doc) return false;
   // обрабатываем архив и создаём MFCDocument
   QuaZipFile zip(fileName,"requisites.ini");
@@ -365,7 +365,7 @@ bool FtpDocsStorage::loadZip(QString fileName, MFCDocument *doc){
   qDebug()<<"document:"<<doc->name()<<doc->series()<<doc->number()<<doc->date()<<
          "- created";
 #endif
-  LogDebug()<<"loadZip("<<fileName<<",MFCDocument*) END";
+//  LogDebug()<<"loadZip("<<fileName<<",MFCDocument*) END";
   return true;
 }
 
@@ -447,10 +447,12 @@ void FtpDocsStorage::ftpAnswer(FTPEngine::Command cmd, bool res){
   }
 
   if(cmd==FTPEngine::Command_GetFile){
-    if(!curDoc)
+    if(!curDoc){
       curDoc=MFCDocument::instance(
             QString(),QString(),QString(),QString(),QDate(),QDate(),QString(),
             QDateTime(),this);
+//      curDoc->setProperty("created_in",tr("%1 (%2)").arg(__FILE__).arg(__LINE__));
+    }
     if(!arc){
       arc=qobject_cast< QFile* >(ftpEng->buffer());
     }
@@ -568,7 +570,7 @@ bool FtpDocsStorage::load(QString fileName, MFCDocument *doc){
 }
 
 void FtpDocsStorage::cancel(){
-  LogDebug()<<"cancel() BEGIN";
+//  LogDebug()<<"cancel() BEGIN";
   if(ftpEng){
 //    ftpEng->deleteLater();
     delete ftpEng;
@@ -591,5 +593,5 @@ void FtpDocsStorage::cancel(){
   docsDone=1;
   docCount=1;
   isDownloading=false;
-  LogDebug()<<"cancel() END";
+//  LogDebug()<<"cancel() END";
 }

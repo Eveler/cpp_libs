@@ -14,7 +14,7 @@ AbstractDocListSaver::AbstractDocListSaver(QSqlDatabase db, QString id,
 }
 
 AbstractDocListSaver::~AbstractDocListSaver(){
-  LogDebug()<<"~AbstractDocListSaver() BEGIN";
+//  LogDebug()<<"~AbstractDocListSaver() BEGIN";
   if(docStorage) docStorage->disconnect(this);
   if(ownStorage){
     if(docStorage) docStorage->removeStorage();
@@ -23,7 +23,7 @@ AbstractDocListSaver::~AbstractDocListSaver(){
   delete loop;
 //  timer->deleteLater();
   delete timer;
-  LogDebug()<<"~AbstractDocListSaver() END";
+//  LogDebug()<<"~AbstractDocListSaver() END";
 }
 
 void AbstractDocListSaver::setStorage(AbstractDocsStorage *s){
@@ -100,12 +100,12 @@ bool AbstractDocListSaver::saveDocuments(DocumentsModel *docList,
         return false;
       }
 
-      LogDebug()<<qry.executedQuery();
+//      LogDebug()<<qry.executedQuery();
 
       if(qry.size()>0 && qry.next() && !docID.isNull()){
-        LogDebug()<<"docID ="<<docID<<"qry.value ="<<qry.value(0)<<
-                    "type ="<<doc->type()<<"created ="<<doc->createDate()<<
-                    qry.value(1);
+//        LogDebug()<<"docID ="<<docID<<"qry.value ="<<qry.value(0)<<
+//                    "type ="<<doc->type()<<"created ="<<doc->createDate()<<
+//                    qry.value(1);
         if(qry.value(0)!=docID && qry.value(1).toDateTime()==doc->createDate()){
           setError(tr("В БД найден дубликат документа '%1'%2%3 от %4, ID=%5")
                    .arg(doc->type())

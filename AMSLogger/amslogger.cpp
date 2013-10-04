@@ -36,7 +36,7 @@ Q_CORE_EXPORT_INLINE void AMSLogger::messageOutput(QtMsgType type, const char *m
   AMSLogger::initialyze();
   QByteArray ba(qPrintable(msg));
   QString strDateTime=
-      QDateTime::currentDateTime().toString("[dd.MM.yyyy] [hh:mm:ss.zzz]: ");
+      QDateTime::currentDateTime().toString("[dd.MM.yyyy hh:mm:ss.zzz]: ");
 
   switch (type){
   case QtDebugMsg:
@@ -133,7 +133,7 @@ AMSLogger& AMSLogger::operator <<(const QVariant &msg){
   str+=msg.toString();
 #if QT_VERSION >= 0x050000
   QMessageLogContext c;
-  messageOutput(msgType,c,qPrintable(str));
+  messageOutput(msgType,c,str);
 #else
   messageOutput(msgType,qPrintable(str));
 #endif
