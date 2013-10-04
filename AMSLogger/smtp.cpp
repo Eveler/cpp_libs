@@ -47,12 +47,12 @@ Smtp::~Smtp()
     delete socket;
 }
 
+#ifdef _DEBUG_
 void Smtp::stateChanged( QAbstractSocket::SocketState socketState)
 {
-#ifdef _DEBUG_
     qDebug() <<"smtp socket stateChanged " << socketState;
-#endif
 }
+#endif
 
 void Smtp::errorReceived( QAbstractSocket::SocketError socketError)
 {
