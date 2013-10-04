@@ -1,5 +1,8 @@
 #include "smtp.h"
+
+#include <QTcpSocket>
 #include <QDateTime>
+
 
 Smtp::Smtp( const QString &host,const QString &from, const QString &to, const QString
 &subject, const QString &body )
@@ -54,12 +57,12 @@ void Smtp::stateChanged( QAbstractSocket::SocketState socketState)
 }
 #endif
 
-void Smtp::errorReceived( QAbstractSocket::SocketError socketError)
+void Smtp::errorReceived( int socketError)
 {
 #ifdef _DEBUG_
-    qDebug() << "socket error " <<socketError;
+    qDebug() << "socket error " <<(QAbstractSocket::SocketError)socketError;
 #endif
-    emit status(tr("Error sending message: ")+socketError+
+    emit status(tr("Error sending message: ")+QString::number( socketError )+
                 "\n    Server response:\n"+response);
 }
 

@@ -6,8 +6,10 @@
 #include <QtDebug>
 #include <QString>
 #include <QObject>
-#include <QTcpSocket>
 #include <QTextStream>
+
+class QAbstractSocket;
+class QTcpSocket;
 
 class Smtp : public QObject
 {
@@ -28,7 +30,7 @@ private slots:
 #ifdef _DEBUG_
   void stateChanged( QAbstractSocket::SocketState socketState );
 #endif
-  void errorReceived( QAbstractSocket::SocketError socketError );
+  void errorReceived( int socketError );
   void disconnected();
 
 private:

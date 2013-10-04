@@ -47,9 +47,14 @@ MFCDocument *MFCDocument::instance(QString doc_type, QString doc_name,
   }
 
   MFCDocument *doc=new MFCDocument(parent);
-  doc->setType(doc_type);
-  doc->setDate(doc_date);
-  doc->setCreateDate(doc_createdate);
+  doc->setType( doc_type );
+  doc->setName( doc_name );
+  doc->setSeries( doc_series );
+  doc->setNumber( doc_number );
+  doc->setDate( doc_date );
+  doc->setExpiresDate( doc_expires );
+  doc->setAgency( doc_agency );
+  doc->setCreateDate( doc_createdate );
   instances << doc;
   doclist.insert( QUuid::createUuid(), doc );
   LogDebug()<<"Created instance "<<doc<<" ("
@@ -57,19 +62,8 @@ MFCDocument *MFCDocument::instance(QString doc_type, QString doc_name,
   return doc;
 }
 
-QStringList MFCDocument::document_properties(MFCDocument *doc){
-  QStringList props;
-  foreach(QByteArray pn,doc->dynamicPropertyNames())
-    props<<pn+" = "+doc->property(pn).toString();
-  for(int i=0;i<doc->metaObject()->propertyCount();i++){
-    QMetaProperty p=doc->metaObject()->property(i);
-    QVariant v=doc->property(p.name());
-    props<<tr(p.name())+" = "+(v.isNull() || !v.isValid()?"<NULL>":v.toString());
-  }
-  return props;
-}
-
 MFCDocument * MFCDocument::instance( MFCDocumentIOProvider *provider, QObject *parent )
+
 {
   MFCDocument *doc = new MFCDocument( parent );
   if ( !provider->load( doc ) ) return NULL;
@@ -99,6 +93,18 @@ MFCDocument * MFCDocument::instance( MFCDocumentIOProvider *provider, QObject *p
   }
   LogDebug()<<"Created instance "<<doc<<" ("<<props.join("; ")<<")";
   return doc;
+}
+
+QStringList MFCDocument::document_properties(MFCDocument *doc){
+  QStringList props;
+  foreach(QByteArray pn,doc->dynamicPropertyNames())
+    props<<pn+" = "+doc->property(pn).toString();
+  for(int i=0;i<doc->metaObject()->propertyCount();i++){
+    QMetaProperty p=doc->metaObject()->property(i);
+    QVariant v=doc->property(p.name());
+    props<<tr(p.name())+" = "+(v.isNull() || !v.isValid()?"<NULL>":v.toString());
+  }
+  return props;
 }
 
 bool MFCDocument::copyFrom(MFCDocument *doc){
