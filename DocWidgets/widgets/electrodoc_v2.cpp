@@ -11,7 +11,7 @@
 #include <QStandardItemModel>
 #include <QTextDecoder>
 #include <QMetaEnum>
-#include "ftpdocsstorage.h"
+#include "mfcdocumentzipper.h"
 
 ElectroDoc_v2::ElectroDoc_v2(QWidget *parent) :
   MFCWidget(parent),
@@ -708,14 +708,12 @@ void ElectroDoc_v2::saveToFile(){
     ui->pBar_Scan->setMinimum(0);
     ui->pBar_Scan->setVisible(true);
     qApp->processEvents();
-    FtpDocsStorage *storage=&FtpDocsStorage::addStorage("ElectroDoc_v2_storage");
-    connect(storage,SIGNAL(dataTransferProgress(qint64,qint64,QString)),
-            this,SLOT(showProgress(qint64,qint64)));
-    if(!storage->saveZip(m_Document,fName)){
-      QMessageBox::warning(this,tr("Ошибка"),FtpDocsStorage::errorString());
-    }
+    MFCDocumentZipper zipper;
+    zipper.setFilePath( fi.absoluteFilePath() );
+    connect( &zipper, SIGNAL(dataTransferProgress(int,int)),
+             ui->pBar_Scan, SLOT(setRange(int,int)) );
+    zipper.save( m_Document );
     ui->pBar_Scan->setVisible(false);
-    storage->removeStorage("ElectroDoc_v2_storage");
   }else if(fi.suffix().toLower()=="png" || fi.suffix().toLower()=="jpg" ||
            fi.suffix().toLower()=="jpeg"){
     if(m_Document->havePages()){
