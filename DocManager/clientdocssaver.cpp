@@ -48,7 +48,7 @@ bool ClientDocsSaver::saveDocList(DocumentsModel *docList, QDateTime saveTime,
   }
   LogDebug()<<"ClientDocsSaver: saving list for"<<
               docList->newDocuments().count()<<"docs";
-  foreach(MFCDocument *doc,docList->newDocuments())
+  foreach(MFCDocumentInfo *doc,docList->newDocuments())
     if(docList->documentID(doc).isNull()){
       QString doc_series=doc->series();
       setError(tr("Отсутствует ID у документа '%1'%2%3 от %4")
@@ -70,7 +70,7 @@ bool ClientDocsSaver::saveDocList(DocumentsModel *docList, QDateTime saveTime,
                 "QUERY: %2").arg(qry.lastError().text()).arg(qryStr));
     return false;
   }
-  foreach(MFCDocument *doc,docList->newDocuments()){
+  foreach(MFCDocumentInfo *doc,docList->newDocuments()){
     LogDebug()<<"adding to list"<<doc->type()<<"id ="<<docList->documentID(doc);
     qry.addBindValue(foreign_id);
     qry.addBindValue(docList->documentID(doc));

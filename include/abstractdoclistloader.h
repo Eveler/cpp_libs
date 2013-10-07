@@ -16,6 +16,7 @@ public:
   void setStorage(AbstractDocsStorage *s);
   AbstractDocsStorage *storage() const;
   virtual DocumentsModel* load(QVariant foreignID)=0;
+  bool load( MFCDocumentInfo *doc );
   virtual void clear();
 
 signals:
@@ -23,14 +24,13 @@ signals:
   void modelDestroyed();
   void error(QString);
   void done(bool);
-  void documentLoadDone(MFCDocument*);
+  void documentLoadDone(MFCDocumentInfo*);
 
 public slots:
   virtual void cancelDownload();
 
 protected slots:
   void objectDestroyed();
-  void connectDocument2Loader(MFCDocument *doc);
 
 protected:
   QSqlDatabase DB;

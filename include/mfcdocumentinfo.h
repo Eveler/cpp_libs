@@ -57,6 +57,8 @@ class DOSSIER_EXPORT MFCDocumentInfo : public QObject
     const QString & localFile();
     const QDateTime & createDate();
 
+    bool isValid();
+
 
   public slots:
     static void remove( MFCDocumentInfo *docInfo );

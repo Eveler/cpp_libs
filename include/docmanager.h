@@ -7,7 +7,7 @@
 #include "clientdocuments.h"
 #include "declardocuments.h"
 #include "docpathsdocuments.h"
-#include "mfcdocument.h"
+#include "mfcdocumentinfo.h"
 #include "export/docmanager_export.h"
 
 class DOCMANAGER_EXPORT Docmanager : public QObject
@@ -18,18 +18,21 @@ public:
   ~Docmanager();
 
   DocumentsModel *allDocuments() const;
-//  QList< MFCDocument* > findAddedDocuments(const QVariant type) const;
+//  QList< MFCDocumentInfo* > findAddedDocuments(const QVariant type) const;
   DocumentsModel *addedDocuments() const;
 //  QAbstractItemModel *documentsForRelease() const;
-//  QList< MFCDocument* > documentsForReleaseList() const;
+//  QList< MFCDocumentInfo* > documentsForReleaseList() const;
 
   QVariant currentClient() const;
-  MFCDocument *clientDocument(const QModelIndex &index) const;
+  MFCDocumentInfo *clientDocument(const QModelIndex &index) const;
   DocumentsModel *clientDocuments() const;
-  MFCDocument *docpathsDocument(const QModelIndex &index) const;
+  QAbstractItemModel * sortedClientDocuments() const;
+  MFCDocumentInfo *docpathsDocument(const QModelIndex &index) const;
   DocumentsModel *docpathsDocuments() const;
-  MFCDocument *declarDocument(const QModelIndex &index) const;
+  QAbstractItemModel * sortedDocpathsDocuments() const;
+  MFCDocumentInfo *declarDocument(const QModelIndex &index) const;
   DocumentsModel *declarDocuments() const;
+  QAbstractItemModel * sortedDeclarDocuments() const;
 
   void setSaveTime(QDateTime dt);
 
@@ -41,7 +44,7 @@ signals:
   void currentClientChanged(DocumentsModel*);
   void currentClientChanged(QAbstractItemModel*);
   void currentClientChanged(QVariant);
-  void documentLoadDone(MFCDocument*);
+  void documentLoadDone(MFCDocumentInfo*);
   void documentAdded(DocumentsModel*);
   void currentDocpathsChanged(DocumentsModel*);
   void currentDocpathsChanged(QAbstractItemModel*);
@@ -55,19 +58,19 @@ public slots:
   void setClientCurrent(QVariant id);
   void unsetCurrentClient();
   void removeClient(QVariant id);
-  bool removeClientDocument(MFCDocument *doc);
+  bool removeClientDocument(MFCDocumentInfo *doc);
   bool setDeclar(const QVariant id);
   void unsetDeclar();
-  bool removeDeclarDocument(MFCDocument *doc);
+  bool removeDeclarDocument(MFCDocumentInfo *doc);
   bool addDocpaths(QVariant id);
   void unsetCurrentDocpaths();
   void removeDocpaths(QVariant id);
   void setDocpathsCurrent(QVariant id);
   bool nextDocpaths();
-  bool removeDocpathsDocument(MFCDocument *doc);
-  MFCDocument *newDocument(MFCDocument *doc);
-  bool loadDocument(MFCDocument *doc);
-  bool removeNewDocument(MFCDocument *doc);
+  bool removeDocpathsDocument(MFCDocumentInfo *doc);
+  MFCDocumentInfo *newDocument(MFCDocumentInfo *doc);
+  bool loadDocument(MFCDocumentInfo *doc);
+  bool removeNewDocument(MFCDocumentInfo *doc);
 
   bool save(QString declarNumber=QString());
   bool saveDocuments(QString declarNumber=QString());
@@ -78,13 +81,13 @@ public slots:
   void cancelDownload();
 
 private slots:
-  void allDocsAdd(MFCDocument *doc);
-  void allDocsRemove(MFCDocument *doc);
+  void allDocsAdd(MFCDocumentInfo *doc);
+  void allDocsRemove(MFCDocumentInfo *doc);
   void set_error(QString str,QString file=QString(),int line=0);
   void objectDestroyed();
   void timeout();
   void updateTimer();
-  QVariant documentID(MFCDocument *doc) const;
+  QVariant documentID(MFCDocumentInfo *doc) const;
 
 private:
   QSqlDatabase DB;
@@ -101,7 +104,7 @@ private:
 
   QString errStr;
 
-  bool toAdd2All(MFCDocument *doc) const;
+  bool toAdd2All(MFCDocumentInfo *doc) const;
 };
 
 #endif // DOCMANAGER_H

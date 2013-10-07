@@ -27,7 +27,7 @@ public:
 signals:
   void error(QString);
   void progress(qint64,qint64);
-  void documentSaved(MFCDocument *doc,QVariant id);
+  void documentSaved(MFCDocumentInfo *doc,QVariant id);
 
 public slots:
   virtual void cancelUpload();
@@ -45,7 +45,7 @@ protected:
   bool ownStorage;
   QEventLoop *loop;
   QTimer *timer;
-  MFCDocument *curDoc;
+  MFCDocumentInfo *curDoc;
   QString foreign_id;
 
   void set_error(QString str,QString file,int line);

@@ -5,6 +5,7 @@
 #include <QStringList>
 #include <QQueue>
 #include <QHash>
+#include <QEventLoop>
 #include "ftpengine.h"
 #include "abstractdocsstorage.h"
 #include "export/dossier_export.h"
@@ -24,9 +25,6 @@ public:
                      const quint16 port=21);
   void setRoot(const QString dataBaseName=QString(),const QString path="/docs");
   static QString errorString();
-  bool saveZip(MFCDocument* doc,const QString fileName);
-  bool loadZip(QString fileName,MFCDocument *doc);
-  bool loadZip(QFile *file,MFCDocument *doc);
   int port() const {return ftpPort;}
 
 private:
@@ -39,7 +37,7 @@ private:
   QQueue< QFile* > jobQueue;
   bool isDownloading;
   QFile *arc;
-  MFCDocument* curDoc;
+  MFCDocumentInfo* curDoc;
   int docCount;
   int docsDone;
 
@@ -48,6 +46,8 @@ private:
   QString ftpHost;
   quint16 ftpPort;
   FTPEngine *ftpEng;
+
+  QEventLoop *loop;
 
   static QString zipErrStr(int errn);
   void putNextFile();
@@ -65,12 +65,11 @@ signals:
   void done(bool);
   void error(QString);
   void saved(QString);
-  void loaded(MFCDocument*);
+  void loaded(MFCDocumentInfo*);
 
 public slots:
-  bool save(MFCDocument* doc,QString declarNumber=QString());
-  bool load(QString fileName);
-  bool load(QString fileName,MFCDocument *doc);
+  bool save(MFCDocumentInfo* doc,QString declarNumber=QString());
+  bool load( MFCDocumentInfo *doc );
   void cancel();
 
 };

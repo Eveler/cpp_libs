@@ -5,7 +5,8 @@
 #include <QHash>
 #include <QPair>
 #include <QDebug>
-#include "mfcdocument.h"
+#include <QStringList>
+#include "mfcdocumentinfo.h"
 #include "export/dossier_export.h"
 
 /** \brief \class AbstractDocsStorage - базовый класс для реализации подсистемы
@@ -55,15 +56,15 @@ signals:
   void progressRangeChanged(int minimum,int maximum);
   void progressTextChanged(QString progressText);
   void progressValueChanged(int progressValue);
-  void dataTransferProgress(qint64 done,qint64 total,MFCDocument* doc);
+  void dataTransferProgress(qint64 done,qint64 total,MFCDocumentInfo* doc);
   void done(bool);
   void error(QString);
   void saved(QString);
-  void loaded(MFCDocument*);
+  void loaded(MFCDocumentInfo*);
 
 public slots:
-  virtual bool save(MFCDocument* doc,QString declarNumber=QString())=0;
-  virtual bool load(QString documentUrl,MFCDocument*)=0;
+  virtual bool save(MFCDocumentInfo* doc,QString declarNumber=QString())=0;
+  virtual bool load(MFCDocumentInfo*)=0;
   virtual void cancel()=0;
 
 };

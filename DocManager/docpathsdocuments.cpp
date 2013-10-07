@@ -43,6 +43,13 @@ void DocpathsDocuments::load(QSqlDatabase db){
   sortedModel->sort(doclistModel->findColumn("created"),Qt::DescendingOrder);
 }
 
+bool DocpathsDocuments::load( MFCDocumentInfo *doc )
+{
+  if ( loader == NULL ) return false;
+
+  return loader->load( doc );
+}
+
 bool DocpathsDocuments::saveDocuments(QSqlDatabase db, QString declar){
   LogDebug()<<"Saving DocpathsDocuments:"<<doclistModel->newDocuments().count()<<"docs";
   if(!saver){

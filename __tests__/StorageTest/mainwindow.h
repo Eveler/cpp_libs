@@ -3,6 +3,9 @@
 
 #include <QMainWindow>
 
+#include "docmanager.h"
+
+
 namespace Ui {
   class MainWindow;
 }
@@ -17,6 +20,16 @@ class MainWindow : public QMainWindow
 
   private:
     Ui::MainWindow *ui;
+
+    Docmanager *docmanager;
+
+  private slots:
+    void loadedDocument( MFCDocumentInfo *doc );
+    void storageError( QString text );
+    void declarChanged();
+
+    void on_toolButton_clicked();
+    void on_tableView_doubleClicked(const QModelIndex &index);
 };
 
 #endif // MAINWINDOW_H

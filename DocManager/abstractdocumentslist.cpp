@@ -30,8 +30,8 @@ void AbstractDocumentsList::setLoader(AbstractDocListLoader *l){
   connect(l,SIGNAL(error(QString)),SIGNAL(error(QString)));
   connect(l,SIGNAL(progress(qint64,qint64)),SIGNAL(progress(qint64,qint64)));
   connect(l,SIGNAL(done(bool)),SIGNAL(loadDone(bool)));
-  connect(l,SIGNAL(documentLoadDone(MFCDocument*)),
-          SIGNAL(documentLoadDone(MFCDocument*)));
+  connect(l,SIGNAL(documentLoadDone(MFCDocumentInfo*)),
+          SIGNAL(documentLoadDone(MFCDocumentInfo*)));
   connect(l,SIGNAL(modelDestroyed()),SLOT(destroyModel()));
 }
 
@@ -47,8 +47,8 @@ void AbstractDocumentsList::setSaver(AbstractDocListSaver *s){
 //  connect(s,SIGNAL(progress(qint64,qint64)),SIGNAL(progress(qint64,qint64)));
   connect(s,SIGNAL(progress(qint64,qint64)),
           SLOT(showSaveProgress(qint64,qint64)));
-  connect(s,SIGNAL(documentSaved(MFCDocument*,QVariant)),
-          SLOT(setDocumentID(MFCDocument*,QVariant)));
+  connect(s,SIGNAL(documentSaved(MFCDocumentInfo*,QVariant)),
+          SLOT(setDocumentID(MFCDocumentInfo*,QVariant)));
 }
 
 QVariant AbstractDocumentsList::id() const{
@@ -59,7 +59,7 @@ void AbstractDocumentsList::clear(){
   if(loader) loader->clear();
 }
 
-QList< MFCDocument* > AbstractDocumentsList::findDocuments(QString doc_type,
+QList< MFCDocumentInfo* > AbstractDocumentsList::findDocuments(QString doc_type,
                                                          QDate doc_date,
                                                          QString doc_number,
                                                          QString doc_series,
@@ -68,8 +68,8 @@ QList< MFCDocument* > AbstractDocumentsList::findDocuments(QString doc_type,
                                                          QDateTime doc_created,
                                                          QDate doc_expires) const{
   // нужно возвращать сортированный список (как в модели)
-  QList< MFCDocument* > list;
-  foreach(MFCDocument *doc,doclistModel->documents()){
+  QList< MFCDocumentInfo* > list;
+  foreach(MFCDocumentInfo *doc,doclistModel->documents()){
     bool found=false;
 
     if(doc->type()==doc_type && doc->date()==doc_date) found=true;
@@ -105,7 +105,7 @@ void AbstractDocumentsList::objectDestroyed(){
   else if(saver==sender()) saver=NULL;
 }
 
-void AbstractDocumentsList::setDocumentID(MFCDocument *doc, QVariant id){
+void AbstractDocumentsList::setDocumentID(MFCDocumentInfo *doc, QVariant id){
   LogDebug()<<doc->type()<<"<- id ="<<id;
   doclistModel->setDocumentID(doc,id);
 }
@@ -114,7 +114,7 @@ void AbstractDocumentsList::showSaveProgress(qint64 val, qint64 total){
   qint64 c=doclistModel->newDocuments().count()+1;
   qint64 t=(total>0?total:1)*c;
   qint64 v=1;
-  foreach(MFCDocument *doc,doclistModel->newDocuments())
+  foreach(MFCDocumentInfo *doc,doclistModel->newDocuments())
     if(!doc->url().isEmpty()) v++;
   v*=(val>0?val:t/c);
   emit progress(v,t);

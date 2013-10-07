@@ -33,7 +33,7 @@ void AbstractDocListSaver::setStorage(AbstractDocsStorage *s){
   }
   docStorage=s;
   ownStorage=false;
-  connect(s,SIGNAL(dataTransferProgress(qint64,qint64,MFCDocument*)),
+  connect(s,SIGNAL(dataTransferProgress(qint64,qint64,MFCDocumentInfo*)),
           SLOT(dataTransferProgress(qint64,qint64)));
   connect(s,SIGNAL(destroyed()),SLOT(objectDestroyed()));
   connect(s,SIGNAL(error(QString)),SIGNAL(error(QString)));
@@ -58,7 +58,7 @@ bool AbstractDocListSaver::saveDocuments(DocumentsModel *docList,
   }
 
   LogDebug()<<"Saving"<<docList->newDocuments().count()<<"documents";
-  foreach(MFCDocument *doc,docList->newDocuments()){
+  foreach(MFCDocumentInfo *doc,docList->newDocuments()){
     LogDebug()<<"Saving:"<<doc->type();
     QVariant docID=docList->documentID(doc);
     // проверим наличие документа в базе

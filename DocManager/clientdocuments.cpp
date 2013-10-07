@@ -45,6 +45,13 @@ void ClientDocuments::load(QSqlDatabase db){
   sortedModel->sort(doclistModel->findColumn("created"),Qt::DescendingOrder);
 }
 
+bool ClientDocuments::load( MFCDocumentInfo *doc )
+{
+  if ( loader == NULL ) return false;
+
+  return loader->load( doc );
+}
+
 bool ClientDocuments::saveDocuments(QSqlDatabase db, QString declar){
   LogDebug()<<"Saving ClientDocuments:"<<documents()->newDocuments().count()
            <<"docs";

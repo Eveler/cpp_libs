@@ -25,13 +25,13 @@ signals:
   void error(QString);
   void progress(qint64,qint64);
   void loadDone(bool);
-  void documentLoadDone(MFCDocument*);
+  void documentLoadDone(MFCDocumentInfo*);
 //  void modelDestroyed();
 //  void saveDone(bool);
 
 public slots:
   void clear();
-  QList< MFCDocument* > findDocuments(QString doc_type,QDate doc_date,
+  QList< MFCDocumentInfo* > findDocuments(QString doc_type,QDate doc_date,
                                     QString doc_number=QString(),
                                     QString doc_series=QString(),
                                     QString doc_name=QString(),
@@ -49,7 +49,7 @@ public slots:
 
 protected slots:
   void objectDestroyed();
-  void setDocumentID(MFCDocument *doc,QVariant id);
+  void setDocumentID(MFCDocumentInfo *doc,QVariant id);
   void showSaveProgress(qint64 val,qint64 total);
   void destroyModel();
 

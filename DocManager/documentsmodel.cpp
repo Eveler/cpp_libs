@@ -16,7 +16,7 @@ DocumentsModel::~DocumentsModel(){
 int DocumentsModel::rowCount(const QModelIndex &/*parent*/) const{
   if(!isNewVisible){
     int c=0;
-    foreach(MFCDocument *doc,docs) if(!newDocs.contains(doc)) c++;
+    foreach(MFCDocumentInfo *doc,docs) if(!newDocs.contains(doc)) c++;
     return c;
   }
   return docs.count();
@@ -25,7 +25,7 @@ int DocumentsModel::rowCount(const QModelIndex &/*parent*/) const{
 int DocumentsModel::columnCount(const QModelIndex &/*parent*/) const{
 //  if(rowCount()>0){
 //    int c=0;
-//    foreach(MFCDocument *doc,docs){
+//    foreach(MFCDocumentInfo *doc,docs){
 //      int ind=doc->metaObject()->propertyOffset();
 //      int cd=doc->metaObject()->propertyCount()+1-ind+
 //          doc->dynamicPropertyNames().count();
@@ -50,7 +50,7 @@ QVariant DocumentsModel::headerData(int section, Qt::Orientation orientation,
   if(section>=c) return QVariant();
   return columnsNames.value(section);
 
-//  MFCDocument *doc=docs.values().first();
+//  MFCDocumentInfo *doc=docs.values().first();
 //  if(!doc) return QVariant();
 //  QString pName=propertyName(doc,section);
 
@@ -90,7 +90,7 @@ QVariant DocumentsModel::data(const QModelIndex &index, int role) const{
 
   int row=index.row();
   if(!isNewVisible) while(newDocs.contains(docs.value(row))) row++;
-  MFCDocument *doc=docs.value(row);
+  MFCDocumentInfo *doc=docs.value(row);
   if(!doc) return QVariant();
   return doc->property(/*propertyName(doc,index.column())*/
                        pnConvert(columnsNames.value(index.column()).toString()).toLocal8Bit());
@@ -108,7 +108,7 @@ int DocumentsModel::findColumn(QString name) const{
     int r=0;
     QString pName;
     do{
-      MFCDocument *doc=docs.value(r);
+      MFCDocumentInfo *doc=docs.value(r);
       if(!doc) return -1;
       pName=propertyName(doc,i);
       r++;
@@ -123,11 +123,11 @@ int DocumentsModel::findColumn(QString name) const{
 
 void DocumentsModel::clear(){
 //  LogDebug()<<"clear() "<<objectName()<<" BEGIN";
-  foreach(MFCDocument *doc,docs){
+  foreach(MFCDocumentInfo *doc,docs){
 //    LogDebug()<<"doc ="<<doc;
 //    doc->disconnect(this);
     disconnect(doc,0,this,0);
-//    MFCDocument::remove(doc);
+//    MFCDocumentInfo::remove(doc);
   }
   docs.clear();
 //  ids.clear();
@@ -136,34 +136,34 @@ void DocumentsModel::clear(){
 //  LogDebug()<<"clear() END";
 }
 
-QList< MFCDocument* > DocumentsModel::documents() const{
+QList< MFCDocumentInfo* > DocumentsModel::documents() const{
   return docs.values();
 }
 
-QList< MFCDocument* > DocumentsModel::newDocuments() const{
+QList< MFCDocumentInfo* > DocumentsModel::newDocuments() const{
   return newDocs;
 }
 
-MFCDocument* DocumentsModel::document(const int row) const{
+MFCDocumentInfo* DocumentsModel::document(const int row) const{
   if(row<0 || row>=rowCount()) return NULL;
   return docs.value(row);
 }
 
-MFCDocument* DocumentsModel::document(const QModelIndex &index) const{
+MFCDocumentInfo* DocumentsModel::document(const QModelIndex &index) const{
   return document(index.row());
 }
 
-MFCDocument* DocumentsModel::document(const QVariant &id) const{
+MFCDocumentInfo* DocumentsModel::document(const QVariant &id) const{
   if(id.isNull()) return NULL;
 //  if(!ids.values().contains(id)) return NULL;
 //  return document(ids.key(id));
-  foreach(MFCDocument *doc,docs)
+  foreach(MFCDocumentInfo *doc,docs)
     if(documentID(doc)==id) return doc;
   return NULL;
 }
 
-QVariant DocumentsModel::documentID(MFCDocument *doc) const{
-//  LogDebug()<<"documentID(MFCDocument*) BEGIN";
+QVariant DocumentsModel::documentID(MFCDocumentInfo *doc) const{
+//  LogDebug()<<"documentID(MFCDocumentInfo*) BEGIN";
   if(!doc) return QVariant();
 //  LogDebug()<<"doc="<<doc;
   if(!docs.values().contains(doc)){
@@ -176,7 +176,7 @@ QVariant DocumentsModel::documentID(MFCDocument *doc) const{
   return id;
 }
 
-bool DocumentsModel::isNew(MFCDocument *doc) const{
+bool DocumentsModel::isNew(MFCDocumentInfo *doc) const{
   return newDocs.contains(doc);
 }
 
@@ -205,7 +205,7 @@ QVariantList DocumentsModel::removedDocumentsIDs() const{
   return removedIDs;
 }
 
-void DocumentsModel::setDocumentID(MFCDocument *doc, QVariant id){
+void DocumentsModel::setDocumentID(MFCDocumentInfo *doc, QVariant id){
   if(!doc || id.isNull()) return;
 
 //  foreach(int r,docs.keys(doc)){
@@ -214,7 +214,7 @@ void DocumentsModel::setDocumentID(MFCDocument *doc, QVariant id){
   doc->setProperty("id",id);
 }
 
-bool DocumentsModel::addDocument(MFCDocument *doc, const QVariant id,
+bool DocumentsModel::addDocument(MFCDocumentInfo *doc, const QVariant id,
                                  const bool isNew){
   if(!doc) return false;
   if(docs.values().contains(doc)){
@@ -233,9 +233,12 @@ bool DocumentsModel::addDocument(MFCDocument *doc, const QVariant id,
   if(isNewVisible || !isNew)
     beginInsertRows(QModelIndex(),rCount-correction,rCount-correction);
 
-  /*QMap< int,MFCDocument* >::iterator i=*/docs.insert(rCount,doc);
+  /*QMap< int,MFCDocumentInfo* >::iterator i=*/docs.insert(rCount,doc);
 //  doc->setParent(this);
   connect(doc,SIGNAL(destroyed(QObject*)),SLOT(documentDestroyed(QObject*)),
+          Qt::UniqueConnection);
+  connect(doc,SIGNAL(propertyChanged(QString,QVariant)),
+          SLOT(documentChanged(QString,QVariant)),
           Qt::UniqueConnection);
 //  QMap< int,QVariant >::iterator ii=ids.insert(rCount,id);
 //  LogDebug()<<"r ="<<ii.key()<<"ID ="<<ii.value();
@@ -282,9 +285,9 @@ bool DocumentsModel::addDocument(const QString doc_type, const QDate doc_date,
                                  const QString doc_agency,
                                  const QDateTime doc_created,
                                  const QVariant id, const bool isNew){
-  MFCDocument *doc=MFCDocument::instance(
+  MFCDocumentInfo *doc=MFCDocumentInfo::instance(
         doc_type,doc_name,doc_series,doc_number,doc_date,doc_expires,doc_agency,
-        doc_created,QString(),this);
+        doc_created,this);
 //  doc->setProperty("created_in",tr("%1 (%2)").arg(__FILE__).arg(__LINE__));
   doc->setName(doc_name);
   doc->setSeries(doc_series);
@@ -295,7 +298,7 @@ bool DocumentsModel::addDocument(const QString doc_type, const QDate doc_date,
   return addDocument(doc,id,isNew);
 }
 
-bool DocumentsModel::removeDocument(MFCDocument *doc){
+bool DocumentsModel::removeDocument(MFCDocumentInfo *doc){
 //  LogDebug()<<"removeDocument()"<<objectName()<<"("<<this<<") BEGIN";
   QVariant id=documentID(doc);
   if(!id.isNull()) removedIDs<<id;
@@ -310,7 +313,7 @@ bool DocumentsModel::removeDocument(const int row){
   if(row<0 || row>=rowCount()) return false;
 
   beginRemoveRows(QModelIndex(),row,row);
-  MFCDocument *doc=docs.take(row);
+  MFCDocumentInfo *doc=docs.take(row);
   QVariant id=documentID(doc);
   if(!id.isNull()) removedIDs<<id;
   newDocs.removeAll(doc);
@@ -325,7 +328,7 @@ void DocumentsModel::documentDestroyed(QObject *obj){
 //  LogDebug()<<"documentDestroyed(QObject*)"<<objectName()<<"("<<this<<") BEGIN";
   if(!obj) return;
 //  LogDebug()<<"obj="<<obj;
-  MFCDocument *doc=static_cast< MFCDocument* >(obj);
+  MFCDocumentInfo *doc=static_cast< MFCDocumentInfo* >(obj);
   if(doc && docs.values().contains(doc)){
     removeDocument_p(doc);
   }
@@ -338,7 +341,7 @@ void DocumentsModel::recalc(){
   for(int r=0;r<rowCount();r++){
     int key=keys.value(r,-1);
     if(key>r){
-      MFCDocument *doc=docs.take(key);
+      MFCDocumentInfo *doc=docs.take(key);
 //      QVariant id=ids.take(key);
       docs.insert(r,doc);
 //      ids.insert(r,id);
@@ -347,7 +350,15 @@ void DocumentsModel::recalc(){
 //  LogDebug()<<"recalc() END";
 }
 
-bool DocumentsModel::removeDocument_p(MFCDocument *doc){
+void DocumentsModel::documentChanged( QString propertyName, QVariant propertyValue )
+{
+  MFCDocumentInfo *doc = qobject_cast<MFCDocumentInfo *>( sender() );
+  int row = documents().indexOf( doc );
+  emit dataChanged( QAbstractItemModel::createIndex( row, columnsNames.indexOf( propertyName ) ),
+                    QAbstractItemModel::createIndex( row, columnsNames.indexOf( propertyName ) ) );
+}
+
+bool DocumentsModel::removeDocument_p(MFCDocumentInfo *doc){
   if(!doc) return false;
 //  LogDebug()<<"doc="<<doc;
   QList< int > i=docs.keys(doc);

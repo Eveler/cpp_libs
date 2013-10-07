@@ -2,7 +2,7 @@
 #define DOCUMENTSMODEL_H
 
 #include <QAbstractItemModel>
-#include "mfcdocument.h"
+#include "mfcdocumentinfo.h"
 #include "export/docmanager_export.h"
 
 class DOCMANAGER_EXPORT DocumentsModel : public QAbstractItemModel
@@ -21,26 +21,26 @@ public:
   Qt::ItemFlags flags(const QModelIndex &index) const;
   int findColumn(QString name) const;
   void clear();
-  QList< MFCDocument* > documents() const;
-  QList< MFCDocument* > newDocuments() const;
-  MFCDocument* document(const int row) const;
-  MFCDocument* document(const QModelIndex &index) const;
-  MFCDocument* document(const QVariant &id) const;
-  QVariant documentID(MFCDocument *doc) const;
-  bool isNew(MFCDocument *doc) const;
+  QList< MFCDocumentInfo* > documents() const;
+  QList< MFCDocumentInfo* > newDocuments() const;
+  MFCDocumentInfo* document(const int row) const;
+  MFCDocumentInfo* document(const QModelIndex &index) const;
+  MFCDocumentInfo* document(const QVariant &id) const;
+  QVariant documentID(MFCDocumentInfo *doc) const;
+  bool isNew(MFCDocumentInfo *doc) const;
   bool removeRows(int row, int count, const QModelIndex &parent=QModelIndex());
 
   bool isNewDocumentsVisible() const;
   void setNewDocumentsVisible(bool v=true);
   QVariantList removedDocumentsIDs() const;
-  void setDocumentID(MFCDocument *doc,QVariant id);
+  void setDocumentID(MFCDocumentInfo *doc,QVariant id);
 
 signals:
-  void documentAdded(MFCDocument *doc);
-  void documentRemoved(MFCDocument *doc);
+  void documentAdded(MFCDocumentInfo *doc);
+  void documentRemoved(MFCDocumentInfo *doc);
 
 public slots:
-  bool addDocument(MFCDocument *doc, const QVariant id=QVariant(),
+  bool addDocument(MFCDocumentInfo *doc, const QVariant id=QVariant(),
                    const bool isNew=true);
   bool addDocument(const QString doc_type,const QDate doc_date,
                    const QString doc_name=QString(),
@@ -50,23 +50,24 @@ public slots:
                    const QString doc_agency=QString(),
                    const QDateTime doc_created=QDateTime(),
                    const QVariant id=QVariant(),const bool isNew=true);
-  bool removeDocument(MFCDocument *doc);
+  bool removeDocument(MFCDocumentInfo *doc);
 
 private slots:
   bool removeDocument(const int row);
   void documentDestroyed(QObject *obj);
   void recalc();
+  void documentChanged( QString propertyName, QVariant propertyValue );
 
 private:
-  QMap< int,MFCDocument* > docs;
+  QMap< int,MFCDocumentInfo* > docs;
   QVariantList columnsNames;
 //  QMap< int,QVariant > ids;
-  QList< MFCDocument* > newDocs;
+  QList< MFCDocumentInfo* > newDocs;
   QVariantList removedIDs;
 
   bool isNewVisible;
 
-  bool removeDocument_p(MFCDocument *doc);
+  bool removeDocument_p(MFCDocumentInfo *doc);
   QByteArray propertyName(QObject *obj,int idx) const;
   QString pnConvert(QString pn) const;
 };
