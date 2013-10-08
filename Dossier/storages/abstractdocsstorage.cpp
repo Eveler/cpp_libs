@@ -19,8 +19,6 @@ AbstractDocsStorage::~AbstractDocsStorage(){
   if(instances.count(instanceName)>0){
     emit error(tr("Существуют ещё использумые экземпляры класса "
                   "AbstractDocsStorage"));
-    LogDebug()<<tr("AbstractDocsStorage: There is instances in use. "
-                              "Use removeStorage to free them");
   }
   instances.remove(instanceName);
 }
@@ -33,13 +31,11 @@ bool AbstractDocsStorage::registerStorage(const QString storageName,
   instances.insert(
         storageName,qMakePair< AbstractDocsStorage*,int >(obj,1));
   obj->instanceName=storageName;
-  LogDebug()<<storageName<<"registered";
   return true;
 }
 
 void AbstractDocsStorage::setError(const QString str){
   errStr=tr("%3(%2): %1").arg(str).arg(metaObject()->className()).arg(objectName());
-  LogDebug()<<errStr;
   emit error(errStr);
 }
 
@@ -64,11 +60,9 @@ AbstractDocsStorage &AbstractDocsStorage::addStorage(const QString storageName){
 void AbstractDocsStorage::removeStorage(const QString storageName){
   if(instances.contains(storageName)){
     instances[storageName].second--;
-    LogDebug()<<storageName<<"instance count ="<<instances[storageName].second;
     if(instances.value(storageName).second<=0){
       QPair< AbstractDocsStorage*,int > pair=instances.take(storageName);
       delete pair.first;
-      LogDebug()<<storageName<<"removed";
     }
   }
 }

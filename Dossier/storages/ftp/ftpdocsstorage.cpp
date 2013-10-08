@@ -184,7 +184,6 @@ void FtpDocsStorage::ftpAnswer(FTPEngine::Command cmd, bool res){
 //      arc->deleteLater();
     isDownloading=false;
   }else if(cmd==FTPEngine::Command_PutFile){
-    LogDebug()<<curPath<<arc;
     arc->remove();
 //    arc->deleteLater();
     delete arc;
@@ -211,8 +210,6 @@ void FtpDocsStorage::ftpAnswer(FTPEngine::Command cmd, bool res){
 }
 
 void FtpDocsStorage::ftpAnswer(QString text, int code){
-  LogDebug()<<text;
-  LogDebug()<<code;
 }
 
 bool FtpDocsStorage::save(MFCDocumentInfo *doc, QString declarNumber){

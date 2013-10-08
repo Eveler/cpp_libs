@@ -57,8 +57,6 @@ MFCDocument *MFCDocument::instance(QString doc_type, QString doc_name,
   doc->setCreateDate( doc_createdate );
   instances << doc;
   doclist.insert( QUuid::createUuid(), doc );
-  LogDebug()<<"Created instance "<<doc<<" ("
-           <<document_properties(doc).join("; ")<<")";
   return doc;
 }
 
@@ -91,7 +89,6 @@ MFCDocument * MFCDocument::instance( MFCDocumentIOProvider *provider, QObject *p
     QVariant v=doc->property(p.name());
     props<<tr(p.name())+" = "+(v.isNull() || !v.isValid()?"<NULL>":v.toString());
   }
-  LogDebug()<<"Created instance "<<doc<<" ("<<props.join("; ")<<")";
   return doc;
 }
 

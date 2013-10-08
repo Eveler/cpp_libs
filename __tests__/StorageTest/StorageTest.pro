@@ -44,4 +44,5 @@ CONFIG(debug, debug|release){
 LIBS += -L./bin \
   -lAMSLogger \
   -lDocManager \
-  -lDossier
+  -lDossier \
+  -lEDVProcess

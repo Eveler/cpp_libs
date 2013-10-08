@@ -31,7 +31,6 @@ const QString & MFCDocumentZipper::filePath() const
 
 bool MFCDocumentZipper::load( MFCDocument *doc )
 {
-  LogDebug() << __func__ << m__FilePath << "BEGIN";
   if( m__FilePath.isEmpty() || doc == NULL ) return false;
   // обрабатываем архив и заполняем данными MFCDocument
   QuaZipFile zip( m__FilePath, "requisites.ini" );
@@ -127,7 +126,6 @@ bool MFCDocumentZipper::load( MFCDocument *doc )
   qDebug()<<"document:"<<doc->name()<<doc->series()<<doc->number()<<doc->date()<<
          "- created";
 #endif
-  LogDebug() << __func__ << m__FilePath << "END";
   return true;
 }
 

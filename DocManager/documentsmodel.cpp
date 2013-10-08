@@ -352,6 +352,7 @@ void DocumentsModel::recalc(){
 
 void DocumentsModel::documentChanged( QString propertyName, QVariant propertyValue )
 {
+  Q_UNUSED(propertyValue)
   MFCDocumentInfo *doc = qobject_cast<MFCDocumentInfo *>( sender() );
   int row = documents().indexOf( doc );
   emit dataChanged( QAbstractItemModel::createIndex( row, columnsNames.indexOf( propertyName ) ),
