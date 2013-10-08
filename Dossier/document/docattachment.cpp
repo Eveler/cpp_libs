@@ -11,7 +11,9 @@ DocAttachment::DocAttachment(const QString fileName, const QString mimeType,
 }
 
 DocAttachment::~DocAttachment(){
-  delete m_File;
+//  LogDebug()<<"~DocAttachment() BEGIN"<<"fName="<<QUOTED_STR(fName);
+//  delete m_File;
+//  LogDebug()<<"~DocAttachment() END";
 }
 
 QString DocAttachment::fileName() const

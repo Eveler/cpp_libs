@@ -63,9 +63,9 @@ private slots:
 
 signals:
   void done(bool);
-  void error(QString);
+  virtual void error(QString);
   void saved(QString);
-  void loaded(MFCDocument*);
+  virtual void loaded(MFCDocument*);
 
 public slots:
   bool save(MFCDocument* doc,QString declarNumber=QString());

@@ -13,6 +13,7 @@ MFCDocument::MFCDocument(QObject *parent) :
 
 MFCDocument::~MFCDocument()
 {
+//  LogDebug()<<"~MFCDocument() BEGIN";
 //  delete m_Type;
 //  delete m_Name;
 //  delete m_Series;
@@ -27,6 +28,7 @@ MFCDocument::~MFCDocument()
   }
   delete m_pages;
   delete m_attachments;
+//  LogDebug()<<"~MFCDocument() END";
 }
 
 MFCDocument *MFCDocument::instance(QString doc_type,QString doc_name,
@@ -334,6 +336,7 @@ void MFCDocument::remove(MFCDocument *doc){
       LogDebug()<<"Removed instance "<<doc<<" ("<<
                   document_properties(doc).join("; ")<<")";
       delete doc;
+      LogDebug()<<"HERE";
     }
   }
 }

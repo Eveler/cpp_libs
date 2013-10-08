@@ -57,9 +57,9 @@ signals:
   void progressValueChanged(int progressValue);
   void dataTransferProgress(qint64 done,qint64 total,MFCDocument* doc);
   void done(bool);
-  void error(QString);
+  virtual void error(QString);
   void saved(QString);
-  void loaded(MFCDocument*);
+  virtual void loaded(MFCDocument*);
 
 public slots:
   virtual bool save(MFCDocument* doc,QString declarNumber=QString())=0;

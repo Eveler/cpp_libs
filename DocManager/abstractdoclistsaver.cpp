@@ -125,11 +125,11 @@ bool AbstractDocListSaver::saveDocuments(DocumentsModel *docList,
       }
     }
 
+    curDoc=doc;
     bool res=docStorage->save(doc,declar);
     if(!res) return false;
-    curDoc=doc;
     timer->start();
-    if(loop->exec()!=0) return false;
+    if(curDoc && loop->exec()!=0) return false;
   }
 
   return true;
@@ -137,24 +137,29 @@ bool AbstractDocListSaver::saveDocuments(DocumentsModel *docList,
 
 void AbstractDocListSaver::clear(){
   errStr.clear();
+  curDoc=NULL;
 }
 
 void AbstractDocListSaver::cancelUpload(){
   if(docStorage) docStorage->cancel();
+  curDoc=NULL;
 }
 
 void AbstractDocListSaver::objectDestroyed(){
   if(docStorage==sender()) docStorage=NULL;
+  curDoc=NULL;
 }
 
 void AbstractDocListSaver::documentSaveDone(QString path){
   if(!curDoc){
     setError(tr("Документ пуст"));
+    curDoc=NULL;
     loop->exit(-1);
     return;
   }
   if(path.isEmpty()){
     setError(tr("Путь документа пуст"));
+    curDoc=NULL;
     loop->exit(-1);
     return;
   }
@@ -166,12 +171,14 @@ void AbstractDocListSaver::documentSaveDone(QString path){
   if(!qry.exec(qryStr)){
     setError(tr("Ошибка запроса типа документа: %1 QUERY: %2")
              .arg(qry.lastError().text()).arg(qry.lastQuery()));
+    curDoc=NULL;
     loop->exit(-1);
     return;
   }
   if(!qry.next()){
     setError(tr("Неизвестная ошибка запроса: %1 QUERY: %2")
              .arg(qry.lastError().text()).arg(qry.lastQuery()));
+    curDoc=NULL;
     loop->exit(-1);
     return;
   }
@@ -185,12 +192,14 @@ void AbstractDocListSaver::documentSaveDone(QString path){
     if(!qry.exec(qryStr)){
       setError(tr("Ошибка запроса выдающей организации: %1 QUERY: %2")
                .arg(qry.lastError().text()).arg(qry.lastQuery()));
+      curDoc=NULL;
       loop->exit(-1);
       return;
     }
     if(!qry.next()){
       setError(tr("Неизвестная ошибка запроса: %1 QUERY: %2")
                .arg(qry.lastError().text()).arg(qry.lastQuery()));
+      curDoc=NULL;
       loop->exit(-1);
       return;
     }
@@ -201,12 +210,14 @@ void AbstractDocListSaver::documentSaveDone(QString path){
   if(!qry.exec("SELECT nextval('documents_id_seq')")){
     setError(tr("Ошибка запроса ID документа: %1 QUERY: %2")
              .arg(qry.lastError().text()).arg(qry.lastQuery()));
+    curDoc=NULL;
     loop->exit(-1);
     return;
   }
   if(!qry.next()){
     setError(tr("Неизвестная ошибка запроса: %1 QUERY: %2")
              .arg(qry.lastError().text()).arg(qry.lastQuery()));
+    curDoc=NULL;
     loop->exit(-1);
     return;
   }
@@ -218,6 +229,7 @@ void AbstractDocListSaver::documentSaveDone(QString path){
   if(!qry.prepare(qryStr)){
     setError(tr("Ошибка подготовки запроса сохранения документа: %1 QUERY: %2")
              .arg(qry.lastError().text()).arg(qryStr));
+    curDoc=NULL;
     loop->exit(-1);
     return;
   }
@@ -233,6 +245,7 @@ void AbstractDocListSaver::documentSaveDone(QString path){
   if(!qry.exec()){
     setError(tr("Ошибка сохранения документа в БД: %1 QUERY: %2")
              .arg(qry.lastError().text()).arg(qry.lastQuery()));
+    curDoc=NULL;
     loop->exit(-1);
     return;
   }
@@ -283,6 +296,7 @@ void AbstractDocListSaver::documentSaveDone(QString path){
 void AbstractDocListSaver::storTimeout(){
   docStorage->cancel();
   setError(tr("Истекло время ожидания при передаче документа"));
+  curDoc=NULL;
   loop->exit(-1);
 }
 
@@ -297,6 +311,8 @@ void AbstractDocListSaver::set_error(QString str, QString file, int line){
   errStr=tr("%1 (%2): %3").arg(file).arg(line).arg(str);
   LogDebug()<<errStr;
   timer->stop();
+  curDoc=NULL;
+  loop->exit(-1);
   emit error(errStr);
 }
 
