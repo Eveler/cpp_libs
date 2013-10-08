@@ -33,8 +33,6 @@ class MainWindow : public QMainWindow
     void storageError( QString text );
     void declarChanged();
     void progress( qint64 cur, qint64 all );
-    void electrodocOutput();
-    void electrodocFinished();
 
     void on_toolButton_clicked();
     void on_tableView_doubleClicked(const QModelIndex &index);

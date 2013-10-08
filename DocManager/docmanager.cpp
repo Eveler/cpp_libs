@@ -28,27 +28,27 @@ Docmanager::Docmanager(QSqlDatabase db, QObject *parent) :
 }
 
 Docmanager::~Docmanager(){
-//  LogDebug()<<"~Docmanager() BEGIN";
+  //  LogDebug()<<"~Docmanager() BEGIN";
   clear();
-//  timer->deleteLater();
+  //  timer->deleteLater();
   delete timer;
-//  loop->deleteLater();
+  //  loop->deleteLater();
   delete loop;
-//  allDocs->deleteLater();
+  //  allDocs->deleteLater();
   QList< MFCDocumentInfo* > docs=allDocs->documents();
   delete allDocs;
   while(!docs.isEmpty()){
     MFCDocumentInfo *doc=docs.takeFirst();
     MFCDocumentInfo::remove(doc);
   }
-//  newDocs->deleteLater();
+  //  newDocs->deleteLater();
   docs=newDocs->documents();
   delete newDocs;
   while(!docs.isEmpty()){
     MFCDocumentInfo *doc=docs.takeFirst();
     MFCDocumentInfo::remove(doc);
   }
-//  LogDebug()<<"~Docmanager() END";
+  //  LogDebug()<<"~Docmanager() END";
 }
 
 //void Docmanager::setDocumentsStorage(AbstractDocsStorage *storage){
@@ -163,7 +163,7 @@ bool Docmanager::addClient(QVariant id){
   }
 
   ClientDocuments *cd=new ClientDocuments(id,DB,this);
-//  connect(cd,SIGNAL(modelDestroyed()),SLOT(modelDestroyed()));
+  //  connect(cd,SIGNAL(modelDestroyed()),SLOT(modelDestroyed()));
   connect(cd,SIGNAL(documentLoadDone(MFCDocumentInfo*)),SLOT(cancelDownload()));
   connect(cd,SIGNAL(documentLoadDone(MFCDocumentInfo*)),
           SIGNAL(documentLoadDone(MFCDocumentInfo*)));
@@ -192,14 +192,14 @@ void Docmanager::setClientCurrent(QVariant id){
   curClientDocs=clientsDocs.key(id,NULL);
   if(!curClientDocs && !id.isNull() && id!=0){
     setError(tr("Ошибка при установке заявителя ID=%1 "
-                                 "текущим: заявитель не найден")
-                              .arg(id.toString()));
+                "текущим: заявитель не найден")
+             .arg(id.toString()));
     return;
   }
   if(!id.isNull() && id!=0){
     emit currentClientChanged(curClientDocs->documents());
     emit currentClientChanged(curClientDocs->model());
-//    LogDebug()<<curClientDocs->model()->rowCount();
+    //    LogDebug()<<curClientDocs->model()->rowCount();
     emit currentClientChanged(id);
   }
 }
@@ -215,9 +215,9 @@ void Docmanager::removeClient(QVariant id){
     i.next();
     if(i.value()==id){
       if(i.key()==curClientDocs) unsetCurrentClient();
-//      i.key()->disconnect(this);
+      //      i.key()->disconnect(this);
       ClientDocuments *cd=i.key();
-//      i.key()->deleteLater();
+      //      i.key()->deleteLater();
       i.remove();
       DocumentsModel *dm=cd->documents();
       foreach(MFCDocumentInfo *doc,dm->documents()){
@@ -241,7 +241,7 @@ bool Docmanager::setDeclar(const QVariant id){
   unsetDeclar();
 
   declarDocs=new DeclarDocuments(id,DB,this);
-//  connect(declarDocs,SIGNAL(modelDestroyed()),SLOT(modelDestroyed()));
+  //  connect(declarDocs,SIGNAL(modelDestroyed()),SLOT(modelDestroyed()));
   connect(declarDocs,SIGNAL(destroyed()),SLOT(objectDestroyed()));
   connect(declarDocs,SIGNAL(documentLoadDone(MFCDocumentInfo*)),
           SLOT(cancelDownload()));
@@ -271,7 +271,7 @@ bool Docmanager::setDeclar(const QVariant id){
 
 void Docmanager::unsetDeclar(){
   if(declarDocs){
-//    declarDocs->deleteLater();
+    //    declarDocs->deleteLater();
     DocumentsModel *dm=declarDocs->documents();
     foreach(MFCDocumentInfo *doc,dm->documents()){
       dm->removeDocument(doc);
@@ -294,14 +294,14 @@ bool Docmanager::addDocpaths(QVariant id){
     setError(tr("Шаг с ID=%1 уже добавлен").arg(id.toString()));
     return false;
   }
-//  if(!declarDocs){
-//    setError(tr("Дело не определено!"));
-//    LogWarning()<<tr("Дело не определено!");
-//    return false;
-//  }
+  //  if(!declarDocs){
+  //    setError(tr("Дело не определено!"));
+  //    LogWarning()<<tr("Дело не определено!");
+  //    return false;
+  //  }
 
   DocpathsDocuments *dd=new DocpathsDocuments(id,DB,this);
-//  connect(dd,SIGNAL(modelDestroyed()),SLOT(modelDestroyed()));
+  //  connect(dd,SIGNAL(modelDestroyed()),SLOT(modelDestroyed()));
   connect(dd,SIGNAL(documentLoadDone(MFCDocumentInfo*)),SLOT(cancelDownload()));
   connect(dd,SIGNAL(documentLoadDone(MFCDocumentInfo*)),
           SIGNAL(documentLoadDone(MFCDocumentInfo*)));
@@ -337,9 +337,9 @@ void Docmanager::removeDocpaths(QVariant id){
     i.next();
     if(i.value()==id){
       if(i.key()==curDocpathsDocs) if(!nextDocpaths()) curDocpathsDocs=NULL;
-//      i.key()->disconnect();
+      //      i.key()->disconnect();
       DocpathsDocuments *dd=i.key();
-//      i.key()->deleteLater();
+      //      i.key()->deleteLater();
       i.remove();
       DocumentsModel *dm=dd->documents();
       foreach(MFCDocumentInfo *doc,dm->documents()){
@@ -355,14 +355,14 @@ void Docmanager::setDocpathsCurrent(QVariant id){
   curDocpathsDocs=docpathsDocs.key(id,NULL);
   if(!curDocpathsDocs && !id.isNull() && id!=0){
     setError(tr("Ошибка при установке шага ID=%1 "
-                                 "текущим: шаг не найден")
-                              .arg(id.toString()));
+                "текущим: шаг не найден")
+             .arg(id.toString()));
     return;
   }
   if(!id.isNull() && id!=0){
     emit currentDocpathsChanged(curDocpathsDocs->documents());
     emit currentDocpathsChanged(curDocpathsDocs->model());
-//    LogDebug()<<curDocpathsDocs->model()->rowCount();
+    //    LogDebug()<<curDocpathsDocs->model()->rowCount();
     emit currentDocpathsChanged(id);
   }
 }
@@ -685,13 +685,16 @@ void Docmanager::clear(){
   while(di.hasNext()){
     di.next();
     di.key()->disconnect(this);
-//    di.key()->deleteLater();
+    //    di.key()->deleteLater();
     DocpathsDocuments *dd=di.key();
     di.remove();
     DocumentsModel *dm=dd->documents();
-    foreach(MFCDocumentInfo *doc,dm->documents()){
-//      dm->removeDocument(doc);
-      MFCDocumentInfo::remove(doc);
+    if ( dm != NULL )
+    {
+      foreach(MFCDocumentInfo *doc,dm->documents()){
+        //      dm->removeDocument(doc);
+        MFCDocumentInfo::remove(doc);
+      }
     }
     delete dd;
   }
@@ -702,37 +705,44 @@ void Docmanager::clear(){
   while(ci.hasNext()){
     ci.next();
     ci.key()->disconnect(this);
-//    ci.key()->deleteLater();
+    //    ci.key()->deleteLater();
     ClientDocuments *cd=ci.key();
     ci.remove();
     DocumentsModel *dm=cd->documents();
-    foreach(MFCDocumentInfo *doc,dm->documents()){
-//      dm->removeDocument(doc);
-      MFCDocumentInfo::remove(doc);
+    if ( dm != NULL )
+    {
+      foreach(MFCDocumentInfo *doc,dm->documents()){
+        //      dm->removeDocument(doc);
+        MFCDocumentInfo::remove(doc);
+      }
     }
     delete cd;
   }
   clientsDocs.clear();
 
-  if(declarDocs){
+  if(declarDocs)
+  {
     declarDocs->disconnect(this);
-//    declarDocs->deleteLater();
+    //    declarDocs->deleteLater();
     DocumentsModel *dm=declarDocs->documents();
-    foreach(MFCDocumentInfo *doc,dm->documents()){
-//      dm->removeDocument(doc);
-      MFCDocumentInfo::remove(doc);
+    if ( dm != NULL )
+    {
+      foreach(MFCDocumentInfo *doc,dm->documents()){
+        //      dm->removeDocument(doc);
+        MFCDocumentInfo::remove(doc);
+      }
     }
     delete declarDocs;
     declarDocs=NULL;
   }
 
   foreach(MFCDocumentInfo *doc,allDocs->documents()){
-//    allDocs->removeDocument(doc);
+    //    allDocs->removeDocument(doc);
     MFCDocumentInfo::remove(doc);
   }
   allDocs->clear();
   foreach(MFCDocumentInfo *doc,newDocs->documents()){
-//    newDocs->removeDocument(doc);
+    //    newDocs->removeDocument(doc);
     MFCDocumentInfo::remove(doc);
   }
   newDocs->clear();
@@ -755,7 +765,7 @@ void Docmanager::cancelDownload(){
       di.key()->cancelDownload();
     }
   }
-//  if(stor) stor->cancel();
+  //  if(stor) stor->cancel();
   if(timer->isActive()) timer->stop();
   loop->quit();
 }
@@ -778,16 +788,16 @@ void Docmanager::allDocsAdd(MFCDocumentInfo *doc){
 }
 
 void Docmanager::allDocsRemove(MFCDocumentInfo *doc){
-//  LogDebug()<<"allDocsRemove(MFCDocumentInfo*) BEGIN";
+  //  LogDebug()<<"allDocsRemove(MFCDocumentInfo*) BEGIN";
   if(!doc) return;
-//  LogDebug()<<"doc="<<doc;
+  //  LogDebug()<<"doc="<<doc;
   QHashIterator< DocpathsDocuments*,QVariant > di(docpathsDocs);
   while(di.hasNext()){
     di.next();
     if(declarDocs && !declarDocs->documents()->documents().contains(doc))
       di.key()->documents()->removeDocument(doc);
     else if(di.key()->documents()->documents().contains(doc)){
-//      LogDebug()<<"allDocsRemove("<<doc<<") END";
+      //      LogDebug()<<"allDocsRemove("<<doc<<") END";
       return;
     }
   }
@@ -799,14 +809,14 @@ void Docmanager::allDocsRemove(MFCDocumentInfo *doc){
   }
   if(!allDocs->isNew(doc) && declarDocs &&
      declarDocs->documents()->documents().contains(doc)){
-//    LogDebug()<<"allDocsRemove("<<doc<<") END";
+    //    LogDebug()<<"allDocsRemove("<<doc<<") END";
     return;
   }
   QHashIterator< ClientDocuments*,QVariant > ci(clientsDocs);
   while(ci.hasNext()){
     ci.next();
     if(ci.key()->documents()->documents().contains(doc)){
-//      LogDebug()<<"allDocsRemove("<<doc<<") END";
+      //      LogDebug()<<"allDocsRemove("<<doc<<") END";
       return;
     }
   }
@@ -814,7 +824,7 @@ void Docmanager::allDocsRemove(MFCDocumentInfo *doc){
   if(allDocs->documents().contains(doc)) allDocs->removeDocument(doc);
   if(newDocs->documents().contains(doc)) newDocs->removeDocument(doc);
   MFCDocumentInfo::remove(doc);
-//  LogDebug()<<"allDocsRemove("<<doc<<") END";
+  //  LogDebug()<<"allDocsRemove("<<doc<<") END";
 }
 
 void Docmanager::set_error(QString str,QString file,int line){
@@ -833,7 +843,7 @@ void Docmanager::timeout(){
 
 void Docmanager::updateTimer(){
   if(timer->isActive()) timer->start();
-//  timer->start();
+  //  timer->start();
 }
 
 QVariant Docmanager::documentID(MFCDocumentInfo *doc) const{
@@ -874,9 +884,9 @@ QVariant Docmanager::documentID(MFCDocumentInfo *doc) const{
 }
 
 bool Docmanager::toAdd2All(MFCDocumentInfo *doc) const{
-//  LogDebug()<<"toAdd2All(MFCDocumentInfo*) BEGIN";
+  //  LogDebug()<<"toAdd2All(MFCDocumentInfo*) BEGIN";
   if(!doc) return false;
-//  LogDebug()<<"doc="<<doc;
+  //  LogDebug()<<"doc="<<doc;
   bool toAdd=false;
   if(!allDocs->documents().contains(doc)){
     toAdd=true;
@@ -893,6 +903,6 @@ bool Docmanager::toAdd2All(MFCDocumentInfo *doc) const{
         break;
       }
   }
-//  LogDebug()<<"toAdd2All("<<doc<<") END";
+  //  LogDebug()<<"toAdd2All("<<doc<<") END";
   return toAdd;
 }

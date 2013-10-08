@@ -1,8 +1,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "../../../ElectroDocViewer/EDVProcess/edvprocess.h"
+
 #include <QMessageBox>
-#include <QProcess>
 
 #include "amslogger.h"
 
@@ -52,28 +53,9 @@ void MainWindow::progress( qint64 cur, qint64 all )
   pBar->setValue( cur );
 }
 
-void MainWindow::electrodocOutput()
-{
-  QProcess *electrodoc = qobject_cast<QProcess *>( sender() );
-  if ( electrodoc == NULL ) return;
-  electrodoc = NULL;
-}
-
-void MainWindow::electrodocFinished()
-{
-  QProcess *electrodoc = qobject_cast<QProcess *>( sender() );
-  if ( electrodoc == NULL ) return;
-  QString electrodocResult = electrodoc->readAll();
-  if ( electrodocResult.startsWith( "accepted|" ) )
-  LogDebug() << electrodocResult;
-  delete electrodoc;
-  electrodoc = NULL;
-}
-
 void MainWindow::on_toolButton_clicked()
 {
   docmanager->setDeclar( ui->spinBox->value() );
-//  ftpStor->load( tr( "/docs/2013/10/05/148437_5a6dcfc8-aaa0-4fbc-b810-a6729af2cb44.mdoc" ) );
 }
 
 void MainWindow::on_tableView_doubleClicked(const QModelIndex &index)
@@ -90,14 +72,8 @@ void MainWindow::on_tableView_doubleClicked(const QModelIndex &index)
   pBar->setVisible( false );
 
   if ( !res ) return;
-  QProcess *electrodoc = new QProcess( this );
-  connect( electrodoc, SIGNAL(readyRead()), SLOT(electrodocOutput()) );
-  connect( electrodoc, SIGNAL(finished(int)), SLOT(electrodocFinished()) );
-  electrodoc->setProcessChannelMode( QProcess::MergedChannels );
-  electrodoc->start( tr( "%1/ElectroDocViewer.exe" ).arg( qApp->applicationDirPath() ),
-                     QStringList() << tr( "-r" ) <<
-                     tr( "--file='%1'" ).arg( doc->localFile() ) );
-  electrodoc = NULL;
+  EDVProcess elDocProc;
+  LogDebug() << elDocProc.readDocument( doc );
 }
 
 void MainWindow::on_tBt_AddDeclarDoc_clicked()

@@ -44,7 +44,8 @@ HEADERS += \
     ../include/abstractdocsstorage.h \
     ../include/mfcdocumentioprovider.h \
     ../include/mfcdocumentzipper.h \
-    ../include/mfcdocumentinfo.h
+    ../include/mfcdocumentinfo.h \
+    ../include/export/dossier_export.h
 
 RESOURCES +=
 

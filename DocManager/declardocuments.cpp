@@ -38,6 +38,7 @@ void DeclarDocuments::load(QSqlDatabase db){
     ownLoader=true;
   }
   doclistModel=loader->load(ID);
+  if ( doclistModel == NULL ) return;
   doclistModel->setObjectName(tr("DeclarDocuments_model_%1").arg(ID.toString()));
   sortedModel->setSourceModel(doclistModel);
   sortedModel->sort(doclistModel->findColumn("created"),Qt::DescendingOrder);

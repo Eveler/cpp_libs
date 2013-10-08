@@ -19,8 +19,7 @@ DEFINES += DOCMANAGER_LIBRARY
 #include(../mDossier/storages/ftp/ftpdocsstorage.pri)
 
 INCLUDEPATH += ./ \
-    ../include/ \
-    ../include/export
+    ../include/
 
 SOURCES += \
     docmanager.cpp \
