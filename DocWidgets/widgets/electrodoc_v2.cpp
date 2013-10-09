@@ -17,6 +17,7 @@
 ElectroDoc_v2::ElectroDoc_v2(QWidget *parent) :
   MFCWidget(parent),
   ui(new Ui::ElectroDoc_v2),
+  loopResult(-1),
   loop(new QEventLoop(this))
 {
   ui->setupUi(this);
@@ -138,7 +139,7 @@ void ElectroDoc_v2::setState( State state )
       ui->tBt_RejectDocument->setText( tr( "Отмена" ) );
       break;
     case Check:
-      canJustClose = false;
+      canJustClose = true;
       setReadOnly( true );
       ui->tBt_SaveDocument->setVisible( true );
       ui->tBt_RejectDocument->setVisible( true );
@@ -307,6 +308,7 @@ QString ElectroDoc_v2::detailsName(const Details details) const{
 int ElectroDoc_v2::exec( bool maximized )
 {
   if ( loop->isRunning() ) return -1;
+  loopResult = -1;
   if ( maximized ) showMaximized();
   else show();
   return loop->exec();
@@ -321,7 +323,7 @@ void ElectroDoc_v2::closeEvent(QCloseEvent *e){
     {
       e->accept();
       emit closed();
-      loop->exit();
+      loop->exit( loopResult );
     }
     else
     {
@@ -334,7 +336,7 @@ void ElectroDoc_v2::closeEvent(QCloseEvent *e){
   {
     emit saveCompleted(true,originalDocument/*m_Document*/);
     emit closed();
-    loop->exit();
+    loop->exit( loopResult );
   }
   else if(!canJustClose){
     e->ignore();
@@ -343,7 +345,7 @@ void ElectroDoc_v2::closeEvent(QCloseEvent *e){
   }
   else
   {
-    loop->exit();
+    loop->exit( loopResult );
     emit closed();
   }
   QWidget::closeEvent(e);
@@ -373,11 +375,17 @@ void ElectroDoc_v2::setReadOnly(const bool readOnly){
   ui->wgt_Details->setEnabled( !isReadOnly );
   ui->tBt_RemoveExt->setEnabled( !isReadOnly );
   ui->tBt_LoadExt->setEnabled( !isReadOnly );
+  disconnect(ui->tBt_SaveDocument,SIGNAL(clicked()),this,SLOT(confirm()));
+  disconnect(ui->tBt_SaveDocument,SIGNAL(clicked()),this,SLOT(save()));
   if(isReadOnly){
-    disconnect(ui->tBt_SaveDocument,SIGNAL(clicked()),this,SLOT(save()));
     connect(ui->tBt_SaveDocument,SIGNAL(clicked()),this,SLOT(confirm()));
     ui->tBt_SaveDocument->setText(tr("Да, документ верный"));
-  }else ui->tBt_SaveDocument->setText(tr("Сохранить документ"));
+  }
+  else
+  {
+    connect(ui->tBt_SaveDocument,SIGNAL(clicked()),this,SLOT(save()));
+    ui->tBt_SaveDocument->setText(tr("Сохранить документ"));
+  }
 }
 
 void ElectroDoc_v2::addPage(const QString &pName, const QPixmap &pixmap){
@@ -870,6 +878,7 @@ void ElectroDoc_v2::save(){
   setModified(false);
   canJustClose=true;
   saved=true;
+  loopResult = 0;
   close();
 }
 
@@ -886,12 +895,14 @@ void ElectroDoc_v2::confirm(){
   }
   canJustClose=true;
   saved=true;
+  loopResult = 0;
 //  hide();
   close();
 }
 
 void ElectroDoc_v2::reject(){
   canJustClose=true;
+  if ( m__State == Read ) loopResult = 0;
   emit rejected();
 //  hide();
   close();

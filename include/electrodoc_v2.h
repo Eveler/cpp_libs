@@ -75,6 +75,7 @@ protected:
 
 private:
   Ui::ElectroDoc_v2 *ui;
+  State m__State;
   QVBoxLayout *vblPages;
 #ifdef Q_OS_WIN
   QPixmap *m_pPixmap;
@@ -93,6 +94,7 @@ private:
   bool isReadOnly;
   QString tmpFileName;
   bool canJustClose;
+  int loopResult;
   QEventLoop *loop;
 
   void setReadOnly(const bool readOnly=true);

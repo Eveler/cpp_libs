@@ -20,11 +20,14 @@ INCLUDEPATH += ./ \
     ../../include/
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    ReceprionDocmanager/widget_recepriondocmanager.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    ReceprionDocmanager/widget_recepriondocmanager.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    ReceprionDocmanager/widget_recepriondocmanager.ui
 
 DESTDIR = ./bin
 DLLDESTDIR = ./bin

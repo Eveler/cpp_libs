@@ -37,6 +37,7 @@ class MainWindow : public QMainWindow
     void on_toolButton_clicked();
     void on_tableView_doubleClicked(const QModelIndex &index);
     void on_tBt_AddDeclarDoc_clicked();
+    void on_tBt_CheckDeclarDoc_clicked();
 };
 
 #endif // MAINWINDOW_H

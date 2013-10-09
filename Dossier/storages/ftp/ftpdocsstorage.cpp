@@ -213,17 +213,19 @@ void FtpDocsStorage::ftpAnswer(QString text, int code){
 }
 
 bool FtpDocsStorage::save(MFCDocumentInfo *doc, QString declarNumber){
-  // создаём архив и перемещаем его в хранилище
-  curDoc=doc;
-  QString arcName=tr( "%1_%2" ).arg( declarNumber, doc->localFile() );
-
-  if( arcName.isEmpty() || !QFileInfo( arcName ).exists() )
+  if ( doc->url().isEmpty() && doc->localFile().isEmpty() ) return true;
+  QFileInfo fi( doc->localFile() );
+  if( !fi.exists() )
   {
-    errStr = tr( "Файла документа [%1] не существует!" ).arg( arcName );
+    errStr = tr( "Файла документа [%1] не существует!" ).arg( doc->localFile() );
     emit error(errStr);
     return false;
   }
+  // создаём архив и перемещаем его в хранилище
+  curDoc=doc;
 
+  QString arcName = tr( "%1/%2_%3" ).arg( fi.absolutePath(), declarNumber, fi.fileName() );
+  QFile::rename( fi.absoluteFilePath(), arcName );
   curPath=rootPath+"/"+QDate::currentDate().toString("yyyy/MM/dd");
   curPath.replace("//","/");
 
@@ -245,11 +247,9 @@ bool FtpDocsStorage::load( MFCDocumentInfo *doc ){
 //    return false;
 //  }
   if(doc==NULL) return false;
-  curDoc=doc;
   QString fileName = doc->url();
   if(fileName.isEmpty()){
-    setError(tr("Необходимо указать имя файла"));
-    return false;
+    return true;
   }
   if(isDownloading){
     setError(tr("Загрузка ещё в процессе. Необходимо дождаться её завершения"));
@@ -269,6 +269,7 @@ bool FtpDocsStorage::load( MFCDocumentInfo *doc ){
                 dFile->errorString()));
     return false;
   }
+  curDoc=doc;
   arc=dFile;
   curPath=fileName;
   isDownloading=true;

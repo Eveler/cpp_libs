@@ -172,7 +172,7 @@ MFCDocumentInfo::MFCDocumentInfo( QObject *parent ) :
 
 MFCDocumentInfo::~MFCDocumentInfo()
 {
-
+  QFile::remove( m__LocalFile );
 }
 
 void MFCDocumentInfo::remove()
