@@ -17,17 +17,42 @@ exists( ../../install_path.pri ){
 
 
 INCLUDEPATH += ./ \
-    ../../include/
+    ../../include/ \
+    ./ReceprionDocmanager/ \
+    ./ReceprionDocmanager/AddDocWizard/ \
+    ../../../ElectroDocViewer/EDVProcess/
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    ReceprionDocmanager/widget_recepriondocmanager.cpp
+    ReceprionDocmanager/AddDocWizard/wizard_adddoc.cpp \
+    ReceprionDocmanager/AddDocWizard/docsourcepage.cpp \
+    ReceprionDocmanager/AddDocWizard/createdocspage.cpp \
+    ReceprionDocmanager/AddDocWizard/clientdocspage.cpp \
+    ReceprionDocmanager/AddDocWizard/declardocspage.cpp \
+    ReceprionDocmanager/AddDocWizard/summarypage.cpp \
+    ReceprionDocmanager/receptiondocmanager_p.cpp \
+    ReceprionDocmanager/widget_receptiondocmanager.cpp \
+    ReceprionDocmanager/AddDocWizard/dialog_docdetails.cpp
 
 HEADERS  += mainwindow.h \
-    ReceprionDocmanager/widget_recepriondocmanager.h
+    ReceprionDocmanager/AddDocWizard/wizard_adddoc.h \
+    ReceprionDocmanager/AddDocWizard/docsourcepage.h \
+    ReceprionDocmanager/AddDocWizard/createdocspage.h \
+    ReceprionDocmanager/AddDocWizard/clientdocspage.h \
+    ReceprionDocmanager/AddDocWizard/declardocspage.h \
+    ReceprionDocmanager/AddDocWizard/summarypage.h \
+    ReceprionDocmanager/widget_receptiondocmanager.h \
+    ReceprionDocmanager/receptiondocmanager_p.h \
+    ReceprionDocmanager/AddDocWizard/dialog_docdetails.h
 
 FORMS    += mainwindow.ui \
-    ReceprionDocmanager/widget_recepriondocmanager.ui
+    ReceprionDocmanager/AddDocWizard/docsourcepage.ui \
+    ReceprionDocmanager/AddDocWizard/createdocspage.ui \
+    ReceprionDocmanager/AddDocWizard/clientdocspage.ui \
+    ReceprionDocmanager/AddDocWizard/declardocspage.ui \
+    ReceprionDocmanager/AddDocWizard/summarypage.ui \
+    ReceprionDocmanager/widget_receptiondocmanager.ui \
+    ReceprionDocmanager/AddDocWizard/dialog_docdetails.ui
 
 DESTDIR = ./bin
 DLLDESTDIR = ./bin
