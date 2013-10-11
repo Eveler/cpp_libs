@@ -25,6 +25,7 @@ class ReceptionDocmanager_P : public QObject
 
   private:
     Docmanager *m__Docmanager;
+    QStringList m__Doctypes;
 
     explicit ReceptionDocmanager_P( Widget_ReceptionDocmanager *parent );
 };

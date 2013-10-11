@@ -45,6 +45,11 @@ void CreateDocsPage::initializePage()
   timer->deleteLater();
 }
 
+bool CreateDocsPage::isComplete() const
+{
+  return m__Documents->rowCount() > 0;
+}
+
 void CreateDocsPage::on_tBt_Create_clicked()
 {
 //  EDVProcess elDocProc;
@@ -71,11 +76,29 @@ void CreateDocsPage::on_tBt_Create_clicked()
 //  }
 
   Dialog_DocDetails docDetails( this );
-  docDetails.exec( m__Doctypes );
+  docDetails.setWindowTitle( tr( "Новый документ" ) );
+  MFCDocumentInfo *doc = docDetails.exec( m__Doctypes );
+  if ( doc == NULL ) return;
+  m__Documents->addDocument( doc );
+
+  if ( m__Documents->rowCount() > 0 )
+    setCreateText( tr( "Добавить ещё документ" ) );
+  emit completeChanged();
 }
 
 void CreateDocsPage::setCreateText( const QString &text )
 {
   ui->tBt_Create->setText( text );
   setSubTitle( tr( "<html><head/><body><p><span style=\" color:#000000;\">Для создания документа нажмите на кнопку </span><span style=\" font-weight:600; color:#000000;\">%1</span><span style=\" color:#000000;\"> и введите реквезиты нового документа</span></p></body></html>" ).arg( text ) );
+}
+
+void CreateDocsPage::on_tableView_doubleClicked(const QModelIndex &index)
+{
+  if ( !index.isValid() ) return;
+
+  MFCDocumentInfo *doc = m__Documents->document( index.row() );
+  if ( doc == NULL ) return;
+  Dialog_DocDetails docDetails( this );
+  docDetails.setWindowTitle( tr( "Новый документ" ) );
+  docDetails.exec( doc );
 }

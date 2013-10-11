@@ -1,6 +1,9 @@
 #include "clientdocspage.h"
 #include "ui_clientdocspage.h"
 
+#include "wizard_adddoc.h"
+
+
 ClientDocsPage::ClientDocsPage(QWidget *parent) :
   QWizardPage(parent),
   ui(new Ui::ClientDocsPage)

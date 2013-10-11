@@ -24,6 +24,11 @@ void Widget_ReceptionDocmanager::setDocmanager( Docmanager *docmanager )
   p->m__Docmanager = docmanager;
 }
 
+void Widget_ReceptionDocmanager::setDoctypes( const QStringList &doctypes )
+{
+  p->m__Doctypes = doctypes;
+}
+
 void Widget_ReceptionDocmanager::on_tView_Required_doubleClicked(const QModelIndex &index)
 {
 
@@ -36,6 +41,6 @@ void Widget_ReceptionDocmanager::on_tView_New_doubleClicked(const QModelIndex &i
 
 void Widget_ReceptionDocmanager::on_tBt_Add_clicked()
 {
-  Wizard_AddDoc addDocWizard( p->m__Docmanager, this );
+  Wizard_AddDoc addDocWizard( p->m__Doctypes, p->m__Docmanager, this );
   addDocWizard.exec();
 }

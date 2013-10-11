@@ -22,9 +22,13 @@ class CreateDocsPage : public QWizardPage
     int nextId() const;
     void initializePage();
 
+    bool isComplete() const;
+
 
   private slots:
     void on_tBt_Create_clicked();
+
+    void on_tableView_doubleClicked(const QModelIndex &index);
 
   private:
     Ui::CreateDocsPage *ui;

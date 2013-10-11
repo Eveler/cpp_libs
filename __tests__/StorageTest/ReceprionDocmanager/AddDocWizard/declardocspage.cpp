@@ -1,6 +1,9 @@
 #include "declardocspage.h"
 #include "ui_declardocspage.h"
 
+#include "wizard_adddoc.h"
+
+
 DeclarDocsPage::DeclarDocsPage(QWidget *parent) :
   QWizardPage(parent),
   ui(new Ui::DeclarDocsPage)

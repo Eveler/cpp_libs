@@ -24,6 +24,12 @@ MainWindow::MainWindow(QWidget *parent) :
   connect( docmanager, SIGNAL(error(QString)), SLOT(storageError(QString)) );
   connect( docmanager, SIGNAL(declarSet(QVariant)), SLOT(declarChanged()) );
 
+  ui->wgt_ReceptionDocmanager->setDocmanager( docmanager );
+  ui->wgt_ReceptionDocmanager->setDoctypes(
+        QStringList() << tr( "Заявление" ) << tr( "Заявление о приостановке" ) <<
+        tr( "Заявление об аннулировании" ) << tr( "Паспорт гражданина РФ" ) <<
+        tr( "Расписка МФЦ" ) );
+
   pBar = new QProgressBar( ui->statusBar );
   pBar->setVisible( false );
   ui->statusBar->addWidget( pBar );

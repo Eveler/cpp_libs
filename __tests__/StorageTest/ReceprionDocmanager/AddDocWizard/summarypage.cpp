@@ -6,6 +6,8 @@ SummaryPage::SummaryPage(QWidget *parent) :
   ui(new Ui::SummaryPage)
 {
   ui->setupUi(this);
+
+  setFinalPage( true );
 }
 
 SummaryPage::~SummaryPage()

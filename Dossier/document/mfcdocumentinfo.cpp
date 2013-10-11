@@ -82,6 +82,30 @@ void MFCDocumentInfo::setUrl( const QString &doc_url )
   emit propertyChanged( "url", doc_url );
 }
 
+void MFCDocumentInfo::setOriginalExemplars(int doc_oexemplars )
+{
+  m__OriginalExemplars = doc_oexemplars;
+  emit propertyChanged( "originalExemplars", doc_oexemplars );
+}
+
+void MFCDocumentInfo::setOriginalPages( int doc_opages )
+{
+  m__OriginalPages = doc_opages;
+  emit propertyChanged( "originalPages", doc_opages );
+}
+
+void MFCDocumentInfo::setCopyExemplars( int doc_cexemplars )
+{
+  m__CopyExemplars = doc_cexemplars;
+  emit propertyChanged( "copyExemplars", doc_cexemplars );
+}
+
+void MFCDocumentInfo::setCopyPages( int doc_cpages )
+{
+  m__CopyPages = doc_cpages;
+  emit propertyChanged( "copyPages", doc_cpages );
+}
+
 void MFCDocumentInfo::setLocalFile( const QString &doc_localFile )
 {
   m__LocalFile = doc_localFile;
@@ -94,52 +118,72 @@ void MFCDocumentInfo::setCreateDate( QDateTime doc_createdate )
   emit propertyChanged( "created", doc_createdate );
 }
 
-const QString & MFCDocumentInfo::type()
+const QString & MFCDocumentInfo::type() const
 {
   return m__Type;
 }
 
-const QString & MFCDocumentInfo::name()
+const QString & MFCDocumentInfo::name() const
 {
   return m__Name;
 }
 
-const QString & MFCDocumentInfo::series()
+const QString & MFCDocumentInfo::series() const
 {
   return m__Series;
 }
 
-const QString & MFCDocumentInfo::number()
+const QString & MFCDocumentInfo::number() const
 {
   return m__Number;
 }
 
-const QDate & MFCDocumentInfo::date()
+const QDate & MFCDocumentInfo::date() const
 {
   return m__Date;
 }
 
-const QDate & MFCDocumentInfo::expiresDate()
+const QDate & MFCDocumentInfo::expiresDate() const
 {
   return m__Expires;
 }
 
-const QString & MFCDocumentInfo::agency()
+const QString & MFCDocumentInfo::agency() const
 {
   return m__Agency;
 }
 
-const QString & MFCDocumentInfo::url()
+const QString & MFCDocumentInfo::url() const
 {
   return m__Url;
 }
 
-const QString & MFCDocumentInfo::localFile()
+int MFCDocumentInfo::originalExemplars() const
+{
+  return m__OriginalExemplars;
+}
+
+int MFCDocumentInfo::originalPages() const
+{
+  return m__OriginalPages;
+}
+
+int MFCDocumentInfo::copyExemplars() const
+{
+  return m__CopyExemplars;
+}
+
+int MFCDocumentInfo::copyPages() const
+{
+  return m__CopyPages;
+}
+
+const QString & MFCDocumentInfo::localFile() const
 {
   return m__LocalFile;
 }
 
-const QDateTime & MFCDocumentInfo::createDate()
+const QDateTime & MFCDocumentInfo::createDate() const
 {
   return m__CreateDate;
 }
@@ -165,6 +209,10 @@ MFCDocumentInfo::MFCDocumentInfo( QObject *parent ) :
   m__Expires = QDate();
   m__Agency = QString();
   m__Url = QString();
+  m__OriginalExemplars = 0;
+  m__OriginalPages = 0;
+  m__CopyExemplars = 0;
+  m__CopyPages = 0;
   m__LocalFile = QString();
   m__CreateDate = QDateTime::currentDateTime();
   connect( this, SIGNAL(destroyed()), SLOT(remove()) );

@@ -61,9 +61,10 @@ DocumentsModel *DeclarDocsLoader::load(QVariant foreignID){
   skipNames<<"id"<<"documents_id"<<"doctype_id";
   while(qry.next()){
     MFCDocumentInfo *doc=NULL;
+    QVariant docId = qry.record().value("documents_id");
     foreach(MFCDocumentInfo *d,docListModel->documents()){
-      if(docListModel->documentID(d).toString()==
-         qry.record().value("documents_id").toString()){
+      if( docListModel->documentID( d ).toString() == docId.toString() )
+      {
         doc=d;
         break;
       }
@@ -86,7 +87,18 @@ DocumentsModel *DeclarDocsLoader::load(QVariant foreignID){
         doc->setProperty(qry.record().fieldName(f).toLocal8Bit(),qry.value(f));
       }
 
-      docListModel->addDocument(doc,qry.record().value("documents_id"),false);
+      QSqlQuery subQry(DB);
+      strQry = tr( "SELECT original_number, original_pages, copy_number, copy_pages"
+                   " WHERE documents_id=%1 ORDER BY id DESC LIMIT 1" ).arg( docId.toString() );
+      if ( subQry.exec( strQry ) && subQry.next() )
+      {
+        doc->setOriginalExemplars( qry.record().field("original_number").value().toInt() );
+        doc->setOriginalPages( qry.record().field("original_pages").value().toInt() );
+        doc->setCopyExemplars( qry.record().field("copy_number").value().toInt() );
+        doc->setCopyPages( qry.record().field("copy_pages").value().toInt() );
+      }
+
+      docListModel->addDocument( doc, docId, false );
     }
 //    connect(doc,SIGNAL(needBody(QString,MFCDocument*)),
 //            docStorage,SLOT(load(QString,MFCDocument*)));

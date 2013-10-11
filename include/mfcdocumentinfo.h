@@ -21,6 +21,10 @@ class DOSSIER_EXPORT MFCDocumentInfo : public QObject
     Q_PROPERTY(QDate expires READ expiresDate WRITE setExpiresDate)
     Q_PROPERTY(QString agency READ agency WRITE setAgency)
     Q_PROPERTY(QString url READ url WRITE setUrl)
+    Q_PROPERTY(int originalExemplars READ originalExemplars WRITE setOriginalExemplars)
+    Q_PROPERTY(int originalPages READ originalPages WRITE setOriginalPages)
+    Q_PROPERTY(int copyExemplars READ copyExemplars WRITE setCopyExemplars)
+    Q_PROPERTY(int copyPages READ copyPages WRITE setCopyPages)
     Q_PROPERTY(QString localFile READ localFile WRITE setLocalFile)
     Q_PROPERTY(QString agency READ agency WRITE setAgency)
     Q_PROPERTY(QDateTime created READ createDate WRITE setCreateDate)
@@ -43,19 +47,27 @@ class DOSSIER_EXPORT MFCDocumentInfo : public QObject
     void setExpiresDate( QDate doc_expires );
     void setAgency( const QString &doc_agency );
     void setUrl( const QString &doc_url );
+    void setOriginalExemplars( int doc_oexemplars );
+    void setOriginalPages( int doc_opages );
+    void setCopyExemplars( int doc_cexemplars );
+    void setCopyPages( int doc_cpages );
     void setLocalFile( const QString &doc_localFile );
     void setCreateDate( QDateTime doc_createdate );
 
-    const QString & type();
-    const QString & name();
-    const QString & series();
-    const QString & number();
-    const QDate & date();
-    const QDate & expiresDate();
-    const QString & agency();
-    const QString & url();
-    const QString & localFile();
-    const QDateTime & createDate();
+    const QString & type() const;
+    const QString & name() const;
+    const QString & series() const;
+    const QString & number() const;
+    const QDate & date() const;
+    const QDate & expiresDate() const;
+    const QString & agency() const;
+    const QString & url() const;
+    int originalExemplars() const;
+    int originalPages() const;
+    int copyExemplars() const;
+    int copyPages() const;
+    const QString & localFile() const;
+    const QDateTime & createDate() const;
 
     bool isValid();
 
@@ -78,6 +90,10 @@ class DOSSIER_EXPORT MFCDocumentInfo : public QObject
     QDate m__Expires;
     QString m__Agency;
     QString m__Url;
+    int m__OriginalExemplars;
+    int m__OriginalPages;
+    int m__CopyExemplars;
+    int m__CopyPages;
     QString m__LocalFile;
     QDateTime m__CreateDate;
 

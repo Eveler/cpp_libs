@@ -22,6 +22,7 @@ class Widget_ReceptionDocmanager : public QWidget
     ~Widget_ReceptionDocmanager();
 
     void setDocmanager( Docmanager *docmanager );
+    void setDoctypes( const QStringList &doctypes );
 
 
   private:

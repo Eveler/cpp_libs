@@ -3,6 +3,8 @@
 
 #include <QDialog>
 
+#include "mfcdocumentinfo.h"
+
 
 namespace Ui {
   class Dialog_DocDetails;
@@ -17,11 +19,13 @@ class Dialog_DocDetails : public QDialog
     explicit Dialog_DocDetails(QWidget *parent = 0);
     ~Dialog_DocDetails();
 
-    int exec( const QStringList &doctypes );
+    MFCDocumentInfo * exec( const QStringList &doctypes );
+    int exec( MFCDocumentInfo *doc );
 
 
   private:
     Ui::Dialog_DocDetails *ui;
+    MFCDocumentInfo *m__Document;
 
     void check( QString doc_type, QDate doc_date,
                 bool isOriginals, int oExemplars, int oPages,
