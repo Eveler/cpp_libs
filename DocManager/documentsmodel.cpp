@@ -396,6 +396,10 @@ QString DocumentsModel::pnConvert(QString pn) const
   else if(pName=="date") pName=tr("Дата выдачи");
   else if(pName=="expires") pName=tr("Действителен до");
   else if(pName=="agency") pName=tr("Выдан");
+  else if(pName=="originalExemplars") pName=tr("Экземпляров оригинала");
+  else if(pName=="originalPages") pName=tr("Страниц оригинала");
+  else if(pName=="copyExemplars") pName=tr("Экземпляров копии");
+  else if(pName=="copyPages") pName=tr("Страниц копии");
   else if(pName=="created") pName=tr("Создан в базе");
   else if(pName==tr("Вид")) pName="type";
   else if(pName==tr("Наименование\n(крат. содержание)")) pName="name";
@@ -404,6 +408,10 @@ QString DocumentsModel::pnConvert(QString pn) const
   else if(pName==tr("Дата выдачи")) pName="date";
   else if(pName==tr("Действителен до")) pName="expires";
   else if(pName==tr("Выдан")) pName="agency";
+  else if(pName==tr("Экземпляров оригинала")) pName="originalExemplars";
+  else if(pName==tr("Страниц оригинала")) pName="originalPages";
+  else if(pName==tr("Экземпляров копии")) pName="copyExemplars";
+  else if(pName==tr("Страниц копии")) pName="copyPages";
   else if(pName==tr("Создан в базе")) pName="created";
   return pName;
 }

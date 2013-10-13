@@ -24,17 +24,23 @@ class CreateDocsPage : public QWizardPage
 
     bool isComplete() const;
 
+    DocumentsModel * createdDocs() const;
+    void setDocumentCreationMode( int documentMode );
+
 
   private slots:
     void on_tBt_Create_clicked();
 
     void on_tableView_doubleClicked(const QModelIndex &index);
 
+    void on_tBt_Delete_clicked();
+
   private:
     Ui::CreateDocsPage *ui;
 
     QStringList m__Doctypes;
     DocumentsModel *m__Documents;
+    int m__DocumentMode;
 
     void setCreateText( const QString &text );
 };

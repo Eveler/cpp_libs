@@ -30,6 +30,11 @@ MFCDocumentInfo * Dialog_DocDetails::exec( const QStringList &doctypes )
   ui->cBox_Doctype->addItems( doctypes );
   int currentIndex = ui->cBox_Doctype->currentIndex();
   ui->cBox_Doctype->setCurrentIndex( -1 );
+  ui->lEdit_Name->clear();
+  ui->lEdit_Series->clear();
+  ui->lEdit_Number->clear();
+  ui->dEdit_Date->clear();
+  ui->dEdit_Expires->clear();
 
   if ( currentIndex == -1 )
     check( QString(), ui->dEdit_Date->date(),
@@ -48,10 +53,14 @@ MFCDocumentInfo * Dialog_DocDetails::exec( const QStringList &doctypes )
     QString doc_type;
     if ( ui->cBox_Doctype->currentIndex() > -1 )
       doc_type = ui->cBox_Doctype->itemText( ui->cBox_Doctype->currentIndex() );
+    QDate doc_date = ui->dEdit_Date->date();
+    if ( doc_date == QDate( 2000, 1, 1 ) ) doc_date = QDate();
+    QDate doc_expires = ui->dEdit_Expires->date();
+    if ( doc_expires == QDate( 2000, 1, 1 ) ) doc_expires = QDate();
     MFCDocumentInfo *doc = MFCDocumentInfo::instance(
                              doc_type, ui->lEdit_Name->text(),
                              ui->lEdit_Series->text(), ui->lEdit_Number->text(),
-                             ui->dEdit_Date->date(), ui->dEdit_Expires->date() );
+                             doc_date, doc_expires );
     if ( ui->gBox_Originals->isChecked() )
     {
       doc->setOriginalExemplars( ui->spBox_OExemplars->value() );
@@ -98,6 +107,7 @@ void Dialog_DocDetails::check( QString doc_type, QDate doc_date,
   QPushButton *pBt = ui->buttonBox->button( QDialogButtonBox::Ok );
   if ( pBt != NULL )
     pBt->setEnabled( !doc_type.isEmpty() && doc_date.isValid() &&
+                     doc_date > QDate( 2000, 1, 1 ) &&
                      ( ( isOriginals && oExemplars > 0 && oPages > 0 ) ||
                        ( isCopies && cExemplars > 0 && cPages > 0 ) ) );
 }

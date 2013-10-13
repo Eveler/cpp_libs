@@ -1,6 +1,7 @@
 #include "createdocspage.h"
 #include "ui_createdocspage.h"
 
+#include "wizard_adddoc.h"
 #include "edvprocess.h"
 #include "dialog_docdetails.h"
 
@@ -19,7 +20,7 @@ CreateDocsPage::CreateDocsPage( const QStringList &doctypes, QWidget *parent ) :
   m__Doctypes = doctypes;
   m__Documents = new DocumentsModel( this );
   ui->tableView->setModel( m__Documents );
-  registerField( "CreatedDocuments", ui->tableView );
+  m__DocumentMode = Wizard_AddDoc::OnlyDetails;
 
   setFinalPage( true );
 }
@@ -50,36 +51,63 @@ bool CreateDocsPage::isComplete() const
   return m__Documents->rowCount() > 0;
 }
 
+DocumentsModel * CreateDocsPage::createdDocs() const
+{
+  return m__Documents;
+}
+
+void CreateDocsPage::setDocumentCreationMode( int documentMode )
+{
+  m__DocumentMode = documentMode;
+}
+
 void CreateDocsPage::on_tBt_Create_clicked()
 {
-//  EDVProcess elDocProc;
-//  MFCDocumentInfo *doc = elDocProc.writeDocument( m__Doctypes, QStringList() );
-//  if ( doc == NULL )
-//  {
-//    if ( !elDocProc.lastError().isEmpty() )
-//      QMessageBox::warning( this, tr( "Ошибка" ), elDocProc.lastError() );
-//  }
-//  else if ( docmanager->declarDocuments()->addDocument( doc ) )
-//  {
-//    QFileInfo fi( doc->localFile() );
-//    QString newPath = tr( "%1/temp/%2" ).arg( qApp->applicationDirPath(), fi.fileName() );
-//    if ( !QFile::copy( fi.absoluteFilePath(), newPath ) )
-//    {
-//      QMessageBox::warning( this, tr( "Ошибка" ),
-//                            tr( "Ошибка прикопировании файла:\nиз %1\nв %2" ).arg(
-//                              fi.absoluteFilePath(), newPath ) );
-//      return;
-//    }
-//    doc->setLocalFile( newPath );
-//    QFile::remove( fi.absoluteFilePath() );
-//    docmanager->save();
-//  }
+  bool withBody = false;
+  MFCDocumentInfo *doc = NULL;
 
-  Dialog_DocDetails docDetails( this );
-  docDetails.setWindowTitle( tr( "Новый документ" ) );
-  MFCDocumentInfo *doc = docDetails.exec( m__Doctypes );
+  if ( m__DocumentMode == (int)Wizard_AddDoc::WithBody ) withBody = true;
+  else if ( m__DocumentMode == (int)Wizard_AddDoc::Both )
+  {
+
+  }
+
+  if ( withBody )
+  {
+    EDVProcess elDocProc;
+    doc = elDocProc.writeDocument( m__Doctypes, QStringList() );
+    if ( doc == NULL )
+    {
+      if ( !elDocProc.lastError().isEmpty() )
+        QMessageBox::warning( this, tr( "Ошибка" ), elDocProc.lastError() );
+    }
+    else if ( m__Documents->addDocument( doc ) )
+    {
+      QFileInfo fi( doc->localFile() );
+      QString newPath = tr( "%1/temp/%2" ).arg( qApp->applicationDirPath(), fi.fileName() );
+      if ( !QFile::copy( fi.absoluteFilePath(), newPath ) )
+      {
+        QMessageBox::warning( this, tr( "Ошибка" ),
+                              tr( "Ошибка прикопировании файла:\nиз %1\nв %2" ).arg(
+                                fi.absoluteFilePath(), newPath ) );
+        return;
+      }
+      doc->setLocalFile( newPath );
+      QFile::remove( fi.absoluteFilePath() );
+    }
+  }
+  else
+  {
+    Dialog_DocDetails docDetails( this );
+    docDetails.setWindowTitle( tr( "Новый документ" ) );
+    doc = docDetails.exec( m__Doctypes );
+  }
+
   if ( doc == NULL ) return;
   m__Documents->addDocument( doc );
+  for ( int rIdx = m__Documents->columnCount()-1; rIdx > 10; rIdx-- )
+    ui->tableView->hideColumn( rIdx );
+  ui->tableView->resizeColumnsToContents();
 
   if ( m__Documents->rowCount() > 0 )
     setCreateText( tr( "Добавить ещё документ" ) );
@@ -101,4 +129,20 @@ void CreateDocsPage::on_tableView_doubleClicked(const QModelIndex &index)
   Dialog_DocDetails docDetails( this );
   docDetails.setWindowTitle( tr( "Новый документ" ) );
   docDetails.exec( doc );
+}
+
+void CreateDocsPage::on_tBt_Delete_clicked()
+{
+  QModelIndex index = ui->tableView->currentIndex();
+  if ( !index.isValid() ) return;
+
+  int res = QMessageBox::question( this, tr( "Удаление документа" ),
+                                   tr( "Вы действительно хотите удалить документ?" ) );
+  if ( res == (int)QMessageBox::No ) return;
+
+  MFCDocumentInfo *doc = m__Documents->document( index.row() );
+  if ( doc == NULL ) return;
+  m__Documents->removeDocument( doc );
+  MFCDocumentInfo::remove( doc );
+  doc = NULL;
 }

@@ -42,5 +42,6 @@ void Widget_ReceptionDocmanager::on_tView_New_doubleClicked(const QModelIndex &i
 void Widget_ReceptionDocmanager::on_tBt_Add_clicked()
 {
   Wizard_AddDoc addDocWizard( p->m__Doctypes, p->m__Docmanager, this );
+  addDocWizard.setDocumentCreationMode( Wizard_AddDoc::OnlyDetails );
   addDocWizard.exec();
 }

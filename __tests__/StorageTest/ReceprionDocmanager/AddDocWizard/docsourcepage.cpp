@@ -12,7 +12,7 @@ DocSourcePage::DocSourcePage(QWidget *parent) :
 {
   ui->setupUi(this);
 
-  setTitle( tr( "Вас приветствует мастер добавления документов" ) );
+  setTitle( tr( "Вас приветствует Мастер добавления документов" ) );
 
   connect( ui->rBt_CreateDocs, SIGNAL(toggled(bool)), SLOT(sourceChanged(bool)) );
   connect( ui->rBt_ClientDocs, SIGNAL(toggled(bool)), SLOT(sourceChanged(bool)) );

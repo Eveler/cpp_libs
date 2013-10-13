@@ -18,16 +18,20 @@ class Wizard_AddDoc : public QWizard
 
   public:
     enum {Page_DocSource = 0, Page_CreateDocs, Page_ClientDocs, Page_DeclarDocs};
+    enum DocumentMode { OnlyDetails = 0, WithBody, Both };
     explicit Wizard_AddDoc( const QStringList &doctypes,
                             Docmanager *docmanager,
                             QWidget *parent = NULL );
     ~Wizard_AddDoc();
+
+    void setDocumentCreationMode( DocumentMode documentMode = Both );
 
 
   signals:
 
 
   public slots:
+    virtual int exec();
 
 
   protected:
@@ -35,10 +39,15 @@ class Wizard_AddDoc : public QWizard
 
 
   private:
+    Docmanager *m__Docmanager;
     DocSourcePage *m__DocSourcePage;
     CreateDocsPage *m__CreateDocsPage;
     ClientDocsPage *m__ClientDocsPage;
     DeclarDocsPage *m__DeclarDocsPage;
+
+    void deleteCreatedDocs();
+    void deselectClientDocs();
+    void deselectDeclarDocs();
 };
 
 #endif // WIZARD_ADDDOC_H
