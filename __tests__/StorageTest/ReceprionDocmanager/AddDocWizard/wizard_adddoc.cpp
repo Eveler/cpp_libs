@@ -12,17 +12,15 @@
 #include <QDebug>
 
 
-Wizard_AddDoc::Wizard_AddDoc( const QStringList &doctypes,
-                              Docmanager *docmanager, QWidget *parent ) :
-  QWizard(parent)
+Wizard_AddDoc::Wizard_AddDoc( QWidget *parent ) :
+  QWizard(parent),
+  m__Docmanager(NULL)
 {
   resize( qApp->desktop()->availableGeometry().width()*0.8,
           qApp->desktop()->availableGeometry().height()*0.8 );
 
-  m__Docmanager = docmanager;
-
   m__DocSourcePage = new DocSourcePage;
-  m__CreateDocsPage = new CreateDocsPage( doctypes );
+  m__CreateDocsPage = new CreateDocsPage;
   m__ClientDocsPage = new ClientDocsPage;
   m__DeclarDocsPage = new DeclarDocsPage;
 
@@ -52,6 +50,21 @@ void Wizard_AddDoc::setDocumentCreationMode( DocumentMode documentMode )
   m__CreateDocsPage->setDocumentCreationMode( documentMode );
 }
 
+void Wizard_AddDoc::setDoctypes( const QStringList &doctypes )
+{
+  m__CreateDocsPage->setDoctypes( doctypes );
+}
+
+void Wizard_AddDoc::setDocmanager( Docmanager *docmanager )
+{
+  m__Docmanager = docmanager;
+}
+
+void Wizard_AddDoc::addClient( const QVariant &id, const QString &clientInfo )
+{
+  m__ClientDocsPage->addClient( id, clientInfo );
+}
+
 int Wizard_AddDoc::exec()
 {
   if ( m__Docmanager == NULL || m__Docmanager->declarDocuments() == NULL )
@@ -61,6 +74,9 @@ int Wizard_AddDoc::exec()
                               "инициализирован менеджер документов" ) );
     return QDialog::Rejected;
   }
+
+  m__ClientDocsPage->setDocmanager( m__Docmanager );
+  m__ClientDocsPage->firstStart();
 
   return QDialog::exec();
 }

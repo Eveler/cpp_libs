@@ -18,7 +18,6 @@ class DocSourcePage : public QWizardPage
     ~DocSourcePage();
 
     int nextId() const;
-
     bool isComplete() const;
 
 

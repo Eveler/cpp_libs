@@ -26,6 +26,7 @@ class ReceptionDocmanager_P : public QObject
   private:
     Docmanager *m__Docmanager;
     QStringList m__Doctypes;
+    QHash<QString, QVariant> m__Clients;
 
     explicit ReceptionDocmanager_P( Widget_ReceptionDocmanager *parent );
 };

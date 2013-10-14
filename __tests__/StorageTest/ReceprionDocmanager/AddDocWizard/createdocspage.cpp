@@ -8,7 +8,7 @@
 #include <QMessageBox>
 
 
-CreateDocsPage::CreateDocsPage( const QStringList &doctypes, QWidget *parent ) :
+CreateDocsPage::CreateDocsPage( QWidget *parent ) :
   QWizardPage(parent),
   ui(new Ui::CreateDocsPage)
 {
@@ -17,7 +17,6 @@ CreateDocsPage::CreateDocsPage( const QStringList &doctypes, QWidget *parent ) :
   setTitle( tr( "Создание новых документов" ) );
   setCreateText( tr( "Создать документ" ) );
 
-  m__Doctypes = doctypes;
   m__Documents = new DocumentsModel( this );
   ui->tableView->setModel( m__Documents );
   m__DocumentMode = Wizard_AddDoc::OnlyDetails;
@@ -59,6 +58,11 @@ DocumentsModel * CreateDocsPage::createdDocs() const
 void CreateDocsPage::setDocumentCreationMode( int documentMode )
 {
   m__DocumentMode = documentMode;
+}
+
+void CreateDocsPage::setDoctypes( const QStringList &doctypes )
+{
+  m__Doctypes = doctypes;
 }
 
 void CreateDocsPage::on_tBt_Create_clicked()

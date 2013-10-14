@@ -16,16 +16,16 @@ class CreateDocsPage : public QWizardPage
 
 
   public:
-    explicit CreateDocsPage( const QStringList &doctypes, QWidget *parent = 0 );
+    explicit CreateDocsPage( QWidget *parent = NULL );
     ~CreateDocsPage();
 
     int nextId() const;
     void initializePage();
-
     bool isComplete() const;
 
     DocumentsModel * createdDocs() const;
     void setDocumentCreationMode( int documentMode );
+    void setDoctypes( const QStringList &doctypes );
 
 
   private slots:

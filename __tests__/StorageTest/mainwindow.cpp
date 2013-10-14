@@ -21,7 +21,7 @@ MainWindow::MainWindow(QWidget *parent) :
   db.setUserName( tr( "mihail" ) );
   db.setPassword( tr( "me2db4con" ) );
   docmanager = new Docmanager( db, this );
-  connect( docmanager, SIGNAL(error(QString)), SLOT(storageError(QString)) );
+  connect( docmanager, SIGNAL(error(QString)), SLOT(error(QString)) );
   connect( docmanager, SIGNAL(declarSet(QVariant)), SLOT(declarChanged()) );
 
   ui->wgt_ReceptionDocmanager->setDocmanager( docmanager );
@@ -29,6 +29,11 @@ MainWindow::MainWindow(QWidget *parent) :
         QStringList() << tr( "Заявление" ) << tr( "Заявление о приостановке" ) <<
         tr( "Заявление об аннулировании" ) << tr( "Паспорт гражданина РФ" ) <<
         tr( "Расписка МФЦ" ) );
+
+  clientInfoLoader = new ClientInfoLoader( db.connectionName() );
+  connect( clientInfoLoader, SIGNAL(databaseError(QString)), SLOT(error(QString)) );
+  connect( clientInfoLoader, SIGNAL(clientInfoLoaded(QString,QString,QString,QVariant)),
+           SLOT(clientInfoLoaded(QString,QString,QString,QVariant)) );
 
   pBar = new QProgressBar( ui->statusBar );
   pBar->setVisible( false );
@@ -42,7 +47,7 @@ MainWindow::~MainWindow()
   delete ui;
 }
 
-void MainWindow::storageError( QString text )
+void MainWindow::error( QString text )
 {
   QMessageBox::warning( this, tr( "Ошибка" ), text );
 }
@@ -51,6 +56,8 @@ void MainWindow::declarChanged()
 {
   ui->tableView->setModel( docmanager->sortedDeclarDocuments() );
   ui->wgt_DeclarDocsButtons->setEnabled( true );
+
+  clientInfoLoader->load( ui->spinBox->value() );
 }
 
 void MainWindow::progress( qint64 cur, qint64 all )
@@ -59,9 +66,18 @@ void MainWindow::progress( qint64 cur, qint64 all )
   pBar->setValue( cur );
 }
 
+void MainWindow::clientInfoLoaded( QString fio, QString phone, QString address, QVariant id )
+{
+  ui->listWidget->addItem(
+        tr( "ФИО/Наименование организации:\n%1\n\nТелефон: %2\n\nАдрес: %3" ).arg(
+          fio, phone, address ) );
+  ui->wgt_ReceptionDocmanager->addClient(
+        id, tr( "%1\n%2\n%3" ).arg( fio, phone, address ) );
+}
+
 void MainWindow::on_toolButton_clicked()
 {
-  docmanager->setDeclar( ui->spinBox->value() );
+  ui->wgt_ReceptionDocmanager->setDeclar( ui->spinBox->value() );
 }
 
 void MainWindow::on_tableView_doubleClicked(const QModelIndex &index)

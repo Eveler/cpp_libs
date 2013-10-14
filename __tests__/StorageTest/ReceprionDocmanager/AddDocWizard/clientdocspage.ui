@@ -15,23 +15,20 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QWidget" name="widget" native="true">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Заявитель</string>
+     </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QLabel" name="label">
+       <widget class="QComboBox" name="cBox_Client">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="text">
-         <string>Заявитель</string>
-        </property>
        </widget>
-      </item>
-      <item>
-       <widget class="QComboBox" name="cBox_Client"/>
       </item>
      </layout>
     </widget>

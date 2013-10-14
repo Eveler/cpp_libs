@@ -19,12 +19,13 @@ class Wizard_AddDoc : public QWizard
   public:
     enum {Page_DocSource = 0, Page_CreateDocs, Page_ClientDocs, Page_DeclarDocs};
     enum DocumentMode { OnlyDetails = 0, WithBody, Both };
-    explicit Wizard_AddDoc( const QStringList &doctypes,
-                            Docmanager *docmanager,
-                            QWidget *parent = NULL );
+    explicit Wizard_AddDoc( QWidget *parent = NULL );
     ~Wizard_AddDoc();
 
     void setDocumentCreationMode( DocumentMode documentMode = Both );
+    void setDoctypes( const QStringList &doctypes );
+    void setDocmanager( Docmanager *docmanager );
+    void addClient( const QVariant &id, const QString &clientInfo );
 
 
   signals:

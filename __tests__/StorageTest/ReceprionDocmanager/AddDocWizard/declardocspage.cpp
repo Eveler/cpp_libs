@@ -10,6 +10,8 @@ DeclarDocsPage::DeclarDocsPage(QWidget *parent) :
 {
   ui->setupUi(this);
 
+  setTitle( tr( "Выбор документов из ранее прикрепленных к делу документов" ) );
+
   setFinalPage( true );
 }
 

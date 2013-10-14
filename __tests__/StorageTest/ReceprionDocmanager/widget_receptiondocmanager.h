@@ -23,6 +23,8 @@ class Widget_ReceptionDocmanager : public QWidget
 
     void setDocmanager( Docmanager *docmanager );
     void setDoctypes( const QStringList &doctypes );
+    void setDeclar( const QVariant &id );
+    void addClient( const QVariant &id, const QString &clientInfo );
 
 
   private:

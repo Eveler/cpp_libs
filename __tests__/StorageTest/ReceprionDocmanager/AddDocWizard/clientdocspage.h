@@ -3,6 +3,8 @@
 
 #include <QWizardPage>
 
+#include "docmanager.h"
+
 
 namespace Ui {
   class ClientDocsPage;
@@ -14,14 +16,30 @@ class ClientDocsPage : public QWizardPage
 
 
   public:
-    explicit ClientDocsPage(QWidget *parent = 0);
+    explicit ClientDocsPage( QWidget *parent = 0 );
     ~ClientDocsPage();
 
     int nextId() const;
+    bool isComplete() const;
+
+    void firstStart();
+    void setDocmanager( Docmanager *docmanager );
+    void addClient( const QVariant &id, const QString &clientInfo );
 
 
   private:
     Ui::ClientDocsPage *ui;
+
+    Docmanager *m__Docmanager;
+    QVariantList m__ClientIds;
+    bool m__CanLoadClientDocs;
+    QList<MFCDocumentInfo *> m__SelectedDocs;
+
+    void setCanLoadClientDocs( bool can );
+
+
+  private slots:
+    void on_cBox_Client_currentIndexChanged(int index);
 };
 
 #endif // CLIENTDOCSPAGE_H
