@@ -33,6 +33,7 @@ class ClientDocsPage : public QWizardPage
     Docmanager *m__Docmanager;
     QVariantList m__ClientIds;
     bool m__CanLoadClientDocs;
+    DocumentsModel *m__Documents;
     QList<MFCDocumentInfo *> m__SelectedDocs;
 
     void setCanLoadClientDocs( bool can );

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>165</width>
-    <height>148</height>
+    <height>163</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -34,7 +34,10 @@
     </widget>
    </item>
    <item>
-    <widget class="QWidget" name="widget_2" native="true">
+    <widget class="QFrame" name="frame_2">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
      <layout class="QGridLayout" name="gridLayout">
       <property name="leftMargin">
        <number>0</number>
@@ -102,7 +105,7 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
+      <item row="1" column="0" colspan="2">
        <widget class="QScrollBar" name="horizontalScrollBar">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -115,70 +118,5 @@
   </layout>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>verticalScrollBar</sender>
-   <signal>rangeChanged(int,int)</signal>
-   <receiver>horizontalScrollBar</receiver>
-   <slot>setRange(int,int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>147</x>
-     <y>87</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>57</x>
-     <y>130</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>verticalScrollBar</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>horizontalScrollBar</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>147</x>
-     <y>87</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>57</x>
-     <y>130</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>horizontalScrollBar</sender>
-   <signal>rangeChanged(int,int)</signal>
-   <receiver>verticalScrollBar</receiver>
-   <slot>setRange(int,int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>57</x>
-     <y>130</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>147</x>
-     <y>87</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>horizontalScrollBar</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>verticalScrollBar</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>57</x>
-     <y>130</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>147</x>
-     <y>87</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

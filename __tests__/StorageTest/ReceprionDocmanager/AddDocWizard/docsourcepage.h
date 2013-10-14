@@ -20,6 +20,9 @@ class DocSourcePage : public QWizardPage
     int nextId() const;
     bool isComplete() const;
 
+    bool setClientDocsAvailable( bool available );
+    bool setDeclarDocsAvailable( bool available );
+
 
   private:
     Ui::DocSourcePage *ui;

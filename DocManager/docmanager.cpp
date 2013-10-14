@@ -155,6 +155,11 @@ QSqlDatabase Docmanager::database() const{
   return DB;
 }
 
+QVariantList Docmanager::docpaths() const
+{
+  return docpathsDocs.values();
+}
+
 bool Docmanager::addClient(QVariant id){
   if(id.isNull()) return false;
   if(clientsDocs.key(id,NULL)){

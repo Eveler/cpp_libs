@@ -75,8 +75,26 @@ int Wizard_AddDoc::exec()
     return QDialog::Rejected;
   }
 
-  m__ClientDocsPage->setDocmanager( m__Docmanager );
-  m__ClientDocsPage->firstStart();
+
+  if ( m__Docmanager->docpathsDocuments() == NULL )
+  {
+    m__DocSourcePage->setClientDocsAvailable( false );
+    m__DocSourcePage->setDeclarDocsAvailable( false );
+  }
+  else if ( m__Docmanager->clientDocuments() == NULL )
+  {
+    m__DocSourcePage->setClientDocsAvailable( false );
+
+    m__DocSourcePage->setDeclarDocsAvailable( true );
+  }
+  else
+  {
+    m__DocSourcePage->setClientDocsAvailable( true );
+    m__ClientDocsPage->setDocmanager( m__Docmanager );
+    m__ClientDocsPage->firstStart();
+
+    m__DocSourcePage->setDeclarDocsAvailable( true );
+  }
 
   return QDialog::exec();
 }

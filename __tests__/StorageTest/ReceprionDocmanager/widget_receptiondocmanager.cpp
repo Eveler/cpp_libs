@@ -44,6 +44,14 @@ void Widget_ReceptionDocmanager::addClient( const QVariant &id, const QString &c
   p->m__Clients[clientInfo] = id;
 }
 
+void Widget_ReceptionDocmanager::addDocpaths( const QVariant &id )
+{
+  if ( p->m__Docmanager == NULL ) return;
+
+  p->m__Docmanager->addDocpaths( id );
+  p->m__Docmanager->setDocpathsCurrent( id );
+}
+
 void Widget_ReceptionDocmanager::on_tView_Required_doubleClicked(const QModelIndex &index)
 {
 

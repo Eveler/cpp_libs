@@ -18,6 +18,9 @@ ClientDocsPage::ClientDocsPage( QWidget *parent ) :
 
   setTitle( tr( "Добавление документов из ранее принятых документов у заявителя" ) );
 
+  m__Documents = new DocumentsModel( this );
+  ui->tView_ClientDocs->setModel( m__Documents );
+
   setFinalPage( true );
 }
 
@@ -73,7 +76,14 @@ void ClientDocsPage::on_cBox_Client_currentIndexChanged(int index)
         ui->cBox_Client->view()->visualRect(
           ui->cBox_Client->view()->model()->index( index, 0 ) ).height()+5 );
 
-  m__Docmanager->setClientCurrent( ui->cBox_Client->itemData( index ) );
+  QVariant id = ui->cBox_Client->itemData( index );
+  m__Docmanager->setClientCurrent( id );
 
-
+  QList<MFCDocumentInfo *> docpathsDocs = m__Docmanager->docpathsDocuments()->documents();
+  QList<MFCDocumentInfo *> clientDocs = m__Docmanager->clientDocuments()->documents();
+  foreach ( MFCDocumentInfo *doc, clientDocs)
+    if ( !docpathsDocs.contains( doc ) ) m__Documents->addDocument( doc );
+  for ( int rIdx = m__Documents->columnCount()-1; rIdx > 6; rIdx-- )
+    ui->tView_ClientDocs->hideColumn( rIdx );
+  ui->tView_ClientDocs->resizeColumnsToContents();
 }

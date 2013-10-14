@@ -23,7 +23,7 @@ void ClientInfoLoader::load( int declarId ) const
   }
 
   QSqlQuery qry( db );
-  QString qryText = tr( "SELECT cl.clid, cl.clname, cl.addr, cl.phone"
+  QString qryText = tr( "SELECT cl.id, cl.clname, cl.addr, cl.phone"
                         " FROM declar_clients dc, clientlist cl"
                         " WHERE dc.client_id=cl.id AND dc.declar_id=%1" ).arg( declarId );
   if ( !qry.exec( qryText ) )
@@ -37,5 +37,5 @@ void ClientInfoLoader::load( int declarId ) const
                              "*|/|*", " " ).simplified(),
                            qry.record().value( "phone" ).toString() ,
                            qry.record().value( "addr" ).toString() ,
-                           qry.record().value( "clid" ) );
+                           qry.record().value( "id" ) );
 }
