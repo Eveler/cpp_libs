@@ -48,7 +48,8 @@ DocumentsModel *ClientDocsLoader::load(QVariant foreignID){
                     "FROM client_documents cd,documents d,doctypes dt "
                     "WHERE cd.clients_id=%1 "
 //                    "  AND (d.expires>=now()::date OR d.expires IS NULL) "
-                    "  AND cd.documents_id=d.id AND d.doctype_id=dt.id "
+                    "  AND cd.documents_id=d.id AND d.doctype_id=dt.id"
+                    "  AND (d.expires>=now()::date OR d.expires IS NULL) "
                     "ORDER BY d.id,d.created DESC,cd.added DESC")
       .arg(foreignID.toString());
   QSqlQuery qry(DB);

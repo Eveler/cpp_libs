@@ -66,4 +66,5 @@ lessThan(QT_MAJOR_VERSION, 5) {
   LIBS += -L../bin
 }
 
-LIBS += -lAMSLogger -lMFCCore
+CONFIG(release, debug|release):LIBS += -lAMSLogger -lMFCCore
+CONFIG(debug, debug|release):LIBS += -lAMSLogger -lMFCCored

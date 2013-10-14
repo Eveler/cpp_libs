@@ -63,7 +63,7 @@ private slots:
 
 signals:
   void done(bool);
-  void error(QString);
+  virtual void error(QString);
   void saved(QString);
   void loaded(MFCDocumentInfo*);
 
