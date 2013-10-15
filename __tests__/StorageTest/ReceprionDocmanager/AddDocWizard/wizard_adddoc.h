@@ -47,8 +47,6 @@ class Wizard_AddDoc : public QWizard
     DeclarDocsPage *m__DeclarDocsPage;
 
     void deleteCreatedDocs();
-    void deselectClientDocs();
-    void deselectDeclarDocs();
 };
 
 #endif // WIZARD_ADDDOC_H

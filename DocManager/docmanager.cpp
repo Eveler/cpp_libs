@@ -160,6 +160,12 @@ QVariantList Docmanager::docpaths() const
   return docpathsDocs.values();
 }
 
+QVariant Docmanager::currentDocpath() const
+{
+  if( !curDocpathsDocs ) return QVariant();
+  return curDocpathsDocs->id();
+}
+
 bool Docmanager::addClient(QVariant id){
   if(id.isNull()) return false;
   if(clientsDocs.key(id,NULL)){

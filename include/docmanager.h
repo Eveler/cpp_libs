@@ -39,6 +39,7 @@ public:
   QSqlDatabase database() const;
 
   QVariantList docpaths() const;
+  QVariant currentDocpath() const;
 
 signals:
   void dataTransferProgress(qint64 val,qint64 total);

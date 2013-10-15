@@ -27,6 +27,8 @@ class Widget_ReceptionDocmanager : public QWidget
     void addClient( const QVariant &id, const QString &clientInfo );
     void addDocpaths( const QVariant &id );
 
+    void clear();
+
 
   private:
     Ui::Widget_ReceptionDocmanager *ui;

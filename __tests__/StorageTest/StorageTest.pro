@@ -33,7 +33,8 @@ SOURCES += main.cpp\
     ReceprionDocmanager/receptiondocmanager_p.cpp \
     ReceprionDocmanager/widget_receptiondocmanager.cpp \
     ReceprionDocmanager/AddDocWizard/dialog_docdetails.cpp \
-    clientinfoloader.cpp
+    clientinfoloader.cpp \
+    docpathsinfoloader.cpp
 
 HEADERS  += mainwindow.h \
     ReceprionDocmanager/AddDocWizard/wizard_adddoc.h \
@@ -45,7 +46,8 @@ HEADERS  += mainwindow.h \
     ReceprionDocmanager/widget_receptiondocmanager.h \
     ReceprionDocmanager/receptiondocmanager_p.h \
     ReceprionDocmanager/AddDocWizard/dialog_docdetails.h \
-    clientinfoloader.h
+    clientinfoloader.h \
+    docpathsinfoloader.h
 
 FORMS    += mainwindow.ui \
     ReceprionDocmanager/AddDocWizard/docsourcepage.ui \

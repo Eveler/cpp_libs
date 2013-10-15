@@ -47,16 +47,6 @@ bool DocSourcePage::isComplete() const
   return false;
 }
 
-bool DocSourcePage::setClientDocsAvailable( bool available )
-{
-  ui->rBt_ClientDocs->setEnabled( available );
-}
-
-bool DocSourcePage::setDeclarDocsAvailable( bool available )
-{
-  ui->rBt_DeclarDocs->setEnabled( available );
-}
-
 void DocSourcePage::sourceChanged( bool changed )
 {
   if ( !changed ) return;
