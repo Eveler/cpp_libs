@@ -1,4 +1,5 @@
 #include "docattachments.h"
+#include "amslogger.h"
 
 DocAttachments::DocAttachments( QObject *parent ) :
     QObject(parent)
@@ -9,9 +10,11 @@ DocAttachments::DocAttachments( QObject *parent ) :
 }
 
 DocAttachments::~DocAttachments(){
+//  LogDebug()<<"~DocAttachments() BEGIN";
   removeAttachments( 0, count() );
 
   delete nullAttachment;
+//  LogDebug()<<"~DocAttachments() END";
 }
 
 int DocAttachments::addAttachment( const QString fileName,

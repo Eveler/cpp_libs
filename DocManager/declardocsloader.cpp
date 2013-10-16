@@ -47,7 +47,8 @@ DocumentsModel *DeclarDocsLoader::load(QVariant foreignID){
                     "FROM declar_documents dd,documents d,doctypes dt "
                     "WHERE dd.declars_id=%1 "
 //                    "  AND (d.expires>=now()::date OR d.expires IS NULL) "
-                    "  AND dd.documents_id=d.id AND d.doctype_id=dt.id "
+                    "  AND dd.documents_id=d.id AND d.doctype_id=dt.id"
+                    "  AND (d.expires>=now()::date OR d.expires IS NULL) "
                     "ORDER BY d.id,d.created DESC,dd.added DESC")
       .arg(foreignID.toString());
   QSqlQuery qry(DB);

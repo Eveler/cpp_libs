@@ -1,4 +1,5 @@
 #include "mfcdocumentpages.h"
+#include "amslogger.h"
 
 MFCDocumentPages::MFCDocumentPages( QObject *parent ) :
     QObject(parent)
@@ -10,9 +11,11 @@ MFCDocumentPages::MFCDocumentPages( QObject *parent ) :
 
 MFCDocumentPages::~MFCDocumentPages()
 {
+//  LogDebug()<<"~MFCDocumentPages() BEGIN";
   removePages( 0, count() );
 
   delete nullPage;
+//  LogDebug()<<"~MFCDocumentPages() END";
 }
 
 int MFCDocumentPages::addPage( MFCDocumentPage &page )

@@ -16,8 +16,10 @@ MFCDocumentPage::MFCDocumentPage(QString pageName, const QPixmap &pixmap){
 
 MFCDocumentPage::~MFCDocumentPage()
 {
+//  LogDebug()<<"~MFCDocumentPage() BEGIN";
   delete m_PageName;
   delete m_File;
+//  LogDebug()<<"~MFCDocumentPage() END";
 }
 
 bool MFCDocumentPage::isValid()
