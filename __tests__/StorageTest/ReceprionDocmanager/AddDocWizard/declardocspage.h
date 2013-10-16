@@ -39,6 +39,7 @@ class DeclarDocsPage : public QWizardPage
     void hRangeChanged( int min, int max );
     void vRangeChanged( int min, int max );
     void progress( qint64 cur, qint64 all );
+
     void on_tView_DeclarDocs_doubleClicked(const QModelIndex &index);
 };
 

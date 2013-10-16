@@ -93,6 +93,13 @@ DocumentsModel *Docmanager::clientDocuments() const{
   return curClientDocs->documents();
 }
 
+DocumentsModel *Docmanager::clientDocuments( QVariant id ) const
+{
+  ClientDocuments *cd = clientsDocs.key( id, NULL );
+  if ( cd == NULL ) return NULL;
+  return cd->documents();
+}
+
 QAbstractItemModel * Docmanager::sortedClientDocuments() const
 {
   if(!curClientDocs) return NULL;

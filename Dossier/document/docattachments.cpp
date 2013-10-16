@@ -65,7 +65,11 @@ bool DocAttachments::removeAttachments(int from, int cnt){
   int fullCount = from+cnt;
   if ( from < 0 || cnt <= 0 || fullCount > count() ) return false;
   for ( int attIdx = fullCount-1; attIdx > from-1; attIdx-- )
-    delete m_Attachments.takeAt( attIdx );
+  {
+    DocAttachment *att = m_Attachments.takeAt( attIdx );
+    delete att;
+    att = NULL;
+  }
 
   emit countChanged( m_Attachments.count() );
 

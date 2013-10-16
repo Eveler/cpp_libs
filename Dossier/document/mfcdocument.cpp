@@ -123,7 +123,7 @@ bool MFCDocument::copyFrom(MFCDocument *doc){
 
   if(doc->haveAttachments())
     for(int i=0;i<doc->attachments()->count();i++){
-      DocAttachment att=doc->attachments()->getAttachment(i);
+      const DocAttachment &att=doc->attachments()->getAttachment(i);
       addAttachment(att.fileName(),att.mimeType(),att.data());
     }
 

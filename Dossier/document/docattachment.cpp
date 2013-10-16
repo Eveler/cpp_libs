@@ -10,8 +10,14 @@ DocAttachment::DocAttachment(const QString fileName, const QString mimeType,
   m_File->write(fileData);
 }
 
-DocAttachment::~DocAttachment(){
-  delete m_File;
+DocAttachment::~DocAttachment()
+{
+  if ( m_File != NULL )
+  {
+    disconnect( m_File, SIGNAL(destroyed()), this, SLOT(tempDestroyed()) );
+    delete m_File;
+    m_File = NULL;
+  }
 }
 
 QString DocAttachment::fileName() const
@@ -43,9 +49,15 @@ void DocAttachment::initFile(){
   QDir d=QDir();
   d.mkdir("temp");
   m_File = new QTemporaryFile( QObject::tr( "temp/attach_" )+fName);
+  connect( m_File, SIGNAL(destroyed()), SLOT(tempDestroyed()) );
   if(!m_File->open()){
     LogWarning()<<QObject::tr("Error")<<m_File->error()<<":"<<
                   m_File->errorString();
     exit(-1);
   }
+}
+
+void DocAttachment::tempDestroyed()
+{
+  m_File = NULL;
 }

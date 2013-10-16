@@ -65,6 +65,10 @@ void MainWindow::declarChanged()
   clientInfoLoader->load( ui->spinBox->value() );
   docpathsInfoLoader->load( ui->spinBox->value() );
   ui->tView_DocpathDocs->setModel( docmanager->docpathsDocuments() );
+
+  RequiredDocs *req = new RequiredDocs( 2245, QSqlDatabase::database() );
+  req->setParent( this );
+  ui->wgt_ReceptionDocmanager->setRequiredDocs( req );
 }
 
 void MainWindow::progress( qint64 cur, qint64 all )
@@ -181,4 +185,80 @@ void MainWindow::on_lWgt_Steps_currentRowChanged( int currentRow )
 
   docmanager->setDocpathsCurrent( lwi->text().toInt() );
   ui->tView_DocpathDocs->setModel( docmanager->docpathsDocuments() );
+}
+
+void MainWindow::on_tView_DocpathDocs_doubleClicked(const QModelIndex &index)
+{
+  if ( !index.isValid() ) return;
+
+  disconnect( docmanager, SIGNAL(dataTransferProgress(qint64,qint64)),
+              this, SLOT(progress(qint64,qint64)) );
+  connect( docmanager, SIGNAL(dataTransferProgress(qint64,qint64)),
+           this, SLOT(progress(qint64,qint64)) );
+  pBar->setValue( 0 );
+  pBar->setVisible( true );
+  qApp->processEvents();
+  MFCDocumentInfo *doc = docmanager->docpathsDocument( index );
+  bool res = docmanager->loadDocument( doc );
+  pBar->setVisible( false );
+
+  if ( !res || doc->url().isEmpty() ) return;
+  EDVProcess elDocProc;
+  if ( !elDocProc.readDocument( doc ) )
+    QMessageBox::warning( this, tr( "Ошибка" ), elDocProc.lastError() );
+}
+
+void MainWindow::on_tBt_CheckDocpathDoc_clicked()
+{
+  QModelIndex index = ui->tableView->currentIndex();
+  if ( !index.isValid() ) return;
+
+  disconnect( docmanager, SIGNAL(dataTransferProgress(qint64,qint64)),
+              this, SLOT(progress(qint64,qint64)) );
+  connect( docmanager, SIGNAL(dataTransferProgress(qint64,qint64)),
+           this, SLOT(progress(qint64,qint64)) );
+  pBar->setValue( 0 );
+  pBar->setVisible( true );
+  qApp->processEvents();
+  MFCDocumentInfo *doc = docmanager->docpathsDocument( index );
+  bool res = docmanager->loadDocument( doc );
+  pBar->setVisible( false );
+
+  if ( !res || doc->url().isEmpty() ) return;
+  EDVProcess elDocProc;
+  if ( !elDocProc.checkDocument( doc ) )
+  {
+    if ( !elDocProc.lastError().isEmpty() )
+      QMessageBox::warning( this, tr( "Ошибка" ), elDocProc.lastError() );
+  }
+  else QMessageBox::information( this, tr( "Проверка" ), tr( "Документ подтвержден!" ) );
+}
+
+void MainWindow::on_tBt_AddDocpathDoc_clicked()
+{
+  EDVProcess elDocProc;
+  MFCDocumentInfo *doc = elDocProc.writeDocument(
+                           QStringList() << tr( "Заявление" ) <<
+                           tr( "Паспорт гражданина РФ" ) << tr( "Расписка МФЦ" ),
+                           QStringList() );
+  if ( doc == NULL )
+  {
+    if ( !elDocProc.lastError().isEmpty() )
+      QMessageBox::warning( this, tr( "Ошибка" ), elDocProc.lastError() );
+  }
+  else if ( docmanager->docpathsDocuments()->addDocument( doc ) )
+  {
+    QFileInfo fi( doc->localFile() );
+    QString newPath = tr( "%1/temp/%2" ).arg( qApp->applicationDirPath(), fi.fileName() );
+    if ( !QFile::copy( fi.absoluteFilePath(), newPath ) )
+    {
+      QMessageBox::warning( this, tr( "Ошибка" ),
+                            tr( "Ошибка прикопировании файла:\nиз %1\nв %2" ).arg(
+                              fi.absoluteFilePath(), newPath ) );
+      return;
+    }
+    doc->setLocalFile( newPath );
+    QFile::remove( fi.absoluteFilePath() );
+    docmanager->save();
+  }
 }

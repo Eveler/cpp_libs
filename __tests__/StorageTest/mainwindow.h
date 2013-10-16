@@ -45,6 +45,9 @@ class MainWindow : public QMainWindow
     void on_tBt_AddDeclarDoc_clicked();
     void on_tBt_CheckDeclarDoc_clicked();
     void on_lWgt_Steps_currentRowChanged( int currentRow);
+    void on_tView_DocpathDocs_doubleClicked(const QModelIndex &index);
+    void on_tBt_CheckDocpathDoc_clicked();
+    void on_tBt_AddDocpathDoc_clicked();
 };
 
 #endif // MAINWINDOW_H

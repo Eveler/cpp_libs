@@ -766,7 +766,7 @@ void ElectroDoc_v2::saveToFile(){
     }
     if(m_Document->haveAttachments()){
       for(int pIdx = 0; pIdx < m_Document->attachments()->count(); pIdx++ ){
-        DocAttachment att=m_Document->attachments()->getAttachment(pIdx);
+        const DocAttachment &att=m_Document->attachments()->getAttachment(pIdx);
         QFile f(fi.absolutePath()+"/"+att.fileName());
         f.open(QFile::WriteOnly);
         f.write(att.data());

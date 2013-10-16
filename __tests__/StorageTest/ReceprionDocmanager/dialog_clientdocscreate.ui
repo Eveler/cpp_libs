@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog_ClientDocsCreate</class>
+ <widget class="QDialog" name="Dialog_ClientDocsCreate">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>135</width>
+    <height>77</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <widget class="QComboBox" name="cBox_Doctype"/>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="gBox_Clients">
+     <property name="title">
+      <string>Список заявителей</string>
+     </property>
+     <layout class="QVBoxLayout" name="vL_Clients"/>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

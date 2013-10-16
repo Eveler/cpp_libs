@@ -26,6 +26,7 @@ public:
   QVariant currentClient() const;
   MFCDocumentInfo *clientDocument(const QModelIndex &index) const;
   DocumentsModel *clientDocuments() const;
+  DocumentsModel *clientDocuments( QVariant id ) const;
   QAbstractItemModel * sortedClientDocuments() const;
   MFCDocumentInfo *docpathsDocument(const QModelIndex &index) const;
   DocumentsModel *docpathsDocuments() const;

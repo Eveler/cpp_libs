@@ -174,7 +174,7 @@ bool MFCDocumentZipper::save( MFCDocument *doc )
     stream<<"[ATTACHMENTS]\n";
     stream<<"count="<<atts->count()<<"\n";
     for(int a=0;a<atts->count();a++){
-      DocAttachment att=atts->getAttachment(a);
+      const DocAttachment &att=atts->getAttachment(a);
       stream<<"filename"<<a<<"="<<att.fileName()<<"\n";
       stream<<"mimetype"<<a<<"="<<att.mimeType()<<"\n";
       stream<<"file"<<a<<"="<<"attachment"<<a<<"\n";
@@ -209,7 +209,7 @@ bool MFCDocumentZipper::save( MFCDocument *doc )
     qDebug()<<"attachments.count():"<<atts->count();
 #endif
     for(int a=0;a<atts->count();a++){
-      DocAttachment att=atts->getAttachment(a);
+      const DocAttachment &att=atts->getAttachment(a);
 #ifndef QT_NO_DEBUG
       qDebug()<<"Archiving doc attachment"<<tr("attachment")+att.fileName()<<
              "size ="<<att.device()->size();

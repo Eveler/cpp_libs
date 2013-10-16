@@ -33,8 +33,14 @@ SOURCES += main.cpp\
     ReceprionDocmanager/receptiondocmanager_p.cpp \
     ReceprionDocmanager/widget_receptiondocmanager.cpp \
     ReceprionDocmanager/AddDocWizard/dialog_docdetails.cpp \
+    ReceprionDocmanager/requireddocs.cpp \
+    ReceprionDocmanager/reqdocsmodel.cpp \
     clientinfoloader.cpp \
-    docpathsinfoloader.cpp
+    docpathsinfoloader.cpp \
+    ReceprionDocmanager/booldelegate.cpp \
+    ReceprionDocmanager/dialog_clientdocscreate.cpp \
+    ReceprionDocmanager/dialog_selectdocument.cpp \
+    ReceprionDocmanager/toolbuttondelegate.cpp
 
 HEADERS  += mainwindow.h \
     ReceprionDocmanager/AddDocWizard/wizard_adddoc.h \
@@ -46,8 +52,14 @@ HEADERS  += mainwindow.h \
     ReceprionDocmanager/widget_receptiondocmanager.h \
     ReceprionDocmanager/receptiondocmanager_p.h \
     ReceprionDocmanager/AddDocWizard/dialog_docdetails.h \
+    ReceprionDocmanager/requireddocs.h \
+    ReceprionDocmanager/reqdocsmodel.h \
     clientinfoloader.h \
-    docpathsinfoloader.h
+    docpathsinfoloader.h \
+    ReceprionDocmanager/booldelegate.h \
+    ReceprionDocmanager/dialog_clientdocscreate.h \
+    ReceprionDocmanager/dialog_selectdocument.h \
+    ReceprionDocmanager/toolbuttondelegate.h
 
 FORMS    += mainwindow.ui \
     ReceprionDocmanager/AddDocWizard/docsourcepage.ui \
@@ -56,7 +68,9 @@ FORMS    += mainwindow.ui \
     ReceprionDocmanager/AddDocWizard/declardocspage.ui \
     ReceprionDocmanager/AddDocWizard/summarypage.ui \
     ReceprionDocmanager/widget_receptiondocmanager.ui \
-    ReceprionDocmanager/AddDocWizard/dialog_docdetails.ui
+    ReceprionDocmanager/AddDocWizard/dialog_docdetails.ui \
+    ReceprionDocmanager/dialog_clientdocscreate.ui \
+    ReceprionDocmanager/dialog_selectdocument.ui
 
 DESTDIR = ./bin
 DLLDESTDIR = ./bin
@@ -77,4 +91,8 @@ LIBS += -L./bin \
   -lAMSLogger \
   -lDocManager \
   -lDossier \
-  -lEDVProcess
+  -lEDVProcess \
+  -lMFCCore
+
+RESOURCES += \
+    ReceprionDocmanager/ReceprionDocmanager_Icons.qrc

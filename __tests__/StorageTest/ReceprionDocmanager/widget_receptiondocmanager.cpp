@@ -3,6 +3,8 @@
 
 #include "receptiondocmanager_p.h"
 #include "wizard_adddoc.h"
+#include "mfccore.h"
+#include "dialog_selectdocument.h"
 
 
 Widget_ReceptionDocmanager::Widget_ReceptionDocmanager(QWidget *parent) :
@@ -22,6 +24,11 @@ Widget_ReceptionDocmanager::~Widget_ReceptionDocmanager()
 void Widget_ReceptionDocmanager::setDocmanager( Docmanager *docmanager )
 {
   p->m__Docmanager = docmanager;
+}
+
+Docmanager * Widget_ReceptionDocmanager::docmanager() const
+{
+  return p->m__Docmanager;
 }
 
 void Widget_ReceptionDocmanager::setDoctypes( const QStringList &doctypes )
@@ -55,6 +62,24 @@ void Widget_ReceptionDocmanager::addDocpaths( const QVariant &id )
   p->m__Docmanager->setDocpathsCurrent( id );
 }
 
+void Widget_ReceptionDocmanager::setRequiredDocs( RequiredDocs *requiredDocs )
+{
+  if( requiredDocs == NULL ) return;
+
+  p->m__RequiredDocs = requiredDocs;
+  p->m__RequiredDocs->reset();
+
+  QAbstractItemModel *model = p->m__RequiredDocs->model();
+  ui->tView_Required->setModel(model);
+  for(int c=0;c<model->columnCount();c++)
+    ui->tView_Required->resizeColumnToContents(c);
+  ui->tView_Required->setItemDelegateForColumn(
+        MFCCore::findColumn( model, tr( "Необходимый" ) ), p->m__BoolDelegate );
+  ui->tView_Required->setItemDelegateForColumn(
+        MFCCore::findColumn( model, tr( "Образец" ) ), p->m__ButtonDelegate );
+  ui->tView_Required->expandAll();
+}
+
 void Widget_ReceptionDocmanager::clear()
 {
   if ( p->m__Docmanager == NULL ) return;
@@ -66,7 +91,35 @@ void Widget_ReceptionDocmanager::clear()
 
 void Widget_ReceptionDocmanager::on_tView_Required_doubleClicked(const QModelIndex &index)
 {
+  const QAbstractItemModel *mdl=index.model();
+  if(!mdl) return;
+  if(index.column()!=MFCCore::findColumn(mdl,tr("Образец"))){
+    QModelIndex idx=mdl->index(
+          index.row(),
+          MFCCore::findColumn(mdl,tr("Наименование")),index.parent());
 
+    // строка с категорией пропускается
+    if(!idx.parent().isValid() && idx.child(0,0).isValid()) return;
+
+    QString doctype=idx.data().toString();
+    if ( doctype == Doc_Agreement && doctype == Doc_AppCancellation &&
+         doctype == Doc_Application && doctype == Doc_AppRespite )
+      return;
+
+    DocumentsModel *dm = p->findDocuments( doctype );
+    if ( dm == NULL ) return;
+    if ( dm->rowCount() > 0 )
+    {
+      Dialog_SelectDocument dSelectDocument;
+      dSelectDocument.setWindowTitle( tr( "Выберите документ" ) );
+      QList<MFCDocumentInfo *> docs = dSelectDocument.exec( p->m__Docmanager, dm );
+      dm->clear();
+    }
+    delete dm;
+    dm = NULL;
+//    LogDebug()<<"doctype="<<doctype;
+//    helper->findDocument(doctype);
+  }
 }
 
 void Widget_ReceptionDocmanager::on_tView_New_doubleClicked(const QModelIndex &index)
