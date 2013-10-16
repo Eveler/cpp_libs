@@ -214,6 +214,11 @@ void DocumentsModel::setDocumentID(MFCDocumentInfo *doc, QVariant id){
   doc->setProperty("id",id);
 }
 
+int DocumentsModel::documentRow( MFCDocumentInfo *doc ) const
+{
+  return docs.key( doc, -1 );
+}
+
 bool DocumentsModel::addDocument(MFCDocumentInfo *doc, const QVariant id,
                                  const bool isNew){
   if(!doc) return false;

@@ -38,3 +38,17 @@ DocumentsModel * ReceptionDocmanager_P::findDocuments( const QString &doctype ) 
 
   return result;
 }
+
+DocumentsModel * ReceptionDocmanager_P::findClientDocuments(
+    QVariant clientId, const QString &doctype ) const
+{
+  if ( m__Docmanager == NULL ) return NULL;
+
+  DocumentsModel *result = new DocumentsModel;
+
+  DocumentsModel *dm = m__Docmanager->clientDocuments( clientId );
+  foreach ( MFCDocumentInfo *doc, dm->documents() )
+    if ( doc->type() == doctype ) result->addDocument( doc );
+
+  return result;
+}

@@ -37,6 +37,7 @@ class ReceptionDocmanager_P : public QObject
     ~ReceptionDocmanager_P();
 
     DocumentsModel * findDocuments( const QString &doctype ) const;
+    DocumentsModel * findClientDocuments( QVariant clientId, const QString &doctype ) const;
 };
 
 #endif // RECEPTIONDOCMANAGER_P_H

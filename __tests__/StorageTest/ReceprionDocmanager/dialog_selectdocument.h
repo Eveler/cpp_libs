@@ -19,7 +19,11 @@ class Dialog_SelectDocument : public QDialog
     explicit Dialog_SelectDocument(QWidget *parent = 0);
     ~Dialog_SelectDocument();
 
-    const QList<MFCDocumentInfo *> & exec( Docmanager *docmanager, DocumentsModel *documents );
+    void setAutoExclusive( bool autoExclusive );
+    bool autoExclusive() const;
+
+    const QList<MFCDocumentInfo *> & exec(
+        Docmanager *docmanager, DocumentsModel *documents , const QString &clientInfo = QString() );
 
 
   public:
@@ -32,6 +36,7 @@ class Dialog_SelectDocument : public QDialog
     Docmanager *m__Docmanager;
     DocumentsModel *m__Documents;
     QList<MFCDocumentInfo *> m__SelectedDocs;
+    bool m__AutoExclusive;
 
 
   private slots:
@@ -39,6 +44,8 @@ class Dialog_SelectDocument : public QDialog
     void hRangeChanged( int min, int max );
     void vRangeChanged( int min, int max );
     void progress( qint64 cur, qint64 all );
+    void activateSingleDocument();
+
     void on_tableView_doubleClicked(const QModelIndex &index);
 };
 

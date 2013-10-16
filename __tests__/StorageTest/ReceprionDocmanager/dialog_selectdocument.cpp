@@ -10,7 +10,10 @@
 
 Dialog_SelectDocument::Dialog_SelectDocument(QWidget *parent) :
   QDialog(parent),
-  ui(new Ui::Dialog_SelectDocument)
+  ui(new Ui::Dialog_SelectDocument),
+  m__Docmanager(NULL),
+  m__Documents(NULL),
+  m__AutoExclusive(false)
 {
   ui->setupUi(this);
 
@@ -54,28 +57,28 @@ Dialog_SelectDocument::~Dialog_SelectDocument()
   delete ui;
 }
 
-int Dialog_SelectDocument::exec()
+void Dialog_SelectDocument::setAutoExclusive( bool autoExclusive )
 {
-  return QDialog::Rejected;
+  m__AutoExclusive = autoExclusive;
+}
+
+bool Dialog_SelectDocument::autoExclusive() const
+{
+  return m__AutoExclusive;
 }
 
 const QList<MFCDocumentInfo *> & Dialog_SelectDocument::exec(
-    Docmanager *docmanager, DocumentsModel *documents )
+    Docmanager *docmanager, DocumentsModel *documents, const QString &clientInfo )
 {
   if ( docmanager == NULL || documents == NULL ) return m__SelectedDocs;
-
-  if ( documents->rowCount() == 0 )
-  {
-    QMessageBox::information( parentWidget(), windowTitle(),
-                              tr( "Список документов пуст" ) );
-    return m__SelectedDocs;
-  }
 
   ui->buttonBox->button( QDialogButtonBox::Ok )->setDisabled( true );
 
   m__Docmanager = docmanager;
   m__Documents = documents;
   ui->tableView->setModel( m__Documents );
+  ui->l_Client->setText( clientInfo );
+  ui->groupBox->setVisible( !clientInfo.isEmpty() );
 
   QList<MFCDocumentInfo *> docs = m__Documents->documents();
   foreach ( MFCDocumentInfo *doc, docs)
@@ -97,9 +100,17 @@ const QList<MFCDocumentInfo *> & Dialog_SelectDocument::exec(
   ui->tableView->resizeRowsToContents();
   ui->tableWidget->resizeRowsToContents();
 
+  QTimer *timer = new QTimer( this );
+  timer->singleShot( 100, this, SLOT(activateSingleDocument()) );
+  timer = NULL;
   QDialog::exec();
 
   return m__SelectedDocs;
+}
+
+int Dialog_SelectDocument::exec()
+{
+  return QDialog::Rejected;
 }
 
 void Dialog_SelectDocument::docsViewerChanged()
@@ -126,6 +137,11 @@ void Dialog_SelectDocument::progress( qint64 cur, qint64 all )
   ui->pBar->setValue( cur );
 }
 
+void Dialog_SelectDocument::activateSingleDocument()
+{
+  on_tableView_doubleClicked( ui->tableView->model()->index( 0, 0 ) );
+}
+
 void Dialog_SelectDocument::on_tableView_doubleClicked(const QModelIndex &index)
 {
   if ( !index.isValid() ) return;
@@ -138,6 +154,8 @@ void Dialog_SelectDocument::on_tableView_doubleClicked(const QModelIndex &index)
   }
   else
   {
+    if ( ui->wgt_Progress->isVisible() ) return;
+
     disconnect( m__Docmanager, SIGNAL(dataTransferProgress(qint64,qint64)),
                 this, SLOT(progress(qint64,qint64)) );
     connect( m__Docmanager, SIGNAL(dataTransferProgress(qint64,qint64)),
@@ -154,6 +172,12 @@ void Dialog_SelectDocument::on_tableView_doubleClicked(const QModelIndex &index)
     {
       if ( elDocProc.lastError().isEmpty() )
       {
+        if ( m__AutoExclusive && m__SelectedDocs.count() > 0 )
+        {
+          int desIdx = m__Documents->documentRow( m__SelectedDocs.takeFirst() );
+          ui->tableWidget->item( desIdx, 0 )->setCheckState( Qt::Unchecked );
+        }
+
         ui->tableWidget->item( index.row(), 0 )->setCheckState( Qt::Checked );
         m__SelectedDocs << doc;
       }

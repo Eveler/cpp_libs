@@ -42,6 +42,10 @@ class Widget_ReceptionDocmanager : public QWidget
     void clear();
 
 
+  signals:
+    void newDocument( QString doctype );
+
+
   private:
     Ui::Widget_ReceptionDocmanager *ui;
     ReceptionDocmanager_P *p;

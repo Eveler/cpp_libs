@@ -5,6 +5,9 @@
 #include "wizard_adddoc.h"
 #include "mfccore.h"
 #include "dialog_selectdocument.h"
+#include "edvprocess.h"
+
+#include <QMessageBox>
 
 
 Widget_ReceptionDocmanager::Widget_ReceptionDocmanager(QWidget *parent) :
@@ -97,14 +100,85 @@ void Widget_ReceptionDocmanager::on_tView_Required_doubleClicked(const QModelInd
     QModelIndex idx=mdl->index(
           index.row(),
           MFCCore::findColumn(mdl,tr("Наименование")),index.parent());
+    int need = mdl->index(
+                 index.row(),
+                 MFCCore::findColumn(
+                   mdl, tr( "Количество" ) ), index.parent() ).data().toInt();
+    int added = mdl->index(
+                  index.row(),
+                  MFCCore::findColumn(
+                    mdl, tr( "Добавлено" ) ), index.parent() ).data().toInt();
 
     // строка с категорией пропускается
     if(!idx.parent().isValid() && idx.child(0,0).isValid()) return;
 
     QString doctype=idx.data().toString();
-    if ( doctype == Doc_Agreement && doctype == Doc_AppCancellation &&
-         doctype == Doc_Application && doctype == Doc_AppRespite )
+
+    if ( doctype == Doc_Warrant && need-1 == added )
+      emit newDocument( doctype );
+    else if ( doctype == Doc_Agreement && doctype == Doc_AppCancellation &&
+              doctype == Doc_Application && doctype == Doc_AppRespite )
+    {
+      emit newDocument( doctype );
       return;
+    }
+
+    if ( doctype == Doc_Pasport )
+    {
+      QList<QPair<MFCDocumentInfo *, QVariant> > newDocs;
+      bool rejected = false;
+      foreach ( QVariant id, p->m__Clients.values() )
+      {
+        DocumentsModel *dm = p->findClientDocuments( id, doctype );
+        if ( dm == NULL ) return;
+
+        if ( dm->rowCount() > 0 )
+        {
+          Dialog_SelectDocument dSelectDocument;
+          dSelectDocument.setWindowTitle( tr( "Выберите документ" ) );
+          dSelectDocument.setAutoExclusive( true );
+          QList<MFCDocumentInfo *> docs = dSelectDocument.exec(
+                                            p->m__Docmanager, dm, p->m__Clients.key( id ) );
+          if ( docs.isEmpty() ) rejected = true;
+          else newDocs << qMakePair( docs.first(), id );
+          dm->clear();
+          delete dm;
+          dm = NULL;
+        }
+        else
+        {
+          EDVProcess elDocProc;
+          MFCDocumentInfo *doc = elDocProc.writeDocument(
+                                   QStringList() << Doc_Pasport,
+                                   QStringList() );
+          if ( doc == NULL )
+          {
+            if ( !elDocProc.lastError().isEmpty() )
+              QMessageBox::warning( this, tr( "Ошибка" ), elDocProc.lastError() );
+            rejected = true;
+          }
+          else newDocs << qMakePair( doc, id );
+        }
+        if ( rejected ) break;
+      }
+
+      if ( rejected )
+        while ( !newDocs.isEmpty() )
+        {
+          MFCDocumentInfo *doc = newDocs.takeFirst().first;
+          MFCDocumentInfo::remove( doc );
+        }
+      else
+        while ( !newDocs.isEmpty() )
+        {
+          MFCDocumentInfo *doc = newDocs.first().first;
+          QVariant clientId = newDocs.takeFirst().second;
+          p->m__Docmanager->setClientCurrent( clientId );
+          p->m__Docmanager->newDocument( doc );
+        }
+
+      return;
+    }
 
     DocumentsModel *dm = p->findDocuments( doctype );
     if ( dm == NULL ) return;
@@ -114,11 +188,16 @@ void Widget_ReceptionDocmanager::on_tView_Required_doubleClicked(const QModelInd
       dSelectDocument.setWindowTitle( tr( "Выберите документ" ) );
       QList<MFCDocumentInfo *> docs = dSelectDocument.exec( p->m__Docmanager, dm );
       dm->clear();
+
+      foreach ( QVariant id, p->m__Clients.values() )
+      {
+        p->m__Docmanager->setClientCurrent( id );
+        foreach ( MFCDocumentInfo *doc, docs )
+          p->m__Docmanager->newDocument( doc );
+      }
     }
     delete dm;
     dm = NULL;
-//    LogDebug()<<"doctype="<<doctype;
-//    helper->findDocument(doctype);
   }
 }
 

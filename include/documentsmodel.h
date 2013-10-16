@@ -34,6 +34,7 @@ public:
   void setNewDocumentsVisible(bool v=true);
   QVariantList removedDocumentsIDs() const;
   void setDocumentID(MFCDocumentInfo *doc,QVariant id);
+  int documentRow( MFCDocumentInfo *doc ) const;
 
 signals:
   void documentAdded(MFCDocumentInfo *doc);
