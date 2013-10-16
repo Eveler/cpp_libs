@@ -33,6 +33,9 @@ void Widget_ReceptionDocmanager::setDeclar( const QVariant &id )
 {
   if ( p->m__Docmanager == NULL ) return;
 
+  p->m__Clients.clear();
+
+  p->m__Docmanager->clear();
   p->m__Docmanager->setDeclar( id );
 }
 
@@ -50,6 +53,15 @@ void Widget_ReceptionDocmanager::addDocpaths( const QVariant &id )
 
   p->m__Docmanager->addDocpaths( id );
   p->m__Docmanager->setDocpathsCurrent( id );
+}
+
+void Widget_ReceptionDocmanager::clear()
+{
+  if ( p->m__Docmanager == NULL ) return;
+
+  p->m__Clients.clear();
+
+  p->m__Docmanager->clear();
 }
 
 void Widget_ReceptionDocmanager::on_tView_Required_doubleClicked(const QModelIndex &index)

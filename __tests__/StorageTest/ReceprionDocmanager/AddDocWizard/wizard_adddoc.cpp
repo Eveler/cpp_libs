@@ -67,34 +67,25 @@ void Wizard_AddDoc::addClient( const QVariant &id, const QString &clientInfo )
 
 int Wizard_AddDoc::exec()
 {
-  if ( m__Docmanager == NULL || m__Docmanager->declarDocuments() == NULL )
+  QString subInfo;
+  if ( m__Docmanager == NULL )
+    subInfo += "\n\tDocmanager is null";
+  if ( m__Docmanager->declarDocuments() == NULL )
+    subInfo += "\n\tdeclarDocuments is null";
+  if ( m__Docmanager->clientDocuments() == NULL )
+    subInfo += "\n\tclientDocuments is null";
+
+  if ( !subInfo.isEmpty() )
   {
     QMessageBox::warning( parentWidget(), tr( "Ошибка" ),
                           tr( "Для Мастера добавления документов не "
-                              "инициализирован менеджер документов" ) );
+                              "инициализирован менеджер документов:%1" ).arg( subInfo ) );
     return QDialog::Rejected;
   }
 
-
-  if ( m__Docmanager->docpathsDocuments() == NULL )
-  {
-    m__DocSourcePage->setClientDocsAvailable( false );
-    m__DocSourcePage->setDeclarDocsAvailable( false );
-  }
-  else if ( m__Docmanager->clientDocuments() == NULL )
-  {
-    m__DocSourcePage->setClientDocsAvailable( false );
-
-    m__DocSourcePage->setDeclarDocsAvailable( true );
-  }
-  else
-  {
-    m__DocSourcePage->setClientDocsAvailable( true );
-    m__ClientDocsPage->setDocmanager( m__Docmanager );
-    m__ClientDocsPage->firstStart();
-
-    m__DocSourcePage->setDeclarDocsAvailable( true );
-  }
+  m__ClientDocsPage->setDocmanager( m__Docmanager );
+  m__ClientDocsPage->firstStart();
+  m__DeclarDocsPage->setDocmanager( m__Docmanager );
 
   return QDialog::exec();
 }
@@ -105,32 +96,34 @@ void Wizard_AddDoc::done( int result )
   {
     if ( field( "isCreateDocs" ).toBool() )
     {
-      deselectClientDocs();
-      deselectDeclarDocs();
-
-      foreach ( MFCDocumentInfo *doc, m__CreateDocsPage->createdDocs()->documents())
+      foreach ( MFCDocumentInfo *doc, m__CreateDocsPage->createdDocs()->documents() )
         m__Docmanager->declarDocuments()->addDocument( doc );
     }
     else if ( field( "isClientDocs" ).toBool() )
     {
       deleteCreatedDocs();
-      deselectDeclarDocs();
 
+      foreach ( MFCDocumentInfo *doc, m__ClientDocsPage->selectedDocuments() )
+      {
+        m__Docmanager->declarDocuments()->addDocument( doc );
+        if ( m__Docmanager->docpathsDocuments() != NULL )
+          m__Docmanager->docpathsDocuments()->addDocument( doc );
+      }
     }
     else if ( field( "isDeclarDocs" ).toBool() )
     {
       deleteCreatedDocs();
-      deselectClientDocs();
 
+      foreach ( MFCDocumentInfo *doc, m__DeclarDocsPage->selectedDocuments() )
+      {
+        m__Docmanager->declarDocuments()->addDocument( doc );
+        if ( m__Docmanager->docpathsDocuments() != NULL )
+          m__Docmanager->docpathsDocuments()->addDocument( doc );
+      }
     }
     else return;
   }
-  else
-  {
-    deleteCreatedDocs();
-    deselectClientDocs();
-    deselectDeclarDocs();
-  }
+  else deleteCreatedDocs();
 
   QWizard::done( result );
 }
@@ -144,14 +137,4 @@ void Wizard_AddDoc::deleteCreatedDocs()
     MFCDocumentInfo::remove( doc );
     doc = NULL;
   }
-}
-
-void Wizard_AddDoc::deselectClientDocs()
-{
-
-}
-
-void Wizard_AddDoc::deselectDeclarDocs()
-{
-
 }

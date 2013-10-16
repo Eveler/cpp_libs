@@ -35,6 +35,11 @@ MainWindow::MainWindow(QWidget *parent) :
   connect( clientInfoLoader, SIGNAL(clientInfoLoaded(QString,QString,QString,QVariant)),
            SLOT(clientInfoLoaded(QString,QString,QString,QVariant)) );
 
+  docpathsInfoLoader = new DocpathsInfoLoader( db.connectionName() );
+  connect( docpathsInfoLoader, SIGNAL(databaseError(QString)), SLOT(error(QString)) );
+  connect( docpathsInfoLoader, SIGNAL(docpathInfoLoaded(QVariant)),
+           SLOT(docpathInfoLoaded(QVariant)) );
+
   pBar = new QProgressBar( ui->statusBar );
   pBar->setVisible( false );
   ui->statusBar->addWidget( pBar );
@@ -58,6 +63,8 @@ void MainWindow::declarChanged()
   ui->wgt_DeclarDocsButtons->setEnabled( true );
 
   clientInfoLoader->load( ui->spinBox->value() );
+  docpathsInfoLoader->load( ui->spinBox->value() );
+  ui->tView_DocpathDocs->setModel( docmanager->docpathsDocuments() );
 }
 
 void MainWindow::progress( qint64 cur, qint64 all )
@@ -69,19 +76,31 @@ void MainWindow::progress( qint64 cur, qint64 all )
 void MainWindow::clientInfoLoaded( QString fio, QString phone, QString address, QVariant id )
 {
   ui->listWidget->addItem(
-        tr( "ФИО/Наименование организации:\n%1\n\nТелефон: %2\n\nАдрес: %3" ).arg(
-          fio, phone, address ) );
+        tr( "%1\n%2\n%3" ).arg( fio, phone, address ) );
   ui->wgt_ReceptionDocmanager->addClient(
         id, tr( "%1\n%2\n%3" ).arg( fio, phone, address ) );
 }
 
+void MainWindow::docpathInfoLoaded( QVariant id )
+{
+  ui->lWgt_Steps->setFocus();
+  ui->lWgt_Steps->addItem( id.toString() );
+  ui->wgt_ReceptionDocmanager->addDocpaths( id );
+  ui->lWgt_Steps->setCurrentRow( ui->lWgt_Steps->count()-1 );
+}
+
 void MainWindow::on_toolButton_clicked()
 {
+  ui->listWidget->clear();
+  ui->lWgt_Steps->clear();
+
   ui->wgt_ReceptionDocmanager->setDeclar( ui->spinBox->value() );
 }
 
 void MainWindow::on_tableView_doubleClicked(const QModelIndex &index)
 {
+  if ( !index.isValid() ) return;
+
   disconnect( docmanager, SIGNAL(dataTransferProgress(qint64,qint64)),
               this, SLOT(progress(qint64,qint64)) );
   connect( docmanager, SIGNAL(dataTransferProgress(qint64,qint64)),
@@ -152,4 +171,14 @@ void MainWindow::on_tBt_CheckDeclarDoc_clicked()
       QMessageBox::warning( this, tr( "Ошибка" ), elDocProc.lastError() );
   }
   else QMessageBox::information( this, tr( "Проверка" ), tr( "Документ подтвержден!" ) );
+}
+
+void MainWindow::on_lWgt_Steps_currentRowChanged( int currentRow )
+{
+  QListWidgetItem *lwi = ui->lWgt_Steps->item( currentRow );
+  if ( lwi == NULL || docmanager->currentDocpath().toString() == lwi->text() )
+    return;
+
+  docmanager->setDocpathsCurrent( lwi->text().toInt() );
+  ui->tView_DocpathDocs->setModel( docmanager->docpathsDocuments() );
 }
