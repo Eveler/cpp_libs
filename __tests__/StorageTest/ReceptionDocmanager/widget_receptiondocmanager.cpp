@@ -6,8 +6,10 @@
 #include "mfccore.h"
 #include "dialog_selectdocument.h"
 #include "edvprocess.h"
+#include "dialog_docdetails.h"
 
 #include <QMessageBox>
+#include <QScrollBar>
 
 
 Widget_ReceptionDocmanager::Widget_ReceptionDocmanager(QWidget *parent) :
@@ -27,6 +29,10 @@ Widget_ReceptionDocmanager::~Widget_ReceptionDocmanager()
 void Widget_ReceptionDocmanager::setDocmanager( Docmanager *docmanager )
 {
   p->m__Docmanager = docmanager;
+  disconnect( p->m__Docmanager, SIGNAL(documentAdded(DocumentsModel*)),
+              this, SLOT(newDocs_ResetViewport()) );
+  connect( p->m__Docmanager, SIGNAL(documentAdded(DocumentsModel*)),
+           SLOT(newDocs_ResetViewport()) );
 }
 
 Docmanager * Widget_ReceptionDocmanager::docmanager() const
@@ -47,6 +53,11 @@ void Widget_ReceptionDocmanager::setDeclar( const QVariant &id )
 
   p->m__Docmanager->clear();
   p->m__Docmanager->setDeclar( id );
+
+  ui->tView_New->setModel( p->m__Docmanager->addedDocuments() );
+  newDocs_ResetViewport();
+  p->recalcNewDocuments( qobject_cast<DocumentsModel *>( ui->tView_New->model() ) );
+  ui->tView_Required->expandAll();
 }
 
 void Widget_ReceptionDocmanager::addClient( const QVariant &id, const QString &clientInfo )
@@ -54,6 +65,7 @@ void Widget_ReceptionDocmanager::addClient( const QVariant &id, const QString &c
   if ( p->m__Docmanager == NULL ) return;
 
   p->m__Docmanager->addClient( id );
+  p->m__Docmanager->unsetCurrentClient();
   p->m__Clients[clientInfo] = id;
 }
 
@@ -62,6 +74,11 @@ void Widget_ReceptionDocmanager::addDocpaths( const QVariant &id )
   if ( p->m__Docmanager == NULL ) return;
 
   p->m__Docmanager->addDocpaths( id );
+  p->m__Docmanager->unsetCurrentDocpaths();
+}
+
+void Widget_ReceptionDocmanager::setCurrentDocpaths( const QVariant &id )
+{
   p->m__Docmanager->setDocpathsCurrent( id );
 }
 
@@ -70,7 +87,8 @@ void Widget_ReceptionDocmanager::setRequiredDocs( RequiredDocs *requiredDocs )
   if( requiredDocs == NULL ) return;
 
   p->m__RequiredDocs = requiredDocs;
-  p->m__RequiredDocs->reset();
+  p->recalcNewDocuments( qobject_cast<DocumentsModel *>( ui->tView_New->model() ) );
+  ui->tView_Required->expandAll();
 
   QAbstractItemModel *model = p->m__RequiredDocs->model();
   ui->tView_Required->setModel(model);
@@ -83,6 +101,14 @@ void Widget_ReceptionDocmanager::setRequiredDocs( RequiredDocs *requiredDocs )
   ui->tView_Required->expandAll();
 }
 
+void Widget_ReceptionDocmanager::setAppealInfo(
+    const QString &appealNum, QDate appealDate, QDate declarExpires )
+{
+  p->m__AppealNum = appealNum;
+  p->m__AppealDate = appealDate;
+  p->m__DeclarExpires = declarExpires;
+}
+
 void Widget_ReceptionDocmanager::clear()
 {
   if ( p->m__Docmanager == NULL ) return;
@@ -92,10 +118,33 @@ void Widget_ReceptionDocmanager::clear()
   p->m__Docmanager->clear();
 }
 
+void Widget_ReceptionDocmanager::reqDocs_ResetViewport()
+{
+  if ( !p->reqCurIndex.isValid() ) return;
+  ui->tView_Required->verticalScrollBar()->setValue( p->reqSBVal );
+  ui->tView_Required->setCurrentIndex( p->reqCurIndex );
+  p->reqSBVal = -1;
+  p->reqCurIndex = QModelIndex();
+}
+
+void Widget_ReceptionDocmanager::newDocs_ResetViewport()
+{
+  if ( ui->tView_New->model()->columnCount() > 10 )
+    for ( int rIdx = ui->tView_New->model()->columnCount()-1; rIdx > 10; rIdx-- )
+      ui->tView_New->hideColumn( rIdx );
+  ui->tView_New->resizeColumnsToContents();
+  ui->tView_New->resizeRowsToContents();
+}
+
 void Widget_ReceptionDocmanager::on_tView_Required_doubleClicked(const QModelIndex &index)
 {
+  connect( ui->tView_Required->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+           SLOT(reqDocs_ResetViewport()), Qt::UniqueConnection );
+  p->reqSBVal = ui->tView_Required->verticalScrollBar()->value();
+  p->reqCurIndex = index;
+
   const QAbstractItemModel *mdl=index.model();
-  if(!mdl) return;
+  if( mdl != p->m__RequiredDocs->model() ) return;
   if(index.column()!=MFCCore::findColumn(mdl,tr("Образец"))){
     QModelIndex idx=mdl->index(
           index.row(),
@@ -113,23 +162,44 @@ void Widget_ReceptionDocmanager::on_tView_Required_doubleClicked(const QModelInd
     if(!idx.parent().isValid() && idx.child(0,0).isValid()) return;
 
     QString doctype=idx.data().toString();
-
-    if ( doctype == Doc_Warrant && need-1 == added )
-      emit newDocument( doctype );
-    else if ( doctype == Doc_Agreement && doctype == Doc_AppCancellation &&
-              doctype == Doc_Application && doctype == Doc_AppRespite )
+    QStringList doctypes = QStringList() << doctype;
+    if ( index.parent().isValid() )
     {
-      emit newDocument( doctype );
-      return;
+      int col = MFCCore::findColumn(mdl,tr("Наименование"));
+      for ( QModelIndex sub = index.parent().child( 0, col );
+            sub.isValid(); sub = sub.sibling( sub.row()+1, col ) )
+        if ( !doctypes.contains( sub.data().toString() ) )
+          doctypes << sub.data().toString();
     }
 
-    if ( doctype == Doc_Pasport )
+    if ( doctype == Doc_Warrant && need-1 == added )
+    {
+      emit newDocument( doctype );
+      if ( !p->newDocument( doctype, p->m__AppealNum,
+                            p->m__AppealDate, p->m__DeclarExpires ) )
+        return;
+    }
+    else if ( doctype == Doc_Agreement )
+    {
+      emit newDocument( doctype );
+      if ( !p->newDocument( doctype, QString(), p->m__AppealDate ) )
+        return;
+    }
+    else if ( doctype == Doc_Application &&
+              doctype == Doc_AppRespite &&
+              doctype == Doc_AppCancellation )
+    {
+      emit newDocument( doctype );
+      if ( !p->newDocument( doctype ) )
+        return;
+    }
+    else if ( doctype == Doc_Pasport )
     {
       QList<QPair<MFCDocumentInfo *, QVariant> > newDocs;
       bool rejected = false;
       foreach ( QVariant id, p->m__Clients.values() )
       {
-        DocumentsModel *dm = p->findClientDocuments( id, doctype );
+        DocumentsModel *dm = p->findClientDocuments( id, doctypes );
         if ( dm == NULL ) return;
 
         if ( dm->rowCount() > 0 )
@@ -137,6 +207,7 @@ void Widget_ReceptionDocmanager::on_tView_Required_doubleClicked(const QModelInd
           Dialog_SelectDocument dSelectDocument;
           dSelectDocument.setWindowTitle( tr( "Выберите документ" ) );
           dSelectDocument.setAutoExclusive( true );
+          dSelectDocument.setCreatableDoctypes( QStringList() << doctypes );
           QList<MFCDocumentInfo *> docs = dSelectDocument.exec(
                                             p->m__Docmanager, dm, p->m__Clients.key( id ) );
           if ( docs.isEmpty() ) rejected = true;
@@ -149,25 +220,34 @@ void Widget_ReceptionDocmanager::on_tView_Required_doubleClicked(const QModelInd
         {
           EDVProcess elDocProc;
           MFCDocumentInfo *doc = elDocProc.writeDocument(
-                                   QStringList() << Doc_Pasport,
-                                   QStringList() );
+                                   QStringList() << doctypes );
           if ( doc == NULL )
           {
             if ( !elDocProc.lastError().isEmpty() )
               QMessageBox::warning( this, tr( "Ошибка" ), elDocProc.lastError() );
             rejected = true;
           }
-          else newDocs << qMakePair( doc, id );
+          else
+          {
+            Dialog_DocDetails dDocDetails;
+            if( dDocDetails.exec( doc, Dialog_DocDetails::WritePagesnum ) == QDialog::Rejected )
+              rejected = true;
+            else newDocs << qMakePair( doc, id );
+          }
         }
         if ( rejected ) break;
       }
 
       if ( rejected )
+      {
         while ( !newDocs.isEmpty() )
         {
           MFCDocumentInfo *doc = newDocs.takeFirst().first;
           MFCDocumentInfo::remove( doc );
         }
+
+        return;
+      }
       else
         while ( !newDocs.isEmpty() )
         {
@@ -176,28 +256,55 @@ void Widget_ReceptionDocmanager::on_tView_Required_doubleClicked(const QModelInd
           p->m__Docmanager->setClientCurrent( clientId );
           p->m__Docmanager->newDocument( doc );
         }
-
-      return;
     }
-
-    DocumentsModel *dm = p->findDocuments( doctype );
-    if ( dm == NULL ) return;
-    if ( dm->rowCount() > 0 )
+    else
     {
-      Dialog_SelectDocument dSelectDocument;
-      dSelectDocument.setWindowTitle( tr( "Выберите документ" ) );
-      QList<MFCDocumentInfo *> docs = dSelectDocument.exec( p->m__Docmanager, dm );
-      dm->clear();
-
-      foreach ( QVariant id, p->m__Clients.values() )
+      DocumentsModel *dm = p->findDocuments( doctype );
+      if ( dm == NULL ) return;
+      QList<MFCDocumentInfo *> docs;
+      if ( dm->rowCount() > 0 )
       {
-        p->m__Docmanager->setClientCurrent( id );
-        foreach ( MFCDocumentInfo *doc, docs )
-          p->m__Docmanager->newDocument( doc );
+        Dialog_SelectDocument dSelectDocument;
+        dSelectDocument.setWindowTitle( tr( "Выберите документ" ) );
+        dSelectDocument.setCreatableDoctypes( QStringList() << doctypes );
+        docs = dSelectDocument.exec( p->m__Docmanager, dm );
+        dm->clear();
+
+        if ( docs.isEmpty() ) return;
+
+        foreach ( QVariant id, p->m__Clients.values() )
+        {
+          p->m__Docmanager->setClientCurrent( id );
+          foreach ( MFCDocumentInfo *doc, docs )
+            p->m__Docmanager->newDocument( doc );
+        }
       }
+      else
+      {
+        EDVProcess elDocProc;
+        MFCDocumentInfo *doc = elDocProc.writeDocument(
+                                 QStringList() << doctype );
+        if ( doc == NULL )
+        {
+          if ( !elDocProc.lastError().isEmpty() )
+            QMessageBox::warning( this, tr( "Ошибка" ), elDocProc.lastError() );
+          return;
+        }
+        else
+        {
+          Dialog_DocDetails dDocDetails;
+          if( dDocDetails.exec( doc, Dialog_DocDetails::WritePagesnum ) == QDialog::Rejected )
+            return;
+          docs << doc;
+        }
+      }
+
+      delete dm;
+      dm = NULL;
     }
-    delete dm;
-    dm = NULL;
+
+    p->recalcNewDocuments( qobject_cast<DocumentsModel *>( ui->tView_New->model() ) );
+    ui->tView_Required->expandAll();
   }
 }
 
@@ -216,3 +323,18 @@ void Widget_ReceptionDocmanager::on_tBt_Add_clicked()
     addDocWizard.addClient( p->m__Clients.value( clientInfo ), clientInfo );
   addDocWizard.exec();
 }
+
+void Widget_ReceptionDocmanager::on_tBt_Remove_clicked()
+{
+  if ( !ui->tView_New->currentIndex().isValid() ) return;
+
+  p->m__Docmanager->removeNewDocument(
+        p->m__Docmanager->addedDocuments()->documents()[ui->tView_New->currentIndex().row()] );
+  p->recalcNewDocuments( qobject_cast<DocumentsModel *>( ui->tView_New->model() ) );
+  ui->tView_Required->expandAll();
+}
+
+void Widget_ReceptionDocmanager::on_tView_Required_clicked(const QModelIndex &index)
+{
+}
+

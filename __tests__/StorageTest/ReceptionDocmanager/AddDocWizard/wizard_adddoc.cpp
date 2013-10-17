@@ -72,8 +72,6 @@ int Wizard_AddDoc::exec()
     subInfo += "\n\tDocmanager is null";
   if ( m__Docmanager->declarDocuments() == NULL )
     subInfo += "\n\tdeclarDocuments is null";
-  if ( m__Docmanager->clientDocuments() == NULL )
-    subInfo += "\n\tclientDocuments is null";
 
   if ( !subInfo.isEmpty() )
   {
@@ -102,24 +100,18 @@ void Wizard_AddDoc::done( int result )
     else if ( field( "isClientDocs" ).toBool() )
     {
       deleteCreatedDocs();
+      m__Docmanager->unsetCurrentClient();
 
-      foreach ( MFCDocumentInfo *doc, m__ClientDocsPage->selectedDocuments() )
-      {
-        m__Docmanager->declarDocuments()->addDocument( doc );
-        if ( m__Docmanager->docpathsDocuments() != NULL )
-          m__Docmanager->docpathsDocuments()->addDocument( doc );
-      }
+      foreach ( MFCDocumentInfo *doc, m__DeclarDocsPage->selectedDocuments() )
+        m__Docmanager->newDocument( doc );
     }
     else if ( field( "isDeclarDocs" ).toBool() )
     {
       deleteCreatedDocs();
+      m__Docmanager->unsetCurrentClient();
 
       foreach ( MFCDocumentInfo *doc, m__DeclarDocsPage->selectedDocuments() )
-      {
-        m__Docmanager->declarDocuments()->addDocument( doc );
-        if ( m__Docmanager->docpathsDocuments() != NULL )
-          m__Docmanager->docpathsDocuments()->addDocument( doc );
-      }
+        m__Docmanager->newDocument( doc );
     }
     else return;
   }

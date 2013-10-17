@@ -459,7 +459,7 @@ void ReqDocsModel::recalc(ReqItem *parent){
     if(i->isRequired()) parent->setRequired();
     if(i->used()>=i->amount()){
       int row=visibleRow(i);
-      beginRemoveRows(QModelIndex(),row,row);
+      beginRemoveRows(index( visibleRow( parent ), 0 ),row,row);
       endRemoveRows();
     }
   }

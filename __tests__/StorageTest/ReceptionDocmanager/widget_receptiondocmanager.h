@@ -37,7 +37,10 @@ class Widget_ReceptionDocmanager : public QWidget
     void setDeclar( const QVariant &id );
     void addClient( const QVariant &id, const QString &clientInfo );
     void addDocpaths( const QVariant &id );
+    void setCurrentDocpaths( const QVariant &id );
     void setRequiredDocs( RequiredDocs *requiredDocs );
+
+    void setAppealInfo( const QString &appealNum, QDate appealDate, QDate declarExpires );
 
     void clear();
 
@@ -52,9 +55,14 @@ class Widget_ReceptionDocmanager : public QWidget
 
 
   private slots:
+    void reqDocs_ResetViewport();
+    void newDocs_ResetViewport();
+
     void on_tView_Required_doubleClicked(const QModelIndex &index);
     void on_tView_New_doubleClicked(const QModelIndex &index);
     void on_tBt_Add_clicked();
+    void on_tBt_Remove_clicked();
+    void on_tView_Required_clicked(const QModelIndex &index);
 };
 
 #endif // WIDGET_RECEPTIONDOCMANAGER_H

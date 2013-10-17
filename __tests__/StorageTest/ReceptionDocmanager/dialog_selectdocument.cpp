@@ -2,10 +2,12 @@
 #include "ui_dialog_selectdocument.h"
 
 #include "edvprocess.h"
+#include "dialog_docdetails.h"
 
 #include <QPushButton>
 #include <QMessageBox>
 #include <QDesktopWidget>
+#include <QMenu>
 
 
 Dialog_SelectDocument::Dialog_SelectDocument(QWidget *parent) :
@@ -16,6 +18,8 @@ Dialog_SelectDocument::Dialog_SelectDocument(QWidget *parent) :
   m__AutoExclusive(false)
 {
   ui->setupUi(this);
+
+  setCreatableDoctypes( QStringList() );
 
   ui->tableWidget->horizontalHeader()->setSectionResizeMode(
         QHeaderView::Stretch );
@@ -67,6 +71,25 @@ bool Dialog_SelectDocument::autoExclusive() const
   return m__AutoExclusive;
 }
 
+void Dialog_SelectDocument::setCreatableDoctypes( const QStringList &doctypes )
+{
+  if ( ui->tBt_Create->menu() == NULL )
+    ui->tBt_Create->setMenu( new QMenu );
+
+  while ( !ui->tBt_Create->menu()->actions().isEmpty() )
+  {
+    QAction *action = ui->tBt_Create->menu()->actions().first();
+    ui->tBt_Create->menu()->removeAction( action );
+    delete action;
+    action = NULL;
+  }
+
+  foreach ( QString doctype, doctypes )
+    ui->tBt_Create->menu()->addAction( doctype );
+
+  ui->wgt_ToolButtons->setVisible( !doctypes.isEmpty() );
+}
+
 const QList<MFCDocumentInfo *> & Dialog_SelectDocument::exec(
     Docmanager *docmanager, DocumentsModel *documents, const QString &clientInfo )
 {
@@ -100,10 +123,22 @@ const QList<MFCDocumentInfo *> & Dialog_SelectDocument::exec(
   ui->tableView->resizeRowsToContents();
   ui->tableWidget->resizeRowsToContents();
 
-  QTimer *timer = new QTimer( this );
-  timer->singleShot( 100, this, SLOT(activateSingleDocument()) );
-  timer = NULL;
-  QDialog::exec();
+  if ( m__Documents->rowCount() == 1 )
+  {
+    QTimer *timer = new QTimer( this );
+    timer->singleShot( 100, this, SLOT(activateSingleDocument()) );
+    timer = NULL;
+  }
+  if ( QDialog::exec() == QDialog::Rejected )
+    m__SelectedDocs.clear();
+
+  while ( !m__CreatedDocs.isEmpty() )
+  {
+    MFCDocumentInfo *doc = m__CreatedDocs.takeFirst();
+    if ( !m__SelectedDocs.contains( doc ) )
+      MFCDocumentInfo::remove( doc );
+    doc = NULL;
+  }
 
   return m__SelectedDocs;
 }
@@ -163,16 +198,20 @@ void Dialog_SelectDocument::on_tableView_doubleClicked(const QModelIndex &index)
     ui->pBar->setValue( 0 );
     ui->wgt_Progress->setVisible( true );
     qApp->processEvents();
-    bool res = m__Docmanager->loadDocument( doc );
+    m__Docmanager->loadDocument( doc );
     ui->wgt_Progress->setVisible( false );
-    if ( !res || doc->url().isEmpty() ) return;
+    if ( doc->localFile().isEmpty() ) return;
 
     EDVProcess elDocProc;
     if ( elDocProc.checkDocument( doc ) )
     {
       if ( elDocProc.lastError().isEmpty() )
       {
-        if ( m__AutoExclusive && m__SelectedDocs.count() > 0 )
+        Dialog_DocDetails dDocDetails;
+        if( dDocDetails.exec( doc, Dialog_DocDetails::WritePagesnum ) == QDialog::Rejected )
+          return;
+
+        if ( m__AutoExclusive && !m__SelectedDocs.isEmpty() )
         {
           int desIdx = m__Documents->documentRow( m__SelectedDocs.takeFirst() );
           ui->tableWidget->item( desIdx, 0 )->setCheckState( Qt::Unchecked );
@@ -186,4 +225,46 @@ void Dialog_SelectDocument::on_tableView_doubleClicked(const QModelIndex &index)
   }
 
   ui->buttonBox->button( QDialogButtonBox::Ok )->setEnabled( m__SelectedDocs.count() > 0 );
+}
+
+void Dialog_SelectDocument::on_tBt_Create_triggered(QAction *arg1)
+{
+  EDVProcess elDocProc;
+  MFCDocumentInfo *doc = elDocProc.writeDocument(
+                           QStringList() << arg1->text() );
+  if ( doc == NULL )
+  {
+    if ( !elDocProc.lastError().isEmpty() )
+      QMessageBox::warning( this, tr( "Ошибка" ), elDocProc.lastError() );
+  }
+  else
+  {
+    Dialog_DocDetails dDocDetails;
+    if( dDocDetails.exec( doc, Dialog_DocDetails::WritePagesnum ) == QDialog::Rejected )
+    {
+      MFCDocumentInfo::remove( doc );
+      doc = NULL;
+      return;
+    }
+
+    if ( m__AutoExclusive && !m__SelectedDocs.isEmpty() )
+    {
+      int row = m__Documents->documentRow( m__SelectedDocs.takeFirst() );
+      ui->tableWidget->item( row, 0 )->setCheckState( Qt::Unchecked );
+    }
+
+    m__Documents->addDocument( doc );
+    int row = ui->tableWidget->rowCount();
+    ui->tableWidget->insertRow( row );
+
+    QTableWidgetItem *twi = new QTableWidgetItem();
+    twi->setFlags( Qt::ItemIsUserCheckable );
+    ui->tableWidget->setItem( row, 0, twi );
+    twi->setCheckState( Qt::Checked );
+
+    m__CreatedDocs << doc;
+    m__SelectedDocs << doc;
+
+    ui->buttonBox->button( QDialogButtonBox::Ok )->setEnabled( m__SelectedDocs.count() > 0 );
+  }
 }

@@ -16,11 +16,12 @@ class Dialog_DocDetails : public QDialog
 
 
   public:
+    enum WriteMode { WriteAll = 0, WriteRequisites, WritePagesnum };
     explicit Dialog_DocDetails(QWidget *parent = 0);
     ~Dialog_DocDetails();
 
     MFCDocumentInfo * exec( const QStringList &doctypes );
-    int exec( MFCDocumentInfo *doc );
+    int exec( MFCDocumentInfo *doc, WriteMode writeMode = WriteRequisites );
 
 
   private:

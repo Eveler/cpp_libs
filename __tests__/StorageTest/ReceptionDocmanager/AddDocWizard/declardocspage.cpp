@@ -139,7 +139,7 @@ void DeclarDocsPage::progress( qint64 cur, qint64 all )
 
 void DeclarDocsPage::on_tView_DeclarDocs_doubleClicked(const QModelIndex &index)
 {
-  if ( !index.isValid() ) return;
+  if ( !index.isValid() || ui->wgt_Progress->isVisible() ) return;
 
   disconnect( m__Docmanager, SIGNAL(dataTransferProgress(qint64,qint64)),
               this, SLOT(progress(qint64,qint64)) );

@@ -72,22 +72,18 @@ ElectroDoc_v2::~ElectroDoc_v2()
   delete ui;
 }
 
-void ElectroDoc_v2::setDoctypes( QStringList doctypes )
-{
-  ui->cBox_DocType->clear();
-  ui->cBox_DocType->addItems( doctypes );
-  ui->cBox_DocType->setCurrentIndex(-1);
-}
-
 bool ElectroDoc_v2::setDetails(const Details details, const QVariant val)
 {
   switch(details){
     case Type:
-      ui->cBox_DocType->setCurrentIndex( ui->cBox_DocType->findText( val.toString() ) );
-      if( ui->cBox_DocType->currentIndex() == -1 )
+      ui->cBox_DocType->clear();
+      if ( val.type() == QVariant::String )
+        ui->cBox_DocType->addItem( val.toString() );
+      else if ( val.type() == QVariant::StringList )
       {
-        setError( tr( "Не удалось найти тип документа: %1" ).arg( val.toString() ) );
-        return false;
+        ui->cBox_DocType->addItems( val.toStringList() );
+        if ( ui->cBox_DocType->count() > 1 )
+          ui->cBox_DocType->setCurrentIndex( -1 );
       }
       break;
     case Name:
@@ -106,18 +102,15 @@ bool ElectroDoc_v2::setDetails(const Details details, const QVariant val)
       ui->dEdit_DocExpires->setDate(val.toDate());
       break;
     case Agency:
-      if(!val.isNull()){
-        int cBoxIdx=ui->cBox_DocAgency->findData(val,Qt::DisplayRole);
-        ui->cBox_DocAgency->setCurrentIndex(cBoxIdx);
-        if(ui->cBox_DocAgency->currentIndex()<0)
-          ui->cBox_DocAgency->setCurrentIndex(
-                ui->cBox_DocAgency->findText(val.toString()));
-        if(ui->cBox_DocAgency->currentIndex()==-1){
-          setError(tr("Не удалось найти ID органа, выдавшего документ: %1").arg(
-                     val.toString()));
-          return false;
-        }
-      }else ui->cBox_DocAgency->setCurrentIndex(-1);
+      ui->cBox_DocAgency->clear();
+      if ( val.type() == QVariant::String )
+        ui->cBox_DocAgency->addItem( val.toString() );
+      else if ( val.type() == QVariant::StringList )
+      {
+        ui->cBox_DocAgency->addItems( val.toStringList() );
+        if ( ui->cBox_DocAgency->count() > 1 )
+          ui->cBox_DocAgency->setCurrentIndex( -1 );
+      }
       break;
     case CreateDate:
       if(!m_Document) return false;

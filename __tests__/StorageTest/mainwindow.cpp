@@ -89,8 +89,8 @@ void MainWindow::docpathInfoLoaded( QVariant id )
 {
   ui->lWgt_Steps->setFocus();
   ui->lWgt_Steps->addItem( id.toString() );
+  ui->lWgt_Steps->setCurrentRow( -1 );
   ui->wgt_ReceptionDocmanager->addDocpaths( id );
-  ui->lWgt_Steps->setCurrentRow( ui->lWgt_Steps->count()-1 );
 }
 
 void MainWindow::on_toolButton_clicked()
@@ -127,28 +127,14 @@ void MainWindow::on_tBt_AddDeclarDoc_clicked()
   EDVProcess elDocProc;
   MFCDocumentInfo *doc = elDocProc.writeDocument(
                            QStringList() << tr( "Заявление" ) <<
-                           tr( "Паспорт гражданина РФ" ) << tr( "Расписка МФЦ" ),
-                           QStringList() );
+                           tr( "Паспорт гражданина РФ" ) << tr( "Расписка МФЦ" ) );
   if ( doc == NULL )
   {
     if ( !elDocProc.lastError().isEmpty() )
       QMessageBox::warning( this, tr( "Ошибка" ), elDocProc.lastError() );
   }
   else if ( docmanager->declarDocuments()->addDocument( doc ) )
-  {
-    QFileInfo fi( doc->localFile() );
-    QString newPath = tr( "%1/temp/%2" ).arg( qApp->applicationDirPath(), fi.fileName() );
-    if ( !QFile::copy( fi.absoluteFilePath(), newPath ) )
-    {
-      QMessageBox::warning( this, tr( "Ошибка" ),
-                            tr( "Ошибка прикопировании файла:\nиз %1\nв %2" ).arg(
-                              fi.absoluteFilePath(), newPath ) );
-      return;
-    }
-    doc->setLocalFile( newPath );
-    QFile::remove( fi.absoluteFilePath() );
     docmanager->save();
-  }
 }
 
 void MainWindow::on_tBt_CheckDeclarDoc_clicked()
@@ -183,7 +169,7 @@ void MainWindow::on_lWgt_Steps_currentRowChanged( int currentRow )
   if ( lwi == NULL || docmanager->currentDocpath().toString() == lwi->text() )
     return;
 
-  docmanager->setDocpathsCurrent( lwi->text().toInt() );
+  ui->wgt_ReceptionDocmanager->setCurrentDocpaths( lwi->text().toInt() );
   ui->tView_DocpathDocs->setModel( docmanager->docpathsDocuments() );
 }
 
@@ -239,26 +225,12 @@ void MainWindow::on_tBt_AddDocpathDoc_clicked()
   EDVProcess elDocProc;
   MFCDocumentInfo *doc = elDocProc.writeDocument(
                            QStringList() << tr( "Заявление" ) <<
-                           tr( "Паспорт гражданина РФ" ) << tr( "Расписка МФЦ" ),
-                           QStringList() );
+                           tr( "Паспорт гражданина РФ" ) << tr( "Расписка МФЦ" ) );
   if ( doc == NULL )
   {
     if ( !elDocProc.lastError().isEmpty() )
       QMessageBox::warning( this, tr( "Ошибка" ), elDocProc.lastError() );
   }
   else if ( docmanager->docpathsDocuments()->addDocument( doc ) )
-  {
-    QFileInfo fi( doc->localFile() );
-    QString newPath = tr( "%1/temp/%2" ).arg( qApp->applicationDirPath(), fi.fileName() );
-    if ( !QFile::copy( fi.absoluteFilePath(), newPath ) )
-    {
-      QMessageBox::warning( this, tr( "Ошибка" ),
-                            tr( "Ошибка прикопировании файла:\nиз %1\nв %2" ).arg(
-                              fi.absoluteFilePath(), newPath ) );
-      return;
-    }
-    doc->setLocalFile( newPath );
-    QFile::remove( fi.absoluteFilePath() );
     docmanager->save();
-  }
 }

@@ -30,14 +30,29 @@ class ReceptionDocmanager_P : public QObject
     QStringList m__Doctypes;
     QMap<QString, QVariant> m__Clients;
     RequiredDocs *m__RequiredDocs;
+    QString m__AppealNum;
+    QDate m__AppealDate;
+    QDate m__DeclarExpires;
+
     BoolDelegate *m__BoolDelegate;
     ToolButtonDelegate *m__ButtonDelegate;
+
+    int reqSBVal;
+    QModelIndex reqCurIndex;
 
     explicit ReceptionDocmanager_P( Widget_ReceptionDocmanager *parent );
     ~ReceptionDocmanager_P();
 
+    Widget_ReceptionDocmanager * p_dptr() const;
+
     DocumentsModel * findDocuments( const QString &doctype ) const;
-    DocumentsModel * findClientDocuments( QVariant clientId, const QString &doctype ) const;
+    DocumentsModel * findClientDocuments( QVariant clientId, const QStringList &doctypes ) const;
+
+    bool newDocument(
+        const QString &doctype, const QString &num = QString(),
+        QDate date = QDate(), QDate expires = QDate() );
+
+    void recalcNewDocuments( DocumentsModel *dm );
 };
 
 #endif // RECEPTIONDOCMANAGER_P_H

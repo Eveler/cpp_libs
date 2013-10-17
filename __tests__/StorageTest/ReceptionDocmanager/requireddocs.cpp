@@ -201,26 +201,26 @@ void RequiredDocs::reset(){
   mdl->reset();
 
   // добавим документы, входящие в категории уже добавленных
-  QStringList types=mdl->allDocTypes();
-  foreach(QString type,types){
-    QString cat;
-    QMapIterator< DocType*,QString > i(categories);
+//  QStringList types=mdl->allDocTypes();
+//  foreach(QString type,types){
+//    QString cat;
+//    QMapIterator< DocType*,QString > i(categories);
 
-    while(i.hasNext()){
-      i.next();
-      if(i.key()->name==type){
-        cat=i.value();
-        break;
-      }
-    }
+//    while(i.hasNext()){
+//      i.next();
+//      if(i.key()->name==type){
+//        cat=i.value();
+//        break;
+//      }
+//    }
 
-    i.toFront();
-    while(i.hasNext()){
-      i.next();
-      if(i.value()==cat && !types.contains(i.key()->name))
-        mdl->addDocument(i.key()->name,false,0,cat,"","","");
-    }
-  }
+//    i.toFront();
+//    while(i.hasNext()){
+//      i.next();
+//      if(i.value()==cat && !types.contains(i.key()->name))
+//        mdl->addDocument(i.key()->name,false,0,cat,"","","");
+//    }
+//  }
 }
 
 void RequiredDocs::setError(const QString &str){

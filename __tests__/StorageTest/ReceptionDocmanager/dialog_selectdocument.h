@@ -22,8 +22,10 @@ class Dialog_SelectDocument : public QDialog
     void setAutoExclusive( bool autoExclusive );
     bool autoExclusive() const;
 
+    void setCreatableDoctypes( const QStringList &doctypes );
+
     const QList<MFCDocumentInfo *> & exec(
-        Docmanager *docmanager, DocumentsModel *documents , const QString &clientInfo = QString() );
+        Docmanager *docmanager, DocumentsModel *documents, const QString &clientInfo = QString() );
 
 
   public:
@@ -36,6 +38,7 @@ class Dialog_SelectDocument : public QDialog
     Docmanager *m__Docmanager;
     DocumentsModel *m__Documents;
     QList<MFCDocumentInfo *> m__SelectedDocs;
+    QList<MFCDocumentInfo *> m__CreatedDocs;
     bool m__AutoExclusive;
 
 
@@ -47,6 +50,7 @@ class Dialog_SelectDocument : public QDialog
     void activateSingleDocument();
 
     void on_tableView_doubleClicked(const QModelIndex &index);
+    void on_tBt_Create_triggered(QAction *arg1);
 };
 
 #endif // DIALOG_SELECTDOCUMENT_H

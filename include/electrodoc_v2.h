@@ -42,8 +42,6 @@ public:
   enum State { Create = 0, Read, Check };
   explicit ElectroDoc_v2(QWidget *parent = 0);
   ~ElectroDoc_v2();
-  /// Наполнение справочников
-  void setDoctypes( QStringList doctypes );
   /// Заполнение реквизитов
   bool setDetails(const Details details,const QVariant val=QVariant());
 

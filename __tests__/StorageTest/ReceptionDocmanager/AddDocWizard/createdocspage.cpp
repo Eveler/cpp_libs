@@ -79,7 +79,7 @@ void CreateDocsPage::on_tBt_Create_clicked()
   if ( withBody )
   {
     EDVProcess elDocProc;
-    doc = elDocProc.writeDocument( m__Doctypes, QStringList() );
+    doc = elDocProc.writeDocument( m__Doctypes );
     if ( doc == NULL )
     {
       if ( !elDocProc.lastError().isEmpty() )

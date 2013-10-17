@@ -75,18 +75,18 @@ MFCDocumentInfo * Dialog_DocDetails::exec( const QStringList &doctypes )
   }
 }
 
-int Dialog_DocDetails::exec( MFCDocumentInfo *doc )
+int Dialog_DocDetails::exec( MFCDocumentInfo *doc, WriteMode writeMode )
 {
   if ( doc == NULL ) return QDialog::Rejected;
 
   m__Document = doc;
-  ui->cBox_Doctype->setEditable( false );
-  ui->lEdit_Name->setReadOnly( true );
-  ui->lEdit_Series->setReadOnly( true );
-  ui->lEdit_Number->setReadOnly( true );
-  ui->dEdit_Date->setReadOnly( true );
-  ui->dEdit_Expires->setReadOnly( true );
-  ui->wgt_OC->setVisible( false );
+  ui->cBox_Doctype->setEditable( writeMode != WritePagesnum );
+  ui->lEdit_Name->setReadOnly( writeMode == WritePagesnum );
+  ui->lEdit_Series->setReadOnly( writeMode == WritePagesnum );
+  ui->lEdit_Number->setReadOnly( writeMode == WritePagesnum );
+  ui->dEdit_Date->setReadOnly( writeMode == WritePagesnum );
+  ui->dEdit_Expires->setReadOnly( writeMode == WritePagesnum );
+  ui->wgt_OC->setEnabled( writeMode != WriteRequisites );
 
   ui->cBox_Doctype->clear();
   ui->cBox_Doctype->addItem( doc->type() );
@@ -97,7 +97,43 @@ int Dialog_DocDetails::exec( MFCDocumentInfo *doc )
   ui->dEdit_Date->setDate( doc->date() );
   ui->dEdit_Expires->setDate( doc->expiresDate() );
 
-  return QDialog::exec();
+  ui->gBox_Originals->setChecked( doc->originalExemplars() > 0 );
+  ui->spBox_OExemplars->setValue( doc->originalExemplars() );
+  ui->spBox_OPages->setValue( doc->originalPages() );
+
+  ui->gBox_Copies->setChecked( doc->copyExemplars() > 0 );
+  ui->spBox_CExemplars->setValue( doc->copyExemplars() );
+  ui->spBox_CPages->setValue( doc->copyPages() );
+
+  if ( (QDialog::DialogCode)QDialog::exec() == QDialog::Rejected )
+    return QDialog::Rejected;
+
+  qApp->processEvents();
+  QString doc_type;
+  if ( ui->cBox_Doctype->currentIndex() > -1 )
+    doc_type = ui->cBox_Doctype->itemText( ui->cBox_Doctype->currentIndex() );
+  QDate doc_date = ui->dEdit_Date->date();
+  if ( doc_date == QDate( 2000, 1, 1 ) ) doc_date = QDate();
+  QDate doc_expires = ui->dEdit_Expires->date();
+  if ( doc_expires == QDate( 2000, 1, 1 ) ) doc_expires = QDate();
+  doc->setType( doc_type );
+  doc->setName( ui->lEdit_Name->text() );
+  doc->setSeries( ui->lEdit_Series->text() );
+  doc->setNumber( ui->lEdit_Number->text() );
+  doc->setDate( doc_date );
+  doc->setExpiresDate( doc_expires );
+  if ( ui->gBox_Originals->isChecked() )
+  {
+    doc->setOriginalExemplars( ui->spBox_OExemplars->value() );
+    doc->setOriginalPages( ui->spBox_OPages->value() );
+  }
+  if ( ui->gBox_Copies->isChecked() )
+  {
+    doc->setCopyExemplars( ui->spBox_CExemplars->value() );
+    doc->setCopyPages( ui->spBox_CPages->value() );
+  }
+
+  return QDialog::Accepted;
 }
 
 void Dialog_DocDetails::check( QString doc_type, QDate doc_date,
