@@ -30,6 +30,11 @@ MainWindow::MainWindow(QWidget *parent) :
         tr( "Заявление об аннулировании" ) << tr( "Паспорт гражданина РФ" ) <<
         tr( "Расписка МФЦ" ) );
 
+  declarInfoLoader = new DeclarInfoLoader( db.connectionName() );
+  connect( declarInfoLoader, SIGNAL(databaseError(QString)), SLOT(error(QString)) );
+  connect( declarInfoLoader, SIGNAL(declarInfoLoaded(QVariant,QVariant)),
+           SLOT(declarInfoLoaded(QVariant,QVariant)) );
+
   clientInfoLoader = new ClientInfoLoader( db.connectionName() );
   connect( clientInfoLoader, SIGNAL(databaseError(QString)), SLOT(error(QString)) );
   connect( clientInfoLoader, SIGNAL(clientInfoLoaded(QString,QString,QString,QVariant)),
@@ -62,19 +67,24 @@ void MainWindow::declarChanged()
   ui->tableView->setModel( docmanager->sortedDeclarDocuments() );
   ui->wgt_DeclarDocsButtons->setEnabled( true );
 
-  clientInfoLoader->load( ui->spinBox->value() );
-  docpathsInfoLoader->load( ui->spinBox->value() );
+  clientInfoLoader->load( ui->wgt_ReceptionDocmanager->declar() );
+  docpathsInfoLoader->load( ui->wgt_ReceptionDocmanager->declar() );
   ui->tView_DocpathDocs->setModel( docmanager->docpathsDocuments() );
 
-  RequiredDocs *req = new RequiredDocs( 2245, QSqlDatabase::database() );
-  req->setParent( this );
-  ui->wgt_ReceptionDocmanager->setRequiredDocs( req );
 }
 
 void MainWindow::progress( qint64 cur, qint64 all )
 {
   pBar->setRange( 0, all );
   pBar->setValue( cur );
+}
+
+void MainWindow::declarInfoLoaded( QVariant id, QVariant serviceId )
+{
+  RequiredDocs *req = new RequiredDocs( serviceId, QSqlDatabase::database(), QString(), this );
+  ui->wgt_ReceptionDocmanager->setRequiredDocs( req );
+
+  ui->wgt_ReceptionDocmanager->setDeclar( id );
 }
 
 void MainWindow::clientInfoLoaded( QString fio, QString phone, QString address, QVariant id )
@@ -98,7 +108,7 @@ void MainWindow::on_toolButton_clicked()
   ui->listWidget->clear();
   ui->lWgt_Steps->clear();
 
-  ui->wgt_ReceptionDocmanager->setDeclar( ui->spinBox->value() );
+  declarInfoLoader->load( ui->spinBox->value() );
 }
 
 void MainWindow::on_tableView_doubleClicked(const QModelIndex &index)

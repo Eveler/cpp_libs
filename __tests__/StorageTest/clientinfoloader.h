@@ -9,10 +9,12 @@
 class ClientInfoLoader : public QObject
 {
     Q_OBJECT
+
+
   public:
     explicit ClientInfoLoader( const QString &connectionName, QObject *parent = NULL );
 
-    void load( int declarId ) const;
+    void load( QVariant declarId ) const;
 
 
   signals:

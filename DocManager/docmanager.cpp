@@ -162,6 +162,11 @@ QSqlDatabase Docmanager::database() const{
   return DB;
 }
 
+QVariant Docmanager::declar() const
+{
+  return declarDocs->id();
+}
+
 QVariantList Docmanager::docpaths() const
 {
   return docpathsDocs.values();

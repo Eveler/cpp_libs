@@ -13,7 +13,7 @@ ClientInfoLoader::ClientInfoLoader( const QString &connectionName, QObject *pare
   m__ConnectionName = connectionName;
 }
 
-void ClientInfoLoader::load( int declarId ) const
+void ClientInfoLoader::load( QVariant declarId ) const
 {
   QSqlDatabase db = QSqlDatabase::database( m__ConnectionName );
   if ( !db.open() )
@@ -25,7 +25,7 @@ void ClientInfoLoader::load( int declarId ) const
   QSqlQuery qry( db );
   QString qryText = tr( "SELECT cl.id, cl.clname, cl.addr, cl.phone"
                         " FROM declar_clients dc, clientlist cl"
-                        " WHERE dc.client_id=cl.id AND dc.declar_id=%1" ).arg( declarId );
+                        " WHERE dc.client_id=cl.id AND dc.declar_id=%1" ).arg( declarId.toString() );
   if ( !qry.exec( qryText ) )
   {
     emit databaseError( qry.lastError().text() );

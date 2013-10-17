@@ -35,6 +35,7 @@ class Widget_ReceptionDocmanager : public QWidget
     Docmanager * docmanager() const;
     void setDoctypes( const QStringList &doctypes );
     void setDeclar( const QVariant &id );
+    QVariant declar() const;
     void addClient( const QVariant &id, const QString &clientInfo );
     void addDocpaths( const QVariant &id );
     void setCurrentDocpaths( const QVariant &id );

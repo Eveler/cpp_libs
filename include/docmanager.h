@@ -39,6 +39,7 @@ public:
 
   QSqlDatabase database() const;
 
+  QVariant declar() const;
   QVariantList docpaths() const;
   QVariant currentDocpath() const;
 

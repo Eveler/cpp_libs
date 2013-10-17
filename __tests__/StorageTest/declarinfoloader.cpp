@@ -1,4 +1,4 @@
-#include "docpathsinfoloader.h"
+#include "declarinfoloader.h"
 
 #include <QSqlDatabase>
 #include <QSqlError>
@@ -7,13 +7,13 @@
 #include <QSqlField>
 
 
-DocpathsInfoLoader::DocpathsInfoLoader( const QString &connectionName, QObject *parent ) :
+DeclarInfoLoader::DeclarInfoLoader(const QString & connectionName, QObject *parent) :
   QObject(parent)
 {
   m__ConnectionName = connectionName;
 }
 
-void DocpathsInfoLoader::load( QVariant declarId ) const
+void DeclarInfoLoader::load( int declarNum ) const
 {
   QSqlDatabase db = QSqlDatabase::database( m__ConnectionName );
   if ( !db.open() )
@@ -23,9 +23,9 @@ void DocpathsInfoLoader::load( QVariant declarId ) const
   }
 
   QSqlQuery qry( db );
-  QString qryText = tr( "SELECT dp.id"
-                        " FROM docpaths dp"
-                        " WHERE dp.declarid=%1" ).arg( declarId.toString() );
+  QString qryText = tr( "SELECT d.id, d.srvid"
+                        " FROM declars d"
+                        " WHERE d.declarnum=%1" ).arg( declarNum );
   if ( !qry.exec( qryText ) )
   {
     emit databaseError( qry.lastError().text() );
@@ -33,5 +33,6 @@ void DocpathsInfoLoader::load( QVariant declarId ) const
   }
 
   while ( qry.next() )
-    emit docpathInfoLoaded( qry.record().value( "id" ) );
+    emit declarInfoLoaded( qry.record().value( "id" ),
+                           qry.record().value( "srvid" ) );
 }

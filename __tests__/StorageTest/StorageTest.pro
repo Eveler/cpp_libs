@@ -18,59 +18,61 @@ exists( ../../install_path.pri ){
 
 INCLUDEPATH += ./ \
     ../../include/ \
-    ./ReceprionDocmanager/ \
-    ./ReceprionDocmanager/AddDocWizard/ \
+    ./ReceptionDocmanager/ \
+    ./ReceptionDocmanager/AddDocWizard/ \
     ../../../ElectroDocViewer/EDVProcess/
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    ReceprionDocmanager/AddDocWizard/wizard_adddoc.cpp \
-    ReceprionDocmanager/AddDocWizard/docsourcepage.cpp \
-    ReceprionDocmanager/AddDocWizard/createdocspage.cpp \
-    ReceprionDocmanager/AddDocWizard/clientdocspage.cpp \
-    ReceprionDocmanager/AddDocWizard/declardocspage.cpp \
-    ReceprionDocmanager/AddDocWizard/summarypage.cpp \
-    ReceprionDocmanager/receptiondocmanager_p.cpp \
-    ReceprionDocmanager/widget_receptiondocmanager.cpp \
-    ReceprionDocmanager/AddDocWizard/dialog_docdetails.cpp \
-    ReceprionDocmanager/requireddocs.cpp \
-    ReceprionDocmanager/reqdocsmodel.cpp \
+    ReceptionDocmanager/AddDocWizard/wizard_adddoc.cpp \
+    ReceptionDocmanager/AddDocWizard/docsourcepage.cpp \
+    ReceptionDocmanager/AddDocWizard/createdocspage.cpp \
+    ReceptionDocmanager/AddDocWizard/clientdocspage.cpp \
+    ReceptionDocmanager/AddDocWizard/declardocspage.cpp \
+    ReceptionDocmanager/AddDocWizard/summarypage.cpp \
+    ReceptionDocmanager/receptiondocmanager_p.cpp \
+    ReceptionDocmanager/widget_receptiondocmanager.cpp \
+    ReceptionDocmanager/AddDocWizard/dialog_docdetails.cpp \
+    ReceptionDocmanager/requireddocs.cpp \
+    ReceptionDocmanager/reqdocsmodel.cpp \
     clientinfoloader.cpp \
     docpathsinfoloader.cpp \
-    ReceprionDocmanager/booldelegate.cpp \
-    ReceprionDocmanager/dialog_clientdocscreate.cpp \
-    ReceprionDocmanager/dialog_selectdocument.cpp \
-    ReceprionDocmanager/toolbuttondelegate.cpp
+    ReceptionDocmanager/booldelegate.cpp \
+    ReceptionDocmanager/dialog_clientdocscreate.cpp \
+    ReceptionDocmanager/dialog_selectdocument.cpp \
+    ReceptionDocmanager/toolbuttondelegate.cpp \
+    declarinfoloader.cpp
 
 HEADERS  += mainwindow.h \
-    ReceprionDocmanager/AddDocWizard/wizard_adddoc.h \
-    ReceprionDocmanager/AddDocWizard/docsourcepage.h \
-    ReceprionDocmanager/AddDocWizard/createdocspage.h \
-    ReceprionDocmanager/AddDocWizard/clientdocspage.h \
-    ReceprionDocmanager/AddDocWizard/declardocspage.h \
-    ReceprionDocmanager/AddDocWizard/summarypage.h \
-    ReceprionDocmanager/widget_receptiondocmanager.h \
-    ReceprionDocmanager/receptiondocmanager_p.h \
-    ReceprionDocmanager/AddDocWizard/dialog_docdetails.h \
-    ReceprionDocmanager/requireddocs.h \
-    ReceprionDocmanager/reqdocsmodel.h \
+    ReceptionDocmanager/AddDocWizard/wizard_adddoc.h \
+    ReceptionDocmanager/AddDocWizard/docsourcepage.h \
+    ReceptionDocmanager/AddDocWizard/createdocspage.h \
+    ReceptionDocmanager/AddDocWizard/clientdocspage.h \
+    ReceptionDocmanager/AddDocWizard/declardocspage.h \
+    ReceptionDocmanager/AddDocWizard/summarypage.h \
+    ReceptionDocmanager/widget_receptiondocmanager.h \
+    ReceptionDocmanager/receptiondocmanager_p.h \
+    ReceptionDocmanager/AddDocWizard/dialog_docdetails.h \
+    ReceptionDocmanager/requireddocs.h \
+    ReceptionDocmanager/reqdocsmodel.h \
     clientinfoloader.h \
     docpathsinfoloader.h \
-    ReceprionDocmanager/booldelegate.h \
-    ReceprionDocmanager/dialog_clientdocscreate.h \
-    ReceprionDocmanager/dialog_selectdocument.h \
-    ReceprionDocmanager/toolbuttondelegate.h
+    ReceptionDocmanager/booldelegate.h \
+    ReceptionDocmanager/dialog_clientdocscreate.h \
+    ReceptionDocmanager/dialog_selectdocument.h \
+    ReceptionDocmanager/toolbuttondelegate.h \
+    declarinfoloader.h
 
 FORMS    += mainwindow.ui \
-    ReceprionDocmanager/AddDocWizard/docsourcepage.ui \
-    ReceprionDocmanager/AddDocWizard/createdocspage.ui \
-    ReceprionDocmanager/AddDocWizard/clientdocspage.ui \
-    ReceprionDocmanager/AddDocWizard/declardocspage.ui \
-    ReceprionDocmanager/AddDocWizard/summarypage.ui \
-    ReceprionDocmanager/widget_receptiondocmanager.ui \
-    ReceprionDocmanager/AddDocWizard/dialog_docdetails.ui \
-    ReceprionDocmanager/dialog_clientdocscreate.ui \
-    ReceprionDocmanager/dialog_selectdocument.ui
+    ReceptionDocmanager/AddDocWizard/docsourcepage.ui \
+    ReceptionDocmanager/AddDocWizard/createdocspage.ui \
+    ReceptionDocmanager/AddDocWizard/clientdocspage.ui \
+    ReceptionDocmanager/AddDocWizard/declardocspage.ui \
+    ReceptionDocmanager/AddDocWizard/summarypage.ui \
+    ReceptionDocmanager/widget_receptiondocmanager.ui \
+    ReceptionDocmanager/AddDocWizard/dialog_docdetails.ui \
+    ReceptionDocmanager/dialog_clientdocscreate.ui \
+    ReceptionDocmanager/dialog_selectdocument.ui
 
 DESTDIR = ./bin
 DLLDESTDIR = ./bin
@@ -95,4 +97,4 @@ LIBS += -L./bin \
   -lMFCCore
 
 RESOURCES += \
-    ReceprionDocmanager/ReceprionDocmanager_Icons.qrc
+    ReceptionDocmanager/ReceprionDocmanager_Icons.qrc

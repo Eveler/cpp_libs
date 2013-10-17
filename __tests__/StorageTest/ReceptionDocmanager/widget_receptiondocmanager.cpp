@@ -60,6 +60,11 @@ void Widget_ReceptionDocmanager::setDeclar( const QVariant &id )
   ui->tView_Required->expandAll();
 }
 
+QVariant Widget_ReceptionDocmanager::declar() const
+{
+  return p->m__Docmanager->declar();
+}
+
 void Widget_ReceptionDocmanager::addClient( const QVariant &id, const QString &clientInfo )
 {
   if ( p->m__Docmanager == NULL ) return;

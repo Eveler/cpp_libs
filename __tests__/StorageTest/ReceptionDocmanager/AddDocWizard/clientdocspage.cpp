@@ -30,8 +30,6 @@ ClientDocsPage::ClientDocsPage( QWidget *parent ) :
   ui->verticalScrollBar->setMaximum( ui->tView_ClientDocs->verticalScrollBar()->maximum() );
   ui->verticalScrollBar->setPageStep( ui->tView_ClientDocs->verticalScrollBar()->pageStep() );
 
-  connect( ui->tView_ClientDocs->horizontalHeader(), SIGNAL(geometriesChanged()),
-           SLOT(clientDocsViewerChanged()) );
   connect( ui->tView_ClientDocs->horizontalScrollBar(), SIGNAL(rangeChanged(int,int)),
            SLOT(hRangeChanged(int,int)) );
   connect( ui->tView_ClientDocs->horizontalScrollBar(), SIGNAL(valueChanged(int)),
@@ -177,6 +175,8 @@ void ClientDocsPage::on_cBox_Client_currentIndexChanged(int index)
 
   ui->tView_ClientDocs->resizeRowsToContents();
   ui->tWidget_SelectedClientDocs->resizeRowsToContents();
+  qApp->processEvents();
+  clientDocsViewerChanged();
 }
 
 void ClientDocsPage::on_tView_ClientDocs_doubleClicked(const QModelIndex &index)
