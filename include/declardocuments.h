@@ -13,7 +13,7 @@ public:
   virtual QSortFilterProxyModel* model();
   DocumentsModel* documents();
   void load(QSqlDatabase db);
-  bool load( MFCDocumentInfo *doc );
+  bool load( MFCDocumentInfo *doc ) const;
   void set_clients_ids(QStringList& ids);
   void set_docpaths_ids(QStringList& ids);
 

@@ -124,6 +124,13 @@ DocumentsModel *Docmanager::docpathsDocuments() const{
   return curDocpathsDocs->documents();
 }
 
+DocumentsModel *Docmanager::docpathsDocuments( QVariant id ) const
+{
+  DocpathsDocuments *dd = docpathsDocs.key( id, NULL );
+  if ( dd == NULL ) return NULL;
+  return dd->documents();
+}
+
 QAbstractItemModel * Docmanager::sortedDocpathsDocuments() const
 {
   if(!curDocpathsDocs) return NULL;
@@ -423,8 +430,6 @@ MFCDocumentInfo *Docmanager::newDocument(MFCDocumentInfo *doc){
     doc->setProperty(tr("Добавлен").toLocal8Bit(),val);
   if(!doc->dynamicPropertyNames().contains(tr("Ответственный").toLocal8Bit()))
     doc->setProperty(tr("Ответственный").toLocal8Bit(),QVariant(QVariant::String));
-  if(!doc->dynamicPropertyNames().contains("initial"))
-    doc->setProperty("initial",QVariant(QVariant::Bool));
 
   if(declarDocs){
     DocumentsModel *dm=declarDocs->documents();
@@ -459,7 +464,8 @@ MFCDocumentInfo *Docmanager::newDocument(MFCDocumentInfo *doc){
   return doc;
 }
 
-bool Docmanager::loadDocument(MFCDocumentInfo *doc){
+bool Docmanager::loadDocument( MFCDocumentInfo *doc ) const
+{
   if(!doc) return false;
   if(toAdd2All(doc)) return false;
 
@@ -467,9 +473,15 @@ bool Docmanager::loadDocument(MFCDocumentInfo *doc){
   {
     if ( declarDocs->documents()->documents().contains( doc ) )
       declarDocs->load( doc );
-    else if ( curClientDocs->documents()->documents().contains( doc ) )
-      curClientDocs->load( doc );
-    else return false;
+    else
+    {
+      foreach ( ClientDocuments *cd, clientsDocs.keys() )
+        if ( cd->documents()->documents().contains( doc ) )
+        {
+          cd->load( doc );
+          break;
+        }
+    }
     timer->start();
     return ( loop->exec() == 0 );
   }
@@ -568,7 +580,7 @@ bool Docmanager::saveDocuments(QString declarNumber){
   return true;
 }
 
-bool Docmanager::saveDocumentsLists(bool initial){
+bool Docmanager::saveDocumentsLists(){
   if(!DB.isValid()){
     setError(tr("Указано ошибочное подключение к базе данных"));
     return false;
@@ -589,7 +601,7 @@ bool Docmanager::saveDocumentsLists(bool initial){
   // docpaths_documents
   if(declarDocs){
     LogDebug()<<"Saving declarDocsList";
-    if(!declarDocs->saveDocList(DB,saveTime,initial)){
+    if(!declarDocs->saveDocList(DB,saveTime)){
       if(canTrans) DB.rollback();
       return false;
     }
@@ -824,7 +836,7 @@ void Docmanager::allDocsRemove(MFCDocumentInfo *doc){
       return;
     }
   }
-  if(declarDocs && sender()!=declarDocs && !doc->property("initial").toBool() &&
+  if(declarDocs && sender()!=declarDocs && !doc->initial() &&
      toAdd2All(doc)){
     LogDebug()<<"remove from declarDocs:"<<doc<<doc->type()
              <<"id ="<<documentID(doc);

@@ -25,7 +25,8 @@ void DocpathsInfoLoader::load( QVariant declarId ) const
   QSqlQuery qry( db );
   QString qryText = tr( "SELECT dp.id"
                         " FROM docpaths dp"
-                        " WHERE dp.declarid=%1" ).arg( declarId.toString() );
+                        " WHERE dp.declarid=%1"
+                        " ORDER BY dp.id" ).arg( declarId.toString() );
   if ( !qry.exec( qryText ) )
   {
     emit databaseError( qry.lastError().text() );

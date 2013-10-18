@@ -26,9 +26,17 @@ Widget_ReceptionDocmanager::~Widget_ReceptionDocmanager()
   delete ui;
 }
 
-void Widget_ReceptionDocmanager::setDocmanager( Docmanager *docmanager )
+void Widget_ReceptionDocmanager::setDatabase( QSqlDatabase db )
 {
-  p->m__Docmanager = docmanager;
+  if ( p->m__Docmanager != NULL )
+  {
+    delete p->m__Docmanager;
+    p->m__Docmanager = NULL;
+  }
+
+  if ( !db.isValid() ) return;
+
+  p->m__Docmanager = new Docmanager( db, this );
   disconnect( p->m__Docmanager, SIGNAL(documentAdded(DocumentsModel*)),
               this, SLOT(newDocs_ResetViewport()) );
   connect( p->m__Docmanager, SIGNAL(documentAdded(DocumentsModel*)),
@@ -48,6 +56,12 @@ void Widget_ReceptionDocmanager::setDoctypes( const QStringList &doctypes )
 void Widget_ReceptionDocmanager::setDeclar( const QVariant &id )
 {
   if ( p->m__Docmanager == NULL ) return;
+
+  if ( id.isNull() )
+  {
+    p->m__Docmanager->unsetDeclar();
+    return;
+  }
 
   p->m__Clients.clear();
 
@@ -114,6 +128,11 @@ void Widget_ReceptionDocmanager::setAppealInfo(
   p->m__DeclarExpires = declarExpires;
 }
 
+QList<MFCDocumentInfo *> Widget_ReceptionDocmanager::newDocuments() const
+{
+  return p->m__Docmanager->addedDocuments()->documents();
+}
+
 void Widget_ReceptionDocmanager::clear()
 {
   if ( p->m__Docmanager == NULL ) return;
@@ -121,6 +140,12 @@ void Widget_ReceptionDocmanager::clear()
   p->m__Clients.clear();
 
   p->m__Docmanager->clear();
+}
+
+bool Widget_ReceptionDocmanager::isCompleted() const
+{
+  return ( p->m__RequiredDocs &&
+           p->m__RequiredDocs->requiredDocTypes().count() == 0 );
 }
 
 void Widget_ReceptionDocmanager::reqDocs_ResetViewport()
@@ -139,6 +164,8 @@ void Widget_ReceptionDocmanager::newDocs_ResetViewport()
       ui->tView_New->hideColumn( rIdx );
   ui->tView_New->resizeColumnsToContents();
   ui->tView_New->resizeRowsToContents();
+
+  emit completedChanged();
 }
 
 void Widget_ReceptionDocmanager::on_tView_Required_doubleClicked(const QModelIndex &index)

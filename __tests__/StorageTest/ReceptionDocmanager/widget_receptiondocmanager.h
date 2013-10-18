@@ -31,23 +31,34 @@ class Widget_ReceptionDocmanager : public QWidget
     explicit Widget_ReceptionDocmanager(QWidget *parent = 0);
     ~Widget_ReceptionDocmanager();
 
-    void setDocmanager( Docmanager *docmanager );
+    void setDatabase( QSqlDatabase db );
+
     Docmanager * docmanager() const;
+
     void setDoctypes( const QStringList &doctypes );
+
     void setDeclar( const QVariant &id );
     QVariant declar() const;
+
     void addClient( const QVariant &id, const QString &clientInfo );
+
     void addDocpaths( const QVariant &id );
     void setCurrentDocpaths( const QVariant &id );
+
     void setRequiredDocs( RequiredDocs *requiredDocs );
 
     void setAppealInfo( const QString &appealNum, QDate appealDate, QDate declarExpires );
 
+    QList<MFCDocumentInfo *> newDocuments() const;
+
     void clear();
+
+    bool isCompleted() const;
 
 
   signals:
     void newDocument( QString doctype );
+    void completedChanged();
 
 
   private:

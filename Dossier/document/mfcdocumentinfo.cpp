@@ -118,6 +118,12 @@ void MFCDocumentInfo::setCreateDate( QDateTime doc_createdate )
   emit propertyChanged( "created", doc_createdate );
 }
 
+void MFCDocumentInfo::setInitial( bool doc_initial )
+{
+  m__Initial = doc_initial;
+  emit propertyChanged( "initial", doc_initial );
+}
+
 const QString & MFCDocumentInfo::type() const
 {
   return m__Type;
@@ -188,6 +194,11 @@ const QDateTime & MFCDocumentInfo::createDate() const
   return m__CreateDate;
 }
 
+bool MFCDocumentInfo::initial() const
+{
+  return m__Initial;
+}
+
 void MFCDocumentInfo::remove( MFCDocumentInfo *doc )
 {
   if( instances.contains( doc ) )
@@ -215,6 +226,7 @@ MFCDocumentInfo::MFCDocumentInfo( QObject *parent ) :
   m__Url = QString();
   m__LocalFile = QString();
   m__CreateDate = QDateTime::currentDateTime();
+  m__Initial = false;
   connect( this, SIGNAL(destroyed()), SLOT(remove()) );
 }
 

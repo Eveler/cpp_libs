@@ -449,7 +449,34 @@ int ReqDocsModel::findDocument(const QString &type, ReqItem *parent) const{
 }
 
 void ReqDocsModel::recalc(ReqItem *parent){
+//  int p=0;int a=0;int u=0;
+//  foreach(ReqItem *i,parent->children){
+//    if(i->amount()>0){
+//      if(p==0 || p>i->priority) p=i->priority;
+//    }
+//    a+=i->amount();
+//    u+=i->used();
+//    if(i->isRequired()) parent->setRequired();
+//    if(i->used()>=i->amount()){
+//      int row=visibleRow(i);
+//      beginRemoveRows(index( visibleRow( parent ), 0 ),row,row);
+//      endRemoveRows();
+//    }
+//  }
+//  parent->priority=p;
+//  parent->setAmount(a);
+//  parent->reset();
+//  for(int i=0;i<u;i++) parent->use();
+//  if(parent->used()>=parent->amount()){
+//    int row=visibleRow(parent);
+//    beginRemoveRows(QModelIndex(),row,row);
+//    endRemoveRows();
+//  }
+
   int p=0;int a=0;int u=0;
+  int firstRow = -1;
+  int lastRow = -1;
+
   foreach(ReqItem *i,parent->children){
     if(i->amount()>0){
       if(p==0 || p>i->priority) p=i->priority;
@@ -459,17 +486,20 @@ void ReqDocsModel::recalc(ReqItem *parent){
     if(i->isRequired()) parent->setRequired();
     if(i->used()>=i->amount()){
       int row=visibleRow(i);
-      beginRemoveRows(index( visibleRow( parent ), 0 ),row,row);
-      endRemoveRows();
+      if ( firstRow < 0 || firstRow > row ) firstRow = row;
+      if ( lastRow < row ) lastRow = row;
     }
   }
+  int parentRow = visibleRow( parent );
+  beginRemoveRows( index( parentRow, 0 ), firstRow, lastRow );
+  endRemoveRows();
+
   parent->priority=p;
   parent->setAmount(a);
   parent->reset();
   for(int i=0;i<u;i++) parent->use();
   if(parent->used()>=parent->amount()){
-    int row=visibleRow(parent);
-    beginRemoveRows(QModelIndex(),row,row);
+    beginRemoveRows( QModelIndex(), parentRow, parentRow );
     endRemoveRows();
   }
 }

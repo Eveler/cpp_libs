@@ -20,11 +20,11 @@ MainWindow::MainWindow(QWidget *parent) :
   db.setPort( 5432 );
   db.setUserName( tr( "mihail" ) );
   db.setPassword( tr( "me2db4con" ) );
-  docmanager = new Docmanager( db, this );
+
+  ui->wgt_ReceptionDocmanager->setDatabase( db );
+  docmanager = ui->wgt_ReceptionDocmanager->docmanager();
   connect( docmanager, SIGNAL(error(QString)), SLOT(error(QString)) );
   connect( docmanager, SIGNAL(declarSet(QVariant)), SLOT(declarChanged()) );
-
-  ui->wgt_ReceptionDocmanager->setDocmanager( docmanager );
   ui->wgt_ReceptionDocmanager->setDoctypes(
         QStringList() << tr( "Заявление" ) << tr( "Заявление о приостановке" ) <<
         tr( "Заявление об аннулировании" ) << tr( "Паспорт гражданина РФ" ) <<
@@ -70,7 +70,7 @@ void MainWindow::declarChanged()
   clientInfoLoader->load( ui->wgt_ReceptionDocmanager->declar() );
   docpathsInfoLoader->load( ui->wgt_ReceptionDocmanager->declar() );
   ui->tView_DocpathDocs->setModel( docmanager->docpathsDocuments() );
-
+  ui->lWgt_Steps->setCurrentRow( ui->lWgt_Steps->count()-1 );
 }
 
 void MainWindow::progress( qint64 cur, qint64 all )

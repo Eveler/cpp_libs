@@ -140,6 +140,7 @@ void ClientDocsPage::on_cBox_Client_currentIndexChanged(int index)
           ui->cBox_Client->view()->model()->index( index, 0 ) ).height()+5 );
 
   QVariant id = ui->cBox_Client->itemData( index );
+  m__Docmanager->setClientCurrent( id );
 
   ui->tWidget_SelectedClientDocs->clearContents();
   for ( int rIdx = ui->tWidget_SelectedClientDocs->rowCount()-1; rIdx >= 0; rIdx-- )
@@ -155,7 +156,7 @@ void ClientDocsPage::on_cBox_Client_currentIndexChanged(int index)
   QList<MFCDocumentInfo *> docpathsDocs;
   if ( m__Docmanager->docpathsDocuments() != NULL )
     docpathsDocs = m__Docmanager->docpathsDocuments()->documents();
-  QList<MFCDocumentInfo *> clientDocs = m__Docmanager->clientDocuments( id )->documents();
+  QList<MFCDocumentInfo *> clientDocs = m__Docmanager->clientDocuments()->documents();
   foreach ( MFCDocumentInfo *doc, clientDocs)
     if ( !docpathsDocs.contains( doc ) )
     {

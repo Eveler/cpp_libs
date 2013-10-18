@@ -27,6 +27,7 @@ class DOSSIER_EXPORT MFCDocumentInfo : public QObject
     Q_PROPERTY(QString url READ url WRITE setUrl)
     Q_PROPERTY(QString localFile READ localFile WRITE setLocalFile)
     Q_PROPERTY(QDateTime created READ createDate WRITE setCreateDate)
+    Q_PROPERTY(bool initial READ initial WRITE setInitial)
 
 
   public:
@@ -52,6 +53,7 @@ class DOSSIER_EXPORT MFCDocumentInfo : public QObject
     void setUrl( const QString &doc_url );
     void setLocalFile( const QString &doc_localFile );
     void setCreateDate( QDateTime doc_createdate );
+    void setInitial( bool doc_initial );
 
     const QString & type() const;
     const QString & name() const;
@@ -67,6 +69,7 @@ class DOSSIER_EXPORT MFCDocumentInfo : public QObject
     const QString & url() const;
     const QString & localFile() const;
     const QDateTime & createDate() const;
+    bool initial() const;
 
     bool isValid();
 
@@ -95,6 +98,7 @@ class DOSSIER_EXPORT MFCDocumentInfo : public QObject
     QString m__Url;
     QString m__LocalFile;
     QDateTime m__CreateDate;
+    bool m__Initial;
 
     explicit MFCDocumentInfo( QObject *parent );
     ~MFCDocumentInfo();

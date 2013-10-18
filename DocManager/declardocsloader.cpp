@@ -82,6 +82,7 @@ DocumentsModel *DeclarDocsLoader::load(QVariant foreignID){
             qry.record().field("created").value().toDateTime() );
 //      doc->setProperty("created_in",tr("%1 (%2)").arg(__FILE__).arg(__LINE__));
       doc->setUrl( qry.record().field("url").value().toString() );
+      doc->setInitial( qry.record().field( "initial" ).value().toBool() );
 
       for(int f=0;f<qry.record().count();f++){
         if(skipNames.contains(qry.record().fieldName(f))) continue;

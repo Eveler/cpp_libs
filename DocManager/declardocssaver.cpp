@@ -43,6 +43,7 @@ bool DeclarDocsSaver::saveDocuments(DocumentsModel *docList, QString declar){
 
 bool DeclarDocsSaver::saveDocList(DocumentsModel *docList,
                                   QDateTime saveTime, bool initial){
+  Q_UNUSED(initial)
   if(!docList) return false;
   if(!DB.isValid()){
     setError(tr("Указано ошибочное подключение к базе данных"));
@@ -80,7 +81,7 @@ bool DeclarDocsSaver::saveDocList(DocumentsModel *docList,
     qry.addBindValue(foreign_id);
     qry.addBindValue(docList->documentID(doc));
     qry.addBindValue(time);
-    qry.addBindValue(initial || doc->property("initial").toBool());
+    qry.addBindValue(doc->initial());
     if(!qry.exec()){
       setError(tr("Ошибка сохранения документа дела: %1 "
                   "QUERY: %2").arg(qry.lastError().text()).arg(qry.lastQuery()));

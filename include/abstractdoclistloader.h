@@ -16,7 +16,7 @@ public:
   void setStorage(AbstractDocsStorage *s);
   AbstractDocsStorage *storage() const;
   virtual DocumentsModel* load(QVariant foreignID)=0;
-  bool load( MFCDocumentInfo *doc );
+  bool load( MFCDocumentInfo *doc ) const;
   virtual void clear();
 
 signals:

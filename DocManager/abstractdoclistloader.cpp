@@ -47,7 +47,7 @@ AbstractDocsStorage *AbstractDocListLoader::storage() const{
   return docStorage;
 }
 
-bool AbstractDocListLoader::load( MFCDocumentInfo *doc )
+bool AbstractDocListLoader::load( MFCDocumentInfo *doc ) const
 {
   if ( docStorage == NULL || !docListModel->documents().contains( doc ) ) return false;
 

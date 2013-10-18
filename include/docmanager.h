@@ -30,6 +30,7 @@ public:
   QAbstractItemModel * sortedClientDocuments() const;
   MFCDocumentInfo *docpathsDocument(const QModelIndex &index) const;
   DocumentsModel *docpathsDocuments() const;
+  DocumentsModel *docpathsDocuments(QVariant id) const;
   QAbstractItemModel * sortedDocpathsDocuments() const;
   MFCDocumentInfo *declarDocument(const QModelIndex &index) const;
   DocumentsModel *declarDocuments() const;
@@ -74,12 +75,12 @@ public slots:
   bool nextDocpaths();
   bool removeDocpathsDocument(MFCDocumentInfo *doc);
   MFCDocumentInfo *newDocument(MFCDocumentInfo *doc);
-  bool loadDocument(MFCDocumentInfo *doc);
+  bool loadDocument( MFCDocumentInfo *doc ) const;
   bool removeNewDocument(MFCDocumentInfo *doc);
 
   bool save(QString declarNumber=QString());
   bool saveDocuments(QString declarNumber=QString());
-  bool saveDocumentsLists(bool initial=false);
+  bool saveDocumentsLists();
   bool saveDeleteDocuments();
 
   void clear();
