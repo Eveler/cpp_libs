@@ -9,6 +9,11 @@ TEMPLATE = lib
 DEFINES += \
     EXPORT_LIB_MREPORTENGINE
 
+
+exists( ../install_path.pri ){
+    include(../install_path.pri)
+}
+
 INCLUDEPATH += ./ \
     ./MReportDocument/ \
     ./MReportDocument/MReportSource/ \
@@ -29,11 +34,17 @@ symbian {
 }
 
 unix:!symbian {
+
     maemo5 {
         target.path = /opt/usr/lib
     } else {
         target.path = /usr/lib
     }
+    INSTALLS += target
+}
+
+win32 {
+    target.path = $$INSTALL_WIN_LIB
     INSTALLS += target
 }
 

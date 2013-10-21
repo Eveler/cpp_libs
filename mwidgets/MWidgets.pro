@@ -12,6 +12,9 @@ DEFINES += EXPORT_LIB_MWIDGETS
 
 LIB_LIST =
 
+exists( ../install_path.pri ){
+    include(../install_path.pri)
+}
 include(./MLoginDialog/MLoginDialog.pri)
 include(./MReportViewer/MReportViewer.pri)
 
@@ -33,11 +36,17 @@ symbian {
 }
 
 unix:!symbian {
+
     maemo5 {
         target.path = /opt/usr/lib
     } else {
         target.path = /usr/lib
     }
+    INSTALLS += target
+}
+
+win32 {
+    target.path = $$INSTALL_WIN_LIB
     INSTALLS += target
 }
 

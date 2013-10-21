@@ -18,6 +18,9 @@ INCLUDEPATH += ./ \
     ./MCalculationalModel/
 
 
+exists( ../install_path.pri ){
+    include(../install_path.pri)
+}
 include(./MCalculationalModel/MCalculationalModel.pri)
 
 
@@ -31,9 +34,6 @@ symbian {
     DEPLOYMENT += addFiles
 }
 
-INSTALL_TO_REPORTS = E:/devel/Reports/bin
-QT_INSTALL_WIN_LIB = $$INSTALL_TO_REPORTS
-
 unix:!symbian {
 
     maemo5 {
@@ -45,7 +45,7 @@ unix:!symbian {
 }
 
 win32 {
-    target.path = $$QT_INSTALL_WIN_LIB
+    target.path = $$INSTALL_WIN_LIB
     INSTALLS += target
 }
 
