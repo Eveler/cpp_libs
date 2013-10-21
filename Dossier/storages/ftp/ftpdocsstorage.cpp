@@ -217,8 +217,7 @@ bool FtpDocsStorage::save(MFCDocumentInfo *doc, QString declarNumber){
   QFileInfo fi( doc->localFile() );
   if( !fi.exists() )
   {
-    errStr = tr( "Файла документа [%1] не существует!" ).arg( doc->localFile() );
-    emit error(errStr);
+    setError(tr( "Файла документа [%1] не существует!" ).arg( doc->localFile() ));
     return false;
   }
   // создаём архив и перемещаем его в хранилище
