@@ -71,7 +71,7 @@ class DOSSIER_EXPORT MFCDocumentInfo : public QObject
     const QDateTime & createDate() const;
     bool initial() const;
 
-    bool isValid();
+    static void removeAll();
 
 
   public slots:

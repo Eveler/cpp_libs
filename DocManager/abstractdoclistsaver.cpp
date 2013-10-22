@@ -248,24 +248,10 @@ QVariant AbstractDocListSaver::saveDocumentToDatabase( MFCDocumentInfo *doc, con
     qryStr="INSERT INTO document_metadata (documents_id,original_number,"
         "copy_number,original_pages,copy_pages) VALUES (%1,%2,%3,%4,%5)";
     qryStr=qryStr.arg(id.toString());
-    if(doc->property(tr("Оригиналов").toLocal8Bit()).isNull())
-      qryStr=qryStr.arg("NULL");
-    else
-      qryStr=qryStr.arg(doc->property(tr("Оригиналов").toLocal8Bit()).toInt());
-    if(doc->property(tr("Копий").toLocal8Bit()).isNull())
-      qryStr=qryStr.arg("NULL");
-    else
-      qryStr=qryStr.arg(doc->property(tr("Копий").toLocal8Bit()).toInt());
-    if(doc->property(tr("Листов_оригинала").toLocal8Bit()).isNull())
-      qryStr=qryStr.arg("NULL");
-    else
-      qryStr=qryStr.arg(
-            doc->property(tr("Листов_оригинала").toLocal8Bit()).toInt());
-    if(doc->property(tr("Листов_копии").toLocal8Bit()).isNull())
-      qryStr=qryStr.arg("NULL");
-    else
-      qryStr=qryStr.arg(
-            doc->property(tr("Листов_копии").toLocal8Bit()).toInt());
+    qryStr=qryStr.arg( doc->originalExemplars() );
+    qryStr=qryStr.arg( doc->copyExemplars() );
+    qryStr=qryStr.arg( doc->originalPages() );
+    qryStr=qryStr.arg( doc->copyPages() );
     if(!qry.exec(qryStr)){
       setError(tr("Ошибка сохранения метаданных документа в БД: %1 \nQUERY: %2")
                .arg(qry.lastError().text()).arg(qry.lastQuery()));

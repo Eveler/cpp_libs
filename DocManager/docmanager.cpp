@@ -514,24 +514,36 @@ bool Docmanager::removeNewDocument(MFCDocumentInfo *doc){
   if(!doc) return false;
 
   if(newDocs->documents().contains(doc)){
+    bool deleteDoc = true;
+
     QHashIterator< ClientDocuments*,QVariant > ci(clientsDocs);
     while(ci.hasNext()){
       ci.next();
       DocumentsModel *dm=ci.key()->documents();
       if(dm->isNew(doc)) dm->removeDocument(doc);
+      else if( dm->documents().contains( doc ) )
+        deleteDoc = false;
     }
 
-    if(declarDocs && declarDocs->documents()->isNew(doc))
-      declarDocs->documents()->removeDocument(doc);
+    if( declarDocs != NULL )
+    {
+      if( declarDocs->documents()->isNew( doc ) )
+        declarDocs->documents()->removeDocument(doc);
+      else if( declarDocs->documents()->documents().contains( doc ) )
+        deleteDoc = false;
+    }
 
     QHashIterator< DocpathsDocuments*,QVariant > di(docpathsDocs);
     while(di.hasNext()){
       di.next();
       DocumentsModel *dm=di.key()->documents();
       if(dm->isNew(doc)) dm->removeDocument(doc);
+      else if( dm->documents().contains( doc ) )
+        deleteDoc = false;
     }
 
     newDocs->removeDocument(doc);
+    if ( deleteDoc ) emit aboutToDeleteDoc( doc );
     return true;
   }
 
@@ -839,7 +851,6 @@ void Docmanager::allDocsAdd(MFCDocumentInfo *doc){
     emit documentAdded(newDocs);
   }
 
-  LogDebug() << "TYT";
   if(!toAdd2All(doc)) return;
   allDocs->addDocument(doc,model->documentID(doc),model->isNew(doc));
   LogDebug()<<doc->type()<<"added to all";

@@ -199,6 +199,16 @@ bool MFCDocumentInfo::initial() const
   return m__Initial;
 }
 
+void MFCDocumentInfo::removeAll()
+{
+  while ( !instances.isEmpty() )
+  {
+    MFCDocumentInfo *doc = instances.takeFirst();
+    MFCDocumentInfo::remove( doc );
+    doc = NULL;
+  }
+}
+
 void MFCDocumentInfo::remove( MFCDocumentInfo *doc )
 {
   if( instances.contains( doc ) )

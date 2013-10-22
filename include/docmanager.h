@@ -61,6 +61,7 @@ signals:
   void declarSet(DocumentsModel*);
   void declarSet(QAbstractItemModel*);
   void declarSet(QVariant);
+  void aboutToDeleteDoc( MFCDocumentInfo *doc );
 
 public slots:
   bool addClient(QVariant id);
