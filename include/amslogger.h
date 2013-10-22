@@ -7,9 +7,11 @@
 #include <QCoreApplication>
 #include <QTextStream>
 #include <QDateTime>
+#include <QMutex>
 #include "smtp.h"
 #include "export/amslogger_export.h"
 
+//class AMSLogger_p;
 /** \brief Выводит сообщения, передаваемые при помощи qDebug(), qWarning() и т.д.
   либо прямых вызов методов данного класса на консоль и/или файл. При выводе в
 файл может "вращать" журналы
@@ -69,6 +71,11 @@ public:
   static void setLogLevel(LogLevels level){
     loglevel=level;
   }
+  /** Устанавливает уровень журналирования в \b stderr в \param level
+   *\see consoleLogLevel()*/
+  static void setConsoleLogLevel(LogLevels level){
+    consoleloglevel=level;
+  }
   /** Устанавливает количество хранимых файлов журнала при "вращении"*/
   static void setRotateCount(const int count){
     rotateCount=count;
@@ -76,6 +83,10 @@ public:
   /** Возвращает уровень журналирования в файл*/
   static LogLevels logLevel(){
     return loglevel;
+  }
+  /** Возвращает уровень журналирования в stderr*/
+  static LogLevels consoleLogLevel(){
+    return consoleloglevel;
   }
   /** Возвращает установлен ли AMSLogger в качестве обработчика QDebug*/
   static bool isInstalled(){
@@ -109,6 +120,7 @@ private:
   static bool initialized;
   static bool installed;
   static LogLevels loglevel;
+  static LogLevels consoleloglevel;
   static QFile *outFile;
 #if QT_VERSION >= 0x050000
   static QtMessageHandler oldMsgHandler;
@@ -125,6 +137,17 @@ private:
   int msgLine;
   static bool space;
   static QString dateFormat;
+//  AMSLogger_p *p;
+};
+
+class AMSLogger_p{
+private:
+  AMSLogger_p();
+  ~AMSLogger_p();
+  static AMSLogger_p *i;
+public:
+  static AMSLogger_p *instance();
+  QMutex mutex;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(AMSLogger::LogLevels)

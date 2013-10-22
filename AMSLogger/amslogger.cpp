@@ -8,6 +8,9 @@ bool AMSLogger::installed=false;
 bool AMSLogger::space=true;
 AMSLogger::LogLevels AMSLogger::loglevel=
     AMSLogger::LevelCritical | AMSLogger::LevelFatal;
+AMSLogger::LogLevels AMSLogger::consoleloglevel=
+    AMSLogger::LevelCritical | AMSLogger::LevelDebug | AMSLogger::LevelFatal
+    | AMSLogger::LevelWarn;
 QFile *AMSLogger::outFile=new QFile();
 #if QT_VERSION >= 0x050000
 QtMessageHandler AMSLogger::oldMsgHandler=NULL;
@@ -18,6 +21,16 @@ int AMSLogger::rotateCount=14;
 QTextStream AMSLogger::stream(stderr);
 int AMSLogger::oldMsgType=-1;
 QString AMSLogger::dateFormat="[dd.MM.yyyy hh:mm:ss.zzz]: ";
+AMSLogger_p *AMSLogger_p::i=NULL;
+
+AMSLogger_p::AMSLogger_p():mutex(QMutex::Recursive){}
+AMSLogger_p::~AMSLogger_p(){i=NULL;}
+AMSLogger_p *AMSLogger_p::instance(){
+  if(!i){
+    i=new AMSLogger_p;
+  }
+  return i;
+}
 
 void AMSLogger::install(){
   initialyze();
@@ -34,6 +47,8 @@ void AMSLogger::messageOutput(QtMsgType type, const QMessageLogContext &,const Q
 #else
 Q_CORE_EXPORT_INLINE void AMSLogger::messageOutput(QtMsgType type, const char *msg){
 #endif
+  QMutexLocker(&AMSLogger_p::instance()->mutex);
+
   AMSLogger::initialyze();
   QByteArray ba(qPrintable(msg));
   QString strDateTime=
@@ -46,7 +61,7 @@ Q_CORE_EXPORT_INLINE void AMSLogger::messageOutput(QtMsgType type, const char *m
       ba.prepend("Debug: ");
       ba.prepend(qPrintable(strDateTime));
     }
-    stream<<ba;
+    if(AMSLogger::consoleLogLevel().testFlag(AMSLogger::LevelDebug)) stream<<ba;
     if(AMSLogger::logLevel().testFlag(AMSLogger::LevelDebug))
       if(outFile->fileName().length()>0) writeToFile(ba+" ");
     break;
@@ -57,7 +72,7 @@ Q_CORE_EXPORT_INLINE void AMSLogger::messageOutput(QtMsgType type, const char *m
       ba.prepend("Warning: ");
       ba.prepend(qPrintable(strDateTime));
     }
-    stream<<ba;
+    if(AMSLogger::consoleLogLevel().testFlag(AMSLogger::LevelWarn)) stream<<ba;
     if(AMSLogger::logLevel().testFlag(AMSLogger::LevelWarn))
       if(outFile->fileName().length()>0) writeToFile(ba+" ");
     break;
@@ -68,7 +83,8 @@ Q_CORE_EXPORT_INLINE void AMSLogger::messageOutput(QtMsgType type, const char *m
       ba.prepend("Critical: ");
       ba.prepend(qPrintable(strDateTime));
     }
-    stream<<ba;
+    if(AMSLogger::consoleLogLevel().testFlag(AMSLogger::LevelCritical))
+      stream<<ba;
     if(AMSLogger::logLevel().testFlag(AMSLogger::LevelCritical))
       if(outFile->fileName().length()>0) writeToFile(ba+" ");
     break;
@@ -79,7 +95,7 @@ Q_CORE_EXPORT_INLINE void AMSLogger::messageOutput(QtMsgType type, const char *m
       ba.prepend("Fatal: ");
       ba.prepend(qPrintable(strDateTime));
     }
-    stream<<ba;
+    if(AMSLogger::consoleLogLevel().testFlag(AMSLogger::LevelFatal)) stream<<ba;
     if(AMSLogger::logLevel().testFlag(AMSLogger::LevelFatal))
       if(outFile->fileName().length()>0) writeToFile(ba+" ");
 //    abort();
@@ -106,8 +122,10 @@ void AMSLogger::writeToFile(const QByteArray &msg){
   QDir d=QDir();
   d.mkpath(QFileInfo(*outFile).absolutePath());
   if(!outFile->open(QFile::Append | QFile::WriteOnly | QFile::Text)){
-    fprintf(stderr, "Warning: Error openning log file %s\n",
-            qPrintable(outFile->fileName()));
+//    fprintf(stderr, "Warning: Error openning log file %s\n",
+//            qPrintable(outFile->fileName()));
+    stream<<"Warning: Error openning log file "<<outFile->fileName()<<endl;
+    stream.flush();
     outFile->close();
     return;
   }
