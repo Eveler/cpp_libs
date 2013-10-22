@@ -179,10 +179,14 @@ void FTPTransfer::transferBytesWritten(qint64 size){
 
 void FTPTransfer::disconnectClient()
 {
-//  QByteArray data = QByteArray();
-//  data.append( m__Client->readAll() );
+  QByteArray data = m__Client->readAll();
 
-//  m__Buffer->write( data );
+  if(data.size()>0){
+    m__Buffer->write( data );
+    m__BytesDone += data.size();
+    dataCommunicationProgress( m__BytesDone, m__Buffer->size() );
+  }
+
   m__Buffer = NULL;
   m__BytesDone = 0;
   disconnect( m__Client, SIGNAL(readyRead()), this, SLOT(receivedData()) );
@@ -193,6 +197,14 @@ void FTPTransfer::disconnectClient()
 }
 
 void FTPTransfer::disconnectTransfer(){
+  QByteArray data = transfer->readAll();
+
+  if(data.size()>0){
+    m__Buffer->write( data );
+    m__BytesDone += data.size();
+    dataCommunicationProgress( m__BytesDone, m__Buffer->size() );
+  }
+
   m__Buffer = NULL;
   m__BytesDone = 0;
   transfer->disconnect(this);
