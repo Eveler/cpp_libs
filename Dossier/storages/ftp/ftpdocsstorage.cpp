@@ -213,14 +213,12 @@ void FtpDocsStorage::ftpAnswer(QString text, int code){
 }
 
 bool FtpDocsStorage::save(MFCDocumentInfo *doc, QString declarNumber){
-  if ( doc->url().isEmpty() && doc->localFile().isEmpty() ) return true;
   QFileInfo fi( doc->localFile() );
   if( !fi.exists() )
   {
     setError(tr( "Файла документа [%1] не существует!" ).arg( doc->localFile() ));
     return false;
   }
-  // создаём архив и перемещаем его в хранилище
   curDoc=doc;
 
   QString arcName = tr( "%1/%2_%3" ).arg( fi.absolutePath(), declarNumber, fi.fileName() );

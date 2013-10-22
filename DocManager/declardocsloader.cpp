@@ -44,12 +44,10 @@ DocumentsModel *DeclarDocsLoader::load(QVariant foreignID){
                     "  dd.added AS \"Добавлен\","
                     "  user_name_initials(dd.responsible) AS \"Ответственный\","
                     "  dd.initial "
-                    "FROM declar_documents dd,documents d,doctypes dt "
-                    "WHERE dd.declars_id=%1 "
-//                    "  AND (d.expires>=now()::date OR d.expires IS NULL) "
+                    " FROM declar_documents dd,documents d,doctypes dt "
+                    " WHERE dd.declars_id=%1 "
                     "  AND dd.documents_id=d.id AND d.doctype_id=dt.id"
-                    "  AND (d.expires>=now()::date OR d.expires IS NULL) "
-                    "ORDER BY d.id,d.created DESC,dd.added DESC")
+                    " ORDER BY d.id,d.created DESC,dd.added DESC")
       .arg(foreignID.toString());
   QSqlQuery qry(DB);
   if(!qry.exec(strQry)){

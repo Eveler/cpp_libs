@@ -44,6 +44,9 @@ public:
   QVariantList docpaths() const;
   QVariant currentDocpath() const;
 
+  const QString & lastError() const;
+
+
 signals:
   void dataTransferProgress(qint64 val,qint64 total);
   void error(QString);
@@ -74,7 +77,7 @@ public slots:
   void setDocpathsCurrent(QVariant id);
   bool nextDocpaths();
   bool removeDocpathsDocument(MFCDocumentInfo *doc);
-  MFCDocumentInfo *newDocument(MFCDocumentInfo *doc);
+  bool newDocument( MFCDocumentInfo *doc );
   bool loadDocument( MFCDocumentInfo *doc ) const;
   bool removeNewDocument(MFCDocumentInfo *doc);
 

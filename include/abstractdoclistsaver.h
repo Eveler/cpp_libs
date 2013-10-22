@@ -34,6 +34,7 @@ public slots:
 
 protected slots:
   void objectDestroyed();
+  virtual QVariant saveDocumentToDatabase( MFCDocumentInfo *doc, const QString &path = QString() );
   virtual void documentSaveDone(QString path);
   void storTimeout();
   void dataTransferProgress(qint64 bytesDone,qint64 bytesTotal);

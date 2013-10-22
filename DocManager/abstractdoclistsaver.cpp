@@ -126,10 +126,21 @@ bool AbstractDocListSaver::saveDocuments(DocumentsModel *docList,
     }
 
     curDoc=doc;
-    bool res=docStorage->save(doc,declar);
-    if(!res) return false;
-    timer->start();
-    if(curDoc && loop->exec()!=0) return false;
+    if ( !doc->localFile().isEmpty() )
+    {
+      bool res=docStorage->save(doc,declar);
+      LogWarning() << __func__ << res;
+      if(!res) return false;
+      timer->start();
+      if( curDoc && loop->exec() != 0 ) return false;
+    }
+    else
+    {
+      QVariant id = saveDocumentToDatabase( curDoc );
+      curDoc = NULL;
+      if ( id.isNull() ) return false;
+      else emit documentSaved( doc, id );
+    }
   }
 
   return true;
@@ -150,58 +161,44 @@ void AbstractDocListSaver::objectDestroyed(){
   curDoc=NULL;
 }
 
-void AbstractDocListSaver::documentSaveDone(QString path){
-  if(!curDoc){
+QVariant AbstractDocListSaver::saveDocumentToDatabase( MFCDocumentInfo *doc, const QString &path )
+{
+  if( doc == NULL )
+  {
     setError(tr("Документ пуст"));
-    curDoc=NULL;
-    loop->exit(-1);
-    return;
-  }
-  if(path.isEmpty()){
-    setError(tr("Путь документа пуст"));
-    curDoc=NULL;
-    loop->exit(-1);
-    return;
+    return QVariant();
   }
 
   QSqlQuery qry(DB);
 
   QString qryStr=tr("SELECT id FROM doctypes WHERE aname='%1'")
-      .arg(curDoc->type());
+      .arg(doc->type());
   if(!qry.exec(qryStr)){
     setError(tr("Ошибка запроса типа документа: %1 QUERY: %2")
              .arg(qry.lastError().text()).arg(qry.lastQuery()));
-    curDoc=NULL;
-    loop->exit(-1);
-    return;
+    return QVariant();
   }
   if(!qry.next()){
     setError(tr("Неизвестная ошибка запроса: %1 QUERY: %2")
              .arg(qry.lastError().text()).arg(qry.lastQuery()));
-    curDoc=NULL;
-    loop->exit(-1);
-    return;
+    return QVariant();
   }
   QVariant doctype_id=qry.value(0);
   qry.clear();
 
   QVariant docagency_id(QVariant::Int);
-  if(!curDoc->agency().isEmpty()){
+  if(!doc->agency().isEmpty()){
     qryStr=tr("SELECT cod FROM docagency WHERE \"name\"='%1'")
-        .arg(curDoc->agency());
+        .arg(doc->agency());
     if(!qry.exec(qryStr)){
       setError(tr("Ошибка запроса выдающей организации: %1 QUERY: %2")
                .arg(qry.lastError().text()).arg(qry.lastQuery()));
-      curDoc=NULL;
-      loop->exit(-1);
-      return;
+      return QVariant();
     }
     if(!qry.next()){
       setError(tr("Неизвестная ошибка запроса: %1 QUERY: %2")
                .arg(qry.lastError().text()).arg(qry.lastQuery()));
-      curDoc=NULL;
-      loop->exit(-1);
-      return;
+      return QVariant();
     }
     docagency_id=qry.value(0);
     qry.clear();
@@ -210,16 +207,12 @@ void AbstractDocListSaver::documentSaveDone(QString path){
   if(!qry.exec("SELECT nextval('documents_id_seq')")){
     setError(tr("Ошибка запроса ID документа: %1 QUERY: %2")
              .arg(qry.lastError().text()).arg(qry.lastQuery()));
-    curDoc=NULL;
-    loop->exit(-1);
-    return;
+    return QVariant();
   }
   if(!qry.next()){
     setError(tr("Неизвестная ошибка запроса: %1 QUERY: %2")
              .arg(qry.lastError().text()).arg(qry.lastQuery()));
-    curDoc=NULL;
-    loop->exit(-1);
-    return;
+    return QVariant();
   }
   QVariant id=qry.value(0);
   qry.clear();
@@ -229,68 +222,76 @@ void AbstractDocListSaver::documentSaveDone(QString path){
   if(!qry.prepare(qryStr)){
     setError(tr("Ошибка подготовки запроса сохранения документа: %1 QUERY: %2")
              .arg(qry.lastError().text()).arg(qryStr));
-    curDoc=NULL;
-    loop->exit(-1);
-    return;
+    return QVariant();
   }
   qry.addBindValue(id);
   qry.addBindValue(doctype_id);
-  qry.addBindValue(curDoc->name());
-  qry.addBindValue(curDoc->series());
-  qry.addBindValue(curDoc->number());
-  qry.addBindValue(curDoc->date());
-  qry.addBindValue(curDoc->expiresDate());
+  qry.addBindValue(doc->name());
+  qry.addBindValue(doc->series());
+  qry.addBindValue(doc->number());
+  qry.addBindValue(doc->date());
+  qry.addBindValue(doc->expiresDate());
   qry.addBindValue(docagency_id);
   qry.addBindValue(path);
   if(!qry.exec()){
     setError(tr("Ошибка сохранения документа в БД: %1 QUERY: %2")
              .arg(qry.lastError().text()).arg(qry.lastQuery()));
-    curDoc=NULL;
-    loop->exit(-1);
-    return;
+    return QVariant();
   }
-  curDoc->setUrl(path);
+  doc->setUrl(path);
 
   /*Сохраняем document_metadata************************************************/
-  QList< QByteArray > pn=curDoc->dynamicPropertyNames();
+  QList< QByteArray > pn=doc->dynamicPropertyNames();
   if(pn.contains(tr("Страниц").toLocal8Bit())
      || pn.contains(tr("Оригиналов").toLocal8Bit())
      || pn.contains(tr("Копий").toLocal8Bit())){
     qryStr="INSERT INTO document_metadata (documents_id,original_number,"
         "copy_number,original_pages,copy_pages) VALUES (%1,%2,%3,%4,%5)";
     qryStr=qryStr.arg(id.toString());
-    if(curDoc->property(tr("Оригиналов").toLocal8Bit()).isNull())
+    if(doc->property(tr("Оригиналов").toLocal8Bit()).isNull())
       qryStr=qryStr.arg("NULL");
     else
-      qryStr=qryStr.arg(curDoc->property(tr("Оригиналов").toLocal8Bit()).toInt());
-    if(curDoc->property(tr("Копий").toLocal8Bit()).isNull())
+      qryStr=qryStr.arg(doc->property(tr("Оригиналов").toLocal8Bit()).toInt());
+    if(doc->property(tr("Копий").toLocal8Bit()).isNull())
       qryStr=qryStr.arg("NULL");
     else
-      qryStr=qryStr.arg(curDoc->property(tr("Копий").toLocal8Bit()).toInt());
-    if(curDoc->property(tr("Листов_оригинала").toLocal8Bit()).isNull())
-      qryStr=qryStr.arg("NULL");
-    else
-      qryStr=qryStr.arg(
-            curDoc->property(tr("Листов_оригинала").toLocal8Bit()).toInt());
-    if(curDoc->property(tr("Листов_копии").toLocal8Bit()).isNull())
+      qryStr=qryStr.arg(doc->property(tr("Копий").toLocal8Bit()).toInt());
+    if(doc->property(tr("Листов_оригинала").toLocal8Bit()).isNull())
       qryStr=qryStr.arg("NULL");
     else
       qryStr=qryStr.arg(
-            curDoc->property(tr("Листов_копии").toLocal8Bit()).toInt());
+            doc->property(tr("Листов_оригинала").toLocal8Bit()).toInt());
+    if(doc->property(tr("Листов_копии").toLocal8Bit()).isNull())
+      qryStr=qryStr.arg("NULL");
+    else
+      qryStr=qryStr.arg(
+            doc->property(tr("Листов_копии").toLocal8Bit()).toInt());
     if(!qry.exec(qryStr)){
       setError(tr("Ошибка сохранения метаданных документа в БД: %1 \nQUERY: %2")
                .arg(qry.lastError().text()).arg(qry.lastQuery()));
-      loop->exit(-1);
-      return;
+      return QVariant();
     }
   }
   /************************************************Сохраняем document_metadata*/
+  return id;
+}
 
-  emit documentSaved(curDoc,id);
+void AbstractDocListSaver::documentSaveDone(QString path){
+  if(path.isEmpty()){
+    setError(tr("Путь документа пуст"));
+    curDoc=NULL;
+    loop->exit(-1);
+    return;
+  }
+
+  QVariant id = saveDocumentToDatabase( curDoc, path );
+
+  if ( !id.isNull() ) emit documentSaved(curDoc,id);
   curDoc=NULL;
-
   timer->stop();
-  loop->quit();
+
+  if ( !id.isNull() ) loop->quit();
+  else loop->exit(-1);
 }
 
 void AbstractDocListSaver::storTimeout(){

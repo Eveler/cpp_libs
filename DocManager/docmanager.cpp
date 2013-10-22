@@ -185,6 +185,11 @@ QVariant Docmanager::currentDocpath() const
   return curDocpathsDocs->id();
 }
 
+const QString & Docmanager::lastError() const
+{
+  return errStr;
+}
+
 bool Docmanager::addClient(QVariant id){
   if(id.isNull()) return false;
   if(clientsDocs.key(id,NULL)){
@@ -422,8 +427,19 @@ bool Docmanager::removeDocpathsDocument(MFCDocumentInfo *doc){
   return false;
 }
 
-MFCDocumentInfo *Docmanager::newDocument(MFCDocumentInfo *doc){
-  if(!doc) return doc;
+bool Docmanager::newDocument(MFCDocumentInfo *doc) {
+  if( doc == NULL )
+  {
+    LogDebug() << __func__ << "doc == NULL";
+    return false;
+  }
+  if ( declarDocs == NULL &&
+       curClientDocs == NULL &&
+       curDocpathsDocs == NULL )
+  {
+    setError( tr( "Doclists is not setted" ) );
+    return false;
+  }
 
   QVariant val=saveTime.isValid()?saveTime:QDateTime::currentDateTime();
   if(!doc->dynamicPropertyNames().contains(tr("Добавлен").toLocal8Bit()))
@@ -461,7 +477,7 @@ MFCDocumentInfo *Docmanager::newDocument(MFCDocumentInfo *doc){
     dm->addDocument(doc,documentID(doc));
   }
 
-  return doc;
+  return true;
 }
 
 bool Docmanager::loadDocument( MFCDocumentInfo *doc ) const
@@ -471,19 +487,25 @@ bool Docmanager::loadDocument( MFCDocumentInfo *doc ) const
 
   if( doc != NULL && ( doc->localFile().isEmpty() || !QFileInfo( doc->localFile() ).exists() ) )
   {
-    if ( declarDocs->documents()->documents().contains( doc ) )
-      declarDocs->load( doc );
-    else
+    bool loadStarted = false;
+    foreach ( ClientDocuments *cd, clientsDocs.keys() )
+      if ( cd->documents()->documents().contains( doc ) )
+      {
+        loadStarted = cd->load( doc );
+        if ( loadStarted ) break;
+      }
+    if ( !loadStarted )
     {
-      foreach ( ClientDocuments *cd, clientsDocs.keys() )
-        if ( cd->documents()->documents().contains( doc ) )
-        {
-          cd->load( doc );
-          break;
-        }
+      if ( declarDocs == NULL ) return false;
+      else if ( declarDocs->documents()->documents().contains( doc ) )
+        loadStarted = declarDocs->load( doc );
     }
-    timer->start();
-    return ( loop->exec() == 0 );
+    if ( loadStarted )
+    {
+      timer->start();
+      return ( loop->exec() == 0 );
+    }
+    else return false;
   }
   return true;
 }
@@ -817,6 +839,7 @@ void Docmanager::allDocsAdd(MFCDocumentInfo *doc){
     emit documentAdded(newDocs);
   }
 
+  LogDebug() << "TYT";
   if(!toAdd2All(doc)) return;
   allDocs->addDocument(doc,model->documentID(doc),model->isNew(doc));
   LogDebug()<<doc->type()<<"added to all";
