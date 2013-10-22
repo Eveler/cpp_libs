@@ -17,6 +17,7 @@ QtMsgHandler AMSLogger::oldMsgHandler=NULL;
 int AMSLogger::rotateCount=14;
 QTextStream AMSLogger::stream(stderr);
 int AMSLogger::oldMsgType=-1;
+QString AMSLogger::dateFormat="[dd.MM.yyyy hh:mm:ss.zzz]: ";
 
 void AMSLogger::install(){
   initialyze();
@@ -36,7 +37,7 @@ Q_CORE_EXPORT_INLINE void AMSLogger::messageOutput(QtMsgType type, const char *m
   AMSLogger::initialyze();
   QByteArray ba(qPrintable(msg));
   QString strDateTime=
-      QDateTime::currentDateTime().toString("[dd.MM.yyyy hh:mm:ss.zzz]: ");
+      QDateTime::currentDateTime().toString(dateFormat);
 
   switch (type){
   case QtDebugMsg:

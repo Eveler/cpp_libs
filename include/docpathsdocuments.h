@@ -14,7 +14,7 @@ public:
   virtual QSortFilterProxyModel* model();
   DocumentsModel* documents();
   void load(QSqlDatabase db);
-  bool load( MFCDocumentInfo *doc );
+  bool load( MFCDocumentInfo *doc ) const;
 
 signals:
 

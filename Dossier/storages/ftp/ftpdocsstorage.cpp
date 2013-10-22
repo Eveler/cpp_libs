@@ -210,6 +210,7 @@ void FtpDocsStorage::ftpAnswer(FTPEngine::Command cmd, bool res){
 }
 
 void FtpDocsStorage::ftpAnswer(QString text, int code){
+  LogDebug()<<tr("ftpAnswer: %1 (%2)").arg(text).arg(code);
 }
 
 bool FtpDocsStorage::save(MFCDocumentInfo *doc, QString declarNumber){

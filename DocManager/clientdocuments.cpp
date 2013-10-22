@@ -46,7 +46,7 @@ void ClientDocuments::load(QSqlDatabase db){
   sortedModel->sort(doclistModel->findColumn("created"),Qt::DescendingOrder);
 }
 
-bool ClientDocuments::load( MFCDocumentInfo *doc )
+bool ClientDocuments::load( MFCDocumentInfo *doc ) const
 {
   if ( loader == NULL ) return false;
 

@@ -81,6 +81,14 @@ public:
   static bool isInstalled(){
     return installed;
   }
+  /** Устанавливает формат вывода даты/времени в файл журнала*/
+  static void setDateTimeFormat(const QString &format){
+    dateFormat=format;
+  }
+  /** Возвращает формат вывода даты/времени в файл журнала*/
+  static QString &dateTimeFormat(){
+    return dateFormat;
+  }
   /** Добавляет пробел, если нужно*/
   AMSLogger &maybeSpace() {if(space) stream<<" ";return *this;}
   AMSLogger &setSpace() {space=true;stream<<" ";return *this;}
@@ -116,6 +124,7 @@ private:
   QString msgFile;
   int msgLine;
   static bool space;
+  static QString dateFormat;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(AMSLogger::LogLevels)
