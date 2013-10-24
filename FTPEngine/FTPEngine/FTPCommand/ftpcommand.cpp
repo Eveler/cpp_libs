@@ -77,6 +77,8 @@ bool FTPCommand::canAdd( Type type, const QString &arg1 )
     return !arg1.isEmpty();
   case Type_Port:
     return !arg1.isEmpty();
+  default:
+    return false;
   }
 
   return false;
