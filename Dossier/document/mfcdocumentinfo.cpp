@@ -1,6 +1,7 @@
 #include "mfcdocumentinfo.h"
 
 #include <QMetaProperty>
+#include <QStringList>
 
 #include "amslogger.h"
 
@@ -33,6 +34,19 @@ MFCDocumentInfo * MFCDocumentInfo::instance(
   instances << docI;
   return docI;
 }
+
+QStringList MFCDocumentInfo::document_properties(MFCDocumentInfo *doc){
+  QStringList props;
+  foreach(QByteArray pn,doc->dynamicPropertyNames())
+    props<<pn+" = "+doc->property(pn).toString();
+  for(int i=0;i<doc->metaObject()->propertyCount();i++){
+    QMetaProperty p=doc->metaObject()->property(i);
+    QVariant v=doc->property(p.name());
+    props<<tr(p.name())+" = "+(v.isNull() || !v.isValid()?"<NULL>":v.toString());
+  }
+  return props;
+}
+
 
 void MFCDocumentInfo::setType( const QString &doc_type )
 {

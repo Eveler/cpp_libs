@@ -41,6 +41,7 @@ class EXPORT_DOCMANAGERWIDGETS Dialog_DocDetails : public QDialog
     void on_gBox_Copies_toggled(bool arg1);
     void on_tBt_Date_clicked();
     void on_tBt_ExpiresDate_clicked();
+    void on_tBt_ExpiresClear_clicked();
 };
 
 #endif // DIALOG_DOCDETAILS_H

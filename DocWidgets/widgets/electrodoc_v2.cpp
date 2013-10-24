@@ -589,9 +589,14 @@ void ElectroDoc_v2::pixmapAcquired( QPixmap *pix )
 #endif
 
 void ElectroDoc_v2::loadImage(){
+  QStringList supportedFormats;
+  foreach ( QString formatName, QImageReader::supportedImageFormats() )
+    supportedFormats << formatName;
   QStringList fNames=QFileDialog::getOpenFileNames(
         this,tr("Выберите файл(ы) изображений"),"",
-        "Image files (*.bmp *.jpg *.jpeg *.png *.BMP *.JPG *.JPEG *.PNG)");
+                       QString( "Image files (*.%1 *.%2)" )
+                       .arg( supportedFormats.join( " *." ),
+                             supportedFormats.join( " *." ).toUpper() ) );
   if(fNames.count()==0) return;
   ui->pBar_Scan->setFormat( "Загрузка: %p%" );
   ui->pBar_Scan->setVisible( true );
@@ -607,9 +612,14 @@ void ElectroDoc_v2::loadImage(){
                 ui->lWgt_Pages->count()+1),
               img);
     }
-    else QMessageBox::warning( NULL, tr( "Ошибка" ),
+    else
+    {
+      QMessageBox::warning( NULL, tr( "Ошибка" ),
                                tr( "Произошла неизвестная ошибка при попытке "
-                                   "прочитать файл изображения.\nФайл: %1" ).arg( fName ) );
+                                   "прочитать файл изображения.\nФайл: %1"
+                                   "\nДоступные форматы файлов: %2" )
+                            .arg( fName, supportedFormats.join( ", " ) ) );
+    }
   }
   ui->pBar_Scan->setVisible(false);
 
@@ -983,5 +993,5 @@ void ElectroDoc_v2::on_tBt_ExpiresTo_clicked()
 
 void ElectroDoc_v2::on_tBt_ExpiresClear_clicked()
 {
-  ui->dEdit_DocExpires->clear();
+  ui->dEdit_DocExpires->setDate( ui->dEdit_DocExpires->minimumDate() );
 }

@@ -230,3 +230,8 @@ void Dialog_DocDetails::on_tBt_ExpiresDate_clicked()
 {
   ui->dEdit_Expires->setDate( QDate::currentDate() );
 }
+
+void Dialog_DocDetails::on_tBt_ExpiresClear_clicked()
+{
+  ui->dEdit_Expires->setDate( ui->dEdit_Expires->minimumDate() );
+}

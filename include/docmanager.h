@@ -111,6 +111,7 @@ private:
   QHash< DocpathsDocuments*,QVariant > docpathsDocs;
   DocpathsDocuments *curDocpathsDocs;
   QDateTime saveTime;
+  QList< MFCDocumentInfo* > docs2remove;
 
   QString errStr;
 
