@@ -607,6 +607,9 @@ void ElectroDoc_v2::loadImage(){
                 ui->lWgt_Pages->count()+1),
               img);
     }
+    else QMessageBox::warning( NULL, tr( "Ошибка" ),
+                               tr( "Произошла неизвестная ошибка при попытке "
+                                   "прочитать файл изображения.\nФайл: %1" ).arg( fName ) );
   }
   ui->pBar_Scan->setVisible(false);
 
@@ -966,4 +969,19 @@ void ElectroDoc_v2::setError(const QString &str){
   errStr="ElectroDoc_v2: "+str;
   qCritical()<<errStr;
   emit error(errStr);
+}
+
+void ElectroDoc_v2::on_tBt_DateTo_clicked()
+{
+  ui->dEdit_DocDate->setDate( QDate::currentDate() );
+}
+
+void ElectroDoc_v2::on_tBt_ExpiresTo_clicked()
+{
+  ui->dEdit_DocExpires->setDate( QDate::currentDate() );
+}
+
+void ElectroDoc_v2::on_tBt_ExpiresClear_clicked()
+{
+  ui->dEdit_DocExpires->clear();
 }

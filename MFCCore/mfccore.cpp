@@ -7,6 +7,7 @@
 #include <QSettings>
 #include <QUuid>
 #include <QDir>
+#include <QAuthenticator>
 
 #include "amslogger.h"
 

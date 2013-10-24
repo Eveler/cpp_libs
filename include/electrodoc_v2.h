@@ -145,7 +145,13 @@ private slots:
   void openAttachment();
   void setError(const QString &str);
 
-signals:
+  void on_tBt_DateTo_clicked();
+
+  void on_tBt_ExpiresTo_clicked();
+
+  void on_tBt_ExpiresClear_clicked();
+
+  signals:
   void scaled(int);
 };
 

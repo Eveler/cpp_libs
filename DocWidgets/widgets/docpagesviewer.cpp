@@ -4,6 +4,8 @@
 #include <QDebug>
 #include <QApplication>
 #include <QScrollBar>
+#include <QPrinter>
+
 
 DocPagesViewer::DocPagesViewer(QWidget *parent) :
   QScrollArea(parent)

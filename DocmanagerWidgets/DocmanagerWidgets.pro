@@ -20,14 +20,24 @@ exists( ../../Libs/install_path.pri ){
 
 INCLUDEPATH += ./ \
     ../include/ \
-    ../../Libs/include/ \
+    Dialogs/ \
     ../../ElectroDocViewer/EDVProcess/
 
-SOURCES += 
+SOURCES += \ 
+    Dialogs/dialog_selectdocument.cpp \
+    Dialogs/dialog_docdetails.cpp \
+    Dialogs/dialog_clientdocscreate.cpp
 
-HEADERS += 
+HEADERS += \ 
+    ../include/export/docmanagerwidgets_export_lib.h \
+    ../include/dialog_selectdocument.h \
+    ../include/dialog_docdetails.h \
+    ../include/dialog_clientdocscreate.h
 
-FORMS += 
+FORMS += \ 
+    Dialogs/dialog_selectdocument.ui \
+    Dialogs/dialog_docdetails.ui \
+    Dialogs/dialog_clientdocscreate.ui
 
 RESOURCES += \
     DocmanagerWidgets_Icons.qrc

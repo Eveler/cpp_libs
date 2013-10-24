@@ -25,5 +25,7 @@
         <file>icons/old-zoom-out.png</file>
         <file>icons/check.png</file>
         <file>icons/fileprint.png</file>
+        <file>icons/today.png</file>
+        <file>icons/clear.png</file>
     </qresource>
 </RCC>
