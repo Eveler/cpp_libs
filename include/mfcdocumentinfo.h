@@ -38,6 +38,7 @@ class DOSSIER_EXPORT MFCDocumentInfo : public QObject
         QString doc_agency = QString(),
         QDateTime doc_createdate = QDateTime::currentDateTime(),
         QObject *parent = NULL );
+    static QStringList document_properties(MFCDocumentInfo *doc);
 
     void setType( const QString &doc_type );
     void setName( const QString &doc_name );

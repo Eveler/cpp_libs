@@ -5,12 +5,13 @@
 
 #include <QAbstractItemModel>
 #include <QDateTime>
-#include <QAuthenticator>
+//#include <QAuthenticator>
 #include <QProcess>
 #include <QFile>
 
 
 class QSettings;
+class QAuthenticator;
 
 typedef struct
 {

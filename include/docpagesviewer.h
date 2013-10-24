@@ -11,7 +11,7 @@
 //#if QT_VERSION >= 0x050000
 //#include <QtPrintSupport/QPrinter>
 //#else
-#include <QPrinter>
+//#include <QPrinter>
 //#endif
 #include <QPainter>
 #include <QTimer>
@@ -19,6 +19,9 @@
 #include "docpagewidget.h"
 #include "export/docwidgets_export.h"
 //#include "macros.h"
+
+
+class QPrinter;
 
 class DOCWIDGETSSHARED_EXPORT DocPagesViewer : public QScrollArea
 {

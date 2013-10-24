@@ -308,6 +308,7 @@ void Docmanager::unsetDeclar(){
   if(declarDocs){
     //    declarDocs->deleteLater();
     DocumentsModel *dm=declarDocs->documents();
+    if ( dm == NULL ) LogWarning() << __func__ << "declarDocs->documents() is null!";
     foreach(MFCDocumentInfo *doc,dm->documents()){
       dm->removeDocument(doc);
       MFCDocumentInfo::remove(doc);
@@ -430,7 +431,7 @@ bool Docmanager::removeDocpathsDocument(MFCDocumentInfo *doc){
 bool Docmanager::newDocument(MFCDocumentInfo *doc) {
   if( doc == NULL )
   {
-    LogDebug() << __func__ << "doc == NULL";
+//    LogDebug() << __func__ << "doc == NULL";
     return false;
   }
   if ( declarDocs == NULL &&
@@ -857,8 +858,9 @@ void Docmanager::allDocsAdd(MFCDocumentInfo *doc){
 }
 
 void Docmanager::allDocsRemove(MFCDocumentInfo *doc){
-  //  LogDebug()<<"allDocsRemove(MFCDocumentInfo*) BEGIN";
-  if(!doc) return;
+//  LogDebug()<<__func__<<" BEGIN"<<sender();
+  if(!doc || docs2remove.contains(doc)) return;
+  docs2remove<<doc;
   //  LogDebug()<<"doc="<<doc;
   QHashIterator< DocpathsDocuments*,QVariant > di(docpathsDocs);
   while(di.hasNext()){
@@ -866,26 +868,29 @@ void Docmanager::allDocsRemove(MFCDocumentInfo *doc){
     if(declarDocs && !declarDocs->documents()->documents().contains(doc))
       di.key()->documents()->removeDocument(doc);
     else if(di.key()->documents()->documents().contains(doc)){
-      //      LogDebug()<<"allDocsRemove("<<doc<<") END";
+//      LogDebug()<<"allDocsRemove("<<doc<<") END";
+      docs2remove.removeOne(doc);
       return;
     }
   }
   if(declarDocs && sender()!=declarDocs && !doc->initial() &&
      toAdd2All(doc)){
-    LogDebug()<<"remove from declarDocs:"<<doc<<doc->type()
-             <<"id ="<<documentID(doc);
+//    LogDebug()<<"remove from declarDocs:"<<doc<<doc->type()
+//             <<"id ="<<documentID(doc);
     declarDocs->documents()->removeDocument(doc);
   }
   if(!allDocs->isNew(doc) && declarDocs &&
      declarDocs->documents()->documents().contains(doc)){
-    //    LogDebug()<<"allDocsRemove("<<doc<<") END";
+//    LogDebug()<<"allDocsRemove("<<doc<<") END";
+    docs2remove.removeOne(doc);
     return;
   }
   QHashIterator< ClientDocuments*,QVariant > ci(clientsDocs);
   while(ci.hasNext()){
     ci.next();
     if(ci.key()->documents()->documents().contains(doc)){
-      //      LogDebug()<<"allDocsRemove("<<doc<<") END";
+//      LogDebug()<<"allDocsRemove("<<doc<<") END";
+      docs2remove.removeOne(doc);
       return;
     }
   }
@@ -893,7 +898,8 @@ void Docmanager::allDocsRemove(MFCDocumentInfo *doc){
   if(allDocs->documents().contains(doc)) allDocs->removeDocument(doc);
   if(newDocs->documents().contains(doc)) newDocs->removeDocument(doc);
   MFCDocumentInfo::remove(doc);
-  //  LogDebug()<<"allDocsRemove("<<doc<<") END";
+  docs2remove.removeOne(doc);
+//  LogDebug()<<"allDocsRemove("<<doc<<") END";
 }
 
 void Docmanager::set_error(QString str,QString file,int line){
@@ -953,12 +959,13 @@ QVariant Docmanager::documentID(MFCDocumentInfo *doc) const{
 }
 
 bool Docmanager::toAdd2All(MFCDocumentInfo *doc) const{
-  //  LogDebug()<<"toAdd2All(MFCDocumentInfo*) BEGIN";
+//  LogDebug()<<"toAdd2All(MFCDocumentInfo*) BEGIN";
   if(!doc) return false;
-  //  LogDebug()<<"doc="<<doc;
+//  LogDebug()<<"doc="<<doc;
   bool toAdd=false;
   if(!allDocs->documents().contains(doc)){
     toAdd=true;
+//    LogDebug()<<MFCDocumentInfo::document_properties(doc);
     QString type=doc->type();
     QDate date=doc->date();
     QDateTime created=doc->createDate();
@@ -972,6 +979,6 @@ bool Docmanager::toAdd2All(MFCDocumentInfo *doc) const{
         break;
       }
   }
-  //  LogDebug()<<"toAdd2All("<<doc<<") END";
+//  LogDebug()<<"toAdd2All("<<doc<<") END";
   return toAdd;
 }
