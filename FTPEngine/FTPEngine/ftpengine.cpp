@@ -853,6 +853,8 @@ FTPEngine::Command FTPEngine::getCommand() const
     return Command_GetFile;
   case FTPCommand::Type_Quit:
     return Command_Quit;
+  default:
+    return Command_None;
   }
 
   return Command_None;
