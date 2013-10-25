@@ -222,30 +222,52 @@ void Dialog_SelectDocument::on_tableView_doubleClicked(const QModelIndex &index)
     ui->pBar->setValue( 0 );
     ui->wgt_Progress->setVisible( true );
     qApp->processEvents();
-    bool res = m__Docmanager->loadDocument( doc );
+    bool res = ( m__Docmanager->allDocuments()->documents().contains( doc ) ?
+                   m__Docmanager->loadDocument( doc ) : true );
     ui->wgt_Progress->setVisible( false );
-    if ( !res || doc->localFile().isEmpty() ) return;
+    if ( !res ) return;
 
-    EDVProcess elDocProc;
-    if ( elDocProc.checkDocument( doc ) )
+    if ( doc->url().isEmpty() && doc->localFile().isEmpty() )
     {
-      if ( elDocProc.lastError().isEmpty() )
+      Dialog_DocDetails dDocDetails( this );
+      dDocDetails.setWindowTitle( tr( "Введите количество экземпляров и листов" ) );
+      if( dDocDetails.exec( doc, Dialog_DocDetails::WritePagesnum ) == QDialog::Rejected )
+        return;
+
+      if ( m__AutoExclusive && !m__SelectedDocs.isEmpty() )
       {
-        Dialog_DocDetails dDocDetails( this );
-        dDocDetails.setWindowTitle( tr( "Введите количество экземпляров и листов" ) );
-        if( dDocDetails.exec( doc, Dialog_DocDetails::WritePagesnum ) == QDialog::Rejected )
-          return;
-
-        if ( m__AutoExclusive && !m__SelectedDocs.isEmpty() )
-        {
-          int desIdx = m__Documents->documentRow( m__SelectedDocs.takeFirst() );
-          ui->tableWidget->item( desIdx, 0 )->setCheckState( Qt::Unchecked );
-        }
-
-        ui->tableWidget->item( index.row(), 0 )->setCheckState( Qt::Checked );
-        m__SelectedDocs << doc;
+        int desIdx = m__Documents->documentRow( m__SelectedDocs.takeFirst() );
+        ui->tableWidget->item( desIdx, 0 )->setCheckState( Qt::Unchecked );
       }
-      else QMessageBox::warning( this, tr( "Ошибка" ), elDocProc.lastError() );
+
+      ui->tableWidget->item( index.row(), 0 )->setCheckState( Qt::Checked );
+      m__SelectedDocs << doc;
+    }
+    else
+    {
+      if ( doc->localFile().isEmpty() ) return;
+
+      EDVProcess elDocProc;
+      if ( elDocProc.checkDocument( doc ) )
+      {
+        if ( elDocProc.lastError().isEmpty() )
+        {
+          Dialog_DocDetails dDocDetails( this );
+          dDocDetails.setWindowTitle( tr( "Введите количество экземпляров и листов" ) );
+          if( dDocDetails.exec( doc, Dialog_DocDetails::WritePagesnum ) == QDialog::Rejected )
+            return;
+
+          if ( m__AutoExclusive && !m__SelectedDocs.isEmpty() )
+          {
+            int desIdx = m__Documents->documentRow( m__SelectedDocs.takeFirst() );
+            ui->tableWidget->item( desIdx, 0 )->setCheckState( Qt::Unchecked );
+          }
+
+          ui->tableWidget->item( index.row(), 0 )->setCheckState( Qt::Checked );
+          m__SelectedDocs << doc;
+        }
+        else QMessageBox::warning( this, tr( "Ошибка" ), elDocProc.lastError() );
+      }
     }
   }
 

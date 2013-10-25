@@ -26,6 +26,7 @@ MFCDocumentInfo * Dialog_DocDetails::exec( const QStringList &doctypes )
   ui->tBt_Date->setEnabled( true );
   ui->dEdit_Expires->setReadOnly( false );
   ui->tBt_ExpiresDate->setEnabled( true );
+  ui->tBt_ExpiresClear->setEnabled( true );
   ui->wgt_OC->setVisible( true );
 
   ui->cBox_Doctype->clear();
@@ -97,6 +98,7 @@ int Dialog_DocDetails::exec( MFCDocumentInfo *doc, WriteMode writeMode )
   ui->dEdit_Expires->setReadOnly( writeMode == WritePagesnum ||
                                   writeMode == ReadOnly );
   ui->tBt_ExpiresDate->setEnabled( !ui->dEdit_Expires->isReadOnly() );
+  ui->tBt_ExpiresClear->setEnabled( !ui->dEdit_Expires->isReadOnly() );
   ui->wgt_OC->setEnabled( writeMode != WriteRequisites &&
                                        writeMode != ReadOnly );
 
