@@ -39,7 +39,7 @@ class DOCWIDGETSSHARED_EXPORT ElectroDoc_v2 : public MFCWidget
   Q_ENUMS(Details)
 public:
   enum Details{Type,Name,Series,Number,Date,ExpiresDate,Agency,CreateDate};
-  enum State { Create = 0, Read, Check };
+  enum State { Create = 0, Read, Check, Copy };
   explicit ElectroDoc_v2(QWidget *parent = 0);
   ~ElectroDoc_v2();
   /// Заполнение реквизитов
