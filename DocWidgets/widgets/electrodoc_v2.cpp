@@ -59,6 +59,8 @@ ElectroDoc_v2::ElectroDoc_v2(QWidget *parent) :
 #ifdef Q_OS_WIN
   m_pTwain = NULL;
 #endif
+
+  ui->cBox_DocType->setFocus();
 }
 
 ElectroDoc_v2::~ElectroDoc_v2()

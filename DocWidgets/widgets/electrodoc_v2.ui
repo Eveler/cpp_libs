@@ -774,6 +774,9 @@ QProgressBar::chunk
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
+        <property name="buddy">
+         <cstring>cBox_DocAgency</cstring>
+        </property>
        </widget>
       </item>
       <item row="2" column="9">
@@ -792,6 +795,9 @@ QProgressBar::chunk
         <property name="text">
          <string>Дата выдачи</string>
         </property>
+        <property name="buddy">
+         <cstring>dEdit_DocDate</cstring>
+        </property>
        </widget>
       </item>
       <item row="2" column="4">
@@ -809,12 +815,18 @@ QProgressBar::chunk
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
+        <property name="buddy">
+         <cstring>lEdit_DocNum</cstring>
+        </property>
        </widget>
       </item>
       <item row="2" column="10">
        <widget class="QLabel" name="label_6">
         <property name="text">
          <string>действителен до</string>
+        </property>
+        <property name="buddy">
+         <cstring>dEdit_DocExpires</cstring>
         </property>
        </widget>
       </item>
@@ -945,6 +957,9 @@ QProgressBar::chunk
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
+        <property name="buddy">
+         <cstring>lEdit_DocSer</cstring>
+        </property>
        </widget>
       </item>
       <item row="0" column="0">
@@ -955,6 +970,9 @@ QProgressBar::chunk
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
+        <property name="buddy">
+         <cstring>cBox_DocType</cstring>
+        </property>
        </widget>
       </item>
       <item row="1" column="0" colspan="2">
@@ -964,6 +982,9 @@ QProgressBar::chunk
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>lEdit_DocName</cstring>
         </property>
        </widget>
       </item>
@@ -1670,6 +1691,9 @@ p, li { white-space: pre-wrap; }
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                 <property name="buddy">
+                  <cstring>spinBox_Scale</cstring>
                  </property>
                 </widget>
                </item>
