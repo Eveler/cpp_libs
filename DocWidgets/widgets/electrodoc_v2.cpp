@@ -198,15 +198,13 @@ bool ElectroDoc_v2::setDocument(MFCDocument *document){
 
 //  ui->cBox_DocType->setCurrentIndex(
 //        ui->cBox_DocType->findText(m_Document->type()));
-  ui->cBox_DocType->setEditText(m_Document->type());
-  ui->lEdit_DocName->setText(m_Document->name());
-  ui->lEdit_DocSer->setText(m_Document->series());
-  ui->lEdit_DocNum->setText(m_Document->number());
-  ui->dEdit_DocDate->setDate(m_Document->date());
-  ui->dEdit_DocExpires->setDate(m_Document->expiresDate());
-//  ui->cBox_DocAgency->setCurrentIndex(
-//        ui->cBox_DocAgency->findText(m_Document->agency()));
-  ui->cBox_DocAgency->setEditText(m_Document->agency());
+  setDetails( Type, m_Document->type() );
+  setDetails( Name, m_Document->name() );
+  setDetails( Series, m_Document->series() );
+  setDetails( Number, m_Document->number() );
+  setDetails( Date, m_Document->date() );
+  setDetails( ExpiresDate, m_Document->expiresDate() );
+  setDetails( Agency, m_Document->agency() );
 
   ui->pBar_Scan->setVisible(false);
   setModified(false);

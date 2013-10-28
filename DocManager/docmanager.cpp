@@ -71,11 +71,6 @@ DocumentsModel *Docmanager::addedDocuments() const{
   return newDocs;
 }
 
-QVariant Docmanager::currentClient() const{
-  if(!curClientDocs) return QVariant();
-  return curClientDocs->id();
-}
-
 MFCDocumentInfo *Docmanager::clientDocument(const QModelIndex &index) const{
   if(!curClientDocs) return NULL;
   QSortFilterProxyModel *model=
@@ -183,6 +178,15 @@ QVariant Docmanager::currentDocpath() const
 {
   if( !curDocpathsDocs ) return QVariant();
   return curDocpathsDocs->id();
+}
+
+QVariant Docmanager::currentClient() const{
+  if(!curClientDocs) return QVariant();
+  return curClientDocs->id();
+}
+
+QVariantList Docmanager::clients() const{
+  return clientsDocs.values();
 }
 
 const QString & Docmanager::lastError() const

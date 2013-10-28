@@ -23,7 +23,6 @@ public:
 //  QAbstractItemModel *documentsForRelease() const;
 //  QList< MFCDocumentInfo* > documentsForReleaseList() const;
 
-  QVariant currentClient() const;
   MFCDocumentInfo *clientDocument(const QModelIndex &index) const;
   DocumentsModel *clientDocuments() const;
   DocumentsModel *clientDocuments( QVariant id ) const;
@@ -43,6 +42,8 @@ public:
   QVariant declar() const;
   QVariantList docpaths() const;
   QVariant currentDocpath() const;
+  QVariant currentClient() const;
+  QVariantList clients() const;
 
   const QString & lastError() const;
 
