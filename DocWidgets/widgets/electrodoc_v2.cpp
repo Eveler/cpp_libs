@@ -138,12 +138,22 @@ void ElectroDoc_v2::setState( State state )
       ui->tBt_RejectDocument->setVisible( true );
       ui->tBt_RejectDocument->setText( tr( "Отмена" ) );
       break;
-    default:
+    case Read:
       canJustClose = true;
       setReadOnly( true );
       ui->tBt_SaveDocument->setVisible( false );
       ui->tBt_RejectDocument->setVisible( true );
       ui->tBt_RejectDocument->setText( tr( "Закрыть" ) );
+      break;
+    default:
+      canJustClose = true;
+      setReadOnly( false );
+      ui->wgt_Details->setEnabled( false );
+      ui->tBt_RemoveExt->setEnabled( false );
+      ui->tBt_LoadExt->setEnabled( false );
+      ui->tBt_SaveDocument->setVisible( true );
+      ui->tBt_RejectDocument->setVisible( true );
+      ui->tBt_RejectDocument->setText( tr( "Отмена" ) );
       break;
   }
 }
