@@ -42,7 +42,16 @@ QStringList MFCDocumentInfo::document_properties(MFCDocumentInfo *doc){
   for(int i=0;i<doc->metaObject()->propertyCount();i++){
     QMetaProperty p=doc->metaObject()->property(i);
     QVariant v=doc->property(p.name());
-    props<<tr(p.name())+" = "+(v.isNull() || !v.isValid()?"<NULL>":v.toString());
+    if(v.type()==QVariant::Date )
+      props<<tr(p.name())+" = "+
+             (v.isNull() || !v.isValid()?"<NULL>":v.toDate().toString("dd.MM.yyyy"));
+    else if(v.type()==QVariant::DateTime )
+      props<<tr(p.name())+" = "+
+             (v.isNull() || !v.isValid()?"<NULL>":v.toDateTime().toString("dd.MM.yyyy hh:mm:ss.zzz"));
+    else if(v.type()==QVariant::Time )
+      props<<tr(p.name())+" = "+
+             (v.isNull() || !v.isValid()?"<NULL>":v.toTime().toString("hh:mm:ss.zzz"));
+    else props<<tr(p.name())+" = "+(v.isNull() || !v.isValid()?"<NULL>":v.toString());
   }
   return props;
 }
