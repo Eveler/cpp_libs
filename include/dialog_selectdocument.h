@@ -26,6 +26,9 @@ class EXPORT_DOCMANAGERWIDGETS Dialog_SelectDocument : public QDialog
     void setOnlyAllSelect( bool onlyAllSelect );
     bool onlyAllSelect() const;
 
+    void setOriginalsCopies( bool originalsCopies );
+    bool originalsCopies() const;
+
     void setCreatableDoctypes( const QStringList &doctypes );
 
     const QList<MFCDocumentInfo *> & exec(
@@ -46,6 +49,7 @@ class EXPORT_DOCMANAGERWIDGETS Dialog_SelectDocument : public QDialog
     QList<MFCDocumentInfo *> m__CreatedDocs;
     bool m__AutoExclusive;
     bool m__OnlyAllSelect;
+    bool m__OriginalsCopies;
 
     bool isCompleted() const;
 

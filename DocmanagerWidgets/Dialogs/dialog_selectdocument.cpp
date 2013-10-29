@@ -16,7 +16,8 @@ Dialog_SelectDocument::Dialog_SelectDocument(QWidget *parent) :
   m__Docmanager(NULL),
   m__Documents(NULL),
   m__AutoExclusive(false),
-  m__OnlyAllSelect(false)
+  m__OnlyAllSelect(false),
+  m__OriginalsCopies(true)
 {
   ui->setupUi(this);
 
@@ -77,6 +78,16 @@ void Dialog_SelectDocument::setOnlyAllSelect( bool onlyAllSelect )
 {
   m__OnlyAllSelect = onlyAllSelect;
   if ( m__OnlyAllSelect ) setAutoExclusive( false );
+}
+
+void Dialog_SelectDocument::setOriginalsCopies( bool originalsCopies )
+{
+  m__OriginalsCopies = originalsCopies;
+}
+
+bool Dialog_SelectDocument::originalsCopies() const
+{
+  return m__OriginalsCopies;
 }
 
 void Dialog_SelectDocument::setCreatableDoctypes( const QStringList &doctypes )
