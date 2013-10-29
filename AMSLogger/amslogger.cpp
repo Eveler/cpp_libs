@@ -61,7 +61,10 @@ Q_CORE_EXPORT_INLINE void AMSLogger::messageOutput(QtMsgType type, const char *m
       ba.prepend("Debug: ");
       ba.prepend(qPrintable(strDateTime));
     }
-    if(AMSLogger::consoleLogLevel().testFlag(AMSLogger::LevelDebug)) stream<<ba;
+    if(AMSLogger::consoleLogLevel().testFlag(AMSLogger::LevelDebug)){
+      stream<<ba;
+      stream.flush();
+    }
     if(AMSLogger::logLevel().testFlag(AMSLogger::LevelDebug))
       if(outFile->fileName().length()>0) writeToFile(ba+" ");
     break;
@@ -72,7 +75,10 @@ Q_CORE_EXPORT_INLINE void AMSLogger::messageOutput(QtMsgType type, const char *m
       ba.prepend("Warning: ");
       ba.prepend(qPrintable(strDateTime));
     }
-    if(AMSLogger::consoleLogLevel().testFlag(AMSLogger::LevelWarn)) stream<<ba;
+    if(AMSLogger::consoleLogLevel().testFlag(AMSLogger::LevelWarn)){
+      stream<<ba;
+      stream.flush();
+    }
     if(AMSLogger::logLevel().testFlag(AMSLogger::LevelWarn))
       if(outFile->fileName().length()>0) writeToFile(ba+" ");
     break;
@@ -83,8 +89,10 @@ Q_CORE_EXPORT_INLINE void AMSLogger::messageOutput(QtMsgType type, const char *m
       ba.prepend("Critical: ");
       ba.prepend(qPrintable(strDateTime));
     }
-    if(AMSLogger::consoleLogLevel().testFlag(AMSLogger::LevelCritical))
+    if(AMSLogger::consoleLogLevel().testFlag(AMSLogger::LevelCritical)){
       stream<<ba;
+      stream.flush();
+    }
     if(AMSLogger::logLevel().testFlag(AMSLogger::LevelCritical))
       if(outFile->fileName().length()>0) writeToFile(ba+" ");
     break;
@@ -95,13 +103,15 @@ Q_CORE_EXPORT_INLINE void AMSLogger::messageOutput(QtMsgType type, const char *m
       ba.prepend("Fatal: ");
       ba.prepend(qPrintable(strDateTime));
     }
-    if(AMSLogger::consoleLogLevel().testFlag(AMSLogger::LevelFatal)) stream<<ba;
+    if(AMSLogger::consoleLogLevel().testFlag(AMSLogger::LevelFatal)){
+      stream<<ba;
+      stream.flush();
+    }
     if(AMSLogger::logLevel().testFlag(AMSLogger::LevelFatal))
       if(outFile->fileName().length()>0) writeToFile(ba+" ");
 //    abort();
     break;
   }
-  stream.flush();
   oldMsgType=type;
 }
 
@@ -113,7 +123,7 @@ void AMSLogger::initialyze(){
   outFile->setFileName(logFile);
   //"вращение" либо отправка по почте журнала//////////////////////////////////
   rotate();
-  fprintf(stdout, "AMSLogger: logfile name: %s", qPrintable( outFile->fileName() ) );
+//  fprintf(stdout, "AMSLogger: logfile name: %s", qPrintable( outFile->fileName() ) );
   ////////////////////////////////////"вращение" либо отправка по почте журнала
   initialized=true;
 }

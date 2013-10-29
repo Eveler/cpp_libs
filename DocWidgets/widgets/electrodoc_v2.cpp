@@ -124,6 +124,7 @@ bool ElectroDoc_v2::setDetails(const Details details, const QVariant val)
 
 void ElectroDoc_v2::setState( State state )
 {
+  m__State=state;
   switch (state)
   {
     case Create:
@@ -881,6 +882,8 @@ void ElectroDoc_v2::save(){
                            ui->dEdit_DocDate->date() : QDate() ) );
   m_Document->setExpiresDate( ( ui->dEdit_DocExpires->date() > QDate( 1800, 1, 1 ) ?
                                   ui->dEdit_DocExpires->date() : QDate() ) );
+//  LogDebug()<<"m__State ="<<m__State;
+  if(m__State==Copy) m_Document->setCreateDate(QDateTime::currentDateTime());
   if(ui->cBox_DocAgency->currentIndex()>-1){
     m_Document->setAgency( ui->cBox_DocAgency->currentText() );
   }
@@ -891,6 +894,7 @@ void ElectroDoc_v2::save(){
 //    originalDocument->setProperty("created_in",tr("%1 (%2)").arg(__FILE__).arg(__LINE__));
   }
   if(isModified() && !isReadOnly) originalDocument->copyFrom(m_Document);
+//  LogDebug()<<"CreateDate ="<<m_Document->createDate().toString("dd.MM.yyyy hh:mm:ss.zzz")<<originalDocument->createDate().toString("dd.MM.yyyy hh:mm:ss.zzz");
   setModified(false);
   canJustClose=true;
   saved=true;
