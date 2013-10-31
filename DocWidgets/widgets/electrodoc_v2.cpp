@@ -965,7 +965,7 @@ void ElectroDoc_v2::openAttachment(){
     if(p.execute(exeName)!=0){
       QByteArray out=p.readAll();
 #ifdef Q_OS_WIN
-      out+="\ncmd /C "+QDir::toNativeSeparators(tmpFileName).toLatin1();
+      out+="\ncmd /C "+QDir::toNativeSeparators(tmpFileName).toLocal8Bit();
       QTextDecoder decoder(QTextCodec::codecForName("Windows-1251"));
 #endif
       QMessageBox::warning(

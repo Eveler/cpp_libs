@@ -129,7 +129,6 @@ bool AbstractDocListSaver::saveDocuments(DocumentsModel *docList,
     if ( !doc->localFile().isEmpty() )
     {
       bool res=docStorage->save(doc,declar);
-      LogWarning() << __func__ << res;
       if(!res) return false;
       timer->start();
       if( curDoc && loop->exec() != 0 ) return false;

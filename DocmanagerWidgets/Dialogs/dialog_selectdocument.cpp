@@ -23,8 +23,13 @@ Dialog_SelectDocument::Dialog_SelectDocument(QWidget *parent) :
 
   setCreatableDoctypes( QStringList() );
 
+#if QT_VERSION<0x050000
+  ui->tableWidget->horizontalHeader()->setResizeMode(
+        QHeaderView::Stretch );
+#else
   ui->tableWidget->horizontalHeader()->setSectionResizeMode(
         QHeaderView::Stretch );
+#endif
 
   ui->horizontalScrollBar->setMinimum( ui->tableView->horizontalScrollBar()->minimum() );
   ui->horizontalScrollBar->setMaximum( ui->tableView->horizontalScrollBar()->maximum() );
