@@ -75,6 +75,7 @@ bool FTPTransfer::openPassiveChanel(QString addr, quint16 port){
   connect(transfer,SIGNAL(stateChanged(QAbstractSocket::SocketState)),
           SLOT(transferSateChanged(QAbstractSocket::SocketState)));
 #endif
+  dataReceived.clear();
   transfer->connectToHost(addr,port);
   bool res=transfer->waitForConnected();
   if(!res) errStr=transfer->errorString();
@@ -139,22 +140,32 @@ void FTPTransfer::receivedData()
 
   QByteArray data = QByteArray();
   data.append( m__Client->readAll() );
+  dataReceived.enqueue(data);
 
-  m__Buffer->write( data );
+  while(!dataReceived.isEmpty()){
+    m__Buffer->write( dataReceived.dequeue() );
+  }
   emit dataCommunicationProgress( m__Buffer->size(), 0 );
 }
 
 void FTPTransfer::receivedTransferData(){
   m__State = State_Communication;
 
-  QByteArray data = QByteArray();
-  data.append( transfer->readAll() );
+  QByteArray data=transfer->readAll();
+  dataReceived.enqueue(data);
+//  LogDebug()<<"m__BytesDone =" << m__BytesDone;
+  m__BytesDone+=data.size();
 
   if(!m__Buffer){
     errStr=tr("Буфер не определён");
     return;
   }
-  m__Buffer->write( data );
+
+  while(!dataReceived.isEmpty()){
+    /*int written = */m__Buffer->write(dataReceived.dequeue());
+//    LogDebug() <<"data.size() =" << data.size() << "written =" << written;
+  }
+//  LogDebug()<<"m__BytesDone ="<<m__BytesDone<<"m__Buffer->size() ="<<m__Buffer->size();
   emit dataCommunicationProgress( m__Buffer->size(), 0 );
 }
 
@@ -186,6 +197,7 @@ void FTPTransfer::disconnectClient()
     m__BytesDone += data.size();
     dataCommunicationProgress( m__BytesDone, m__Buffer->size() );
   }
+//  LogDebug()<<"m__BytesDone ="<<m__BytesDone<<"m__Buffer->size() ="<<m__Buffer->size();
 
   m__Buffer = NULL;
   m__BytesDone = 0;
@@ -200,10 +212,12 @@ void FTPTransfer::disconnectTransfer(){
   QByteArray data = transfer->readAll();
 
   if(data.size()>0){
+//    LogDebug()<<"m__BytesDone ="<<m__BytesDone<<"m__Buffer->size() ="<<m__Buffer->size();
     m__Buffer->write( data );
     m__BytesDone += data.size();
     dataCommunicationProgress( m__BytesDone, m__Buffer->size() );
   }
+//  LogDebug()<<"m__BytesDone ="<<m__BytesDone<<"m__Buffer->size() ="<<m__Buffer->size();
 
   m__Buffer = NULL;
   m__BytesDone = 0;

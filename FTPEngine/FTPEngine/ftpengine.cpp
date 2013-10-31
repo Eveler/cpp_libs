@@ -1239,8 +1239,11 @@ void FTPEngine::transferDataFinished()
       fi = NULL;
     }
   }
-  if ( m__CommandIODevice[m__CurrentCommand->mainCommand()].first != NULL )
+  if ( m__CommandIODevice[m__CurrentCommand->mainCommand()].first != NULL ){
+//    LogDebug()<<"first.size ="<<m__CommandIODevice[m__CurrentCommand->mainCommand()].first->size()
+//             <<"second.size ="<<m__CommandIODevice[m__CurrentCommand->mainCommand()].second->size();
     delete m__CommandIODevice[m__CurrentCommand->mainCommand()].first;
+  }
   m__CommandIODevice.remove( m__CurrentCommand->mainCommand() );
 
   m__Timer->singleShot( 500, this, SLOT(nextCommand()) );

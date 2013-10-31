@@ -7,6 +7,7 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QEventLoop>
+#include <QQueue>
 
 class FTPTransfer : public QObject
 {
@@ -46,6 +47,7 @@ private:
 
   QIODevice *m__Buffer;
   qint64 m__BytesDone;
+  QQueue< QByteArray > dataReceived;
 
   bool passive;
   QTcpSocket *transfer;

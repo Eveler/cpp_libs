@@ -153,7 +153,8 @@ void ElectroDoc_v2::setState( State state )
       setReadOnly( false );
       ui->wgt_Details->setEnabled( false );
       ui->tBt_RemoveExt->setEnabled( false );
-      ui->tBt_LoadExt->setEnabled( false );
+      ui->tBt_LoadExt->setEnabled( true );
+      ui->tBt_DeletePage->setEnabled(false);
       ui->tBt_SaveDocument->setVisible( true );
       ui->tBt_RejectDocument->setVisible( true );
       ui->tBt_RejectDocument->setText( tr( "Отмена" ) );
