@@ -245,13 +245,10 @@ void Dialog_SelectDocument::on_tableView_doubleClicked(const QModelIndex &index)
 
     if ( doc->url().isEmpty() && doc->localFile().isEmpty() )
     {
-      if ( m__OriginalsCopies )
-      {
-        Dialog_DocDetails dDocDetails( this );
-        dDocDetails.setWindowTitle( tr( "Введите количество экземпляров и листов" ) );
-        if( dDocDetails.exec( doc, Dialog_DocDetails::WritePagesnum ) == QDialog::Rejected )
-          return;
-      }
+      Dialog_DocDetails dDocDetails( this );
+      dDocDetails.setWindowTitle( tr( "Введите количество экземпляров и листов" ) );
+      if( dDocDetails.exec( doc, Dialog_DocDetails::WritePagesnum ) == QDialog::Rejected )
+        return;
 
       if ( m__AutoExclusive && !m__SelectedDocs.isEmpty() )
       {
@@ -277,6 +274,13 @@ void Dialog_SelectDocument::on_tableView_doubleClicked(const QModelIndex &index)
             dDocDetails.setWindowTitle( tr( "Введите количество экземпляров и листов" ) );
             if( dDocDetails.exec( doc, Dialog_DocDetails::WritePagesnum ) == QDialog::Rejected )
               return;
+          }
+          else
+          {
+            doc->setOriginalExemplars( 0 );
+            doc->setOriginalPages( 0 );
+            doc->setCopyExemplars( 0 );
+            doc->setCopyPages( 0 );
           }
 
           if ( m__AutoExclusive && !m__SelectedDocs.isEmpty() )
@@ -318,6 +322,13 @@ void Dialog_SelectDocument::on_tBt_Create_triggered(QAction *arg1)
         doc = NULL;
         return;
       }
+    }
+    else
+    {
+      doc->setOriginalExemplars( 0 );
+      doc->setOriginalPages( 0 );
+      doc->setCopyExemplars( 0 );
+      doc->setCopyPages( 0 );
     }
 
     if ( m__AutoExclusive && !m__SelectedDocs.isEmpty() )

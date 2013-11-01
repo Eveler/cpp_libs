@@ -21,7 +21,8 @@ class EXPORT_DOCMANAGERWIDGETS Dialog_DocDetails : public QDialog
     explicit Dialog_DocDetails(QWidget *parent = 0);
     ~Dialog_DocDetails();
 
-    MFCDocumentInfo * exec( const QStringList &doctypes );
+    MFCDocumentInfo * exec( const QStringList &doctypes,
+                            const QStringList &docagencies = QStringList() );
     int exec( MFCDocumentInfo *doc, WriteMode writeMode = WriteRequisites );
 
 
