@@ -31,6 +31,8 @@ class EXPORT_DOCMANAGERWIDGETS Dialog_SelectDocument : public QDialog
 
     void setCreatableDoctypes( const QStringList &doctypes );
 
+    void setDocagencies( const QStringList &docagencies );
+
     const QList<MFCDocumentInfo *> & exec(
         const Docmanager *docmanager, DocumentsModel *documents,
         const QString &clientInfo = QString() );
@@ -50,6 +52,7 @@ class EXPORT_DOCMANAGERWIDGETS Dialog_SelectDocument : public QDialog
     bool m__AutoExclusive;
     bool m__OnlyAllSelect;
     bool m__OriginalsCopies;
+    QStringList m__Docagencies;
 
     bool isCompleted() const;
 

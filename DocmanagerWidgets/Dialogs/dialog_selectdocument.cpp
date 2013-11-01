@@ -114,6 +114,12 @@ void Dialog_SelectDocument::setCreatableDoctypes( const QStringList &doctypes )
   ui->wgt_ToolButtons->setVisible( !doctypes.isEmpty() );
 }
 
+
+void Dialog_SelectDocument::setDocagencies( const QStringList &docagencies )
+{
+  m__Docagencies = docagencies;
+}
+
 const QList<MFCDocumentInfo *> & Dialog_SelectDocument::exec(
     const Docmanager *docmanager, DocumentsModel *documents, const QString &clientInfo )
 {
@@ -304,7 +310,8 @@ void Dialog_SelectDocument::on_tBt_Create_triggered(QAction *arg1)
 {
   EDVProcess elDocProc;
   MFCDocumentInfo *doc = elDocProc.writeDocument(
-                           QStringList() << arg1->text() );
+                           QStringList() << arg1->text(), QString(), QString(), QString(),
+                           QDate(), QDate(), m__Docagencies );
   if ( doc == NULL )
   {
     if ( !elDocProc.lastError().isEmpty() )
