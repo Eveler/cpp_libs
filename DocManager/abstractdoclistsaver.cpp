@@ -216,8 +216,13 @@ QVariant AbstractDocListSaver::saveDocumentToDatabase( MFCDocumentInfo *doc, con
   QVariant id=qry.value(0);
   qry.clear();
 
-  qryStr="INSERT INTO documents (id,doctype_id,docname,docseries,"
-      "docnum,docdate,expires,docagency_id,url) VALUES (?,?,?,?,?,?,?,?,?)";
+  if(doc->createDate().isValid())
+    qryStr="INSERT INTO documents (id,doctype_id,docname,docseries,"
+           "docnum,docdate,expires,docagency_id,url,created) "
+           "VALUES (?,?,?,?,?,?,?,?,?,?)";
+  else
+    qryStr="INSERT INTO documents (id,doctype_id,docname,docseries,"
+           "docnum,docdate,expires,docagency_id,url) VALUES (?,?,?,?,?,?,?,?,?)";
   if(!qry.prepare(qryStr)){
     setError(tr("Ошибка подготовки запроса сохранения документа: %1 QUERY: %2")
              .arg(qry.lastError().text()).arg(qryStr));
@@ -232,6 +237,7 @@ QVariant AbstractDocListSaver::saveDocumentToDatabase( MFCDocumentInfo *doc, con
   qry.addBindValue(doc->expiresDate());
   qry.addBindValue(docagency_id);
   qry.addBindValue(path);
+  if(doc->createDate().isValid()) qry.addBindValue(doc->createDate());
   if(!qry.exec()){
     setError(tr("Ошибка сохранения документа в БД: %1 QUERY: %2")
              .arg(qry.lastError().text()).arg(qry.lastQuery()));
