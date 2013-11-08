@@ -16,13 +16,16 @@ exists( ../install_path.pri ){
     include(../install_path.pri)
 }
 include(./MLoginDialog/MLoginDialog.pri)
+include(./MInputDialog/MInputDialog.pri)
 include(./MReportViewer/MReportViewer.pri)
 
 INCLUDEPATH += ./ \
     ../bin/ \
     ../bin_qt5/ \
     ../include/ \
-    ./MLoginDialog/
+    ./MLoginDialog/ \
+    ./MInputDialog/ \
+    ./MReportViewer/
 
 
 symbian {
@@ -77,3 +80,6 @@ CONFIG(debug, debug|release){
   RCC_DIR = ../temp/$$TARGET/debug
   UI_DIR = ../temp/$$TARGET/debug
 }
+
+HEADERS += \
+    ../include/mwidgets.h
