@@ -331,7 +331,7 @@ bool Docmanager::removeDeclarDocument(MFCDocumentInfo *doc){
 bool Docmanager::addDocpaths(QVariant id){
   if(id.isNull()) return false;
   if(docpathsDocs.key(id,NULL)){
-    setError(tr("Шаг с ID=%1 уже добавлен").arg(id.toString()));
+    LogWarning()<<tr("Шаг с ID=%1 уже добавлен").arg(id.toString());
     return false;
   }
   //  if(!declarDocs){

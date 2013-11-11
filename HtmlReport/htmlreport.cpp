@@ -411,7 +411,8 @@ QString HtmlReport::fillSection(const QString &name){
 void HtmlReport::set_error(const QString &str, const QString file,
                            const int line){
   LogWarning()<<file<<tr("(")<<line<<tr("): ")<<str;
-  emit error(str);
+  errStr=tr("%1 (%2 [%3])").arg(str).arg(file).arg(line);
+  emit error(errStr);
 }
 
 QString HtmlReport::getFirstSectionName(QString data){
