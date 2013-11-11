@@ -29,13 +29,14 @@ class HTMLREPORTSHARED_EXPORT HtmlReport : public QObject
 public:
   explicit HtmlReport(QObject *parent = 0);
 
-  void setSection(const QString &name,const QString &data);
-  /** Устанавливает данные отчёта. Вызывать после \a setSection()
-   */
+  /// Устанавливает данные \param data отчёта
   bool setData(const QString &data);
+  /// Устанавливает данные \param data для секции \param name
+  void setSection(const QString &name,const QString &data);
+  /// Загружает отчёт из файла \param name
   bool load(const QString &name);
   /** Возвращает готовый отчёт. В зависимости была ли вызвана \a generate()
-   * отчёт будет заполнен данными либо ключами
+   * отчёт будет заполнен данными
    */
   QString data() const {return generated;}
   QStringList keys(const QString &section=QString()) const;
@@ -54,6 +55,7 @@ public:
    */
   bool assign2field(const QString &section,const QString &key,
               const QString &fieldName);
+  /// Указывает значение \param val ключа \param key для секции \param section
   bool assign(const QString &section,const QString &key,const QVariant &val);
 
   void reset();

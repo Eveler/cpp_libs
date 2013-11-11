@@ -877,7 +877,7 @@ void Docmanager::allDocsRemove(MFCDocumentInfo *doc){
       return;
     }
   }
-  if(declarDocs && sender()!=declarDocs && !doc->initial() &&
+  if(declarDocs && sender()!=declarDocs && /*!doc->initial() &&*/
      toAdd2All(doc)){
 //    LogDebug()<<"remove from declarDocs:"<<doc<<doc->type()
 //             <<"id ="<<documentID(doc);

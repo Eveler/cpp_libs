@@ -16,19 +16,19 @@ HtmlReport::HtmlReport(QObject *parent) :
 {
 }
 
-void HtmlReport::setSection(const QString &name, const QString &data){
-  if(name.simplified().isEmpty() || data.simplified().isEmpty()) return;
-
-  if(repSections.contains(name)) repSections[name]=data;
-  else repSections.insert(name,data);
-}
-
 bool HtmlReport::setData(const QString &data){
   if(data.simplified().isEmpty()) return false;
 
   repData=data;
   // заполняем списки ключей и секций
   return parse();
+}
+
+void HtmlReport::setSection(const QString &name, const QString &data){
+  if(name.simplified().isEmpty() || data.simplified().isEmpty()) return;
+
+  if(repSections.contains(name)) repSections[name]=data;
+  else repSections.insert(name,data);
 }
 
 bool HtmlReport::load(const QString &name){
