@@ -16,7 +16,19 @@ public:
     QObject(parent),rep(new HtmlReport(this)){}
   ~AbstractHtmlReportPlugin(){delete rep;}
 
-  virtual bool exec()=0;
+  /// Возвращает имя отчёта
+  virtual QString name() const=0;
+  /** Возвращает полное имя файла отчёта, которое сможет обработать
+   *\a HtmlReport::load(). См. также \a name()
+   */
+  virtual QString fullName() const {return "://"+name()+".html";}
+  virtual bool load(){
+    if(!rep->load(fullName())){
+      setError(tr("Ошибка загрузки шаблона: %1").arg(rep->errorString()));
+      return false;
+    }
+    return true;
+  }
   virtual HtmlReport *report(){return rep;}
   virtual QString lastError() const{return errStr;}
 

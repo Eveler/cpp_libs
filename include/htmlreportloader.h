@@ -14,7 +14,15 @@ public:
   ~HtmlReportLoader();
 
   AbstractHtmlReportPlugin *load(QUrl &url);
+  AbstractHtmlReportPlugin *instance();
+  bool isLoaded() const;
+  void setExtension(QString e="doc");
   QString lastError() const;
+
+public slots:
+  bool unload();
+  bool exec();
+  bool exec(QUrl &url);
 
 signals:
   void error(QString);
@@ -22,6 +30,7 @@ signals:
 private:
   QString errStr;
   QPluginLoader *loader;
+  QString ext;
   void set_error(const QString file,const int line,const QString &str);
 };
 

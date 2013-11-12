@@ -57,4 +57,4 @@ lessThan(QT_MAJOR_VERSION, 5) {
   LIBS += -L../bin
 }
 
-LIBS += -lHtmlReport -lAMSLogger
+LIBS += -lHtmlReport -lAMSLogger -lMFCCore -lFTPEngine
