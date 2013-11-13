@@ -10,7 +10,7 @@ HtmlReportLoader::HtmlReportLoader(QObject *parent):
   QObject(parent),errStr()
 {
   loader = new QPluginLoader(this);
-  setExtension();
+  setExecExtension();
 }
 
 HtmlReportLoader::~HtmlReportLoader()
@@ -21,20 +21,23 @@ HtmlReportLoader::~HtmlReportLoader()
 
 AbstractHtmlReportPlugin *HtmlReportLoader::load(QUrl &url)
 {
-  LogDebug()<<"url ="<<url<<"isLocalFile ="<<url.isLocalFile();
+//  LogDebug()<<"url ="<<url<<"isLocalFile ="<<url.isLocalFile();
   if(!url.isValid()){
     setError(tr("Ошибочный адрес: %1").arg(url.toString()));
     return NULL;
   }
 
   QString fName;
+  // parse url & load file locally
   if(url.scheme().toLower()=="ftp"){
-    // TODO: FTPEngine
+    FtpLoader *ftpLoader = new FtpLoader(this);
+    fName = ftpLoader->load(url);
+    if(fName.isEmpty()) setError(ftpLoader->errorString());
+    delete ftpLoader;
   }else if(url.scheme().toLower()=="http"){
     // TODO: QNetworkAccessManager
-  }
-  // TODO: parse url & load file locally
-  fName=url.path();
+  }else fName=url.path();
+  if(fName.isEmpty()) return NULL;
   QFileInfo fi(fName);
 
   if(loader->isLoaded()){
@@ -66,7 +69,7 @@ bool HtmlReportLoader::isLoaded() const
   return loader->isLoaded();
 }
 
-void HtmlReportLoader::setExtension(QString e)
+void HtmlReportLoader::setExecExtension(QString e)
 {
   ext=e;
 }
@@ -129,4 +132,99 @@ void HtmlReportLoader::set_error(const QString file, const int line,
   errStr=tr("%1 (%2 [%3])").arg(str).arg(file).arg(line);
   emit error(errStr);
   LogWarning()<<file<<"["<<line<<"]:"<<str;
+}
+
+FtpLoader::FtpLoader(QObject *parent):
+  QObject(parent),
+  loop(new QEventLoop(this)),
+  engine(new FTPEngine(this)),
+  file(NULL)
+{
+  connect(engine,SIGNAL(ftpAnswer(FTPEngine::Command,bool)),
+          SLOT(ftpAnswer(FTPEngine::Command,bool)));
+  connect(engine,SIGNAL(authenticationCompleted(bool)),
+          SLOT(authenticationCompleted(bool)));
+}
+
+FtpLoader::~FtpLoader()
+{
+  delete engine;
+  delete loop;
+  if(file) delete file;
+}
+
+QString FtpLoader::load(QUrl &url)
+{
+  if(!url.isValid() && url.scheme().toLower()!="ftp") return QString();
+
+  m_url = url;
+  if(file){
+    delete file;
+    file = NULL;
+  }
+
+  QDir d(qApp->applicationDirPath()+"/plugins");
+  if(!d.exists()){
+    if(!d.mkpath(d.absolutePath())){
+      errStr = tr("Ошибка при создании папки \"%1\"").arg(d.absolutePath());
+      return QString();
+    }
+  }
+
+  QFileInfo fi(url.path());
+  file = new QFile(d.absolutePath()+"/"+fi.fileName(), this);
+  if(!file->open(QFile::WriteOnly)){
+    errStr = tr("Ошибка открытия: %1").arg(file->errorString());
+    return QString();
+  }
+
+  if(!engine->connectToHost(url)){
+    errStr = tr("Ошибка соединения: %1").arg(engine->lastError());
+    return QString();
+  }
+
+  int res = loop->exec();
+  engine->disconnectFromHost();
+  file->close();
+  if(res<0){
+    file->remove();
+    return QString();
+  }
+  return file->fileName();
+}
+
+QString FtpLoader::errorString() const
+{
+  return errStr;
+}
+
+void FtpLoader::authenticationCompleted(bool res)
+{
+  if(res){
+    if(!engine->getFile(m_url.path(), file)){
+      errStr = tr("Ошибка получения: %1").arg(engine->lastError());
+      loop->exit(-1);
+    }
+  }else{
+    errStr = tr("Ошибка подключения: %1").arg(engine->lastError());
+    loop->exit(-1);
+  }
+}
+
+void FtpLoader::ftpAnswer(FTPEngine::Command cmd, bool result)
+{
+    switch (cmd) {
+    case FTPEngine::Command_List:
+      break;
+    case FTPEngine::Command_SizeOf:
+      break;
+    case FTPEngine::Command_GetFile:
+      if(!result){
+        errStr = tr("Ошибка загрузки: %1").arg(engine->lastError());
+        loop->exit(-1);
+      }
+      loop->quit();
+    default:
+      break;
+    }
 }
