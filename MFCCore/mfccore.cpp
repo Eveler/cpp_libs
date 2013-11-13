@@ -8,6 +8,7 @@
 #include <QUuid>
 #include <QDir>
 #include <QAuthenticator>
+#include <QTextCodec>
 
 #include "amslogger.h"
 
@@ -187,7 +188,11 @@ QString MFCCore::execFile(const QString &fName, const bool block_ui){
   if(block_ui){
 #ifdef Q_OS_WIN
     fileName.replace("/","\\");
-    int res=ext_proc->execute(tr("cmd /C \"%1\"").arg(fileName));
+    QTextCodec *c=QTextCodec::codecForLocale();
+    QTextCodec::setCodecForLocale(QTextCodec::codecForName("Windows-1251"));
+    int res=ext_proc->execute(tr("cmd /C \"%1\"").arg(
+                                fileName.toLocal8Bit().constData()));
+    QTextCodec::setCodecForLocale(c);
 #else
     int res=ext_proc->execute(tr("xdg-open \"%1\"").arg(fileName));
 #endif
