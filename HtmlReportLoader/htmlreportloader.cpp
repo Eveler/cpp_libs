@@ -19,7 +19,7 @@ HtmlReportLoader::~HtmlReportLoader()
   delete loader;
 }
 
-AbstractHtmlReportPlugin *HtmlReportLoader::load(QUrl &url)
+AbstractHtmlReportPlugin *HtmlReportLoader::load(QUrl url)
 {
 //  LogDebug()<<"url ="<<url<<"isLocalFile ="<<url.isLocalFile();
   if(!url.isValid()){
@@ -114,7 +114,7 @@ bool HtmlReportLoader::exec()
     }
   }
 //  LogDebug()<<"data ="<<rep->report()->data();
-  QString res=MFCCore::execFile(rep->report()->generate(),tr("odf"));
+  QString res=MFCCore::execFile(rep->report()->generate(),ext);
   if(res.isEmpty()) return true;
   setError(tr("Ошибка открытия отчёта: %1").arg(res));
   return false;
@@ -224,7 +224,12 @@ void FtpLoader::ftpAnswer(FTPEngine::Command cmd, bool result)
         loop->exit(-1);
       }
       loop->quit();
+      return;
     default:
       break;
+    }
+    if(!result){
+      errStr = tr("Ошибка ftp: %1").arg(engine->lastError());
+      loop->exit(-1);
     }
 }

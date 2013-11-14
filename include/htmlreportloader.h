@@ -16,10 +16,10 @@ public:
   explicit HtmlReportLoader(QObject *parent=0);
   ~HtmlReportLoader();
 
-  AbstractHtmlReportPlugin *load(QUrl &url);
+  AbstractHtmlReportPlugin *load(QUrl url);
   AbstractHtmlReportPlugin *instance();
   bool isLoaded() const;
-  void setExecExtension(QString e="doc");
+  void setExecExtension(QString e="odf");
   QString lastError() const;
 
 public slots:
