@@ -13,6 +13,11 @@ TEMPLATE = lib
 
 DEFINES += HTMLREPORTLOADER_LIBRARY
 
+
+exists( ../../Libs/install_path.pri ){
+    include(../../Libs/install_path.pri)
+}
+
 SOURCES += htmlreportloader.cpp
 
 HEADERS += htmlreportloader.h \
@@ -26,6 +31,11 @@ unix:!symbian {
     } else {
         target.path = /usr/lib
     }
+    INSTALLS += target
+}
+
+win32 {
+    target.path = $$INSTALL_WIN_LIB
     INSTALLS += target
 }
 
