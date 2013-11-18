@@ -17,9 +17,72 @@ HtmlReportLoader::~HtmlReportLoader()
 {
   if(loader->isLoaded()) loader->unload();
   delete loader;
+  clearPlugins();
 }
 
-AbstractHtmlReportPlugin *HtmlReportLoader::load(QUrl url)
+QStringList HtmlReportLoader::list(const QUrl &url)
+{
+  QStringList pList;
+  if(!url.isValid()){
+    setError(tr("Ошибочный адрес: %1").arg(url.toString()));
+    return pList;
+  }
+
+  clearPlugins();
+  FtpLoader *ftpLoader = new FtpLoader(this);
+  foreach(QFileInfo fi, ftpLoader->list(url)){
+    QPluginLoader* pl = new QPluginLoader(fi.absoluteFilePath(), this);
+    if(!pl->load()){
+      setError(tr("Ошибка загрузки модуля \"%1\": %2")
+               .arg(fi.baseName()).arg(pl->errorString()));
+      continue;
+    }
+    AbstractHtmlReportPlugin* plugin =
+        qobject_cast< AbstractHtmlReportPlugin* >(pl->instance());
+    if(plugin){
+      QString pName = plugin->name();
+      pList<<pName;
+      plugins.insert(pName, pl);
+    }
+  }
+
+  if(!loader->fileName().isEmpty()){
+    if(!loader->isLoaded()){
+      if(!loader->load()){
+        setError(tr("Ошибка загрузки модуля \"%1\": %2")
+                 .arg(loader->fileName()).arg(loader->errorString()));
+        return pList;
+      }
+    }
+    AbstractHtmlReportPlugin* plugin =
+        qobject_cast< AbstractHtmlReportPlugin* >(loader->instance());
+    if(plugin){
+      QString pName = plugin->name();
+      pList<<pName;
+      plugins.insert(pName, loader);
+    }
+  }
+
+  return pList;
+}
+
+bool HtmlReportLoader::select(const QString &name)
+{
+  if(!plugins.contains(name)) return false;
+
+  QPluginLoader* plugin = plugins.value(name);
+  if(!plugin->isLoaded())
+    if(!plugin->load()){
+      setError(tr("Ошибка загрузки модуля \"%1\": %2")
+               .arg(plugin->fileName()).arg(plugin->errorString()));
+      return false;
+    }
+
+  loader = plugin;
+  return true;
+}
+
+AbstractHtmlReportPlugin *HtmlReportLoader::load(const QUrl &url)
 {
 //  LogDebug()<<"url ="<<url<<"isLocalFile ="<<url.isLocalFile();
   if(!url.isValid()){
@@ -134,6 +197,18 @@ void HtmlReportLoader::set_error(const QString file, const int line,
   LogWarning()<<file<<"["<<line<<"]:"<<str;
 }
 
+void HtmlReportLoader::clearPlugins()
+{
+  QMutableMapIterator<QString, QPluginLoader*> i(plugins);
+  while(i.hasNext()){
+    i.next();
+    QPluginLoader *pl = i.value();
+    i.remove();
+    pl->unload();
+    if(pl!=loader) delete pl;
+  }
+}
+
 FtpLoader::FtpLoader(QObject *parent):
   QObject(parent),
   loop(new QEventLoop(this)),
@@ -153,7 +228,46 @@ FtpLoader::~FtpLoader()
   if(file) delete file;
 }
 
-QString FtpLoader::load(QUrl &url)
+QFileInfoList FtpLoader::list(const QUrl &url)
+{
+  QFileInfoList fiList;
+  if(!url.isValid() && url.scheme().toLower()!="ftp") return fiList;
+
+  m_url = url;
+  if(!engine->connectToHost(url)){
+    errStr = tr("Ошибка соединения: %1").arg(engine->lastError());
+    return fiList;
+  }
+  int res = loop->exec();
+  if(res<0){
+    return fiList;
+  }
+
+  if(!engine->list()){
+    errStr = tr("Ошибка соединения: %1").arg(engine->lastError());
+    return fiList;
+  }
+  res = loop->exec();
+  if(res<0){
+    return fiList;
+  }
+
+  QList<FileInfo*> fList = engine->listResult();
+  foreach (FileInfo *fi, fList){
+    if(fi->isFile()){
+      QUrl u(m_url);
+      u.setPath(u.path()+"/"+fi->fileName());
+      QString fName = load(u);
+      if(fName.isEmpty()) continue;
+      //        QFileInfo fInfo(fName);
+      fiList<<fName;
+    }// TODO: recurse into subdirs
+  }
+
+  return fiList;
+}
+
+QString FtpLoader::load(const QUrl &url)
 {
   if(!url.isValid() && url.scheme().toLower()!="ftp") return QString();
 
@@ -213,23 +327,27 @@ void FtpLoader::authenticationCompleted(bool res)
 
 void FtpLoader::ftpAnswer(FTPEngine::Command cmd, bool result)
 {
-    switch (cmd) {
-    case FTPEngine::Command_List:
-      break;
-    case FTPEngine::Command_SizeOf:
-      break;
-    case FTPEngine::Command_GetFile:
-      if(!result){
-        errStr = tr("Ошибка загрузки: %1").arg(engine->lastError());
-        loop->exit(-1);
-      }
-      loop->quit();
-      return;
-    default:
-      break;
-    }
+  switch (cmd) {
+  case FTPEngine::Command_List:
     if(!result){
-      errStr = tr("Ошибка ftp: %1").arg(engine->lastError());
+      errStr = tr("Ошибка получения списка модулей: %1").arg(engine->lastError());
       loop->exit(-1);
-    }
+    }else loop->quit();
+    return;
+    break;
+  case FTPEngine::Command_SizeOf:
+    break;
+  case FTPEngine::Command_GetFile:
+    if(!result){
+      errStr = tr("Ошибка загрузки: %1").arg(engine->lastError());
+      loop->exit(-1);
+    }else loop->quit();
+    return;
+  default:
+    break;
+  }
+  if(!result){
+    errStr = tr("Ошибка ftp: %1").arg(engine->lastError());
+    loop->exit(-1);
+  }
 }
