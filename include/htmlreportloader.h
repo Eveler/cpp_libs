@@ -16,10 +16,12 @@ public:
   explicit HtmlReportLoader(QObject *parent=0);
   ~HtmlReportLoader();
 
-  AbstractHtmlReportPlugin *load(QUrl url);
+  QStringList list(const QUrl &url);
+  bool select(const QString &name);
+  AbstractHtmlReportPlugin *load(const QUrl &url);
   AbstractHtmlReportPlugin *instance();
   bool isLoaded() const;
-  void setExecExtension(QString e="odf");
+  void setExecExtension(QString e="odt");
   QString lastError() const;
 
 public slots:
@@ -34,9 +36,10 @@ private:
   QString errStr;
   QPluginLoader *loader;
   QString ext;
+  QMap<QString, QPluginLoader*> plugins;
 //  FtpLoader *ftpLoader;
   void set_error(const QString file, const int line, const QString &str);
-
+  void clearPlugins();
 };
 
 class FtpLoader: public QObject
@@ -45,7 +48,8 @@ class FtpLoader: public QObject
 public:
   explicit FtpLoader(QObject *parent=0);
   ~FtpLoader();
-  QString load(QUrl &url);
+  QFileInfoList list(const QUrl &url);
+  QString load(const QUrl &url);
   QString errorString() const;
 private slots:
   void authenticationCompleted(bool res);

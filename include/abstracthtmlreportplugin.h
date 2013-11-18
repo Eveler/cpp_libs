@@ -68,9 +68,24 @@ public:
     return true;
   }
   virtual HtmlReport *report(){return rep;}
+  virtual bool setData(const QString &reportName,
+                       const QList<ClientInfo> &clientList,
+                       const DeclarInfo &declar,
+                       const QList<MFCDocumentInfo*> docs=QList<MFCDocumentInfo*>())
+  {
+    Q_UNUSED(reportName)
+    Q_UNUSED(clientList)
+    Q_UNUSED(declar)
+    Q_UNUSED(docs)
+    setError(tr("%1::setData(const QString &, const QList<ClientInfo> &, "
+                "const DeclarInfo &, const QList<MFCDocumentInfo*> &) "
+                "не реализовано")
+             .arg(metaObject()->className()));
+    return false;
+  }
   virtual bool setData(const QList<ClientInfo> &clientList,
-                           const DeclarInfo &declar,
-                           const QList<MFCDocumentInfo*> &docs)
+                       const DeclarInfo &declar,
+                       const QList<MFCDocumentInfo*> docs=QList<MFCDocumentInfo*>())
   {
     Q_UNUSED(clientList)
     Q_UNUSED(declar)
