@@ -84,7 +84,6 @@ bool HtmlReportLoader::select(const QString &name)
 
 AbstractHtmlReportPlugin *HtmlReportLoader::load(const QUrl &url)
 {
-//  LogDebug()<<"url ="<<url<<"isLocalFile ="<<url.isLocalFile();
   if(!url.isValid()){
     setError(tr("Ошибочный адрес: %1").arg(url.toString()));
     return NULL;
@@ -153,7 +152,6 @@ bool HtmlReportLoader::unload(/*AbstractHtmlReportPlugin *p*/)
 
 bool HtmlReportLoader::exec()
 {
-//  LogDebug()<<"isLoaded ="<<loader->isLoaded()<<"fileName ="<<loader->fileName();
   if(!loader->isLoaded()){
     if(loader->fileName().isEmpty()){
       setError(tr("Отчёт не загружен!"));
@@ -176,7 +174,6 @@ bool HtmlReportLoader::exec()
       return false;
     }
   }
-//  LogDebug()<<"data ="<<rep->report()->data();
   QString res=MFCCore::execFile(rep->report()->generate(),ext);
   if(res.isEmpty()) return true;
   setError(tr("Ошибка открытия отчёта: %1").arg(res));
@@ -233,12 +230,23 @@ QFileInfoList FtpLoader::list(const QUrl &url)
   QFileInfoList fiList;
   if(!url.isValid() && url.scheme().toLower()!="ftp") return fiList;
 
-  m_url = url;
-  if(!engine->connectToHost(url)){
-    errStr = tr("Ошибка соединения: %1").arg(engine->lastError());
+  int res = 0;
+  if(!engine->isConnected()){
+    if(!engine->connectToHost(url)){
+      errStr = tr("Ошибка соединения: %1").arg(engine->lastError());
+      return fiList;
+    }
+    res = loop->exec();
+    if(res<0){
+      return fiList;
+    }
+  }
+
+  if(!engine->cd(url.path())){
+    errStr = tr("Ошибка смены папки: %1").arg(engine->lastError());
     return fiList;
   }
-  int res = loop->exec();
+  res = loop->exec();
   if(res<0){
     return fiList;
   }
@@ -252,14 +260,12 @@ QFileInfoList FtpLoader::list(const QUrl &url)
     return fiList;
   }
 
-  QList<FileInfo*> fList = engine->listResult();
-  foreach (FileInfo *fi, fList){
+  foreach (FileInfo *fi, engine->listResult()){
     if(fi->isFile()){
-      QUrl u(m_url);
+      QUrl u(url);
       u.setPath(u.path()+"/"+fi->fileName());
       QString fName = load(u);
       if(fName.isEmpty()) continue;
-      //        QFileInfo fInfo(fName);
       fiList<<fName;
     }// TODO: recurse into subdirs
   }
@@ -277,6 +283,18 @@ QString FtpLoader::load(const QUrl &url)
     file = NULL;
   }
 
+  int res = 0;
+  if(!engine->isConnected()){
+    if(!engine->connectToHost(url)){
+      errStr = tr("Ошибка соединения: %1").arg(engine->lastError());
+      return QString();
+    }
+    res = loop->exec();
+    if(res<0){
+      return QString();
+    }
+  }
+
   QDir d(qApp->applicationDirPath()+"/plugins");
   if(!d.exists()){
     if(!d.mkpath(d.absolutePath())){
@@ -292,12 +310,11 @@ QString FtpLoader::load(const QUrl &url)
     return QString();
   }
 
-  if(!engine->connectToHost(url)){
-    errStr = tr("Ошибка соединения: %1").arg(engine->lastError());
+  if(!engine->getFile(m_url.path(), file)){
+    errStr = tr("Ошибка получения: %1").arg(engine->lastError());
     return QString();
   }
-
-  int res = loop->exec();
+  res = loop->exec();
   engine->disconnectFromHost();
   file->close();
   if(res<0){
@@ -314,15 +331,10 @@ QString FtpLoader::errorString() const
 
 void FtpLoader::authenticationCompleted(bool res)
 {
-  if(res){
-    if(!engine->getFile(m_url.path(), file)){
-      errStr = tr("Ошибка получения: %1").arg(engine->lastError());
-      loop->exit(-1);
-    }
-  }else{
+  if(!res){
     errStr = tr("Ошибка подключения: %1").arg(engine->lastError());
     loop->exit(-1);
-  }
+  }else loop->quit();
 }
 
 void FtpLoader::ftpAnswer(FTPEngine::Command cmd, bool result)
@@ -335,7 +347,12 @@ void FtpLoader::ftpAnswer(FTPEngine::Command cmd, bool result)
     }else loop->quit();
     return;
     break;
-  case FTPEngine::Command_SizeOf:
+  case FTPEngine::Command_Cd:
+    if(!result){
+      errStr = tr("Ошибка смены папки: %1").arg(engine->lastError());
+      loop->exit(-1);
+    }else loop->quit();
+    return;
     break;
   case FTPEngine::Command_GetFile:
     if(!result){

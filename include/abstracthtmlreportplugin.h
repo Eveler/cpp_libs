@@ -9,7 +9,7 @@
 
 #define setError(str) set_error(__FILE__,__LINE__,str)
 
-typedef struct/*class TInfo*/
+struct HumanInfo
 {
   QString surname;
   QString firstname;
@@ -18,21 +18,17 @@ typedef struct/*class TInfo*/
   QString phone;
   QString email;
   MFCDocumentInfo *passport;
+};
+
+typedef struct: public HumanInfo
+{
   MFCDocumentInfo *trustee;
-//  TInfo():passport(NULL),trustee(NULL){}
 } TrusteeInfo;
 
-typedef struct
+typedef struct: public HumanInfo
 {
   QString fullname;
-  QString surname;
-  QString firstname;
-  QString lastname;
-  QString addr;
-  QString phone;
-  QString email;
   TrusteeInfo *trustee;
-  MFCDocumentInfo *passport;
 } ClientInfo;
 
 typedef struct
@@ -41,6 +37,7 @@ typedef struct
   QString srvnum;
   QString srvname;
   QString orientir;
+  HumanInfo &specialist;
 } DeclarInfo;
 
 class AbstractHtmlReportPlugin: public QObject
@@ -68,21 +65,21 @@ public:
     return true;
   }
   virtual HtmlReport *report(){return rep;}
-  virtual bool setData(const QString &reportName,
-                       const QList<ClientInfo> &clientList,
-                       const DeclarInfo &declar,
-                       const QList<MFCDocumentInfo*> docs=QList<MFCDocumentInfo*>())
-  {
-    Q_UNUSED(reportName)
-    Q_UNUSED(clientList)
-    Q_UNUSED(declar)
-    Q_UNUSED(docs)
-    setError(tr("%1::setData(const QString &, const QList<ClientInfo> &, "
-                "const DeclarInfo &, const QList<MFCDocumentInfo*> &) "
-                "не реализовано")
-             .arg(metaObject()->className()));
-    return false;
-  }
+//  virtual bool setData(const QString &reportName,
+//                       const QList<ClientInfo> &clientList,
+//                       const DeclarInfo &declar,
+//                       const QList<MFCDocumentInfo*> docs=QList<MFCDocumentInfo*>())
+//  {
+//    Q_UNUSED(reportName)
+//    Q_UNUSED(clientList)
+//    Q_UNUSED(declar)
+//    Q_UNUSED(docs)
+//    setError(tr("%1::setData(const QString &, const QList<ClientInfo> &, "
+//                "const DeclarInfo &, const QList<MFCDocumentInfo*> &) "
+//                "не реализовано")
+//             .arg(metaObject()->className()));
+//    return false;
+//  }
   virtual bool setData(const QList<ClientInfo> &clientList,
                        const DeclarInfo &declar,
                        const QList<MFCDocumentInfo*> docs=QList<MFCDocumentInfo*>())
@@ -95,12 +92,13 @@ public:
              .arg(metaObject()->className()));
     return false;
   }
+  // для расписки ************************************************************//
   virtual bool setData(
       const QList<ClientInfo> &clientList,
       const DeclarInfo &declar,
       const QList<MFCDocumentInfo*> &docs,
       const QList<MFCDocumentInfo*> docsNProvided=QList<MFCDocumentInfo*>(),
-      const QList<MFCDocumentInfo*> outdocs=QList<MFCDocumentInfo*>()) // для расписки
+      const QList<MFCDocumentInfo*> outdocs=QList<MFCDocumentInfo*>())
   {
     Q_UNUSED(clientList)
     Q_UNUSED(declar)
@@ -114,8 +112,10 @@ public:
              .arg(metaObject()->className()));
     return false;
   }
+  //************************************************************ для расписки //
+  // для согласия ПДн ********************************************************//
   virtual bool setData(const ClientInfo &client,
-                           const DeclarInfo &declar) // для согласия ПДн
+                           const DeclarInfo &declar)
   {
     Q_UNUSED(client)
     Q_UNUSED(declar)
@@ -124,6 +124,7 @@ public:
              .arg(metaObject()->className()));
     return false;
   }
+  //******************************************************** для согласия ПДн //
   virtual QString lastError() const{return errStr;}
 
 signals:
