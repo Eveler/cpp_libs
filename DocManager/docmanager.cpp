@@ -196,10 +196,7 @@ const QString & Docmanager::lastError() const
 
 bool Docmanager::addClient(QVariant id){
   if(id.isNull()) return false;
-  if(clientsDocs.key(id,NULL)){
-    setError(tr("Заявитель с ID=%1 уже добавлен").arg(id.toString()));
-    return false;
-  }
+  if( clientsDocs.key( id, NULL ) != NULL ) return true;
 
   ClientDocuments *cd=new ClientDocuments(id,DB,this);
   //  connect(cd,SIGNAL(modelDestroyed()),SLOT(modelDestroyed()));
