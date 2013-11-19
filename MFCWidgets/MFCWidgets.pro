@@ -6,7 +6,9 @@ TARGET = MFCWidgets
 CONFIG(debug, debug|release): TARGET = $${TARGET}d
 #CONFIG += create_prl
 
-include(../install_path.pri)
+exists( ../install_path.pri ){
+  include(../install_path.pri)
+}
 
 TEMPLATE = lib
 
