@@ -1,14 +1,14 @@
 #ifndef HTMLREPORTLOADER_H
 #define HTMLREPORTLOADER_H
 
-#include "export/htmlreportloader_export.h"
 #include "abstracthtmlreportplugin.h"
+#include "htmlreport.h"
 #include "ftpengine.h"
 #include <QObject>
 #include <QPluginLoader>
 #include <QEventLoop>
 
-class HTMLREPORTLOADERSHARED_EXPORT HtmlReportLoader: public QObject
+class HTMLREPORTSHARED_EXPORT HtmlReportLoader: public QObject
 {
   Q_OBJECT
 
