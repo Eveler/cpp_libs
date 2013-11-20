@@ -927,9 +927,6 @@ QProgressBar::chunk
           <height>24</height>
          </size>
         </property>
-        <property name="specialValueText">
-         <string>не указано</string>
-        </property>
         <property name="minimumDate">
          <date>
           <year>1800</year>
