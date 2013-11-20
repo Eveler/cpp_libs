@@ -1,7 +1,6 @@
 #ifndef ABSTRACTHTMLREPORTPLUGIN_H
 #define ABSTRACTHTMLREPORTPLUGIN_H
 
-//#include "export/htmlreport_export.h"
 #include "htmlreport.h"
 #include "mfcdocumentinfo.h"
 #include <QObject>
@@ -52,11 +51,16 @@ public:
   ~AbstractHtmlReportPlugin(){delete rep;}
 
   /// Возвращает имя отчёта
-  virtual QString name() const=0;
+  virtual QStringList names() const=0;
+  bool select(const QString &name){
+    if(!names().contains(name)) return false;
+    selected = name;
+    return true;
+  }
   /** Возвращает полное имя файла отчёта, которое сможет обработать
    *\a HtmlReport::load(). См. также \a name()
    */
-  virtual QString fullName() const {return "://"+name()+".html";}
+  virtual QString fullName() const {return "://"+selected+".html";}
   virtual bool load(){
     if(!rep->load(fullName())){
       setError(tr("Ошибка загрузки шаблона: %1").arg(rep->errorString()));
@@ -132,6 +136,7 @@ signals:
 
 protected:
   HtmlReport *rep;
+  QString selected;
   QString errStr;
 
   void set_error(const QString file,const int line,const QString str){
