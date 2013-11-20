@@ -37,7 +37,7 @@ typedef struct
   QString srvnum;
   QString srvname;
   QString orientir;
-  HumanInfo &specialist;
+  HumanInfo *specialist;
 } DeclarInfo;
 
 class AbstractHtmlReportPlugin: public QObject
