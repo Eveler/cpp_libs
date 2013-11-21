@@ -1,20 +1,20 @@
-#include "recipientloader.h"
+#include "serviceloader.h"
 
-#include "recipientloader_p.h"
+#include "serviceloader_p.h"
 
 #include <QSqlDatabase>
 
 
-RecipientLoader::RecipientLoader(QObject *parent) :
+ServiceLoader::ServiceLoader(QObject *parent) :
   QObject(parent)
 {
-  p = new RecipientLoader_P( this );
+  p = new ServiceLoader_P( this );
   newSource();
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
 }
 
-RecipientLoader::~RecipientLoader()
+ServiceLoader::~ServiceLoader()
 {
   p->m__Errors.clear();
   disconnect( p->m__Source, SIGNAL(destroyed()), this, SLOT(newSource()) );
@@ -22,14 +22,14 @@ RecipientLoader::~RecipientLoader()
   p = NULL;
 }
 
-QString RecipientLoader::error( int errorId ) const
+QString ServiceLoader::error( int errorId ) const
 {
   QString errorText = p->m__Errors.value( errorId, QString() );
   p->m__Errors.remove( errorId );
   return errorText;
 }
 
-const QString & RecipientLoader::connectionName() const
+const QString & ServiceLoader::connectionName() const
 {
   if ( p->m__ConnectionName.isEmpty() && !QSqlDatabase::connectionNames().isEmpty() )
   {
@@ -39,7 +39,7 @@ const QString & RecipientLoader::connectionName() const
   return p->m__ConnectionName;
 }
 
-bool RecipientLoader::setConnectionName( const QString &connectionName ) const
+bool ServiceLoader::setConnectionName( const QString &connectionName ) const
 {
   if ( !QSqlDatabase::contains( connectionName ) )
   {
@@ -54,7 +54,7 @@ bool RecipientLoader::setConnectionName( const QString &connectionName ) const
   return true;
 }
 
-bool RecipientLoader::load( const QString &filter ) const
+bool ServiceLoader::load( const QString &filter ) const
 {
   if ( p->isRunning() )
   {
@@ -69,31 +69,31 @@ bool RecipientLoader::load( const QString &filter ) const
   return ( loop->exec() == 0 );
 }
 
-Recipient * RecipientLoader::create() const
+Service * ServiceLoader::create() const
 {
   return NULL;
 }
 
-RecipientList * RecipientLoader::source() const
+ServiceList * ServiceLoader::source() const
 {
   return p->m__Source;
 }
 
-void RecipientLoader::newSource() const
+void ServiceLoader::newSource() const
 {
-  p->m__Source = new RecipientList( p->p_dptr() );
+  p->m__Source = new ServiceList( p->p_dptr() );
   connect( p->m__Source, SIGNAL(destroyed()), SLOT(newSource()) );
-  connect( p, SIGNAL(sendRecipientInfo(RecipientInfo)),
-           p->m__Source, SLOT(receivedRecipientInfo(RecipientInfo)) );
+  connect( p, SIGNAL(sendServiceInfo(ServiceInfo)),
+           p->m__Source, SLOT(receivedServiceInfo(ServiceInfo)) );
 }
 
-void RecipientLoader::threadFinished()
+void ServiceLoader::threadFinished()
 {
   loop->exit( ( p->m__Successfully ? 0 : 1 ) );
   emit finished();
 }
 
-void RecipientLoader::receivedError( QString errorText ) const
+void ServiceLoader::receivedError( QString errorText ) const
 {
   int errorId = p->m__ErrorLastId++;
   p->m__Errors[errorId] = errorText;

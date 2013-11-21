@@ -6,7 +6,7 @@
 
 class DoctypeInfo
 {
-public:
+  public:
     DoctypeInfo();
     DoctypeInfo( const DoctypeInfo &other );
     ~DoctypeInfo();
@@ -18,7 +18,7 @@ public:
     void setName( const QString &name );
 
 
-private:
+  private:
     QVariant m__Identifier;
     QString m__Name;
 };

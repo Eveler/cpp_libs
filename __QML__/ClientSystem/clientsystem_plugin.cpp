@@ -27,48 +27,84 @@
 #include "human/human.h"
 #include "human/humanlist.h"
 #include "human/humanloader.h"
+/// ============================================================================
+#include "clientprivatesystem.h"
 
 #include <qqml.h>
 
 
-void ClientSystemPlugin::registerTypes(const char *uri)
+void ClientSystemPlugin::initializeEngine( QQmlEngine *engine, const char *uri )
 {
-    // @uri com.mihail.clientsystem
+  Q_UNUSED(uri)
+  ClientPrivateSystem *p = ClientPrivateSystem::instace();
+  QQmlContext *context = engine->rootContext();
 
-    /// About users
-    qmlRegisterType<User>( uri, 1, 0, "User" );
-    qmlRegisterType<UserList>( uri, 1, 0, "UserList" );
-    qmlRegisterSingletonType<UserLoader>( uri, 1, 0, "UserLoader", userLoader_Provider );
+  /// About users
+  UserLoader *userLoader = new UserLoader;
+  p->setUserLoader( userLoader );
+  context->setContextProperty( "UserLoader", userLoader );
 
-    /// About procedures
-    qmlRegisterType<Procedure>( uri, 1, 0, "Procedure" );
-    qmlRegisterType<ProcedureList>( uri, 1, 0, "ProcedureList" );
-    qmlRegisterSingletonType<ProcedureLoader>( uri, 1, 0, "ProcedureLoader", procedureLoader_Provider );
+  /// About procedures
+  ProcedureLoader *procedureLoader = new ProcedureLoader;
+  p->setProcedureLoader( procedureLoader );
+  context->setContextProperty( "ProcedureLoader", procedureLoader );
 
-    /// About recipients
-    qmlRegisterType<Recipient>( uri, 1, 0, "Recipient" );
-    qmlRegisterType<RecipientList>( uri, 1, 0, "RecipientList" );
-    qmlRegisterSingletonType<RecipientLoader>( uri, 1, 0, "RecipientLoader", recipientLoader_Provider );
+  /// About recipients
+  RecipientLoader *recipientLoader = new RecipientLoader;
+  p->setRecipientLoader( recipientLoader );
+  context->setContextProperty( "RecipientLoader", recipientLoader );
 
-    /// About departments
-    qmlRegisterType<Department>( uri, 1, 0, "Department" );
-    qmlRegisterType<DepartmentList>( uri, 1, 0, "DepartmentList" );
-    qmlRegisterSingletonType<DepartmentLoader>( uri, 1, 0, "DepartmentLoader", departmentLoader_Provider );
+  /// About departments
+  DepartmentLoader *departmentLoader = new DepartmentLoader;
+  p->setDepartmentLoader( departmentLoader );
+  context->setContextProperty( "DepartmentLoader", departmentLoader );
 
-    /// About doctypes
-    qmlRegisterType<Doctype>( uri, 1, 0, "Doctype" );
-    qmlRegisterType<DoctypeList>( uri, 1, 0, "DoctypeList" );
-    qmlRegisterSingletonType<DoctypeLoader>( uri, 1, 0, "DoctypeLoader", doctypeLoader_Provider );
+  /// About doctypes
+  DoctypeLoader *doctypeLoader = new DoctypeLoader;
+  p->setDoctypeLoader( doctypeLoader );
+  context->setContextProperty( "DoctypeLoader", doctypeLoader );
 
-    /// About callstatuses
-    qmlRegisterType<Callstatus>( uri, 1, 0, "Callstatus" );
-    qmlRegisterType<CallstatusList>( uri, 1, 0, "CallstatusList" );
-    qmlRegisterSingletonType<CallstatusLoader>( uri, 1, 0, "CallstatusLoader", callstatusLoader_Provider );
+  /// About callstatuses
+  CallstatusLoader *callstatusLoader = new CallstatusLoader;
+  p->setCallstatusLoader( callstatusLoader );
+  context->setContextProperty( "CallstatusLoader", callstatusLoader );
 
-    /// About humans
-    qmlRegisterType<Human>( uri, 1, 0, "Human" );
-    qmlRegisterType<HumanList>( uri, 1, 0, "HumanList" );
-    qmlRegisterSingletonType<HumanLoader>( uri, 1, 0, "HumanLoader", humanLoader_Provider );
+  /// About humans
+  HumanLoader *humanLoader = new HumanLoader;
+  p->setHumanLoader( humanLoader );
+  context->setContextProperty( "HumanLoader", humanLoader );
 }
 
+void ClientSystemPlugin::registerTypes(const char *uri)
+{
+  // @uri com.mihail.clientsystem
+
+  /// About users
+  qmlRegisterType<User>( uri, 1, 0, "User" );
+  qmlRegisterType<UserList>( uri, 1, 0, "UserList" );
+
+  /// About procedures
+  qmlRegisterType<Procedure>( uri, 1, 0, "Procedure" );
+  qmlRegisterType<ProcedureList>( uri, 1, 0, "ProcedureList" );
+
+  /// About recipients
+  qmlRegisterType<Recipient>( uri, 1, 0, "Recipient" );
+  qmlRegisterType<RecipientList>( uri, 1, 0, "RecipientList" );
+
+  /// About departments
+  qmlRegisterType<Department>( uri, 1, 0, "Department" );
+  qmlRegisterType<DepartmentList>( uri, 1, 0, "DepartmentList" );
+
+  /// About doctypes
+  qmlRegisterType<Doctype>( uri, 1, 0, "Doctype" );
+  qmlRegisterType<DoctypeList>( uri, 1, 0, "DoctypeList" );
+
+  /// About callstatuses
+  qmlRegisterType<Callstatus>( uri, 1, 0, "Callstatus" );
+  qmlRegisterType<CallstatusList>( uri, 1, 0, "CallstatusList" );
+
+  /// About humans
+  qmlRegisterType<Human>( uri, 1, 0, "Human" );
+  qmlRegisterType<HumanList>( uri, 1, 0, "HumanList" );
+}
 

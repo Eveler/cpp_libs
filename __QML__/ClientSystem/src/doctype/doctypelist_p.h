@@ -13,16 +13,16 @@ class DoctypeList_P : public QObject
     friend class DoctypeList;
 
 
-public:
+  public:
 
 
-signals:
+  signals:
 
 
-public slots:
+  public slots:
 
 
-private:
+  private:
     QList<Doctype *> m__Doctypes;
 
     explicit DoctypeList_P( DoctypeList *parent );

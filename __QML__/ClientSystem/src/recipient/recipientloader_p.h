@@ -15,26 +15,27 @@ class RecipientLoader_P : public QThread
     friend class RecipientLoader;
 
 
-public:
+  public:
 
 
-signals:
+  signals:
     void sendError( QString errorText );
     void sendRecipientInfo( RecipientInfo );
 
 
-public slots:
+  public slots:
 
 
-protected:
+  protected:
     void run();
 
 
-private:
+  private:
     bool m__Successfully;
     int m__ErrorLastId;
     QHash<int, QString> m__Errors;
     QString m__ConnectionName;
+    QString m__Filter;
     RecipientList *m__Source;
 
     explicit RecipientLoader_P( RecipientLoader *parent );

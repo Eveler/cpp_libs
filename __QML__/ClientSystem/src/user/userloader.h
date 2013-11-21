@@ -19,22 +19,22 @@ class UserLoader : public QObject
     Q_PROPERTY(UserList* source READ source NOTIFY sourceChanged)
 
 
-public:
+  public:
     UserLoader(QObject *parent = 0);
     ~UserLoader();
 
     Q_INVOKABLE QString error( int errorId ) const;
 
     const QString & connectionName() const;
-    bool setConnectionName( const QString &connectionName ) const;
+    Q_INVOKABLE bool setConnectionName( const QString &connectionName ) const;
 
-    Q_INVOKABLE bool load() const;
+    Q_INVOKABLE bool load( const QString &filter = QString() ) const;
     Q_INVOKABLE User * create() const;
 
     UserList * source() const;
 
 
-signals:
+  signals:
     void errorAdded( int errorId ) const;
     void connectionNameChanged() const;
     void started() const;
@@ -42,27 +42,19 @@ signals:
     void sourceChanged() const;
 
 
-public slots:
+  public slots:
 
 
-private:
+  private:
     UserLoader_P *p;
     QEventLoop *loop;
 
-private slots:
+  private slots:
     void newSource() const;
     void threadFinished();
     void receivedError( QString errorText ) const;
 };
 
 QML_DECLARE_TYPE(UserLoader)
-
-static QObject * userLoader_Provider( QQmlEngine *engine, QJSEngine *scriptEngine )
-{
-    Q_UNUSED(engine)
-    Q_UNUSED(scriptEngine)
-
-    return new UserLoader();
-}
 
 #endif // USERLOADER_H

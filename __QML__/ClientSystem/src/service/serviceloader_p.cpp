@@ -1,4 +1,4 @@
-#include "callstatusloader_p.h"
+#include "serviceloader_p.h"
 
 #include <QSqlDatabase>
 #include <QSqlError>
@@ -7,7 +7,7 @@
 #include <QSqlField>
 
 
-void CallstatusLoader_P::run()
+void ServiceLoader_P::run()
 {
   m__Successfully = true;
   QSqlDatabase db = QSqlDatabase::database( p_dptr()->connectionName(), false );
@@ -31,17 +31,9 @@ void CallstatusLoader_P::run()
     return;
   }
   QSqlQuery qry( db );
-  QString query;
-  if ( m__LoadIdentifier.isValid() )
-  {
-    query = tr( "SELECT id AS identifier, status AS name"
-                " FROM call_statuses"
-                " WHERE id=%1 ORDER BY status" ).arg( m__LoadIdentifier.toInt() );
-    m__LoadIdentifier.clear();
-  }
-  else query = tr( "SELECT id AS identifier, status AS name"
-                   " FROM call_statuses ORDER BY status" );
-  if ( !qry.exec( query ) )
+  if ( !qry.exec( tr( "SELECT id AS identifier, aname AS name"
+                      " FROM services ORDER BY aname" )
+                  .arg( ( !m__Filter.isEmpty() ? " WHERE "+m__Filter : "" ) ) ) )
   {
     m__Successfully = false;
     emit sendError( tr( "Query error:\n%1" ).arg( qry.lastError().text() ) );
@@ -49,32 +41,32 @@ void CallstatusLoader_P::run()
   }
   while ( qry.next() )
   {
-    CallstatusInfo info( qry.record().value( tr( "identifier" ) ) );
+    ServiceInfo info;
+    info.setIdentifier( qry.record().value( tr( "identifier" ) ) );
     info.setName( qry.record().value( tr( "name" ) ).toString() );
-    emit sendCallstatusInfo( info );
+    emit sendServiceInfo( info );
   }
 }
 
-CallstatusLoader_P::CallstatusLoader_P( CallstatusLoader *parent ) :
+ServiceLoader_P::ServiceLoader_P( ServiceLoader *parent ) :
   QThread(parent),
   m__Successfully(true),
   m__ErrorLastId(-1),
   m__Errors(QHash<int, QString>()),
   m__ConnectionName(QString()),
-  m__Source(NULL),
-  m__LoadIdentifier(QVariant())
+  m__Source(NULL)
 {
   connect( this, SIGNAL(sendError(QString)), parent, SLOT(receivedError(QString)) );
-  qRegisterMetaType<CallstatusInfo>( "CallstatusInfo" );
+  qRegisterMetaType<ServiceInfo>( "ServiceInfo" );
 }
 
-CallstatusLoader_P::~CallstatusLoader_P()
+ServiceLoader_P::~ServiceLoader_P()
 {
   delete m__Source;
   m__Source = NULL;
 }
 
-CallstatusLoader * CallstatusLoader_P::p_dptr() const
+ServiceLoader * ServiceLoader_P::p_dptr() const
 {
-  return qobject_cast<CallstatusLoader *>( parent() );
+  return qobject_cast<ServiceLoader *>( parent() );
 }

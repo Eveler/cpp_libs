@@ -21,7 +21,7 @@ class Doctype : public QObject, public DoctypeInfo
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
 
 
-public:
+  public:
     Doctype( DoctypeList *parent = 0 );
     Doctype( DoctypeList *parent, const DoctypeInfo &info );
     Doctype( DoctypeList *parent, Doctype *link );
@@ -38,16 +38,16 @@ public:
     void setName(  const QString &name );
 
 
-signals:
+  signals:
     void indexChanged();
     void identifierChanged();
     void nameChanged();
 
 
-public slots:
+  public slots:
 
 
-private:
+  private:
     Doctype_P *p;
 };
 

@@ -59,7 +59,15 @@ SOURCES += \
     src/human/humanlist.cpp \
     src/human/humaninfo.cpp \
     src/human/human_p.cpp \
-    src/human/human.cpp
+    src/human/human.cpp \
+    src/clientprivatesystem.cpp \
+    src/service/serviceloader_p.cpp \
+    src/service/serviceloader.cpp \
+    src/service/servicelist_p.cpp \
+    src/service/servicelist.cpp \
+    src/service/serviceinfo.cpp \
+    src/service/service_p.cpp \
+    src/service/service.cpp
 
 HEADERS += \
     clientsystem_plugin.h \
@@ -111,7 +119,15 @@ HEADERS += \
     src/human/humanlist.h \
     src/human/humaninfo.h \
     src/human/human_p.h \
-    src/human/human.h
+    src/human/human.h \
+    src/clientprivatesystem.h \
+    src/service/serviceloader_p.h \
+    src/service/serviceloader.h \
+    src/service/servicelist_p.h \
+    src/service/servicelist.h \
+    src/service/serviceinfo.h \
+    src/service/service_p.h \
+    src/service/service.h
 
 OTHER_FILES = qmldir
 

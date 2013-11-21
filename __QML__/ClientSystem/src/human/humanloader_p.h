@@ -15,26 +15,27 @@ class HumanLoader_P : public QThread
     friend class HumanLoader;
 
 
-public:
+  public:
 
 
-signals:
+  signals:
     void sendError( QString errorText );
     void sendHumanInfo( HumanInfo );
 
 
-public slots:
+  public slots:
 
 
-protected:
+  protected:
     void run();
 
 
-private:
+  private:
     bool m__Successfully;
     int m__ErrorLastId;
     QHash<int, QString> m__Errors;
     QString m__ConnectionName;
+    QString m__Filter;
     HumanList *m__Source;
 
     explicit HumanLoader_P( HumanLoader *parent );

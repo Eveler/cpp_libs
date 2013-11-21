@@ -15,26 +15,27 @@ class ProcedureLoader_P : public QThread
     friend class ProcedureLoader;
 
 
-public:
+  public:
 
 
-signals:
+  signals:
     void sendError( QString errorText );
     void sendProcedureInfo( ProcedureInfo );
 
 
-public slots:
+  public slots:
 
 
-protected:
+  protected:
     void run();
 
 
-private:
+  private:
     bool m__Successfully;
     int m__ErrorLastId;
     QHash<int, QString> m__Errors;
     QString m__ConnectionName;
+    QString m__Filter;
     ProcedureList *m__Source;
 
     explicit ProcedureLoader_P( ProcedureLoader *parent );

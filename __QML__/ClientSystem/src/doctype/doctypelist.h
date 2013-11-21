@@ -20,7 +20,7 @@ class DoctypeList : public QObject
     friend class DoctypeLoader;
 
 
-public:
+  public:
     DoctypeList(QObject *parent = 0);
     ~DoctypeList();
 
@@ -32,18 +32,18 @@ public:
     Q_INVOKABLE Doctype * addLink( Doctype *link ) const;
 
 
-signals:
+  signals:
     void countChanged() const;
     void doctypeAdded( Doctype *doctype ) const;
     void doctypeRemoved( int index ) const;
 
 
-private:
+  private:
     DoctypeList_P *p;
 
 
-private slots:
-    void receivedDoctypeInfo( DoctypeInfo doctypeInfo ) const;
+  private slots:
+    void receivedDoctypeInfo( DoctypeInfo doctypeinfo ) const;
     void doctypeDestroyed();
 };
 

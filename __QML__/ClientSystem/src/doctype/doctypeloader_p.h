@@ -15,26 +15,27 @@ class DoctypeLoader_P : public QThread
     friend class DoctypeLoader;
 
 
-public:
+  public:
 
 
-signals:
+  signals:
     void sendError( QString errorText );
     void sendDoctypeInfo( DoctypeInfo );
 
 
-public slots:
+  public slots:
 
 
-protected:
+  protected:
     void run();
 
 
-private:
+  private:
     bool m__Successfully;
     int m__ErrorLastId;
     QHash<int, QString> m__Errors;
     QString m__ConnectionName;
+    QString m__Filter;
     DoctypeList *m__Source;
 
     explicit DoctypeLoader_P( DoctypeLoader *parent );

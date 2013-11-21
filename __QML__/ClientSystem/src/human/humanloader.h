@@ -19,7 +19,7 @@ class HumanLoader : public QObject
     Q_PROPERTY(HumanList* source READ source NOTIFY sourceChanged)
 
 
-public:
+  public:
     HumanLoader(QObject *parent = 0);
     ~HumanLoader();
 
@@ -28,13 +28,13 @@ public:
     const QString & connectionName() const;
     bool setConnectionName( const QString &connectionName ) const;
 
-    Q_INVOKABLE bool load() const;
+    Q_INVOKABLE bool load( const QString &filter = QString() ) const;
     Q_INVOKABLE Human * create() const;
 
     HumanList * source() const;
 
 
-signals:
+  signals:
     void errorAdded( int errorId ) const;
     void connectionNameChanged() const;
     void started() const;
@@ -42,27 +42,19 @@ signals:
     void sourceChanged() const;
 
 
-public slots:
+  public slots:
 
 
-private:
+  private:
     HumanLoader_P *p;
     QEventLoop *loop;
 
-private slots:
+  private slots:
     void newSource() const;
     void threadFinished();
     void receivedError( QString errorText ) const;
 };
 
 QML_DECLARE_TYPE(HumanLoader)
-
-static QObject * humanLoader_Provider( QQmlEngine *engine, QJSEngine *scriptEngine )
-{
-    Q_UNUSED(engine)
-    Q_UNUSED(scriptEngine)
-
-    return new HumanLoader();
-}
 
 #endif // HUMANLOADER_H

@@ -15,22 +15,22 @@ class CallstatusLoader_P : public QThread
     friend class CallstatusLoader;
 
 
-public:
+  public:
 
 
-signals:
+  signals:
     void sendError( QString errorText );
     void sendCallstatusInfo( CallstatusInfo );
 
 
-public slots:
+  public slots:
 
 
-protected:
+  protected:
     void run();
 
 
-private:
+  private:
     bool m__Successfully;
     int m__ErrorLastId;
     QHash<int, QString> m__Errors;

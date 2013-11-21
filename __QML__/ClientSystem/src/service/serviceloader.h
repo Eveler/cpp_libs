@@ -1,27 +1,27 @@
-#ifndef DOCTYPELOADER_H
-#define DOCTYPELOADER_H
+#ifndef SERVICELOADER_H
+#define SERVICELOADER_H
 
 #include <QObject>
 
 #include <QtQml>
 
 
-class DoctypeLoader_P;
-class DoctypeList;
-class Doctype;
+class ServiceLoader_P;
+class ServiceList;
+class Service;
 
-class DoctypeLoader : public QObject
+class ServiceLoader : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(DoctypeLoader)
+    Q_DISABLE_COPY(ServiceLoader)
     Q_PROPERTY(QString connectionName READ connectionName
                WRITE setConnectionName NOTIFY connectionNameChanged)
-    Q_PROPERTY(DoctypeList* source READ source NOTIFY sourceChanged)
+    Q_PROPERTY(ServiceList* source READ source NOTIFY sourceChanged)
 
 
   public:
-    DoctypeLoader(QObject *parent = 0);
-    ~DoctypeLoader();
+    ServiceLoader(QObject *parent = 0);
+    ~ServiceLoader();
 
     Q_INVOKABLE QString error( int errorId ) const;
 
@@ -29,9 +29,9 @@ class DoctypeLoader : public QObject
     bool setConnectionName( const QString &connectionName ) const;
 
     Q_INVOKABLE bool load( const QString &filter = QString() ) const;
-    Q_INVOKABLE Doctype * create() const;
+    Q_INVOKABLE Service * create() const;
 
-    DoctypeList * source() const;
+    ServiceList * source() const;
 
 
   signals:
@@ -46,7 +46,7 @@ class DoctypeLoader : public QObject
 
 
   private:
-    DoctypeLoader_P *p;
+    ServiceLoader_P *p;
     QEventLoop *loop;
 
   private slots:
@@ -55,6 +55,6 @@ class DoctypeLoader : public QObject
     void receivedError( QString errorText ) const;
 };
 
-QML_DECLARE_TYPE(DoctypeLoader)
+QML_DECLARE_TYPE(ServiceLoader)
 
-#endif // DOCTYPELOADER_H
+#endif // SERVICELOADER_H

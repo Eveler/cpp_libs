@@ -15,26 +15,27 @@ class UserLoader_P : public QThread
     friend class UserLoader;
 
 
-public:
+  public:
 
 
-signals:
+  signals:
     void sendError( QString errorText );
     void sendUserInfo( UserInfo );
 
 
-public slots:
+  public slots:
 
 
-protected:
+  protected:
     void run();
 
 
-private:
+  private:
     bool m__Successfully;
     int m__ErrorLastId;
     QHash<int, QString> m__Errors;
     QString m__ConnectionName;
+    QString m__Filter;
     UserList *m__Source;
 
     explicit UserLoader_P( UserLoader *parent );
