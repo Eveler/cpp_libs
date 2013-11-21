@@ -9,6 +9,7 @@ class HumanLoader;
 class ProcedureLoader;
 class RecipientLoader;
 class UserLoader;
+class ServiceLoader;
 
 class ClientPrivateSystem
 {
@@ -36,6 +37,9 @@ class ClientPrivateSystem
     void setUserLoader( UserLoader *loader );
     UserLoader * userLoader() const;
 
+    void setServiceLoader( ServiceLoader *loader );
+    ServiceLoader * serviceLoader() const;
+
 
   private:
     static ClientPrivateSystem *m__Instance;
@@ -46,6 +50,7 @@ class ClientPrivateSystem
     ProcedureLoader *m__ProcedureLoader;
     RecipientLoader *m__RecipientLoader;
     UserLoader *m__UserLoader;
+    ServiceLoader *m__ServiceLoader;
 
     ClientPrivateSystem();
 };

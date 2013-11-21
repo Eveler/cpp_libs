@@ -51,7 +51,7 @@ QVariant Callstatus::identifier() const
 {
     if ( parent() == NULL ) return QVariant();
 
-    INFO_REF
+    INFO_REF;
 
     if ( p->m__Link != NULL ) return p->m__Link->identifier();
     return info->identifier();
@@ -61,7 +61,7 @@ const QString & Callstatus::name() const
 {
     if ( parent() == NULL ) return p->m__NullString;
 
-    INFO_REF
+    INFO_REF;
 
     if ( p->m__Link != NULL ) return p->m__Link->name();
     return info->name();
@@ -71,7 +71,7 @@ void Callstatus::setName( const QString &name )
 {
     if ( parent() == NULL ) return;
 
-    INFO_REF
+    INFO_REF;
 
     if ( p->m__Link != NULL ) p->m__Link->setName( name );
     else info->setName( name );

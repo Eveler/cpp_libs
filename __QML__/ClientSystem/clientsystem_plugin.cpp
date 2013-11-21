@@ -28,6 +28,10 @@
 #include "human/humanlist.h"
 #include "human/humanloader.h"
 /// ============================================================================
+#include "service/service.h"
+#include "service/servicelist.h"
+#include "service/serviceloader.h"
+/// ============================================================================
 #include "clientprivatesystem.h"
 
 #include <qqml.h>
@@ -73,6 +77,11 @@ void ClientSystemPlugin::initializeEngine( QQmlEngine *engine, const char *uri )
   HumanLoader *humanLoader = new HumanLoader;
   p->setHumanLoader( humanLoader );
   context->setContextProperty( "HumanLoader", humanLoader );
+
+  /// About services
+  ServiceLoader *serviceLoader = new ServiceLoader;
+  p->setServiceLoader( serviceLoader );
+  context->setContextProperty( "ServiceLoader", serviceLoader );
 }
 
 void ClientSystemPlugin::registerTypes(const char *uri)
@@ -103,8 +112,8 @@ void ClientSystemPlugin::registerTypes(const char *uri)
   qmlRegisterType<Callstatus>( uri, 1, 0, "Callstatus" );
   qmlRegisterType<CallstatusList>( uri, 1, 0, "CallstatusList" );
 
-  /// About humans
-  qmlRegisterType<Human>( uri, 1, 0, "Human" );
-  qmlRegisterType<HumanList>( uri, 1, 0, "HumanList" );
+  /// About services
+  qmlRegisterType<Service>( uri, 1, 0, "Service" );
+  qmlRegisterType<ServiceList>( uri, 1, 0, "ServiceList" );
 }
 

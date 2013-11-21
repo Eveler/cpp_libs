@@ -18,12 +18,12 @@ class Service : public QObject, public ServiceInfo
     friend class ServiceList;
     Q_PROPERTY(int index READ index NOTIFY indexChanged)
     Q_PROPERTY(QVariant identifier READ identifier WRITE setIdentifier NOTIFY identifierChanged)
-    Q_PROPERTY(QString root READ root WRITE setRoot NOTIFY rootChanged)
+    Q_PROPERTY(QVariant root READ root WRITE setRoot NOTIFY rootChanged)
     Q_PROPERTY(QString sidx READ sidx WRITE setSidx NOTIFY sidxChanged)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
-    Q_PROPERTY(QString deadline READ deadline WRITE setDeadline NOTIFY deadlineChanged)
-    Q_PROPERTY(QString workdays READ workdays WRITE setWorkdays NOTIFY workdaysChanged)
-    Q_PROPERTY(QString isactive READ isactive WRITE setIsactive NOTIFY isactiveChanged)
+    Q_PROPERTY(int deadline READ deadline WRITE setDeadline NOTIFY deadlineChanged)
+    Q_PROPERTY(bool workdays READ workdays WRITE setWorkdays NOTIFY workdaysChanged)
+    Q_PROPERTY(bool isactive READ isactive WRITE setIsactive NOTIFY isactiveChanged)
 
 
   public:
@@ -39,14 +39,34 @@ class Service : public QObject, public ServiceInfo
     QVariant identifier() const;
     void setIdentifier( QVariant identifier );
 
+    QVariant root() const;
+    void setRoot( QVariant root );
+
+    const QString & sidx() const;
+    void setSidx( const QString &sidx );
+
     const QString & name() const;
-    void setName(  const QString &name );
+    void setName( const QString &name );
+
+    int deadline() const;
+    void setDeadline( int deadline );
+
+    bool workdays() const;
+    void setWorkdays( bool workdays );
+
+    bool isactive() const;
+    void setIsactive( bool isactive );
 
 
   signals:
     void indexChanged();
     void identifierChanged();
+    void rootChanged();
+    void sidxChanged();
     void nameChanged();
+    void deadlineChanged();
+    void workdaysChanged();
+    void isactiveChanged();
 
 
   public slots:

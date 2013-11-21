@@ -31,9 +31,12 @@ void ServiceLoader_P::run()
     return;
   }
   QSqlQuery qry( db );
-  if ( !qry.exec( tr( "SELECT id AS identifier, aname AS name"
-                      " FROM services ORDER BY aname" )
-                  .arg( ( !m__Filter.isEmpty() ? " WHERE "+m__Filter : "" ) ) ) )
+  if ( !qry.exec( tr( "SELECT s.id AS identifier, s.root, s.\"sIdx\" AS sidx,"
+                      " sn.srvname AS name, s.deadline, s.workdays, s.isactive"
+                      " FROM ctrldatesrvs s, service_names sn"
+                      " WHERE s.srv_name_id=sn.id%1"
+                      " ORDER BY \"sIdxFloat\"" )
+                  .arg( ( !m__Filter.isEmpty() ? " AND ("+m__Filter+")" : "" ) ) ) )
   {
     m__Successfully = false;
     emit sendError( tr( "Query error:\n%1" ).arg( qry.lastError().text() ) );
@@ -43,7 +46,12 @@ void ServiceLoader_P::run()
   {
     ServiceInfo info;
     info.setIdentifier( qry.record().value( tr( "identifier" ) ) );
+    info.setRoot( qry.record().value( tr( "root" ) ) );
+    info.setSidx( qry.record().value( tr( "sidx" ) ).toString() );
     info.setName( qry.record().value( tr( "name" ) ).toString() );
+    info.setDeadline( qry.record().value( tr( "deadline" ) ).toInt() );
+    info.setWorkdays( qry.record().value( tr( "workdays" ) ).toBool() );
+    info.setIsactive( qry.record().value( tr( "isactive" ) ).toBool() );
     emit sendServiceInfo( info );
   }
 }

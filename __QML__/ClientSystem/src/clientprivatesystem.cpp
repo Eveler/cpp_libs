@@ -82,6 +82,16 @@ UserLoader * ClientPrivateSystem::userLoader() const
   return m__UserLoader;
 }
 
+void ClientPrivateSystem::setServiceLoader( ServiceLoader *loader )
+{
+  m__ServiceLoader = loader;
+}
+
+ServiceLoader * ClientPrivateSystem::serviceLoader() const
+{
+  return m__ServiceLoader;
+}
+
 ClientPrivateSystem::ClientPrivateSystem()
 {
 }

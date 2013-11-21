@@ -51,7 +51,7 @@ QVariant Procedure::identifier() const
 {
     if ( parent() == NULL ) return QVariant();
 
-    INFO_REF
+    INFO_REF;
 
     if ( p->m__Link != NULL ) return p->m__Link->identifier();
     return info->identifier();
@@ -61,7 +61,7 @@ void Procedure::setIdentifier( QVariant identifier )
 {
     if ( parent() == NULL ) return;
 
-    INFO_REF
+    INFO_REF;
 
     if ( p->m__Link != NULL ) p->m__Link->setIdentifier( identifier );
     else info->setIdentifier( identifier );
@@ -72,7 +72,7 @@ const QString & Procedure::name() const
 {
     if ( parent() == NULL ) return p->m__NullString;
 
-    INFO_REF
+    INFO_REF;
 
     if ( p->m__Link != NULL ) return p->m__Link->name();
     return info->name();
@@ -82,7 +82,7 @@ void Procedure::setName( const QString &name )
 {
     if ( parent() == NULL ) return;
 
-    INFO_REF
+    INFO_REF;
 
     if ( p->m__Link != NULL ) p->m__Link->setName( name );
     else info->setName( name );

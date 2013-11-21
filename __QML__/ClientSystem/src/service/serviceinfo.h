@@ -36,7 +36,7 @@ class ServiceInfo
   private:
     QVariant m__Identifier;
     QVariant m__Root;
-    QString m__Index;
+    QString m__Sidx;
     QString m__Name;
     int m__Deadline;
     bool m__Workdays;
