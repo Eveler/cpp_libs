@@ -40,9 +40,10 @@ QStringList HtmlReportLoader::list(const QUrl &url)
     AbstractHtmlReportPlugin* plugin =
         qobject_cast< AbstractHtmlReportPlugin* >(pl->instance());
     if(plugin){
-      QString pName = plugin->name();
-      pList<<pName;
-      plugins.insert(pName, pl);
+      foreach(QString pName,plugin->names()){
+        pList<<pName;
+        plugins.insert(pName, pl);
+      }
     }
   }
 
@@ -57,9 +58,10 @@ QStringList HtmlReportLoader::list(const QUrl &url)
     AbstractHtmlReportPlugin* plugin =
         qobject_cast< AbstractHtmlReportPlugin* >(loader->instance());
     if(plugin){
-      QString pName = plugin->name();
-      pList<<pName;
-      plugins.insert(pName, loader);
+      foreach(QString pName,plugin->names()){
+        pList<<pName;
+        plugins.insert(pName, loader);
+      }
     }
   }
 

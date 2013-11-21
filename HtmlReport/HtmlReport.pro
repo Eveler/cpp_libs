@@ -23,6 +23,8 @@ INCLUDEPATH += ./ \
     ../include/ \
     ../include/export
 
+include(HtmlReportLoader/HtmlReportLoader.pri)
+
 unix:!symbian {
 
     maemo5 {
