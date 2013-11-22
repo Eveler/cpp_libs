@@ -1,4 +1,4 @@
-#include "humanloader_p.h"
+#include "organisationloader_p.h"
 
 #include <QSqlDatabase>
 #include <QSqlError>
@@ -7,7 +7,7 @@
 #include <QSqlField>
 
 
-void HumanLoader_P::run()
+void OrganisationLoader_P::run()
 {
   m__Successfully = true;
   QSqlDatabase db = QSqlDatabase::database( p_dptr()->connectionName(), false );
@@ -31,9 +31,9 @@ void HumanLoader_P::run()
     return;
   }
   QSqlQuery qry( db );
-  if ( !qry.exec( tr( "SELECT id AS identifier, surname, firstname, lastname,"
+  if ( !qry.exec( tr( "SELECT id AS identifier, fullname, human_id AS humanIdentifier,"
                       " addr AS address, phone, \"e-mail\" AS email"
-                      " FROM humans%1 ORDER BY surname, firstname, lastname" )
+                      " FROM orgs%1 ORDER BY fullname" )
                   .arg( ( !m__Filter.isEmpty() ? " WHERE "+m__Filter : "" ) ) ) )
   {
     m__Successfully = false;
@@ -42,19 +42,18 @@ void HumanLoader_P::run()
   }
   while ( qry.next() )
   {
-    HumanInfo info;
+    OrganisationInfo info;
     info.setIdentifier( qry.record().value( tr( "identifier" ) ) );
-    info.setSurname( qry.record().value( tr( "surname" ) ).toString() );
-    info.setFirstname( qry.record().value( tr( "firstname" ) ).toString() );
-    info.setLastname( qry.record().value( tr( "lastname" ) ).toString() );
+    info.setFullname( qry.record().value( tr( "fullname" ) ).toString() );
+    info.setHumanIdentifier( qry.record().value( tr( "humanIdentifier" ) ) );
     info.setAddress( qry.record().value( tr( "address" ) ).toString() );
     info.setPhone( qry.record().value( tr( "phone" ) ).toString() );
     info.setEmail( qry.record().value( tr( "email" ) ).toString() );
-    emit sendHumanInfo( info );
+    emit sendOrganisationInfo( info );
   }
 }
 
-HumanLoader_P::HumanLoader_P( HumanLoader *parent ) :
+OrganisationLoader_P::OrganisationLoader_P( OrganisationLoader *parent ) :
   QThread(parent),
   m__Successfully(true),
   m__ErrorLastId(-1),
@@ -63,16 +62,16 @@ HumanLoader_P::HumanLoader_P( HumanLoader *parent ) :
   m__Source(NULL)
 {
   connect( this, SIGNAL(sendError(QString)), parent, SLOT(receivedError(QString)) );
-  qRegisterMetaType<HumanInfo>("HumanInfo");
+  qRegisterMetaType<OrganisationInfo>("OrganisationInfo");
 }
 
-HumanLoader_P::~HumanLoader_P()
+OrganisationLoader_P::~OrganisationLoader_P()
 {
   delete m__Source;
   m__Source = NULL;
 }
 
-HumanLoader * HumanLoader_P::p_dptr() const
+OrganisationLoader * OrganisationLoader_P::p_dptr() const
 {
-  return qobject_cast<HumanLoader *>( parent() );
+  return qobject_cast<OrganisationLoader *>( parent() );
 }

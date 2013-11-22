@@ -22,6 +22,36 @@ CallstatusLoader *ClientPrivateSystem::callStatusLoader() const
   return m__CallStatusLoader;
 }
 
+void ClientPrivateSystem::setClientLoader( ClientLoader *loader )
+{
+  m__ClientLoader = loader;
+}
+
+ClientLoader * ClientPrivateSystem::clientLoader() const
+{
+  return m__ClientLoader;
+}
+
+void ClientPrivateSystem::setDeclarLoader( DeclarLoader *loader )
+{
+  m__DeclarLoader = loader;
+}
+
+DeclarLoader * ClientPrivateSystem::declarLoader() const
+{
+  return m__DeclarLoader;
+}
+
+void ClientPrivateSystem::setDeclarClientLoader( DeclarClientLoader *loader )
+{
+  m__DeclarClientLoader = loader;
+}
+
+DeclarClientLoader * ClientPrivateSystem::declarClientLoader() const
+{
+  return m__DeclarClientLoader;
+}
+
 void ClientPrivateSystem::setDepartmentLoader( DepartmentLoader *loader )
 {
   m__DepartmentLoader = loader;
@@ -50,6 +80,16 @@ void ClientPrivateSystem::setHumanLoader( HumanLoader *loader )
 HumanLoader * ClientPrivateSystem::humanLoader() const
 {
   return m__HumanLoader;
+}
+
+void ClientPrivateSystem::setOrganisationLoader( OrganisationLoader *loader )
+{
+  m__OrganisationLoader = loader;
+}
+
+OrganisationLoader * ClientPrivateSystem::organisationLoader() const
+{
+  return m__OrganisationLoader;
 }
 
 void ClientPrivateSystem::setProcedureLoader( ProcedureLoader *loader )
@@ -90,6 +130,16 @@ void ClientPrivateSystem::setServiceLoader( ServiceLoader *loader )
 ServiceLoader * ClientPrivateSystem::serviceLoader() const
 {
   return m__ServiceLoader;
+}
+
+void ClientPrivateSystem::setTrusteeLoader( TrusteeLoader *loader )
+{
+  m__TrusteeLoader = loader;
+}
+
+TrusteeLoader * ClientPrivateSystem::trusteeLoader() const
+{
+  return m__TrusteeLoader;
 }
 
 ClientPrivateSystem::ClientPrivateSystem()

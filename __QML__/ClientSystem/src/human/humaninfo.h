@@ -6,7 +6,7 @@
 
 class HumanInfo
 {
-public:
+  public:
     HumanInfo();
     HumanInfo( const HumanInfo &other );
     ~HumanInfo();
@@ -23,12 +23,24 @@ public:
     const QString & lastname() const;
     void setLastname( const QString &lastname );
 
+    const QString & address() const;
+    void setAddress( const QString &address );
 
-private:
+    const QString & phone() const;
+    void setPhone( const QString &phone );
+
+    const QString & email() const;
+    void setEmail( const QString &email );
+
+
+  private:
     QVariant m__Identifier;
     QString m__Surname;
     QString m__Firstname;
     QString m__Lastname;
+    QString m__Address;
+    QString m__Phone;
+    QString m__Email;
 };
 
 #endif // HUMANINFO_H

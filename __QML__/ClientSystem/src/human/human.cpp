@@ -130,3 +130,66 @@ void Human::setLastname( const QString &lastname )
     else info->setLastname( lastname );
     emit lastnameChanged();
 }
+
+const QString & Human::address() const
+{
+    if ( parent() == NULL ) return p->m__NullString;
+
+    INFO_REF;
+
+    if ( p->m__Link != NULL ) return p->m__Link->address();
+    return info->address();
+}
+
+void Human::setAddress( const QString &address )
+{
+    if ( parent() == NULL ) return;
+
+    INFO_REF;
+
+    if ( p->m__Link != NULL ) p->m__Link->setAddress( address );
+    else info->setAddress( address );
+    emit addressChanged();
+}
+
+const QString & Human::phone() const
+{
+    if ( parent() == NULL ) return p->m__NullString;
+
+    INFO_REF;
+
+    if ( p->m__Link != NULL ) return p->m__Link->phone();
+    return info->phone();
+}
+
+void Human::setPhone( const QString &phone )
+{
+    if ( parent() == NULL ) return;
+
+    INFO_REF;
+
+    if ( p->m__Link != NULL ) p->m__Link->setPhone( phone );
+    else info->setPhone( phone );
+    emit phoneChanged();
+}
+
+const QString & Human::email() const
+{
+    if ( parent() == NULL ) return p->m__NullString;
+
+    INFO_REF;
+
+    if ( p->m__Link != NULL ) return p->m__Link->email();
+    return info->email();
+}
+
+void Human::setEmail( const QString &email )
+{
+    if ( parent() == NULL ) return;
+
+    INFO_REF;
+
+    if ( p->m__Link != NULL ) p->m__Link->setEmail( email );
+    else info->setEmail( email );
+    emit emailChanged();
+}
