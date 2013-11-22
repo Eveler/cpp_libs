@@ -1,4 +1,4 @@
-#include "humanloader_p.h"
+#include "trusteeloader_p.h"
 
 #include <QSqlDatabase>
 #include <QSqlError>
@@ -7,7 +7,7 @@
 #include <QSqlField>
 
 
-void HumanLoader_P::run()
+void TrusteeLoader_P::run()
 {
   m__Successfully = true;
   QSqlDatabase db = QSqlDatabase::database( p_dptr()->connectionName(), false );
@@ -31,9 +31,10 @@ void HumanLoader_P::run()
     return;
   }
   QSqlQuery qry( db );
-  if ( !qry.exec( tr( "SELECT id AS identifier, surname, firstname, lastname,"
-                      " addr AS address, phone, \"e-mail\" AS email"
-                      " FROM humans%1 ORDER BY surname, firstname, lastname" )
+  if ( !qry.exec( tr( "SELECT id AS identifier, declar_id AS declarIdentifier,"
+                      " trustee_id AS trusteeClientIdentifier,"
+                      " client_id AS clientIdentifier,"
+                      " FROM declar_trustees%1 ORDER BY id" )
                   .arg( ( !m__Filter.isEmpty() ? " WHERE "+m__Filter : "" ) ) ) )
   {
     m__Successfully = false;
@@ -42,19 +43,16 @@ void HumanLoader_P::run()
   }
   while ( qry.next() )
   {
-    HumanInfo info;
+    TrusteeInfo info;
     info.setIdentifier( qry.record().value( tr( "identifier" ) ) );
-    info.setSurname( qry.record().value( tr( "surname" ) ).toString() );
-    info.setFirstname( qry.record().value( tr( "firstname" ) ).toString() );
-    info.setLastname( qry.record().value( tr( "lastname" ) ).toString() );
-    info.setAddress( qry.record().value( tr( "address" ) ).toString() );
-    info.setPhone( qry.record().value( tr( "phone" ) ).toString() );
-    info.setEmail( qry.record().value( tr( "email" ) ).toString() );
-    emit sendHumanInfo( info );
+    info.setDeclarIdentifier( qry.record().value( tr( "declarIdentifier" ) ) );
+    info.setTrusteeClientIdentifier( qry.record().value( tr( "trusteeClientIdentifier" ) ) );
+    info.setClientIdentifier( qry.record().value( tr( "clientIdentifier" ) ) );
+    emit sendTrusteeInfo( info );
   }
 }
 
-HumanLoader_P::HumanLoader_P( HumanLoader *parent ) :
+TrusteeLoader_P::TrusteeLoader_P( TrusteeLoader *parent ) :
   QThread(parent),
   m__Successfully(true),
   m__ErrorLastId(-1),
@@ -63,16 +61,16 @@ HumanLoader_P::HumanLoader_P( HumanLoader *parent ) :
   m__Source(NULL)
 {
   connect( this, SIGNAL(sendError(QString)), parent, SLOT(receivedError(QString)) );
-  qRegisterMetaType<HumanInfo>("HumanInfo");
+  qRegisterMetaType<TrusteeInfo>("TrusteeInfo");
 }
 
-HumanLoader_P::~HumanLoader_P()
+TrusteeLoader_P::~TrusteeLoader_P()
 {
   delete m__Source;
   m__Source = NULL;
 }
 
-HumanLoader * HumanLoader_P::p_dptr() const
+TrusteeLoader * TrusteeLoader_P::p_dptr() const
 {
-  return qobject_cast<HumanLoader *>( parent() );
+  return qobject_cast<TrusteeLoader *>( parent() );
 }

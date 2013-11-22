@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = ClientSystem
-QT += qml quick sql
+QT += core qml quick sql
 CONFIG += qt plugin
 
 TARGET = $$qtLibraryTarget($$TARGET)
@@ -67,7 +67,42 @@ SOURCES += \
     src/service/servicelist.cpp \
     src/service/serviceinfo.cpp \
     src/service/service_p.cpp \
-    src/service/service.cpp
+    src/service/service.cpp \
+    src/organisation/organisationloader_p.cpp \
+    src/organisation/organisationloader.cpp \
+    src/organisation/organisationlist_p.cpp \
+    src/organisation/organisationlist.cpp \
+    src/organisation/organisationinfo.cpp \
+    src/organisation/organisation_p.cpp \
+    src/organisation/organisation.cpp \
+    src/client/clientloader_p.cpp \
+    src/client/clientloader.cpp \
+    src/client/clientlist_p.cpp \
+    src/client/clientlist.cpp \
+    src/client/clientinfo.cpp \
+    src/client/client_p.cpp \
+    src/client/client.cpp \
+    src/trustee/trusteeloader_p.cpp \
+    src/trustee/trusteeloader.cpp \
+    src/trustee/trusteelist_p.cpp \
+    src/trustee/trusteelist.cpp \
+    src/trustee/trusteeinfo.cpp \
+    src/trustee/trustee_p.cpp \
+    src/trustee/trustee.cpp \
+    src/declarclient/declarclientloader_p.cpp \
+    src/declarclient/declarclientloader.cpp \
+    src/declarclient/declarclientlist_p.cpp \
+    src/declarclient/declarclientlist.cpp \
+    src/declarclient/declarclientinfo.cpp \
+    src/declarclient/declarclient_p.cpp \
+    src/declarclient/declarclient.cpp \
+    src/declar/declarloader_p.cpp \
+    src/declar/declarloader.cpp \
+    src/declar/declarlist_p.cpp \
+    src/declar/declarlist.cpp \
+    src/declar/declarinfo.cpp \
+    src/declar/declar_p.cpp \
+    src/declar/declar.cpp
 
 HEADERS += \
     clientsystem_plugin.h \
@@ -127,7 +162,42 @@ HEADERS += \
     src/service/servicelist.h \
     src/service/serviceinfo.h \
     src/service/service_p.h \
-    src/service/service.h
+    src/service/service.h \
+    src/organisation/organisationloader_p.h \
+    src/organisation/organisationloader.h \
+    src/organisation/organisationlist_p.h \
+    src/organisation/organisationlist.h \
+    src/organisation/organisationinfo.h \
+    src/organisation/organisation_p.h \
+    src/organisation/organisation.h \
+    src/client/clientloader_p.h \
+    src/client/clientloader.h \
+    src/client/clientlist_p.h \
+    src/client/clientlist.h \
+    src/client/clientinfo.h \
+    src/client/client_p.h \
+    src/client/client.h \
+    src/trustee/trusteeloader_p.h \
+    src/trustee/trusteeloader.h \
+    src/trustee/trusteelist_p.h \
+    src/trustee/trusteelist.h \
+    src/trustee/trusteeinfo.h \
+    src/trustee/trustee_p.h \
+    src/trustee/trustee.h \
+    src/declarclient/declarclientloader_p.h \
+    src/declarclient/declarclientloader.h \
+    src/declarclient/declarclientlist_p.h \
+    src/declarclient/declarclientlist.h \
+    src/declarclient/declarclientinfo.h \
+    src/declarclient/declarclient_p.h \
+    src/declarclient/declarclient.h \
+    src/declar/declarloader_p.h \
+    src/declar/declarloader.h \
+    src/declar/declarlist_p.h \
+    src/declar/declarlist.h \
+    src/declar/declarinfo.h \
+    src/declar/declar_p.h \
+    src/declar/declar.h
 
 OTHER_FILES = qmldir
 

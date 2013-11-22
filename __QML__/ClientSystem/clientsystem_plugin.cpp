@@ -28,9 +28,29 @@
 #include "human/humanlist.h"
 #include "human/humanloader.h"
 /// ============================================================================
+#include "organisation/organisation.h"
+#include "organisation/organisationlist.h"
+#include "organisation/organisationloader.h"
+/// ============================================================================
+#include "client/client.h"
+#include "client/clientlist.h"
+#include "client/clientloader.h"
+/// ============================================================================
 #include "service/service.h"
 #include "service/servicelist.h"
 #include "service/serviceloader.h"
+/// ============================================================================
+#include "trustee/trustee.h"
+#include "trustee/trusteelist.h"
+#include "trustee/trusteeloader.h"
+/// ============================================================================
+#include "declarclient/declarclient.h"
+#include "declarclient/declarclientlist.h"
+#include "declarclient/declarclientloader.h"
+/// ============================================================================
+#include "declar/declar.h"
+#include "declar/declarlist.h"
+#include "declar/declarloader.h"
 /// ============================================================================
 #include "clientprivatesystem.h"
 
@@ -78,10 +98,35 @@ void ClientSystemPlugin::initializeEngine( QQmlEngine *engine, const char *uri )
   p->setHumanLoader( humanLoader );
   context->setContextProperty( "HumanLoader", humanLoader );
 
+  /// About organisations
+  OrganisationLoader *organisationLoader = new OrganisationLoader;
+  p->setOrganisationLoader( organisationLoader );
+  context->setContextProperty( "OrganisationLoader", organisationLoader );
+
+  /// About clients
+  ClientLoader *clientLoader = new ClientLoader;
+  p->setClientLoader( clientLoader );
+  context->setContextProperty( "ClientLoader", clientLoader );
+
   /// About services
   ServiceLoader *serviceLoader = new ServiceLoader;
   p->setServiceLoader( serviceLoader );
   context->setContextProperty( "ServiceLoader", serviceLoader );
+
+  /// About trustees
+  TrusteeLoader *trusteeLoader = new TrusteeLoader;
+  p->setTrusteeLoader( trusteeLoader );
+  context->setContextProperty( "TrusteeLoader", trusteeLoader );
+
+  /// About declarclients
+  DeclarClientLoader *declarClientLoader = new DeclarClientLoader;
+  p->setDeclarClientLoader( declarClientLoader );
+  context->setContextProperty( "DeclarClientLoader", declarClientLoader );
+
+  /// About declars
+  DeclarLoader *declarLoader = new DeclarLoader;
+  p->setDeclarLoader( declarLoader );
+  context->setContextProperty( "DeclarLoader", declarLoader );
 }
 
 void ClientSystemPlugin::registerTypes(const char *uri)
@@ -112,8 +157,33 @@ void ClientSystemPlugin::registerTypes(const char *uri)
   qmlRegisterType<Callstatus>( uri, 1, 0, "Callstatus" );
   qmlRegisterType<CallstatusList>( uri, 1, 0, "CallstatusList" );
 
+  /// About humans
+  qmlRegisterType<Human>( uri, 1, 0, "Human" );
+  qmlRegisterType<HumanList>( uri, 1, 0, "HumanList" );
+
+  /// About organisations
+  qmlRegisterType<Organisation>( uri, 1, 0, "Organisation" );
+  qmlRegisterType<OrganisationList>( uri, 1, 0, "OrganisationList" );
+
+  /// About clients
+  qmlRegisterType<Client>( uri, 1, 0, "Client" );
+  qmlRegisterType<ClientList>( uri, 1, 0, "ClientList" );
+
   /// About services
   qmlRegisterType<Service>( uri, 1, 0, "Service" );
   qmlRegisterType<ServiceList>( uri, 1, 0, "ServiceList" );
+
+  /// About trustees
+  qmlRegisterType<Trustee>( uri, 1, 0, "Trustee" );
+  qmlRegisterType<TrusteeList>( uri, 1, 0, "TrusteeList" );
+
+  /// About declarclients
+  qmlRegisterType<DeclarClient>( uri, 1, 0, "DeclarClient" );
+  qmlRegisterType<DeclarClientList>( uri, 1, 0, "DeclarClientList" );
+
+  /// About declars
+  qmlRegisterType<Declar>( uri, 1, 0, "Declar" );
+  qmlRegisterType<DeclarList>( uri, 1, 0, "DeclarList" );
+
 }
 

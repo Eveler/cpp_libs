@@ -21,6 +21,9 @@ class Human : public QObject, public HumanInfo
     Q_PROPERTY(QString surname READ surname WRITE setSurname NOTIFY surnameChanged)
     Q_PROPERTY(QString firstname READ firstname WRITE setFirstname NOTIFY firstnameChanged)
     Q_PROPERTY(QString lastname READ lastname WRITE setLastname NOTIFY lastnameChanged)
+    Q_PROPERTY(QString address READ address WRITE setAddress NOTIFY addressChanged)
+    Q_PROPERTY(QString phone READ phone WRITE setPhone NOTIFY phoneChanged)
+    Q_PROPERTY(QString email READ email WRITE setEmail NOTIFY emailChanged)
 
 
 public:
@@ -37,13 +40,22 @@ public:
     void setIdentifier( QVariant identifier );
 
     const QString & surname() const;
-    void setSurname(  const QString &surname );
+    void setSurname( const QString &surname );
 
     const QString & firstname() const;
-    void setFirstname(  const QString &firstname );
+    void setFirstname( const QString &firstname );
 
     const QString & lastname() const;
-    void setLastname(  const QString &lastname );
+    void setLastname( const QString &lastname );
+
+    const QString & address() const;
+    void setAddress( const QString &address );
+
+    const QString & phone() const;
+    void setPhone( const QString &phone );
+
+    const QString & email() const;
+    void setEmail( const QString &email );
 
 
 signals:
@@ -52,6 +64,9 @@ signals:
     void surnameChanged();
     void firstnameChanged();
     void lastnameChanged();
+    void addressChanged();
+    void phoneChanged();
+    void emailChanged();
 
 
 public slots:

@@ -3,7 +3,12 @@
 
 ServiceInfo::ServiceInfo() :
   m__Identifier(QVariant()),
-  m__Name(QString())
+  m__Root(QVariant()),
+  m__Sidx(QString()),
+  m__Name(QString()),
+  m__Deadline(0),
+  m__Workdays(false),
+  m__Isactive(false)
 {
 }
 
