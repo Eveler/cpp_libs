@@ -70,12 +70,6 @@ public:
   // для согласия ПДн ********************************************************//
   virtual bool setData(const ClientInfo &client, const DeclarInfo &declar);
   //******************************************************** для согласия ПДн //
-  void setclient(const QString &c);
-  void setaddress(const QString &a);
-  void setphone(const QString &p);
-  void setorientir(const QString &a);
-  void setsign(const QString &s);
-  void setdate(const QDate &d);
   virtual QString lastError() const;
 
 signals:
@@ -86,6 +80,12 @@ protected:
   QString selected;
   QString errStr;
 
+  void setclient(const QString &c);
+  void setaddress(const QString &a);
+  void setphone(const QString &p);
+  void setorientir(const QString &a);
+  void setsign(const QString &s);
+  void setdate(const QDate &d);
   void set_error(const QString file,const int line,const QString str);
 };
 
