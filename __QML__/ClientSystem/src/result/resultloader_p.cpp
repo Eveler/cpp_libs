@@ -1,4 +1,4 @@
-#include "doctypeloader_p.h"
+#include "resultloader_p.h"
 
 #include <QSqlDatabase>
 #include <QSqlError>
@@ -7,7 +7,7 @@
 #include <QSqlField>
 
 
-void DoctypeLoader_P::run()
+void ResultLoader_P::run()
 {
   m__Successfully = true;
   QSqlDatabase db = QSqlDatabase::database( p_dptr()->connectionName(), false );
@@ -31,8 +31,8 @@ void DoctypeLoader_P::run()
     return;
   }
   QSqlQuery qry( db );
-  if ( !qry.exec( tr( "SELECT id AS identifier, aname AS name"
-                      " FROM doctypes%1 ORDER BY aname" )
+  if ( !qry.exec( tr( "SELECT id AS identifier, result_name AS name"
+                      " FROM results%1 ORDER BY result_name" )
                   .arg( ( !m__Filter.isEmpty() ? " WHERE "+m__Filter : "" ) ) ) )
   {
     m__Successfully = false;
@@ -41,14 +41,14 @@ void DoctypeLoader_P::run()
   }
   while ( qry.next() )
   {
-    DoctypeInfo info;
+    ResultInfo info;
     info.setIdentifier( qry.record().value( tr( "identifier" ) ) );
     info.setName( qry.record().value( tr( "name" ) ).toString() );
-    emit sendDoctypeInfo( info );
+    emit sendResultInfo( info );
   }
 }
 
-DoctypeLoader_P::DoctypeLoader_P( DoctypeLoader *parent ) :
+ResultLoader_P::ResultLoader_P( ResultLoader *parent ) :
   QThread(parent),
   m__Successfully(true),
   m__ErrorLastId(-1),
@@ -57,16 +57,16 @@ DoctypeLoader_P::DoctypeLoader_P( DoctypeLoader *parent ) :
   m__Source(NULL)
 {
   connect( this, SIGNAL(sendError(QString)), parent, SLOT(receivedError(QString)) );
-  qRegisterMetaType<DoctypeInfo>("DoctypeInfo");
+  qRegisterMetaType<ResultInfo>("ResultInfo");
 }
 
-DoctypeLoader_P::~DoctypeLoader_P()
+ResultLoader_P::~ResultLoader_P()
 {
   delete m__Source;
   m__Source = NULL;
 }
 
-DoctypeLoader * DoctypeLoader_P::p_dptr() const
+ResultLoader * ResultLoader_P::p_dptr() const
 {
-  return qobject_cast<DoctypeLoader *>( parent() );
+  return qobject_cast<ResultLoader *>( parent() );
 }
