@@ -2,6 +2,8 @@
 #define CLIENTPRIVATESYSTEM_H
 
 
+class AssessmentLoader;
+class AssessmenttypeLoader;
 class CallstatusLoader;
 class ClientLoader;
 class DeclarLoader;
@@ -12,14 +14,22 @@ class HumanLoader;
 class OrganisationLoader;
 class ProcedureLoader;
 class RecipientLoader;
-class UserLoader;
+class ResultLoader;
+class ResultwayLoader;
 class ServiceLoader;
 class TrusteeLoader;
+class UserLoader;
 
 class ClientPrivateSystem
 {
   public:
     static ClientPrivateSystem * instace();
+
+    void setAssessmentLoader( AssessmentLoader *loader );
+    AssessmentLoader * assessmentLoader() const;
+
+    void setAssessmenttypeLoader( AssessmenttypeLoader *loader );
+    AssessmenttypeLoader * assessmenttypeLoader() const;
 
     void setCallstatusLoader( CallstatusLoader *loader );
     CallstatusLoader * callStatusLoader() const;
@@ -51,8 +61,11 @@ class ClientPrivateSystem
     void setRecipientLoader( RecipientLoader *loader );
     RecipientLoader * recipientLoader() const;
 
-    void setUserLoader( UserLoader *loader );
-    UserLoader * userLoader() const;
+    void setResultLoader( ResultLoader *loader );
+    ResultLoader * resultLoader() const;
+
+    void setResultwayLoader( ResultwayLoader *loader );
+    ResultwayLoader * resultwayLoader() const;
 
     void setServiceLoader( ServiceLoader *loader );
     ServiceLoader * serviceLoader() const;
@@ -60,9 +73,14 @@ class ClientPrivateSystem
     void setTrusteeLoader( TrusteeLoader *loader );
     TrusteeLoader * trusteeLoader() const;
 
+    void setUserLoader( UserLoader *loader );
+    UserLoader * userLoader() const;
+
 
   private:
     static ClientPrivateSystem *m__Instance;
+    AssessmentLoader *m__AssessmentLoader;
+    AssessmenttypeLoader *m__AssessmenttypeLoader;
     CallstatusLoader *m__CallStatusLoader;
     ClientLoader *m__ClientLoader;
     DeclarLoader *m__DeclarLoader;
@@ -73,9 +91,11 @@ class ClientPrivateSystem
     OrganisationLoader *m__OrganisationLoader;
     ProcedureLoader *m__ProcedureLoader;
     RecipientLoader *m__RecipientLoader;
-    UserLoader *m__UserLoader;
+    ResultLoader *m__ResultLoader;
+    ResultwayLoader *m__ResultwayLoader;
     ServiceLoader *m__ServiceLoader;
     TrusteeLoader *m__TrusteeLoader;
+    UserLoader *m__UserLoader;
 
     ClientPrivateSystem();
 };
