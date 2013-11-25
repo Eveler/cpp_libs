@@ -35,6 +35,9 @@ typedef struct
   QString srvname;
   QString orientir;
   HumanInfo *specialist;
+  QDate indate;
+  QDate outdate;
+  bool isRespite;
 } DeclarInfo;
 
 class AbstractHtmlReportPlugin: public QObject

@@ -80,6 +80,16 @@ bool HtmlReportLoader::select(const QString &name)
       return false;
     }
 
+  AbstractHtmlReportPlugin *rep = qobject_cast<AbstractHtmlReportPlugin*>(
+        plugin->instance());
+  if(rep){
+    if(!rep->select(name)){
+      setError(tr("Ошибка при выборе шаблона: %1").arg(name));
+      return false;
+    }
+    rep->load();
+  }
+
   loader = plugin;
   return true;
 }
@@ -105,20 +115,40 @@ AbstractHtmlReportPlugin *HtmlReportLoader::load(const QUrl &url)
   QFileInfo fi(fName);
 
   if(loader->isLoaded()){
-    if(loader->fileName().contains(fi.baseName()))
+    if(loader->fileName().contains(fi.baseName())){
       return qobject_cast< AbstractHtmlReportPlugin* >(loader->instance());
-    else if(!loader->unload()){
-      setError(tr("Ошибка выгрузки модуля: %1").arg(loader->errorString()));
+    }else{
+      loader = new QPluginLoader(fName,this);
+      if(!loader->load()){
+        setError(tr("Ошибка загрузки модуля \"%1\": %2")
+                 .arg(fi.baseName()).arg(loader->errorString()));
+        if(plugins.count()>0){
+          delete loader;
+          loader = plugins.values().first();
+        }
+        return NULL;
+      }
+//      if(!loader->unload()){
+//      setError(tr("Ошибка выгрузки модуля: %1").arg(loader->errorString()));
+//      return NULL;
+    }
+  }else{
+    loader->setFileName(fName);
+    if(!loader->load()){
+      setError(tr("Ошибка загрузки модуля \"%1\": %2")
+               .arg(fi.baseName()).arg(loader->errorString()));
       return NULL;
     }
   }
-  loader->setFileName(fName);
-  if(!loader->load()){
-    setError(tr("Ошибка загрузки модуля \"%1\": %2")
-             .arg(fi.baseName()).arg(loader->errorString()));
-    return NULL;
+
+  AbstractHtmlReportPlugin *rep = qobject_cast< AbstractHtmlReportPlugin* >(
+        loader->instance());
+  if(rep){
+    foreach(QString pName, rep->names()){
+      if(!plugins.contains(pName)) plugins.insert(pName, loader);
+    }
   }
-  return qobject_cast< AbstractHtmlReportPlugin* >(loader->instance());
+  return rep;
 }
 
 AbstractHtmlReportPlugin *HtmlReportLoader::instance()
@@ -145,10 +175,11 @@ QString HtmlReportLoader::lastError() const
 
 bool HtmlReportLoader::unload(/*AbstractHtmlReportPlugin *p*/)
 {
-//  if(p!=loader->instance()) return false;
+//  QStringList names = instance()->names();
   bool res=loader->unload();
   if(!res && !loader->errorString().isEmpty())
     setError(tr("Ошибка выгрузки: %1").arg(loader->errorString()));
+//  else foreach(QString name, names) plugins.remove(name);
   return res;
 }
 
