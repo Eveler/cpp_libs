@@ -52,6 +52,22 @@
 #include "declar/declarlist.h"
 #include "declar/declarloader.h"
 /// ============================================================================
+#include "result/result.h"
+#include "result/resultlist.h"
+#include "result/resultloader.h"
+/// ============================================================================
+#include "resultway/resultway.h"
+#include "resultway/resultwaylist.h"
+#include "resultway/resultwayloader.h"
+/// ============================================================================
+#include "assessment/assessment.h"
+#include "assessment/assessmentlist.h"
+#include "assessment/assessmentloader.h"
+/// ============================================================================
+#include "assessmenttype/assessmenttype.h"
+#include "assessmenttype/assessmenttypelist.h"
+#include "assessmenttype/assessmenttypeloader.h"
+/// ============================================================================
 #include "clientprivatesystem.h"
 
 #include <qqml.h>
@@ -127,6 +143,26 @@ void ClientSystemPlugin::initializeEngine( QQmlEngine *engine, const char *uri )
   DeclarLoader *declarLoader = new DeclarLoader;
   p->setDeclarLoader( declarLoader );
   context->setContextProperty( "DeclarLoader", declarLoader );
+
+  /// About results
+  ResultLoader *resultLoader = new ResultLoader;
+  p->setResultLoader( resultLoader );
+  context->setContextProperty( "ResultLoader", resultLoader );
+
+  /// About resultways
+  ResultwayLoader *resultwayLoader = new ResultwayLoader;
+  p->setResultwayLoader( resultwayLoader );
+  context->setContextProperty( "ResultwayLoader", resultwayLoader );
+
+  /// About assessments
+  AssessmentLoader *assessmentLoader = new AssessmentLoader;
+  p->setAssessmentLoader( assessmentLoader );
+  context->setContextProperty( "AssessmentLoader", assessmentLoader );
+
+  /// About assessmenttypes
+  AssessmenttypeLoader *assessmenttypeLoader = new AssessmenttypeLoader;
+  p->setAssessmenttypeLoader( assessmenttypeLoader );
+  context->setContextProperty( "AssessmenttypeLoader", assessmenttypeLoader );
 }
 
 void ClientSystemPlugin::registerTypes(const char *uri)
@@ -185,5 +221,20 @@ void ClientSystemPlugin::registerTypes(const char *uri)
   qmlRegisterType<Declar>( uri, 1, 0, "Declar" );
   qmlRegisterType<DeclarList>( uri, 1, 0, "DeclarList" );
 
+  /// About results
+  qmlRegisterType<Result>( uri, 1, 0, "Result" );
+  qmlRegisterType<ResultList>( uri, 1, 0, "ResultList" );
+
+  /// About resultways
+  qmlRegisterType<Resultway>( uri, 1, 0, "Resultway" );
+  qmlRegisterType<ResultwayList>( uri, 1, 0, "ResultwayList" );
+
+  /// About assessments
+  qmlRegisterType<Assessment>( uri, 1, 0, "Assessment" );
+  qmlRegisterType<AssessmentList>( uri, 1, 0, "AssessmentList" );
+
+  /// About assessmenttypes
+  qmlRegisterType<Assessmenttype>( uri, 1, 0, "Assessmenttype" );
+  qmlRegisterType<AssessmenttypeList>( uri, 1, 0, "AssessmenttypeList" );
 }
 

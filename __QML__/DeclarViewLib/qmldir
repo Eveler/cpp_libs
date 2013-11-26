@@ -1,0 +1,4 @@
+module com.mihail.declarviewlib
+plugin DeclarViewLib
+DeclarInfo 1.0 DeclarInfo.qml
+

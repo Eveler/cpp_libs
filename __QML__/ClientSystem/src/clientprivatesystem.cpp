@@ -12,6 +12,26 @@ ClientPrivateSystem * ClientPrivateSystem::instace()
   return m__Instance;
 }
 
+void ClientPrivateSystem::setAssessmentLoader( AssessmentLoader *loader )
+{
+  m__AssessmentLoader = loader;
+}
+
+AssessmentLoader *ClientPrivateSystem::assessmentLoader() const
+{
+  return m__AssessmentLoader;
+}
+
+void ClientPrivateSystem::setAssessmenttypeLoader( AssessmenttypeLoader *loader )
+{
+  m__AssessmenttypeLoader = loader;
+}
+
+AssessmenttypeLoader *ClientPrivateSystem::assessmenttypeLoader() const
+{
+  return m__AssessmenttypeLoader;
+}
+
 void ClientPrivateSystem::setCallstatusLoader( CallstatusLoader *loader )
 {
   m__CallStatusLoader = loader;
@@ -112,14 +132,24 @@ RecipientLoader * ClientPrivateSystem::recipientLoader() const
   return m__RecipientLoader;
 }
 
-void ClientPrivateSystem::setUserLoader( UserLoader *loader )
+void ClientPrivateSystem::setResultLoader( ResultLoader *loader )
 {
-  m__UserLoader = loader;
+  m__ResultLoader = loader;
 }
 
-UserLoader * ClientPrivateSystem::userLoader() const
+ResultLoader * ClientPrivateSystem::resultLoader() const
 {
-  return m__UserLoader;
+  return m__ResultLoader;
+}
+
+void ClientPrivateSystem::setResultwayLoader( ResultwayLoader *loader )
+{
+  m__ResultwayLoader = loader;
+}
+
+ResultwayLoader * ClientPrivateSystem::resultwayLoader() const
+{
+  return m__ResultwayLoader;
 }
 
 void ClientPrivateSystem::setServiceLoader( ServiceLoader *loader )
@@ -140,6 +170,16 @@ void ClientPrivateSystem::setTrusteeLoader( TrusteeLoader *loader )
 TrusteeLoader * ClientPrivateSystem::trusteeLoader() const
 {
   return m__TrusteeLoader;
+}
+
+void ClientPrivateSystem::setUserLoader( UserLoader *loader )
+{
+  m__UserLoader = loader;
+}
+
+UserLoader * ClientPrivateSystem::userLoader() const
+{
+  return m__UserLoader;
 }
 
 ClientPrivateSystem::ClientPrivateSystem()

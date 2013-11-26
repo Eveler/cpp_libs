@@ -102,7 +102,35 @@ SOURCES += \
     src/declar/declarlist.cpp \
     src/declar/declarinfo.cpp \
     src/declar/declar_p.cpp \
-    src/declar/declar.cpp
+    src/declar/declar.cpp \
+    src/result/resultloader_p.cpp \
+    src/result/resultloader.cpp \
+    src/result/resultlist_p.cpp \
+    src/result/resultlist.cpp \
+    src/result/resultinfo.cpp \
+    src/result/result_p.cpp \
+    src/result/result.cpp \
+    src/resultway/resultwayloader_p.cpp \
+    src/resultway/resultwayloader.cpp \
+    src/resultway/resultwaylist_p.cpp \
+    src/resultway/resultwaylist.cpp \
+    src/resultway/resultwayinfo.cpp \
+    src/resultway/resultway_p.cpp \
+    src/resultway/resultway.cpp \
+    src/assessment/assessmentloader_p.cpp \
+    src/assessment/assessmentloader.cpp \
+    src/assessment/assessmentlist_p.cpp \
+    src/assessment/assessmentlist.cpp \
+    src/assessment/assessmentinfo.cpp \
+    src/assessment/assessment_p.cpp \
+    src/assessment/assessment.cpp \
+    src/assessmenttype/assessmenttypeloader_p.cpp \
+    src/assessmenttype/assessmenttypeloader.cpp \
+    src/assessmenttype/assessmenttypelist_p.cpp \
+    src/assessmenttype/assessmenttypelist.cpp \
+    src/assessmenttype/assessmenttypeinfo.cpp \
+    src/assessmenttype/assessmenttype_p.cpp \
+    src/assessmenttype/assessmenttype.cpp
 
 HEADERS += \
     clientsystem_plugin.h \
@@ -197,9 +225,38 @@ HEADERS += \
     src/declar/declarlist.h \
     src/declar/declarinfo.h \
     src/declar/declar_p.h \
-    src/declar/declar.h
+    src/declar/declar.h \
+    src/result/resultloader_p.h \
+    src/result/resultloader.h \
+    src/result/resultlist_p.h \
+    src/result/resultlist.h \
+    src/result/resultinfo.h \
+    src/result/result_p.h \
+    src/result/result.h \
+    src/resultway/resultwayloader_p.h \
+    src/resultway/resultwayloader.h \
+    src/resultway/resultwaylist_p.h \
+    src/resultway/resultwaylist.h \
+    src/resultway/resultwayinfo.h \
+    src/resultway/resultway_p.h \
+    src/resultway/resultway.h \
+    src/assessment/assessmentloader_p.h \
+    src/assessment/assessmentloader.h \
+    src/assessment/assessmentlist_p.h \
+    src/assessment/assessmentlist.h \
+    src/assessment/assessmentinfo.h \
+    src/assessment/assessment_p.h \
+    src/assessment/assessment.h \
+    src/assessmenttype/assessmenttypeloader_p.h \
+    src/assessmenttype/assessmenttypeloader.h \
+    src/assessmenttype/assessmenttypelist_p.h \
+    src/assessmenttype/assessmenttypelist.h \
+    src/assessmenttype/assessmenttypeinfo.h \
+    src/assessmenttype/assessmenttype_p.h \
+    src/assessmenttype/assessmenttype.h
 
-OTHER_FILES = qmldir
+OTHER_FILES = qmldir \
+    qml/LoaderErrors.qml
 
 !equals(_PRO_FILE_PWD_, $$OUT_PWD) {
     copy_qmldir.target = $$OUT_PWD/qmldir
@@ -220,10 +277,10 @@ unix {
 }
 
 win32 {
-installPath = $$[QT_INSTALL_QML]/$$replace(uri, \\., /)
-qmldir.path = $$installPath
-target.path = $$installPath
-INSTALLS += target qmldir
+    installPath = $$[QT_INSTALL_QML]/$$replace(uri, \\., /)
+    qmldir.path = $$installPath
+    target.path = $$installPath
+    INSTALLS += target qmldir
 }
 
 CONFIG(release, debug|release){
