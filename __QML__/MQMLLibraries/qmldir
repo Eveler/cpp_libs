@@ -1,3 +1,3 @@
-module Extesions.MQMLLibraries
+module extensions.mqmllibraries
 plugin MQMLLibraries
 

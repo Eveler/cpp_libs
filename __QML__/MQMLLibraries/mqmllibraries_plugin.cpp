@@ -4,12 +4,23 @@
 #include "Tree/treeitem.h"
 #include "Tree/treemodel.h"
 
+#include "mqml.h"
+
 #include <qqml.h>
+
+
+void MQMLLibrariesPlugin::initializeEngine( QQmlEngine *engine, const char *uri )
+{
+  Q_UNUSED(uri)
+  QQmlContext *context = engine->rootContext();
+  context->setContextProperty( "MQML", new MQML );
+}
 
 void MQMLLibrariesPlugin::registerTypes(const char *uri)
 {
-    // @uri Extesions.MQMLLibraries
+    // @uri extensions.mqmllibraries
   qmlRegisterSingletonType<LogReader>( uri, 1, 0, "LogReader", logReader_Provider );
+
   qmlRegisterType<TreeItem>(uri, 1, 0, "TreeItem");
   qmlRegisterType<TreeModel>(uri, 1, 0, "TreeModel");
 }

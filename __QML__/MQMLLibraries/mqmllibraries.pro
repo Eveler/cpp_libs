@@ -4,20 +4,22 @@ QT += qml quick
 CONFIG += qt plugin
 
 TARGET = $$qtLibraryTarget($$TARGET)
-uri = Extensions.MQMLLibraries
+uri = extensions.mqmllibraries
 
 # Input
 SOURCES += \
     mqmllibraries_plugin.cpp \
     logreader.cpp \
     Tree/treeitem.cpp \
-    Tree/treemodel.cpp
+    Tree/treemodel.cpp \
+    mqml.cpp
 
 HEADERS += \
     mqmllibraries_plugin.h \
     logreader.h \
     Tree/treeitem.h \
-    Tree/treemodel.h
+    Tree/treemodel.h \
+    mqml.h
 
 OTHER_FILES = qmldir
 
@@ -44,4 +46,17 @@ win32 {
     qmldir.path = $$installPath
     target.path = $$installPath
     INSTALLS += target qmldir
+}
+
+CONFIG(release, debug|release){
+  OBJECTS_DIR = ./temp/$$TARGET/release
+  MOC_DIR = ./temp/$$TARGET/release
+  RCC_DIR = ./temp/$$TARGET/release
+  UI_DIR = ./temp/$$TARGET/release
+}
+CONFIG(debug, debug|release){
+  OBJECTS_DIR = ./temp/$$TARGET/debug
+  MOC_DIR = ./temp/$$TARGET/debug
+  RCC_DIR = ./temp/$$TARGET/debug
+  UI_DIR = ./temp/$$TARGET/debug
 }
