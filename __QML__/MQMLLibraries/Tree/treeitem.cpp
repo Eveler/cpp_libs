@@ -22,7 +22,7 @@ int TreeItem::nestingLevel() const
   return m__NestingLevel;
 }
 
-const QFont & TreeItem::font() const
+QFont TreeItem::font() const
 {
   if ( !m__Font.contains( 0 ) ) return QFont();
 

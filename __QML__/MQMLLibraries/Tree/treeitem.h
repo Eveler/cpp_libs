@@ -27,7 +27,7 @@ class TreeItem : public QQuickItem
 
     QVariant data() const;
     void setData( QVariant data );
-    const QFont &font() const;
+    QFont font() const;
     void setFont( const QFont &font );
     Q_INVOKABLE QVariant columnData( int column ) const;
     Q_INVOKABLE void setColumnData( QVariant data,  int column  );
