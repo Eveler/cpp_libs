@@ -5,16 +5,12 @@ import extensions.mqmllibraries 1.0
 Column{
     id: treeItemList
 
+    height: childrenRect.height
     Repeater{
         model: modelData.childItems
         delegate: TreeItemView {
             width: treeItemList.width
         }
-
-        onItemAdded: {
-            treeItemList.height+=item.height
-        }
-        onItemRemoved: treeItemList.height-=item.height
     }
 }
 

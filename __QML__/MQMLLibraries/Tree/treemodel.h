@@ -13,6 +13,7 @@ class TreeModel : public QObject
     Q_OBJECT
     Q_DISABLE_COPY( TreeModel )
     Q_PROPERTY( QList<QObject *> tree READ treeAsQObjects NOTIFY treeChanged )
+    Q_PROPERTY( QList<QObject *> selected READ selectedAsObjects NOTIFY selectedChanged )
     Q_PROPERTY( int columnCount READ columnCount WRITE setColumnCount NOTIFY columnCountChanged )
 
   public:
@@ -20,6 +21,9 @@ class TreeModel : public QObject
 
     const QList<TreeItem *> & tree() const;
     QList<QObject *> treeAsQObjects() const;
+
+    const QList<TreeItem *> & selected() const;
+    QList<QObject *> selectedAsObjects() const;
 
     Q_INVOKABLE void addTopLevelItem( TreeItem *treeItem );
 
@@ -30,6 +34,7 @@ class TreeModel : public QObject
   signals:
     void treeChanged();
     void columnCountChanged();
+    void selectedChanged( TreeItem *item );
 
 
   public slots:
@@ -37,7 +42,12 @@ class TreeModel : public QObject
 
   private:
     QList<TreeItem *> m__Tree;
+    QList<TreeItem *> m__Selected;
     int m__ColumnCount;
+
+
+  private slots:
+    void itemSelectedChanged( TreeItem *item );
 };
 
 QML_DECLARE_TYPE(TreeModel)

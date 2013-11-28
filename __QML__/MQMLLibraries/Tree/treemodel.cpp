@@ -24,11 +24,27 @@ QList<QObject *> TreeModel::treeAsQObjects() const
     return res;
 }
 
+const QList<TreeItem *> & TreeModel::selected() const
+{
+  return m__Selected;
+}
+
+QList<QObject *> TreeModel::selectedAsObjects() const
+{
+    QList<QObject *> res;
+    res.reserve( m__Selected.count() );
+    foreach ( TreeItem *i, m__Selected )
+        res.append(i);
+    return res;
+}
+
 void TreeModel::addTopLevelItem( TreeItem *treeItem )
 {
   if ( m__Tree.contains( treeItem ) ) return;
 
   m__Tree << treeItem;
+  connect( treeItem, SIGNAL(selectedChanged(TreeItem*)),
+           this, SLOT(itemSelectedChanged(TreeItem*)) );
   emit treeChanged();
 }
 
@@ -43,4 +59,11 @@ void TreeModel::setColumnCount( int columnCount )
 
   m__ColumnCount = columnCount;
   emit columnCountChanged();
+}
+
+void TreeModel::itemSelectedChanged( TreeItem *item )
+{
+  if ( !item->selected() ) m__Selected.removeOne( item );
+  else if ( !m__Selected.contains( item ) ) m__Selected << item;
+  emit selectedChanged( item );
 }
