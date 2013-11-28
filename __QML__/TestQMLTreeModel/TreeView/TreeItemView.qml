@@ -5,9 +5,6 @@ import extensions.mqmllibraries 1.0
 Item {
     id: treeItemView
     height: i_Content.height+loader_ChildItems.height
-//    Behavior on height {
-//        NumberAnimation { easing.type: Easing.OutQuint; duration: 350 }
-//    }
 
     clip: true
 
@@ -144,9 +141,6 @@ Item {
 
         width: treeItemView.width
         height: ( item ? item.height : 0 )
-        Behavior on height {
-            NumberAnimation { easing.type: Easing.OutQuint; duration: 350 }
-        }
 
         asynchronous: true
 
