@@ -1,4 +1,5 @@
 import QtQuick 2.0
+import QtGraphicalEffects 1.0
 import extensions.mqmllibraries 1.0
 
 
@@ -8,6 +9,8 @@ Item {
 
     clip: true
 
+    property TreeItem treeItem: null
+
     Rectangle {
         id: rect_Expander
         anchors.verticalCenter: i_Content.verticalCenter
@@ -16,34 +19,50 @@ Item {
         width: 20
         height: width
 
-        color: ( modelData.childSelected ? "#55ff8833" : "#88555555" )
+        color: ( treeItemView.treeItem && treeItemView.treeItem.childSelected ? "#55ff8833" : "#88555555" )
         Behavior on color {
             ColorAnimation { duration: 200 }
         }
-        border.color: ( modelData.childSelected ? "#ffff8833" : "#88000000" )
+        border.color: ( treeItemView.treeItem && treeItemView.treeItem.childSelected ? "#ffff8833" : "#88000000" )
         Behavior on border.color {
             ColorAnimation { duration: 200 }
         }
         radius: width/2
-        visible: modelData.hasChild
+        visible: treeItemView.treeItem && treeItemView.treeItem.hasChild
+        enabled: treeItemView.treeItem && treeItemView.treeItem.itemEnabled && treeItemView.treeItem.expandable
 
         Image {
+            id: image_Arrow
             anchors.fill: parent
             anchors.margins: 2
 
-            rotation: modelData.opened ? 90 : 0
+            visible: false
+
+            source: "./images/arrow.png"
+        }
+        Desaturate {
+            anchors.fill: image_Arrow
+            source: image_Arrow
+
+            desaturation: ( !enabled ? 1.0 : ( mouse_Expander.containsMouse ? 0.0 : 0.5 ) )
+            Behavior on desaturation {
+                NumberAnimation { duration: 200 }
+            }
+
+            rotation: treeItemView.treeItem && treeItemView.treeItem.expanded ? 90 : 0
             Behavior on rotation {
                 NumberAnimation { easing.type: Easing.OutQuint; duration: 350 }
             }
-
-            source: "../images/arrow.png"
         }
 
         MouseArea {
+            id: mouse_Expander
             anchors.fill: parent
 
+            hoverEnabled: true
+
             onClicked: {
-                if ( modelData.hasChild ) modelData.opened = !modelData.opened
+                if ( treeItemView.treeItem && treeItemView.treeItem.expandable ) treeItemView.treeItem.expanded = !treeItemView.treeItem.expanded
             }
         }
     }
@@ -56,10 +75,11 @@ Item {
         width: parent.width
         height: text_ItemText.contentHeight+(text_ItemText.anchors.topMargin*2)
 
-        color: modelData.selected ? "#55ff8833" : "transparent"
+        color: treeItemView.treeItem && treeItemView.treeItem.selected ? "#55ff8833" : "transparent"
         Behavior on color {
             ColorAnimation { duration: 200 }
         }
+        enabled: treeItemView.treeItem && treeItemView.treeItem.itemEnabled
 
         Rectangle {
             anchors.top: parent.top
@@ -68,7 +88,7 @@ Item {
             width: parent.width
             height: text_ItemText.anchors.topMargin-anchors.topMargin
 
-            color: modelData.selected ? "#ffff8833" : "transparent"
+            color: treeItemView.treeItem && treeItemView.treeItem.selected ? "#ffff8833" : "transparent"
             Behavior on color {
                 ColorAnimation { duration: 200 }
             }
@@ -80,7 +100,7 @@ Item {
             width: parent.width
             height: text_ItemText.anchors.topMargin-anchors.bottomMargin
 
-            color: modelData.selected ? "#ffff8833" : "transparent"
+            color: treeItemView.treeItem && treeItemView.treeItem.selected ? "#ffff8833" : "transparent"
             Behavior on color {
                 ColorAnimation { duration: 200 }
             }
@@ -95,21 +115,25 @@ Item {
             width: parent.width
             height: contentHeight
 
-            text: i_Content.itemData()
+            font: ( treeItemView.treeItem ? treeItemView.treeItem.font : f )
+            color: ( enabled ? "black" : "#ff555555" )
 
-            font: modelData.font
+            text: i_Content.itemData()
+            wrapMode: Text.WordWrap
+
+            property font f
         }
 
         MouseArea {
             anchors.fill: parent
 
-            onClicked: modelData.selected = true
-            onDoubleClicked: modelData.opened = !modelData.opened
+            onClicked: treeItemView.treeItem.click()
+            onDoubleClicked: treeItemView.treeItem.doubleClick()
         }
 
         function itemData()
         {
-            var result = modelData.data
+            var result = ( treeItemView.treeItem ? treeItemView.treeItem.data : undefined )
             if ( result === undefined ) result = ""
 
             return result
@@ -126,7 +150,7 @@ Item {
 
         width: 4
 
-        color: ( modelData.childSelected ? "#ffff8833" : "#88000000" )
+        color: ( treeItemView.treeItem && treeItemView.treeItem.childSelected ? "#ffff8833" : "#88000000" )
         Behavior on color {
             ColorAnimation { duration: 200 }
         }
@@ -144,8 +168,15 @@ Item {
 
         asynchronous: true
 
-        source: modelData.hasChild && modelData.opened ? "TreeItemsList.qml" : "Empty.qml"
+        source: treeItemView.treeItem && treeItemView.treeItem.hasChild && treeItemView.treeItem.expanded ? "TreeItemsList.qml" : ""
 
         visible: status == Loader.Ready
+    }
+
+    Component.onCompleted: {
+        if ( modelData !== undefined ) treeItem = modelData
+    }
+    Component.onDestruction: {
+        treeItem = null
     }
 }

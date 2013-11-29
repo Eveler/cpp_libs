@@ -18,6 +18,7 @@ class TreeModel : public QObject
 
   public:
     explicit TreeModel(QObject *parent = 0);
+    ~TreeModel();
 
     const QList<TreeItem *> & tree() const;
     QList<QObject *> treeAsQObjects() const;
@@ -25,7 +26,8 @@ class TreeModel : public QObject
     const QList<TreeItem *> & selected() const;
     QList<QObject *> selectedAsObjects() const;
 
-    Q_INVOKABLE void addTopLevelItem( TreeItem *treeItem );
+    Q_INVOKABLE void addTopLevelItem( TreeItem *item );
+    Q_INVOKABLE void removeTopLevelItem( TreeItem *item );
 
     int columnCount() const;
     void setColumnCount( int columnCount );
@@ -34,7 +36,9 @@ class TreeModel : public QObject
   signals:
     void treeChanged();
     void columnCountChanged();
-    void selectedChanged( TreeItem *item );
+    void selectedChanged( TreeItem *treeItem );
+    void treeItemClicked( TreeItem *treeItem );
+    void treeItemDoubleClicked( TreeItem *treeItem );
 
 
   public slots:
@@ -47,7 +51,8 @@ class TreeModel : public QObject
 
 
   private slots:
-    void itemSelectedChanged( TreeItem *item );
+    void treeItemSelectedChanged( TreeItem *treeItem );
+    void treeItemDestroyed( QObject *obj );
 };
 
 QML_DECLARE_TYPE(TreeModel)

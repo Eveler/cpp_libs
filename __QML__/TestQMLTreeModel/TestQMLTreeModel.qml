@@ -2,7 +2,6 @@ import QtQuick 2.1
 import QtQuick.Controls 1.0
 import QtQuick.Window 2.0
 import extensions.mqmllibraries 1.0
-import "TreeView"
 
 
 ApplicationWindow {
@@ -20,6 +19,7 @@ ApplicationWindow {
             anchors.bottomMargin: row_Buttons.height+5
 
             clip: true
+            singleSelection: true
 
             treeModel: obj_Information.treeModel
         }
@@ -41,7 +41,7 @@ ApplicationWindow {
                                     MQML.createTreeItem(
                                         "Some text "+obj_Information.treeItem.childItems.length ) )
                         if( obj_Information.treeItem.childItems.length = 1 )
-                            obj_Information.treeItem.opened = true
+                            obj_Information.treeItem.expanded = true
                         obj_Information.treeItem = null
                     }
                     else
@@ -55,9 +55,60 @@ ApplicationWindow {
             }
             Button {
                 text: "Удалить"
+
+                onClicked: {
+                    if ( obj_Information.treeModel.selected.length > 0 )
+                    {
+                        obj_Information.treeItem = obj_Information.treeModel.selected[0];
+
+                        var parentItem = obj_Information.treeItem.parentItem()
+                        var index
+
+                        if ( parentItem )
+                        {
+                            index = parentItem.childItems.indexOf( obj_Information.treeItem )
+                            obj_Information.treeItem.destroy()
+                            if ( parentItem.childItems.length === 1 )
+                                obj_Information.treeItem = parentItem
+                            else if ( index > 0 )
+                                obj_Information.treeItem = parentItem.childItems[index-1]
+                            else
+                                obj_Information.treeItem = parentItem.childItems[index+1]
+                        }
+                        else
+                        {
+                            index = obj_Information.treeModel.tree.indexOf(
+                                        obj_Information.treeItem )
+                            obj_Information.treeItem.destroy()
+                            if ( obj_Information.treeModel.tree.length === 1 )
+                                obj_Information.treeItem = null
+                            else if ( index > 0 )
+                                obj_Information.treeItem = obj_Information.treeModel.tree[index-1]
+                            else obj_Information.treeItem = obj_Information.treeModel.tree[index+1]
+                        }
+
+                        if ( obj_Information.treeItem )
+                        {
+                            obj_Information.treeItem.selected = true
+                            obj_Information.treeItem = null
+                        }
+                    }
+                }
             }
             Button {
                 text: "Снять выделение"
+            }
+            Button {
+                text: "Заблокировать/Разблокировать"
+
+                onClicked: {
+                    if ( obj_Information.treeModel.selected.length > 0 )
+                    {
+                        obj_Information.treeItem = obj_Information.treeModel.selected[0];
+                        obj_Information.treeItem.itemEnabled = !obj_Information.treeItem.itemEnabled
+                        obj_Information.treeItem = null
+                    }
+                }
             }
         }
     }
@@ -66,18 +117,6 @@ ApplicationWindow {
         id: obj_Information
 
         property TreeItem treeItem: null
-        property TreeModel treeModel: TreeModel {
-            columnCount: 1
-        }
-    }
-
-    Connections {
-        target: obj_Information.treeModel
-        onSelectedChanged: {
-            if ( obj_Information.treeModel.selected.length > 1 )
-                for ( var iIdx = 0; iIdx < obj_Information.treeModel.selected.length; iIdx++ )
-                    if ( obj_Information.treeModel.selected[iIdx] !== item )
-                        obj_Information.treeModel.selected[iIdx].selected = false
-        }
+        property TreeModel treeModel: TreeModel {}
     }
 }
