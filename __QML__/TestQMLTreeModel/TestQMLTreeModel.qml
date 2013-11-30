@@ -2,7 +2,6 @@ import QtQuick 2.1
 import QtQuick.Controls 1.0
 import QtQuick.Window 2.0
 import extensions.mqmllibraries 1.0
-import "TreeView"
 
 
 ApplicationWindow {
@@ -17,43 +16,107 @@ ApplicationWindow {
         TreeView {
             id: treeView
             anchors.fill: parent
+            anchors.bottomMargin: row_Buttons.height+5
+
+            clip: true
+            singleSelection: true
+
+            treeModel: obj_Information.treeModel
         }
-    }
 
-    Component.onCompleted: {
-        obj_Information.treeItem = MQML.createTreeItem( "Some text" )
-        var treeItemFont = obj_Information.treeItem.font
-        treeItemFont.bold = true
-        obj_Information.treeItem.font = treeItemFont
-        obj_Information.treeItem.addChildItem( MQML.createTreeItem( "Some\ntext 1" ) );
-        obj_Information.treeItem.addChildItem( MQML.createTreeItem( "Some text 2" ) );
-        obj_Information.treeItem.addChildItem( MQML.createTreeItem( "Some text 3" ) );
-        obj_Information.treeModel.addTopLevelItem( obj_Information.treeItem )
+        Row {
+            id: row_Buttons
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottom: parent.bottom
 
-        obj_Information.treeItem = obj_Information.treeItem.childItems[1]
-        treeItemFont = obj_Information.treeItem.font
-        treeItemFont.italic = true
-        obj_Information.treeItem.addChildItem( MQML.createTreeItem( "Sub text 1" ) );
-        obj_Information.treeItem.addChildItem( MQML.createTreeItem( "Sub\ntext 2" ) );
-        obj_Information.treeItem.addChildItem( MQML.createTreeItem( "Sub text 3" ) );
+            height: childrenRect.height
+            Button {
+                text: "Добавить"
 
-        obj_Information.treeItem = MQML.createTreeItem( "Another text" )
-        treeItemFont = obj_Information.treeItem.font
-        treeItemFont.bold = true
-        obj_Information.treeItem.font = treeItemFont
-        obj_Information.treeItem.addChildItem( MQML.createTreeItem() );
-        obj_Information.treeItem.addChildItem( MQML.createTreeItem( "Another text 2" ) );
-        obj_Information.treeModel.addTopLevelItem( obj_Information.treeItem )
+                onClicked: {
+                    if ( obj_Information.treeModel.selected.length > 0 )
+                    {
+                        obj_Information.treeItem = obj_Information.treeModel.selected[0];
+                        obj_Information.treeItem.addChildItem(
+                                    MQML.createTreeItem(
+                                        "Some text "+obj_Information.treeItem.childItems.length ) )
+                        if( obj_Information.treeItem.childItems.length = 1 )
+                            obj_Information.treeItem.expanded = true
+                        obj_Information.treeItem = null
+                    }
+                    else
+                    {
+                        obj_Information.treeItem = MQML.createTreeItem(
+                                    "Some text "+obj_Information.treeModel.tree.length )
+                        obj_Information.treeModel.addTopLevelItem( obj_Information.treeItem )
+                        obj_Information.treeItem = null
+                    }
+                }
+            }
+            Button {
+                text: "Удалить"
 
-        treeView.treeModel = obj_Information.treeModel
+                onClicked: {
+                    if ( obj_Information.treeModel.selected.length > 0 )
+                    {
+                        obj_Information.treeItem = obj_Information.treeModel.selected[0];
+
+                        var parentItem = obj_Information.treeItem.parentItem()
+                        var index
+
+                        if ( parentItem )
+                        {
+                            index = parentItem.childItems.indexOf( obj_Information.treeItem )
+                            obj_Information.treeItem.destroy()
+                            if ( parentItem.childItems.length === 1 )
+                                obj_Information.treeItem = parentItem
+                            else if ( index > 0 )
+                                obj_Information.treeItem = parentItem.childItems[index-1]
+                            else
+                                obj_Information.treeItem = parentItem.childItems[index+1]
+                        }
+                        else
+                        {
+                            index = obj_Information.treeModel.tree.indexOf(
+                                        obj_Information.treeItem )
+                            obj_Information.treeItem.destroy()
+                            if ( obj_Information.treeModel.tree.length === 1 )
+                                obj_Information.treeItem = null
+                            else if ( index > 0 )
+                                obj_Information.treeItem = obj_Information.treeModel.tree[index-1]
+                            else obj_Information.treeItem = obj_Information.treeModel.tree[index+1]
+                        }
+
+                        if ( obj_Information.treeItem )
+                        {
+                            obj_Information.treeItem.selected = true
+                            obj_Information.treeItem = null
+                        }
+                    }
+                }
+            }
+            Button {
+                text: "Снять выделение"
+            }
+            Button {
+                text: "Заблокировать/Разблокировать"
+
+                onClicked: {
+                    if ( obj_Information.treeModel.selected.length > 0 )
+                    {
+                        obj_Information.treeItem = obj_Information.treeModel.selected[0];
+                        obj_Information.treeItem.itemEnabled = !obj_Information.treeItem.itemEnabled
+                        obj_Information.treeItem = null
+                    }
+                }
+            }
+        }
     }
 
     QtObject {
         id: obj_Information
 
         property TreeItem treeItem: null
-        property TreeModel treeModel: TreeModel {
-            columnCount: 1
-        }
+        property TreeModel treeModel: TreeModel {}
     }
 }

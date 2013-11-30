@@ -1,9 +1,18 @@
 #include "treeitem.h"
 
-TreeItem::TreeItem( QQuickItem *parent ) :
-  QQuickItem(parent),
+#include <QDebug>
+
+
+TreeItem::TreeItem( QObject *parent ) :
+  QObject(parent),
   m__NestingLevel(0),
   m__Data(QHash<int, QVariant>()),
+  m__Font(QHash<int, QFont>()),
+  m__ItemEnabled(true),
+  m__Selectable(true),
+  m__Selected(false),
+  m__Expandable(true),
+  m__Expanded(false),
   m__ParentItem(NULL),
   m__ChildItems(QList<TreeItem*>())
 {
@@ -14,12 +23,33 @@ TreeItem::TreeItem( QQuickItem *parent ) :
   // setFlag(ItemHasContents, true);
 }
 
+TreeItem::~TreeItem()
+{
+  qDebug() << m__Data;
+  m__ParentItem = NULL;
+  m__SelectedItems.clear();
+  while ( !m__ChildItems.isEmpty() )
+  {
+    TreeItem *item = m__ChildItems.takeFirst();
+    disconnect( item, SIGNAL(selectedChanged(TreeItem*)),
+                this, SLOT(childSelected(TreeItem*)) );
+    disconnect( item, SIGNAL(clicked(TreeItem*)),
+                this, SIGNAL(clicked(TreeItem*)) );
+    disconnect( item, SIGNAL(doubleClicked(TreeItem*)),
+                this, SIGNAL(doubleClicked(TreeItem*)) );
+    disconnect( item, SIGNAL(destroyed(QObject*)),
+                this, SLOT(childDestroyed(QObject*)) );
+    delete item;
+    item = NULL;
+  }
+}
+
 int TreeItem::nestingLevel() const
 {
   return m__NestingLevel;
 }
 
-const QFont & TreeItem::font() const
+QFont TreeItem::font() const
 {
   if ( !m__Font.contains( 0 ) ) return QFont();
 
@@ -45,6 +75,9 @@ void TreeItem::setData( QVariant data )
 {
   QVariant oldData = m__Data.value( 0 );
   m__Data[0] = data;
+  QFont f = font();
+  f.setPixelSize( 14 );
+  setFont( f );
   if ( oldData != data || oldData.isNull() )
     emit dataChanged( 0 );
 }
@@ -71,6 +104,90 @@ bool TreeItem::hasChild() const
     return !m__ChildItems.isEmpty();
 }
 
+bool TreeItem::itemEnabled() const
+{
+  bool parentEnabled = true;
+
+  if ( m__ParentItem != NULL )
+    parentEnabled = m__ParentItem->itemEnabled();
+
+  if ( parentEnabled ) return m__ItemEnabled;
+  else return parentEnabled;
+}
+
+void TreeItem::setItemEnabled( bool enabled )
+{
+  bool oldEnabled = m__ItemEnabled;
+  m__ItemEnabled = enabled;
+  if ( oldEnabled != enabled )
+  {
+    emit itemEnabledChanged();
+    if ( m__Selected )
+      emit selectedChanged( this );
+  }
+}
+
+bool TreeItem::isSelectable() const
+{
+  return itemEnabled() && m__Selectable;
+}
+
+void TreeItem::setSelectable( bool selectable )
+{
+  bool oldSelectable = m__Selectable;
+  m__Selectable = selectable;
+  if ( oldSelectable != selectable )
+  {
+    emit selectableChanged();
+    if ( m__Selected )
+      emit selectedChanged( this );
+  }
+}
+
+bool TreeItem::isSelected() const
+{
+  return isSelectable() && m__Selected;
+}
+
+void TreeItem::setSelected( bool selected )
+{
+  bool oldSelected = m__Selected;
+  m__Selected = selected;
+  if ( oldSelected != selected )
+    emit selectedChanged( this );
+}
+
+bool TreeItem::childSelected() const
+{
+  return !m__SelectedItems.isEmpty();
+}
+
+bool TreeItem::isExpandable() const
+{
+  return hasChild() && m__Expandable;
+}
+
+void TreeItem::setExpandable( bool expandable )
+{
+  bool oldExpandable = m__Expandable;
+  m__Expandable = expandable;
+  if ( oldExpandable != expandable )
+    emit expandableChanged();
+}
+
+bool TreeItem::isExpanded() const
+{
+  return m__Expanded;
+}
+
+void TreeItem::setExpanded( bool expanded )
+{
+  bool oldExpanded = m__Expanded;
+  m__Expanded = expanded;
+  if ( oldExpanded != expanded )
+    emit expandedChanged();
+}
+
 const QList<TreeItem *> &TreeItem::childItems() const
 {
   return m__ChildItems;
@@ -85,28 +202,67 @@ const QList<QObject *> TreeItem::childItemsAsQObject() const
   return res;
 }
 
-void TreeItem::addChildItem( TreeItem *childItem )
+void TreeItem::addChildItem( TreeItem *item )
 {
-  if ( m__ChildItems.contains(childItem  ) ) return;
+  if ( m__ChildItems.contains( item ) ) return;
 
-  m__ChildItems.append( childItem );
+  m__ChildItems.append( item );
+  item->setSelected( false );
+  item->parentItemChanged( this );
+  connect( item, SIGNAL(selectedChanged(TreeItem*)),
+           this, SLOT(childSelected(TreeItem*)) );
+  connect( item, SIGNAL(clicked(TreeItem*)),
+           this, SIGNAL(clicked(TreeItem*)) );
+  connect( item, SIGNAL(doubleClicked(TreeItem*)),
+           this, SIGNAL(doubleClicked(TreeItem*)) );
+  connect( item, SIGNAL(destroyed(QObject*)),
+           this, SLOT(childDestroyed(QObject*)) );
   emit childItemsChanged();
-  if( m__ChildItems.count() == 1 ) emit hasChildChanged();
-  childItem->parentItemChanged( this );
+  if( m__ChildItems.count() == 1 )
+  {
+    emit hasChildChanged();
+    emit expandableChanged();
+  }
 }
 
-void TreeItem::removeChildItem( TreeItem *childItem )
+void TreeItem::removeChildItem( TreeItem *item )
 {
-  if ( !m__ChildItems.removeOne( childItem ) ) return;
+  if ( !m__ChildItems.removeOne( item ) ) return;
 
+  disconnect( item, SIGNAL(selectedChanged(TreeItem*)),
+              this, SLOT(childSelected(TreeItem*)) );
+  disconnect( item, SIGNAL(clicked(TreeItem*)),
+              this, SIGNAL(clicked(TreeItem*)) );
+  disconnect( item, SIGNAL(doubleClicked(TreeItem*)),
+              this, SIGNAL(doubleClicked(TreeItem*)) );
+  disconnect( item, SIGNAL(destroyed(QObject*)),
+              this, SLOT(childDestroyed(QObject*)) );
+  item->setSelected( false );
+  item->parentItemChanged( NULL );
+  emit selectedChanged( item );
+  if ( m__SelectedItems.removeOne( item ) && m__SelectedItems.isEmpty() )
+    emit childSelectedChanged();
   emit childItemsChanged();
-  if( m__ChildItems.count() == 0 ) emit hasChildChanged();
-  childItem->parentItemChanged( NULL );
+  if( m__ChildItems.isEmpty() )
+  {
+    emit hasChildChanged();
+    emit expandableChanged();
+  }
 }
 
 TreeItem * TreeItem::parentItem() const
 {
   return m__ParentItem;
+}
+
+void TreeItem::click()
+{
+  emit clicked( this );
+}
+
+void TreeItem::doubleClick()
+{
+  emit doubleClicked( this );
 }
 
 void TreeItem::parentItemChanged( TreeItem *parent )
@@ -116,16 +272,65 @@ void TreeItem::parentItemChanged( TreeItem *parent )
   int nestingLevel = 0;
   if ( m__ParentItem != NULL )
   {
+    disconnect( m__ParentItem, SIGNAL(itemEnabledChanged()),
+                this, SLOT(parentEnabledChanged()) );
     TreeItem *parentItem = m__ParentItem;
     m__ParentItem = NULL;
     parentItem->removeChildItem( this );
   }
   m__ParentItem = parent;
   if ( m__ParentItem != NULL )
+  {
+    connect( m__ParentItem, SIGNAL(itemEnabledChanged()),
+             this, SLOT(parentEnabledChanged()) );
     nestingLevel = m__ParentItem->nestingLevel()+1;
+  }
   if ( nestingLevel != m__NestingLevel )
   {
     m__NestingLevel = nestingLevel;
     emit nestingLevelChanged();
   }
+}
+
+void TreeItem::childSelected( TreeItem *item )
+{
+  if ( m__ChildItems.contains( item ) )
+  {
+    if ( item->isSelected() )
+    {
+      if ( !m__SelectedItems.contains( item ) )
+      {
+        m__SelectedItems << item;
+        emit childSelectedChanged();
+      }
+    }
+    else
+    {
+      m__SelectedItems.removeOne( item );
+      emit childSelectedChanged();
+    }
+  }
+
+  emit selectedChanged( item );
+}
+
+void TreeItem::childDestroyed( QObject *obj )
+{
+  TreeItem *item = (TreeItem *)obj;
+  if ( m__SelectedItems.removeOne( item ) )
+    emit childSelectedChanged();
+  if ( m__ChildItems.removeOne( item ) )
+  {
+    emit childItemsChanged();
+    if ( m__ChildItems.isEmpty() )
+      emit hasChildChanged();
+  }
+
+  emit destroyed( obj );
+}
+
+void TreeItem::parentEnabledChanged()
+{
+  emit itemEnabledChanged();
+  emit selectedChanged( this );
 }
