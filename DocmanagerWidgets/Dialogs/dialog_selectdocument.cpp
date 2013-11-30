@@ -244,7 +244,8 @@ void Dialog_SelectDocument::on_tableView_doubleClicked(const QModelIndex &index)
     ui->pBar->setValue( 0 );
     ui->wgt_Progress->setVisible( true );
     qApp->processEvents();
-    bool res = ( m__Docmanager->allDocuments()->documents().contains( doc ) ?
+    bool res = ( m__Docmanager->allDocuments()->documents().contains( doc ) &&
+                 !doc->url().isEmpty()?
                    m__Docmanager->loadDocument( doc ) : true );
     ui->wgt_Progress->setVisible( false );
     if ( !res ) return;
