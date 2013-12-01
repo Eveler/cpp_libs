@@ -32,9 +32,13 @@ class TreeModel : public QObject
     int columnCount() const;
     void setColumnCount( int columnCount );
 
+    Q_INVOKABLE void clear();
+
 
   signals:
     void treeChanged();
+    void topLevelItemAdded( int index );
+    void topLevelItemRemoved( int index );
     void columnCountChanged();
     void selectedChanged( TreeItem *treeItem );
     void treeItemClicked( TreeItem *treeItem );

@@ -5,31 +5,62 @@ import extensions.mqmllibraries 1.0
 
 Item {
     id: treeItemView
-    height: i_Content.height+loader_ChildItems.height
+    anchors.top: ( prevView ? prevView.bottom : parent.top )
+    width: parent.width-parent.anchors.leftMargin
+    height: rect_TextContent.height+
+            ( obj_Information.expanded ? treeItemList.height : 0 )
+    Behavior on height {
+        NumberAnimation { duration: 200 }
+    }
+
+    x: 0
+
+    onYChanged: {
+        if ( !treeItem || !treeItem.parentItem() ||
+                treeItem.parentItem().childItems.indexOf( treeItem ) <
+                treeItem.parentItem().childItems.length-1 )
+            return;
+
+        parent.height = y+height
+    }
+    onHeightChanged: {
+        if ( !treeItem || !treeItem.parentItem() ||
+                treeItem.parentItem().childItems.indexOf( treeItem ) <
+                treeItem.parentItem().childItems.length-1 )
+            return;
+
+        parent.height = y+height
+    }
 
     clip: true
+    enabled: ( treeItem !== null )
 
+    property Item prevView: null
     property TreeItem treeItem: null
+    onTreeItemChanged: obj_Information.itemPropertiesChanged()
 
     Rectangle {
         id: rect_Expander
-        anchors.verticalCenter: i_Content.verticalCenter
+        anchors.verticalCenter: rect_TextContent.verticalCenter
         anchors.left: parent.left
 
         width: 20
         height: width
 
-        color: ( treeItemView.treeItem && treeItemView.treeItem.childSelected ? "#55ff8833" : "#88555555" )
+        color: ( obj_Information.childSelected ? "#55ff8833" : "#88555555" )
         Behavior on color {
-            ColorAnimation { duration: 200 }
+            ColorAnimation { duration: 400 }
         }
-        border.color: ( treeItemView.treeItem && treeItemView.treeItem.childSelected ? "#ffff8833" : "#88000000" )
+        border.color: ( obj_Information.childSelected ? "#ffff8833" : "#88000000" )
         Behavior on border.color {
-            ColorAnimation { duration: 200 }
+            ColorAnimation { duration: 400 }
         }
         radius: width/2
-        visible: treeItemView.treeItem && treeItemView.treeItem.hasChild
-        enabled: treeItemView.treeItem && treeItemView.treeItem.itemEnabled && treeItemView.treeItem.expandable
+        opacity: ( obj_Information.hasChild ? 1.0 : 0.0 )
+        Behavior on opacity {
+            NumberAnimation { duration: 200 }
+        }
+        enabled: obj_Information.itemEnabled && obj_Information.expandable
 
         Image {
             id: image_Arrow
@@ -49,7 +80,7 @@ Item {
                 NumberAnimation { duration: 200 }
             }
 
-            rotation: treeItemView.treeItem && treeItemView.treeItem.expanded ? 90 : 0
+            rotation: obj_Information.expanded ? 90 : 0
             Behavior on rotation {
                 NumberAnimation { easing.type: Easing.OutQuint; duration: 350 }
             }
@@ -62,121 +93,168 @@ Item {
             hoverEnabled: true
 
             onClicked: {
-                if ( treeItemView.treeItem && treeItemView.treeItem.expandable ) treeItemView.treeItem.expanded = !treeItemView.treeItem.expanded
+                if ( treeItemView.treeItem.expandable )
+                    treeItemView.treeItem.expanded = !treeItemView.treeItem.expanded
             }
         }
     }
 
     Rectangle {
-        id: i_Content
+        id: rect_TextContent
         anchors.top: parent.top
         anchors.left: rect_Expander.right
         anchors.leftMargin: 2
-        width: parent.width
-        height: text_ItemText.contentHeight+(text_ItemText.anchors.topMargin*2)
+        anchors.right: parent.right
+        height: text.contentHeight+8
 
-        color: treeItemView.treeItem && treeItemView.treeItem.selected ? "#55ff8833" : "transparent"
+        color: ( obj_Information.selected ? "#55ff8833" : "transparent" )
         Behavior on color {
             ColorAnimation { duration: 200 }
         }
-        enabled: treeItemView.treeItem && treeItemView.treeItem.itemEnabled
 
         Rectangle {
             anchors.top: parent.top
             anchors.topMargin: 1
             anchors.horizontalCenter: parent.horizontalCenter
             width: parent.width
-            height: text_ItemText.anchors.topMargin-anchors.topMargin
+            height: 1
 
-            color: treeItemView.treeItem && treeItemView.treeItem.selected ? "#ffff8833" : "transparent"
+            color: ( obj_Information.selected ? "#ffff8833" : "transparent" )
             Behavior on color {
-                ColorAnimation { duration: 200 }
+                ColorAnimation { duration: 400 }
             }
+        }
+        Text {
+            id: text
+            anchors.centerIn: parent
+            width: parent.width-10
+
+            text: obj_Information.value
+            color: ( obj_Information.itemEnabled ?
+                        ( obj_Information.childSelected ? "#ffff8833" : "black" ) : "#ff555555" )
+            Behavior on color {
+                ColorAnimation { duration: 400 }
+            }
+            font: obj_Information.itemFont
+            wrapMode: Text.WordWrap
         }
         Rectangle {
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 1
             anchors.horizontalCenter: parent.horizontalCenter
             width: parent.width
-            height: text_ItemText.anchors.topMargin-anchors.bottomMargin
+            height: 1
 
-            color: treeItemView.treeItem && treeItemView.treeItem.selected ? "#ffff8833" : "transparent"
+            color: ( obj_Information.selected ? "#ffff8833" : "transparent" )
             Behavior on color {
-                ColorAnimation { duration: 200 }
+                ColorAnimation { duration: 400 }
+            }
+        }
+        Rectangle {
+            anchors.bottom: parent.bottom
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: parent.width
+            height: 1
+
+            color: ( obj_Information.selected ? "transparent" : "#aa000000" )
+            Behavior on color {
+                ColorAnimation { duration: 400 }
             }
         }
 
-        Text {
-            id: text_ItemText
-            anchors.top: parent.top
-            anchors.topMargin: 2
-            anchors.left: parent.left
-            anchors.leftMargin: 4
-            width: parent.width
-            height: contentHeight
-
-            font: ( treeItemView.treeItem ? treeItemView.treeItem.font : f )
-            color: ( enabled ? "black" : "#ff555555" )
-
-            text: i_Content.itemData()
-            wrapMode: Text.WordWrap
-
-            property font f
-        }
-
         MouseArea {
+            id: mouse_TextContent
             anchors.fill: parent
 
-            onClicked: treeItemView.treeItem.click()
-            onDoubleClicked: treeItemView.treeItem.doubleClick()
-        }
+            hoverEnabled: true
 
-        function itemData()
-        {
-            var result = ( treeItemView.treeItem ? treeItemView.treeItem.data : undefined )
-            if ( result === undefined ) result = ""
-
-            return result
+            onClicked: treeItem.click()
+            onDoubleClicked: treeItem.doubleClick()
         }
     }
 
     Rectangle {
-        anchors.top: i_Content.bottom
+        anchors.top: rect_TextContent.bottom
         anchors.topMargin: 1
         anchors.bottom: parent.bottom
         anchors.bottomMargin: anchors.topMargin
         anchors.left: parent.left
-        anchors.leftMargin: (loader_ChildItems.anchors.leftMargin/2)-(width/2)
+        anchors.leftMargin: (treeItemList.anchors.leftMargin/2)-(width/2)
 
         width: 4
 
-        color: ( treeItemView.treeItem && treeItemView.treeItem.childSelected ? "#ffff8833" : "#88000000" )
+        color: ( obj_Information.childSelected ? "#ffff8833" : "#88000000" )
         Behavior on color {
-            ColorAnimation { duration: 200 }
+            ColorAnimation { duration: 400 }
         }
         radius: 2
     }
 
-    Loader {
-        id: loader_ChildItems
-        anchors.top: i_Content.bottom
+    TreeItemsList {
+        id: treeItemList
+        anchors.top: rect_TextContent.bottom
         anchors.left: parent.left
         anchors.leftMargin: 20
+        width: parent.width
 
-        width: treeItemView.width
-        height: ( item ? item.height : 0 )
+        opacity: ( obj_Information.expanded ? 1.0 : 0.0 )
+        Behavior on opacity {
+            NumberAnimation { duration: 400 }
+        }
 
-        asynchronous: true
-
-        source: treeItemView.treeItem && treeItemView.treeItem.hasChild && treeItemView.treeItem.expanded ? "TreeItemsList.qml" : ""
-
-        visible: status == Loader.Ready
+        treeItem: treeItemView.treeItem
     }
 
-    Component.onCompleted: {
-        if ( modelData !== undefined ) treeItem = modelData
+    QtObject {
+        id: obj_Information
+
+        property string value: ""
+        property font defFont
+        property font itemFont: defFont
+        property bool hasChild: false
+        property bool itemEnabled: false
+        property bool selectable: false
+        property bool selected: false
+        property bool childSelected: false
+        property bool expandable: false
+        property bool expanded: false
+
+        function itemPropertiesChanged()
+        {
+            if ( treeItemView.treeItem )
+            {
+                value = treeItemView.treeItem.value
+                itemFont = treeItemView.treeItem.font
+                hasChild = treeItemView.treeItem.hasChild
+                itemEnabled = treeItemView.treeItem.itemEnabled
+                selectable = treeItemView.treeItem.selectable
+                selected = treeItemView.treeItem.selected
+                childSelected = treeItemView.treeItem.childSelected
+                expandable = treeItemView.treeItem.expandable
+                expanded = treeItemView.treeItem.expanded
+            }
+            else
+            {
+                value = ""
+                itemFont = defFont
+                hasChild = false
+                itemEnabled = false
+                selectable = false
+                selected = false
+                childSelected = false
+                expandable = false
+                expanded = false
+            }
+        }
     }
-    Component.onDestruction: {
-        treeItem = null
+
+    Connections {
+        target: treeItemView.treeItem
+        onValueChanged: obj_Information.itemPropertiesChanged()
+        onItemEnabledChanged: obj_Information.itemPropertiesChanged()
+        onSelectableChanged: obj_Information.itemPropertiesChanged()
+        onSelectedChanged: obj_Information.itemPropertiesChanged()
+        onExpandableChanged: obj_Information.itemPropertiesChanged()
+        onExpandedChanged: obj_Information.itemPropertiesChanged()
     }
 }

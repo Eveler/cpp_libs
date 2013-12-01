@@ -2,10 +2,13 @@ import QtQuick 2.0
 import extensions.mqmllibraries 1.0
 
 
-ListView {
-    id: main
+Flickable {
+    id: treeView
 
     property TreeModel treeModel: null
+    onTreeModelChanged: {
+        treeItemList.treeModel = treeModel
+    }
 
     property bool singleSelection: false
 
@@ -13,41 +16,33 @@ ListView {
     signal clicked( TreeItem item )
     signal doubleClicked( TreeItem item )
 
-    onTreeModelChanged: {
-        if ( treeModel !== null )
-            model = treeModel.tree
-        else model = null
-    }
+    contentHeight: treeItemList.height
 
-    onModelChanged: {
-        model = treeModel.tree
-    }
-
-    delegate: TreeItemView {
+    TreeItemsList {
+        id: treeItemList
         width: parent.width
     }
 
     Connections {
-        target: main.treeModel
-        onTreeChanged: model = treeModel.tree
+        target: treeView.treeModel
         onSelectedChanged: {
-            if ( main.singleSelection && main.treeModel.selected.length > 1 )
-                for ( var iIdx = 0; iIdx < main.treeModel.selected.length; iIdx++ )
-                    if ( main.treeModel.selected[iIdx] !== treeItem )
-                        main.treeModel.selected[iIdx].selected = false
-            main.selected( treeItem )
+            if ( treeView.singleSelection && treeView.treeModel.selected.length > 1 )
+                for ( var iIdx = 0; iIdx < treeView.treeModel.selected.length; iIdx++ )
+                    if ( treeView.treeModel.selected[iIdx] !== treeItem )
+                        treeView.treeModel.selected[iIdx].selected = false
+            treeView.selected( treeItem )
         }
         onTreeItemClicked: {
             if ( treeItem.selectable )
             {
-                if ( main.singleSelection ) treeItem.selected = true
+                if ( treeView.singleSelection ) treeItem.selected = true
                 else treeItem.selected = !treeItem.selected;
             }
-            main.clicked( treeItem )
+            treeView.clicked( treeItem )
         }
         onTreeItemDoubleClicked: {
             if ( treeItem.expandable ) treeItem.expanded = !treeItem.expanded
-            main.doubleClicked( treeItem )
+            treeView.doubleClicked( treeItem )
         }
     }
 }

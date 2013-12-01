@@ -21,7 +21,7 @@ ApplicationWindow {
             clip: true
             singleSelection: true
 
-            treeModel: obj_Information.treeModel
+//            treeModel: obj_Information.treeModel
         }
 
         Row {
@@ -97,6 +97,15 @@ ApplicationWindow {
             }
             Button {
                 text: "Снять выделение"
+
+                onClicked: {
+                    if ( obj_Information.treeModel.selected.length > 0 )
+                    {
+                        obj_Information.treeItem = obj_Information.treeModel.selected[0];
+                        obj_Information.treeItem.selected = false
+                        obj_Information.treeItem = null
+                    }
+                }
             }
             Button {
                 text: "Заблокировать/Разблокировать"
@@ -118,5 +127,15 @@ ApplicationWindow {
 
         property TreeItem treeItem: null
         property TreeModel treeModel: TreeModel {}
+    }
+
+    Component.onCompleted: {
+        console.debug( Date() )
+        for ( var idx = 0; idx < 250; idx++ )
+            obj_Information.treeModel.addTopLevelItem( MQML.createTreeItem( "Item "+(idx+1)+" lksd;gksd;gons sdlknasdo;gnsd sdopnsdsdophnfiopashab kabsfabsfabf oasbfaiosbfpoasgbfa asfasfaosifha o;ashfoiabhso  poasf[ioasfo;aisf ;pasfpaoihfo[a o;lopdfgbiasfopan p'asoaig]]" ) )
+        console.debug( Date() )
+
+        treeView.treeModel = obj_Information.treeModel
+        console.debug( Date() )
     }
 }

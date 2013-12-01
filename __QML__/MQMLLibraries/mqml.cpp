@@ -11,6 +11,6 @@ MQML::MQML(QObject *parent) :
 TreeItem * MQML::createTreeItem( QVariant value ) const
 {
   TreeItem *result = new TreeItem;
-  result->setData( value );
+  result->setValue( value );
   return result;
 }

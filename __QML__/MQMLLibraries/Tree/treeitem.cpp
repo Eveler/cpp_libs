@@ -6,7 +6,7 @@
 TreeItem::TreeItem( QObject *parent ) :
   QObject(parent),
   m__NestingLevel(0),
-  m__Data(QHash<int, QVariant>()),
+  m__Value(QHash<int, QVariant>()),
   m__Font(QHash<int, QFont>()),
   m__ItemEnabled(true),
   m__Selectable(true),
@@ -25,7 +25,6 @@ TreeItem::TreeItem( QObject *parent ) :
 
 TreeItem::~TreeItem()
 {
-  qDebug() << m__Data;
   m__ParentItem = NULL;
   m__SelectedItems.clear();
   while ( !m__ChildItems.isEmpty() )
@@ -64,39 +63,39 @@ void TreeItem::setFont( const QFont &font )
     emit fontChanged( 0 );
 }
 
-QVariant TreeItem::data() const
+QVariant TreeItem::value() const
 {
-  if ( !m__Data.contains( 0 ) ) return QVariant();
+  if ( !m__Value.contains( 0 ) ) return QVariant();
 
-  return m__Data[0];
+  return m__Value[0];
 }
 
-void TreeItem::setData( QVariant data )
+void TreeItem::setValue( QVariant value )
 {
-  QVariant oldData = m__Data.value( 0 );
-  m__Data[0] = data;
+  QVariant oldValue = m__Value.value( 0 );
+  m__Value[0] = value;
   QFont f = font();
   f.setPixelSize( 14 );
   setFont( f );
-  if ( oldData != data || oldData.isNull() )
-    emit dataChanged( 0 );
+  if ( oldValue != value || oldValue.isNull() )
+    emit valueChanged( 0 );
 }
 
-QVariant TreeItem::columnData( int column ) const
+QVariant TreeItem::columnValue( int column ) const
 {
-  if ( !m__Data.contains( column ) ) return QVariant();
+  if ( !m__Value.contains( column ) ) return QVariant();
 
-  return m__Data[column];
+  return m__Value[column];
 }
 
-void TreeItem::setColumnData( QVariant data, int column )
+void TreeItem::setColumnValue( QVariant value, int column )
 {
   if ( column < 0 ) return;
 
-  QVariant oldData = m__Data.value( column );
-  m__Data[column] = data;
-  if ( oldData != data || oldData.isNull() )
-    emit dataChanged( column );
+  QVariant oldvalue = m__Value.value( column );
+  m__Value[column] = value;
+  if ( oldvalue != value || oldvalue.isNull() )
+    emit valueChanged( column );
 }
 
 bool TreeItem::hasChild() const
@@ -197,8 +196,8 @@ const QList<QObject *> TreeItem::childItemsAsQObject() const
 {
   QList<QObject *> res;
   res.reserve(m__ChildItems.count());
-  foreach ( TreeItem *i, m__ChildItems )
-    res << i;
+  foreach ( TreeItem *item, m__ChildItems )
+    res << item;
   return res;
 }
 
@@ -206,9 +205,12 @@ void TreeItem::addChildItem( TreeItem *item )
 {
   if ( m__ChildItems.contains( item ) ) return;
 
-  m__ChildItems.append( item );
+  int index = m__ChildItems.count();
+  m__ChildItems.insert( index, item );
   item->setSelected( false );
   item->parentItemChanged( this );
+  connect( item, SIGNAL(childItemsChanged()),
+           this, SIGNAL(childItemsChanged()) );
   connect( item, SIGNAL(selectedChanged(TreeItem*)),
            this, SLOT(childSelected(TreeItem*)) );
   connect( item, SIGNAL(clicked(TreeItem*)),
@@ -217,6 +219,7 @@ void TreeItem::addChildItem( TreeItem *item )
            this, SIGNAL(doubleClicked(TreeItem*)) );
   connect( item, SIGNAL(destroyed(QObject*)),
            this, SLOT(childDestroyed(QObject*)) );
+  emit childItemAdded( index );
   emit childItemsChanged();
   if( m__ChildItems.count() == 1 )
   {
@@ -227,8 +230,11 @@ void TreeItem::addChildItem( TreeItem *item )
 
 void TreeItem::removeChildItem( TreeItem *item )
 {
-  if ( !m__ChildItems.removeOne( item ) ) return;
+  int index = m__ChildItems.indexOf( item );
+  if ( index < 0 ) return;
 
+  disconnect( item, SIGNAL(childItemsChanged()),
+              this, SIGNAL(childItemsChanged()) );
   disconnect( item, SIGNAL(selectedChanged(TreeItem*)),
               this, SLOT(childSelected(TreeItem*)) );
   disconnect( item, SIGNAL(clicked(TreeItem*)),
@@ -239,9 +245,11 @@ void TreeItem::removeChildItem( TreeItem *item )
               this, SLOT(childDestroyed(QObject*)) );
   item->setSelected( false );
   item->parentItemChanged( NULL );
+  m__ChildItems.removeAt( index );
   emit selectedChanged( item );
   if ( m__SelectedItems.removeOne( item ) && m__SelectedItems.isEmpty() )
     emit childSelectedChanged();
+  emit childItemRemoved( index );
   emit childItemsChanged();
   if( m__ChildItems.isEmpty() )
   {
@@ -319,11 +327,17 @@ void TreeItem::childDestroyed( QObject *obj )
   TreeItem *item = (TreeItem *)obj;
   if ( m__SelectedItems.removeOne( item ) )
     emit childSelectedChanged();
-  if ( m__ChildItems.removeOne( item ) )
+
+  int index = m__ChildItems.indexOf( item );
+  if ( index < 0 ) return;
+
+  m__ChildItems.removeAt( index );
+  emit childItemRemoved( index );
+  emit childItemsChanged();
+  if ( m__ChildItems.isEmpty() )
   {
-    emit childItemsChanged();
-    if ( m__ChildItems.isEmpty() )
-      emit hasChildChanged();
+    emit hasChildChanged();
+    emit expandableChanged();
   }
 
   emit destroyed( obj );

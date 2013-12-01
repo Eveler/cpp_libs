@@ -12,8 +12,8 @@ class TreeItem : public QObject
     Q_OBJECT
     Q_DISABLE_COPY( TreeItem )
     Q_PROPERTY( int nestingLevel READ nestingLevel NOTIFY nestingLevelChanged )
-    Q_PROPERTY( QVariant data READ data WRITE setData NOTIFY dataChanged )
     Q_PROPERTY( QFont font READ font WRITE setFont NOTIFY fontChanged )
+    Q_PROPERTY( QVariant value READ value WRITE setValue NOTIFY valueChanged )
     Q_PROPERTY( bool hasChild READ hasChild NOTIFY hasChildChanged )
     Q_PROPERTY( bool itemEnabled READ itemEnabled WRITE setItemEnabled NOTIFY itemEnabledChanged )
     Q_PROPERTY( bool selectable READ isSelectable WRITE setSelectable NOTIFY selectableChanged )
@@ -30,12 +30,14 @@ class TreeItem : public QObject
 
     int nestingLevel() const;
 
-    QVariant data() const;
-    void setData( QVariant data );
     QFont font() const;
     void setFont( const QFont &font );
-    Q_INVOKABLE QVariant columnData( int column ) const;
-    Q_INVOKABLE void setColumnData( QVariant data,  int column  );
+
+    QVariant value() const;
+    void setValue( QVariant value );
+
+    Q_INVOKABLE QVariant columnValue( int column ) const;
+    Q_INVOKABLE void setColumnValue( QVariant value,  int column  );
 
     bool hasChild() const;
 
@@ -67,8 +69,8 @@ class TreeItem : public QObject
 
   signals:
     void nestingLevelChanged();
-    void dataChanged( int column );
     void fontChanged( int column );
+    void valueChanged( int column );
     void itemEnabledChanged();
     void selectableChanged();
     void selectedChanged( TreeItem *item );
@@ -76,6 +78,8 @@ class TreeItem : public QObject
     void expandableChanged();
     void expandedChanged();
     void childItemsChanged();
+    void childItemAdded( int index );
+    void childItemRemoved( int index );
     void hasChildChanged();
     void clicked( TreeItem *item );
     void doubleClicked( TreeItem *item );
@@ -86,8 +90,8 @@ class TreeItem : public QObject
 
   private:
     int m__NestingLevel;
-    QHash<int, QVariant> m__Data;
     QHash<int, QFont> m__Font;
+    QHash<int, QVariant> m__Value;
     bool m__ItemEnabled;
     bool m__Selectable;
     bool m__Selected;

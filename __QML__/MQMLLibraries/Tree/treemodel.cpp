@@ -2,6 +2,8 @@
 
 #include "treeitem.h"
 
+#include <QDebug>
+
 
 TreeModel::TreeModel(QObject * parent) :
   QObject(parent),
@@ -13,22 +15,7 @@ TreeModel::TreeModel(QObject * parent) :
 
 TreeModel::~TreeModel()
 {
-  m__Selected.clear();
-  while ( !m__Tree.isEmpty() )
-  {
-    TreeItem *item = m__Tree.takeFirst();
-    disconnect( item, SIGNAL(selectedChanged(TreeItem*)),
-                this, SLOT(treeItemSelectedChanged(TreeItem*)) );
-    disconnect( item, SIGNAL(clicked(TreeItem*)),
-                this, SIGNAL(treeItemClicked(TreeItem*)) );
-    disconnect( item, SIGNAL(doubleClicked(TreeItem*)),
-                this, SIGNAL(treeItemDoubleClicked(TreeItem*)) );
-    disconnect( item, SIGNAL(destroyed(QObject*)),
-                this, SLOT(treeItemDestroyed(QObject*)) );
-    delete item;
-    item = NULL;
-  }
-  m__ColumnCount = 0;
+  clear();
 }
 
 const QList<TreeItem *> & TreeModel::tree() const
@@ -39,9 +26,8 @@ const QList<TreeItem *> & TreeModel::tree() const
 QList<QObject *> TreeModel::treeAsQObjects() const
 {
   QList<QObject *> res;
-  res.reserve(m__Tree.count());
-  foreach ( TreeItem *i, m__Tree )
-    res.append(i);
+  foreach ( TreeItem *item, m__Tree )
+    res << item;
   return res;
 }
 
@@ -63,7 +49,10 @@ void TreeModel::addTopLevelItem( TreeItem *item )
 {
   if ( m__Tree.contains( item ) ) return;
 
-  m__Tree << item;
+  int index = m__Tree.count();
+  m__Tree.insert( index, item );
+  connect( item, SIGNAL(childItemsChanged()),
+           this, SIGNAL(treeChanged()) );
   connect( item, SIGNAL(selectedChanged(TreeItem*)),
            this, SLOT(treeItemSelectedChanged(TreeItem*)) );
   connect( item, SIGNAL(clicked(TreeItem*)),
@@ -72,11 +61,14 @@ void TreeModel::addTopLevelItem( TreeItem *item )
            this, SIGNAL(treeItemDoubleClicked(TreeItem*)) );
   connect( item, SIGNAL(destroyed(QObject*)),
            this, SLOT(treeItemDestroyed(QObject*)) );
+  emit topLevelItemAdded( index );
   emit treeChanged();
 }
 
 void TreeModel::removeTopLevelItem( TreeItem *item )
 {
+  disconnect( item, SIGNAL(childItemsChanged()),
+              this, SIGNAL(treeChanged()) );
   disconnect( item, SIGNAL(selectedChanged(TreeItem*)),
               this, SLOT(treeItemSelectedChanged(TreeItem*)) );
   disconnect( item, SIGNAL(clicked(TreeItem*)),
@@ -85,9 +77,12 @@ void TreeModel::removeTopLevelItem( TreeItem *item )
               this, SIGNAL(treeItemDoubleClicked(TreeItem*)) );
   disconnect( item, SIGNAL(destroyed(QObject*)),
               this, SLOT(treeItemDestroyed(QObject*)) );
-  if ( !m__Tree.removeOne( item ) ) return;
+  int index = m__Tree.indexOf( item );
+  if ( index < 0 ) return;
+  m__Tree.removeAt( index );
   m__Selected.removeOne( item );
 
+  emit topLevelItemRemoved( index );
   emit treeChanged();
 }
 
@@ -104,6 +99,28 @@ void TreeModel::setColumnCount( int columnCount )
   emit columnCountChanged();
 }
 
+void TreeModel::clear()
+{
+  qDebug() << __func__;
+  m__Selected.clear();
+  while ( !m__Tree.isEmpty() )
+  {
+    TreeItem *item = m__Tree.takeFirst();
+    disconnect( item, SIGNAL(selectedChanged(TreeItem*)),
+                this, SLOT(treeItemSelectedChanged(TreeItem*)) );
+    disconnect( item, SIGNAL(clicked(TreeItem*)),
+                this, SIGNAL(treeItemClicked(TreeItem*)) );
+    disconnect( item, SIGNAL(doubleClicked(TreeItem*)),
+                this, SIGNAL(treeItemDoubleClicked(TreeItem*)) );
+    disconnect( item, SIGNAL(destroyed(QObject*)),
+                this, SLOT(treeItemDestroyed(QObject*)) );
+    delete item;
+    item = NULL;
+  }
+  m__ColumnCount = 0;
+  emit treeChanged();
+}
+
 void TreeModel::treeItemSelectedChanged( TreeItem *treeItem )
 {
   if ( !treeItem->isSelected() ) m__Selected.removeOne( treeItem );
@@ -113,11 +130,16 @@ void TreeModel::treeItemSelectedChanged( TreeItem *treeItem )
 
 void TreeModel::treeItemDestroyed( QObject *obj )
 {
-  qDebug() << "treeItemDestroyed" << obj;
   TreeItem *item = (TreeItem *)obj;
+
   if ( m__Selected.removeOne( item ) )
     emit selectedChanged( NULL );
 
-  if ( m__Tree.removeOne( item ) )
-    emit treeChanged();
+  int index = m__Tree.indexOf( item );
+  if ( index < 0 ) return;
+
+  m__Tree.removeAt( index );
+
+  emit topLevelItemRemoved( index );
+  emit treeChanged();
 }
