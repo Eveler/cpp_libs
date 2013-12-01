@@ -86,9 +86,11 @@ protected:
   void setclient(const QString &c);
   void setaddress(const QString &a);
   void setphone(const QString &p);
+  void setemail(const QString &p);
   void setorientir(const QString &a);
   void setsign(const QString &s);
   void setdate(const QDate &d);
+  void setdocument(MFCDocumentInfo *a);
   void set_error(const QString file,const int line,const QString str);
 };
 
