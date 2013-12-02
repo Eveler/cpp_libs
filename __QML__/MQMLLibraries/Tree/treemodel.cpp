@@ -101,7 +101,6 @@ void TreeModel::setColumnCount( int columnCount )
 
 void TreeModel::clear()
 {
-  qDebug() << __func__;
   m__Selected.clear();
   while ( !m__Tree.isEmpty() )
   {

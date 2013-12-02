@@ -33,7 +33,7 @@ void TrusteeLoader_P::run()
   QSqlQuery qry( db );
   if ( !qry.exec( tr( "SELECT id AS identifier, declar_id AS declarIdentifier,"
                       " trustee_id AS trusteeClientIdentifier,"
-                      " client_id AS clientIdentifier,"
+                      " client_id AS clientIdentifier"
                       " FROM declar_trustees%1 ORDER BY id" )
                   .arg( ( !m__Filter.isEmpty() ? " WHERE "+m__Filter : "" ) ) ) )
   {

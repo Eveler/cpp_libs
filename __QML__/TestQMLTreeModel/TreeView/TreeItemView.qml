@@ -200,7 +200,7 @@ Item {
 
         opacity: ( obj_Information.expanded ? 1.0 : 0.0 )
         Behavior on opacity {
-            NumberAnimation { duration: 400 }
+            NumberAnimation { duration: 200 }
         }
         scale: opacity
 

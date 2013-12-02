@@ -37,5 +37,22 @@ QtObject {
             target: AssessmenttypeLoader
             onErrorAdded: lastError = AssessmenttypeLoader.error( errorId )
         }
+
+        Connections {
+            target: DeclarClientLoader
+            onErrorAdded: lastError = DeclarClientLoader.error( errorId )
+        }
+
+        Connections {
+            target: TrusteeLoader
+            onErrorAdded: lastError = TrusteeLoader.error( errorId )
+        }
+
+        Connections {
+            target: ClientLoader
+            onErrorAdded: lastError = ClientLoader.error( errorId )
+        }
     }
+
+    onLastErrorChanged: console.debug( lastError )
 }

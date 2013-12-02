@@ -2,6 +2,7 @@ import QtQuick 2.1
 import QtQuick.Controls 1.0
 import QtQuick.Window 2.0
 import extensions.mqmllibraries 1.0
+import "TreeView" as TV
 
 
 ApplicationWindow {
@@ -13,7 +14,7 @@ ApplicationWindow {
         id: i_Central
         anchors.fill: parent
 
-        TreeView {
+        TV.TreeView {
             id: treeView
             anchors.fill: parent
             anchors.bottomMargin: row_Buttons.height+5
