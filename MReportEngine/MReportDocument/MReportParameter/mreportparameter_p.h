@@ -34,6 +34,8 @@ private:
   int m__ListIndex;
   int m__Count;
 
+  QList<MReportParameter *> m__ParameterExecuted;
+
   explicit MReportParameter_P( const QString &name, MReportParameter *parent );
 
   MReportParameter * p_dptr() const;
