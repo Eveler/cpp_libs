@@ -48,6 +48,18 @@ int TreeItem::nestingLevel() const
   return m__NestingLevel;
 }
 
+QVariant TreeItem::propertyData( QString propertyName ) const
+{
+  return m__PropertyData.value( propertyName, QVariant() );
+}
+
+void TreeItem::setPropertyData( QString propertyName, QVariant data )
+{
+  QVariant oldData = propertyData( propertyName );
+  m__PropertyData[propertyName] = data;
+  if ( oldData != data ) emit propertyDataChanged( propertyName );
+}
+
 QFont TreeItem::font() const
 {
   if ( !m__Font.contains( 0 ) ) return QFont();

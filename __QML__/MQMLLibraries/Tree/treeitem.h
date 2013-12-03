@@ -30,6 +30,9 @@ class TreeItem : public QObject
 
     int nestingLevel() const;
 
+    Q_INVOKABLE QVariant propertyData( QString propertyName ) const;
+    Q_INVOKABLE void setPropertyData( QString propertyName, QVariant data );
+
     QFont font() const;
     void setFont( const QFont &font );
 
@@ -69,6 +72,7 @@ class TreeItem : public QObject
 
   signals:
     void nestingLevelChanged();
+    void propertyDataChanged( QString propertyName );
     void fontChanged( int column );
     void valueChanged( int column );
     void itemEnabledChanged();
@@ -90,6 +94,7 @@ class TreeItem : public QObject
 
   private:
     int m__NestingLevel;
+    QHash<QString, QVariant> m__PropertyData;
     QHash<int, QFont> m__Font;
     QHash<int, QVariant> m__Value;
     bool m__ItemEnabled;
