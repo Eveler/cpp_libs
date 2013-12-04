@@ -189,7 +189,7 @@ QString MFCCore::execFile(const QString &fName, const bool block_ui){
 #ifdef Q_OS_WIN
     fileName.replace("/","\\");
     QTextCodec *c=QTextCodec::codecForLocale();
-    QTextCodec::setCodecForLocale(QTextCodec::codecForName("Windows-1251"));
+    QTextCodec::setCodecForLocale(QTextCodec::codecForName("IBM 866"));
     int res=ext_proc->execute(tr("cmd /C \"%1\"").arg(
                                 fileName.toLocal8Bit().constData()));
     QTextCodec::setCodecForLocale(c);
@@ -243,7 +243,13 @@ QString MFCCore::execFile(const QByteArray &buf, const QString &extension,
                           const bool block_ui){
   QUuid uuid=QUuid::createUuid();
   QString fileName=uuid.toString();
-  fileName=QDir::tempPath()+tr("/exec%1.%2").arg(
+
+  QDir d(qApp->applicationDirPath()+tr("/temp/"));
+  if(!d.exists()){
+    d.mkpath(d.absolutePath());
+  }
+
+  fileName=/*QDir::tempPath()+*/d.absolutePath()+tr("/exec%1.%2").arg(
         fileName.mid(1,fileName.length()-2)).arg(extension);
   if(!m__Core && !block_ui) m__Core=new MFCCore;
   QString errStr;
