@@ -577,20 +577,25 @@ void ElectroDoc_v2::zoomOut(){
 
 #ifdef Q_OS_WIN
 void ElectroDoc_v2::scannerConfigTriggered(/*pos*/){
+  ui->tBt_SelectSource->setDisabled(true);
     releaseTWAIN();
     initTWAIN();
     m_pTwain->selectSource();
+    ui->tBt_SelectSource->setEnabled(true);
 }
 
 void ElectroDoc_v2::scannerStart()
 {
+  ui->tBt_ScanNew->setDisabled(true);
     releaseTWAIN();
     initTWAIN();
     m_pTwain->acquire();
+    ui->tBt_ScanNew->setEnabled(true);
 }
 
 void ElectroDoc_v2::pixmapAcquired( QPixmap *pix )
 {
+  ui->tBt_ScanNew->setEnabled(true);
     if ( pix == NULL ) return;
 
     addPage( tr("Страница %1 (Скан %2)").arg(ui->lWgt_Pages->count()+1).arg(
