@@ -70,6 +70,14 @@ Trustee * TrusteeList::addLink( Trustee *link ) const
   return newTrustee;
 }
 
+Trustee * TrusteeList::find( QVariant identifier ) const
+{
+  foreach ( Trustee *trustee, p->m__Trustees )
+    if ( trustee->identifier() == identifier ) return trustee;
+
+  return NULL;
+}
+
 void TrusteeList::receivedTrusteeInfo( TrusteeInfo trusteeinfo ) const
 {
   Trustee *newTrustee = new Trustee( p->p_dptr(), trusteeinfo );

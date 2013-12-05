@@ -70,6 +70,14 @@ Result * ResultList::addLink( Result *link ) const
   return newResult;
 }
 
+Result * ResultList::find( QVariant identifier ) const
+{
+  foreach ( Result *result, p->m__Results )
+    if ( result->identifier() == identifier ) return result;
+
+  return NULL;
+}
+
 void ResultList::receivedResultInfo( ResultInfo resultinfo ) const
 {
   Result *newResult = new Result( p->p_dptr(), resultinfo );

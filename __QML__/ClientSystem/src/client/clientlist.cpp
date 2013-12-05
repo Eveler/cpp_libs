@@ -70,6 +70,14 @@ Client * ClientList::addLink( Client *link ) const
   return newClient;
 }
 
+Client * ClientList::find( QVariant identifier ) const
+{
+  foreach ( Client *client, p->m__Clients )
+    if ( client->identifier() == identifier ) return client;
+
+  return NULL;
+}
+
 void ClientList::receivedClientInfo( ClientInfo clientinfo ) const
 {
   Client *newClient = new Client( p->p_dptr(), clientinfo );

@@ -31,6 +31,8 @@ public:
     Q_INVOKABLE int procedureIndex( Procedure *procedure ) const;
     Q_INVOKABLE Procedure * addLink( Procedure *link ) const;
 
+    Q_INVOKABLE Procedure * find( QVariant identifier ) const;
+
 
 signals:
     void countChanged() const;

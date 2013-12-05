@@ -70,6 +70,14 @@ Organisation * OrganisationList::addLink( Organisation *link ) const
     return newOrganisation;
 }
 
+Organisation * OrganisationList::find( QVariant identifier ) const
+{
+  foreach ( Organisation *organisation, p->m__Organisations )
+    if ( organisation->identifier() == identifier ) return organisation;
+
+  return NULL;
+}
+
 void OrganisationList::receivedOrganisationInfo( OrganisationInfo organisationInfo ) const
 {
     Organisation *newOrganisation = new Organisation( p->p_dptr(), organisationInfo );

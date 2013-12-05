@@ -38,18 +38,21 @@ Item {
             console.debug( "ClientLoader.source.count: "+ClientLoader.source.count )
             return
         }
-        obj_Information.clients = ClientLoader.source
+        obj_Information.clients = DeclarClientLoader.source
+        obj_Information.trustees = TrusteeLoader.source
         console.debug( ClientLoader.source.count )
 
         declarChanged()
     }
     readonly property int serviceId: obj_Information.serviceId
-    readonly property ClientList clients: obj_Information.clients
+    readonly property DeclarClientList clients: obj_Information.clients
+    readonly property TrusteeList trustees: obj_Information.trustees
 
     QtObject {
         id: obj_Information
         property Declar declar: null
         property int serviceId: 0
-        property ClientList clients: null
+        property DeclarClientList clients: null
+        property TrusteeList trustees: null
     }
 }

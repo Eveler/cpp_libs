@@ -70,6 +70,14 @@ Assessmenttype * AssessmenttypeList::addLink( Assessmenttype *link ) const
   return newAssessmenttype;
 }
 
+Assessmenttype * AssessmenttypeList::find( QVariant identifier ) const
+{
+  foreach ( Assessmenttype *assessmenttype, p->m__Assessmenttypes )
+    if ( assessmenttype->identifier() == identifier ) return assessmenttype;
+
+  return NULL;
+}
+
 void AssessmenttypeList::receivedAssessmenttypeInfo( AssessmenttypeInfo assessmenttypeinfo ) const
 {
   Assessmenttype *newAssessmenttype = new Assessmenttype( p->p_dptr(), assessmenttypeinfo );

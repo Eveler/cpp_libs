@@ -70,6 +70,14 @@ DeclarClient * DeclarClientList::addLink( DeclarClient *link ) const
   return newDeclarClient;
 }
 
+DeclarClient * DeclarClientList::find( QVariant identifier ) const
+{
+  foreach ( DeclarClient *seclarClient, p->m__DeclarClients )
+    if ( seclarClient->identifier() == identifier ) return seclarClient;
+
+  return NULL;
+}
+
 void DeclarClientList::receivedDeclarClientInfo( DeclarClientInfo declarclientinfo ) const
 {
   DeclarClient *newDeclarClient = new DeclarClient( p->p_dptr(), declarclientinfo );

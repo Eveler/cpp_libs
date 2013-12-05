@@ -31,6 +31,8 @@ class ClientList : public QObject
     Q_INVOKABLE int clientIndex( Client *client ) const;
     Q_INVOKABLE Client * addLink( Client *link ) const;
 
+    Q_INVOKABLE Client * find( QVariant identifier ) const;
+
 
   signals:
     void countChanged() const;

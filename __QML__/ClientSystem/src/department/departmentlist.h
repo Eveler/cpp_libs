@@ -31,6 +31,8 @@ public:
     Q_INVOKABLE int departmentIndex( Department *department ) const;
     Q_INVOKABLE Department * addLink( Department *link ) const;
 
+    Q_INVOKABLE Department * find( QVariant identifier ) const;
+
 
 signals:
     void countChanged() const;

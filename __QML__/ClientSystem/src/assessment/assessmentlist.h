@@ -31,6 +31,8 @@ class AssessmentList : public QObject
     Q_INVOKABLE int assessmentIndex( Assessment *assessment ) const;
     Q_INVOKABLE Assessment * addLink( Assessment *link ) const;
 
+    Q_INVOKABLE Assessment * find( QVariant identifier ) const;
+
 
   signals:
     void countChanged() const;

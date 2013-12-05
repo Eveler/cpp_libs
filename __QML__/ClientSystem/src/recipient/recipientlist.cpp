@@ -70,6 +70,14 @@ Recipient * RecipientList::addLink( Recipient *link ) const
     return newRecipient;
 }
 
+Recipient * RecipientList::find( QVariant identifier ) const
+{
+  foreach ( Recipient *recipient, p->m__Recipients )
+    if ( recipient->identifier() == identifier ) return recipient;
+
+  return NULL;
+}
+
 void RecipientList::receivedRecipientInfo( RecipientInfo recipientInfo ) const
 {
     Recipient *newRecipient = new Recipient( p->p_dptr(), recipientInfo );

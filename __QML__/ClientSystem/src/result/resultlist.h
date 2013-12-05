@@ -31,6 +31,8 @@ class ResultList : public QObject
     Q_INVOKABLE int resultIndex( Result *result ) const;
     Q_INVOKABLE Result * addLink( Result *link ) const;
 
+    Q_INVOKABLE Result * find( QVariant identifier ) const;
+
 
   signals:
     void countChanged() const;

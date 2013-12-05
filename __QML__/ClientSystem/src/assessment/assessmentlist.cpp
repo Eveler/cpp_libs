@@ -70,6 +70,14 @@ Assessment * AssessmentList::addLink( Assessment *link ) const
   return newAssessment;
 }
 
+Assessment * AssessmentList::find( QVariant identifier ) const
+{
+  foreach ( Assessment *assessment, p->m__Assessments )
+    if ( assessment->identifier() == identifier ) return assessment;
+
+  return NULL;
+}
+
 void AssessmentList::receivedAssessmentInfo( AssessmentInfo assessmentinfo ) const
 {
   Assessment *newAssessment = new Assessment( p->p_dptr(), assessmentinfo );

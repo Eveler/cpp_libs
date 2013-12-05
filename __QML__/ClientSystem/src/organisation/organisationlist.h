@@ -31,6 +31,8 @@ public:
     Q_INVOKABLE int organisationIndex( Organisation *organisation ) const;
     Q_INVOKABLE Organisation * addLink( Organisation *link ) const;
 
+    Q_INVOKABLE Organisation * find( QVariant identifier ) const;
+
 
 signals:
     void countChanged() const;

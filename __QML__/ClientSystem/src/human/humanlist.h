@@ -31,6 +31,8 @@ public:
     Q_INVOKABLE int humanIndex( Human *human ) const;
     Q_INVOKABLE Human * addLink( Human *link ) const;
 
+    Q_INVOKABLE Human * find( QVariant identifier ) const;
+
 
 signals:
     void countChanged() const;

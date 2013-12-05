@@ -70,6 +70,14 @@ Service * ServiceList::addLink( Service *link ) const
   return newService;
 }
 
+Service * ServiceList::find( QVariant identifier ) const
+{
+  foreach ( Service *service, p->m__Services )
+    if ( service->identifier() == identifier ) return service;
+
+  return NULL;
+}
+
 void ServiceList::receivedServiceInfo(ServiceInfo serviceInfo ) const
 {
   Service *newService = new Service( p->p_dptr(), serviceInfo );

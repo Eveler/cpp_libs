@@ -31,6 +31,8 @@ class DoctypeList : public QObject
     Q_INVOKABLE int doctypeIndex( Doctype *doctype ) const;
     Q_INVOKABLE Doctype * addLink( Doctype *link ) const;
 
+    Q_INVOKABLE Doctype * find( QVariant identifier ) const;
+
 
   signals:
     void countChanged() const;

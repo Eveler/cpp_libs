@@ -137,6 +137,7 @@ Item {
             }
             font: obj_Information.itemFont
             wrapMode: Text.WordWrap
+            textFormat: Text.RichText
         }
         Rectangle {
             anchors.bottom: parent.bottom

@@ -70,6 +70,14 @@ Doctype * DoctypeList::addLink( Doctype *link ) const
   return newDoctype;
 }
 
+Doctype * DoctypeList::find( QVariant identifier ) const
+{
+  foreach ( Doctype *doctype, p->m__Doctypes )
+    if ( doctype->identifier() == identifier ) return doctype;
+
+  return NULL;
+}
+
 void DoctypeList::receivedDoctypeInfo( DoctypeInfo doctypeinfo ) const
 {
   Doctype *newDoctype = new Doctype( p->p_dptr(), doctypeinfo );

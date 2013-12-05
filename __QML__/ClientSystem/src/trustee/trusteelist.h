@@ -31,6 +31,8 @@ class TrusteeList : public QObject
     Q_INVOKABLE int trusteeIndex( Trustee *trustee ) const;
     Q_INVOKABLE Trustee * addLink( Trustee *link ) const;
 
+    Q_INVOKABLE Trustee * find( QVariant identifier ) const;
+
 
   signals:
     void countChanged() const;

@@ -70,6 +70,14 @@ Resultway * ResultwayList::addLink( Resultway *link ) const
   return newResultway;
 }
 
+Resultway * ResultwayList::find( QVariant identifier ) const
+{
+  foreach ( Resultway *resultway, p->m__Resultways )
+    if ( resultway->identifier() == identifier ) return resultway;
+
+  return NULL;
+}
+
 void ResultwayList::receivedResultwayInfo( ResultwayInfo resultwayinfo ) const
 {
   Resultway *newResultway = new Resultway( p->p_dptr(), resultwayinfo );

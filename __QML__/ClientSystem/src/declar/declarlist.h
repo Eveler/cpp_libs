@@ -31,6 +31,8 @@ class DeclarList : public QObject
     Q_INVOKABLE int declarIndex( Declar *declar ) const;
     Q_INVOKABLE Declar * addLink( Declar *link ) const;
 
+    Q_INVOKABLE Declar * find( QVariant identifier ) const;
+
 
   signals:
     void countChanged() const;

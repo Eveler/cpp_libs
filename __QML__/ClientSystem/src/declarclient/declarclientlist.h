@@ -31,6 +31,8 @@ class DeclarClientList : public QObject
     Q_INVOKABLE int declarclientIndex( DeclarClient *declarclient ) const;
     Q_INVOKABLE DeclarClient * addLink( DeclarClient *link ) const;
 
+    Q_INVOKABLE DeclarClient * find( QVariant identifier ) const;
+
 
   signals:
     void countChanged() const;

@@ -70,6 +70,14 @@ Declar * DeclarList::addLink( Declar *link ) const
   return newDeclar;
 }
 
+Declar * DeclarList::find( QVariant identifier ) const
+{
+  foreach ( Declar *declar, p->m__Declars )
+    if ( declar->identifier() == identifier ) return declar;
+
+  return NULL;
+}
+
 void DeclarList::receivedDeclarInfo( DeclarInfo declarinfo ) const
 {
   Declar *newDeclar = new Declar( p->p_dptr(), declarinfo );

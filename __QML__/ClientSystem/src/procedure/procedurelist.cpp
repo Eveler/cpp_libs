@@ -70,6 +70,14 @@ Procedure * ProcedureList::addLink( Procedure *link ) const
     return newProcedure;
 }
 
+Procedure * ProcedureList::find( QVariant identifier ) const
+{
+  foreach ( Procedure *procedure, p->m__Procedures )
+    if ( procedure->identifier() == identifier ) return procedure;
+
+  return NULL;
+}
+
 void ProcedureList::receivedProcedureInfo( ProcedureInfo procedureInfo ) const
 {
     Procedure *newProcedure = new Procedure( p->p_dptr(), procedureInfo );

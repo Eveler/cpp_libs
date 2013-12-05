@@ -31,6 +31,8 @@ class ResultwayList : public QObject
     Q_INVOKABLE int resultwayIndex( Resultway *resultway ) const;
     Q_INVOKABLE Resultway * addLink( Resultway *link ) const;
 
+    Q_INVOKABLE Resultway * find( QVariant identifier ) const;
+
 
   signals:
     void countChanged() const;

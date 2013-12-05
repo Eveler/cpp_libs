@@ -70,6 +70,14 @@ Department * DepartmentList::addLink( Department *link ) const
     return newDepartment;
 }
 
+Department * DepartmentList::find( QVariant identifier ) const
+{
+  foreach ( Department *department, p->m__Departments )
+    if ( department->identifier() == identifier ) return department;
+
+  return NULL;
+}
+
 void DepartmentList::receivedDepartmentInfo( DepartmentInfo departmentInfo ) const
 {
     Department *newDepartment = new Department( p->p_dptr(), departmentInfo );

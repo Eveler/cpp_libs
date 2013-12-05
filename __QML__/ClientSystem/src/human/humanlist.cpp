@@ -70,6 +70,14 @@ Human * HumanList::addLink( Human *link ) const
     return newHuman;
 }
 
+Human * HumanList::find( QVariant identifier ) const
+{
+  foreach ( Human *human, p->m__Humans )
+    if ( human->identifier() == identifier ) return human;
+
+  return NULL;
+}
+
 void HumanList::receivedHumanInfo( HumanInfo humanInfo ) const
 {
     Human *newHuman = new Human( p->p_dptr(), humanInfo );

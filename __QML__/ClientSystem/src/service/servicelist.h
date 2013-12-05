@@ -31,6 +31,8 @@ public:
     Q_INVOKABLE int serviceIndex( Service *service ) const;
     Q_INVOKABLE Service * addLink( Service *link ) const;
 
+    Q_INVOKABLE Service * find( QVariant identifier ) const;
+
 
 signals:
     void countChanged() const;

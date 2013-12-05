@@ -70,6 +70,14 @@ User * UserList::addLink( User *link ) const
     return newUser;
 }
 
+User * UserList::find( QVariant identifier ) const
+{
+  foreach ( User *user, p->m__Users )
+    if ( user->identifier() == identifier ) return user;
+
+  return NULL;
+}
+
 void UserList::receivedUserInfo( UserInfo userInfo ) const
 {
     User *newUser = new User( p->p_dptr(), userInfo );

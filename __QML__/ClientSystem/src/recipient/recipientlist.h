@@ -31,6 +31,8 @@ public:
     Q_INVOKABLE int recipientIndex( Recipient *recipient ) const;
     Q_INVOKABLE Recipient * addLink( Recipient *link ) const;
 
+    Q_INVOKABLE Recipient * find( QVariant identifier ) const;
+
 
 signals:
     void countChanged() const;
