@@ -24,7 +24,8 @@ HEADERS += \
 OTHER_FILES = qmldir \
     Tree/TreeView/TreeView.qml \
     Tree/TreeView/TreeItemView.qml \
-    Tree/TreeView/TreeItemsList.qml
+    Tree/TreeView/TreeItemsList.qml \
+    DateInput/DateInput.qml
 
 QT_INSTALL_QML = C:/Qt/Qt5.1.1/5.1.1/mingw48_32/qml
 
