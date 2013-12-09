@@ -42,11 +42,13 @@ Item {
         obj_Information.trustees = TrusteeLoader.source
         console.debug( ClientLoader.source.count )
 
+        obj_Information.loaded = true
         declarChanged()
     }
     readonly property int serviceId: obj_Information.serviceId
     readonly property DeclarClientList clients: obj_Information.clients
     readonly property TrusteeList trustees: obj_Information.trustees
+    readonly property bool loaded: obj_Information.loaded
 
     QtObject {
         id: obj_Information
@@ -54,5 +56,17 @@ Item {
         property int serviceId: 0
         property DeclarClientList clients: null
         property TrusteeList trustees: null
+        property bool loaded: false
+    }
+
+    function setServiceIdentifier( identifier )
+    {
+        if ( ServiceLoader.source.find( identifier ) )
+        {
+            obj_Information.serviceId = identifier
+            return true
+        }
+
+        return false
     }
 }

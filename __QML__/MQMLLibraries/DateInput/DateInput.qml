@@ -12,11 +12,26 @@ TextInput {
         inputMask = "99.99.9999;_"
     }
     selectByMouse: true
+    color: ( !obj_Information.showPlaceholder ? "black" : "transparent" )
 
+    property date minimumDate: new Date( 100, 0, 1 )
+    property date maximumDate: new Date( 7999, 11, 31 )
     property date enteredDate
     onEnteredDateChanged: {
+        if ( enteredDate.toString() === "Invalid Date" ) enteredDate = minimumDate
         obj_Information.someDate = enteredDate
         obj_Information.resetDate()
+    }
+    property string placeholderText: ""
+
+    Text {
+        anchors.fill: parent
+
+        text: dateInput.placeholderText
+        visible: obj_Information.showPlaceholder
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
+        color: "#ff222222"
     }
 
     onTextChanged: {
@@ -59,6 +74,10 @@ TextInput {
         property string year: ""
         property bool completed: false
 
+        property bool showPlaceholder: ( !dateInput.focus && dateInput.placeholderText.length > 0 &&
+                                        dateInput.enteredDate.toString() ===
+                                        dateInput.minimumDate.toString() )
+
         function resetDate()
         {
             day = someDate.getDate()
@@ -78,6 +97,6 @@ TextInput {
     }
 
     Component.onCompleted: {
-        enteredDate = new Date()
+        enteredDate = minimumDate
     }
 }
