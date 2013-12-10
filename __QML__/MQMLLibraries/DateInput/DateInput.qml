@@ -12,7 +12,9 @@ TextInput {
         inputMask = "99.99.9999;_"
     }
     selectByMouse: true
-    color: ( !obj_Information.showPlaceholder ? "black" : "transparent" )
+    color: ( !obj_Information.showPlaceholder ?
+                ( enabled && !readOnly ? "black" : "ff444444" ) :
+                "transparent" )
 
     property date minimumDate: new Date( 100, 0, 1 )
     property date maximumDate: new Date( 7999, 11, 31 )
@@ -31,7 +33,7 @@ TextInput {
         visible: obj_Information.showPlaceholder
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
-        color: "#ff222222"
+        color: "#ff444444"
     }
 
     onTextChanged: {
