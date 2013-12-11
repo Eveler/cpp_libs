@@ -7,6 +7,8 @@ Item {
 
     signal declarChanged
 
+    readonly property Declar declarObject: obj_Information.declar
+
     onDeclarIdChanged: {
         if ( !DeclarLoader.load( "id="+declarId ) ||
                 DeclarLoader.source.count == 0 )
