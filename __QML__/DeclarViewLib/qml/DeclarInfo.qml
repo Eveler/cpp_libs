@@ -40,7 +40,6 @@ Item {
         }
         obj_Information.clients = DeclarClientLoader.source
         obj_Information.trustees = TrusteeLoader.source
-        console.debug( ClientLoader.source.count )
 
         obj_Information.loaded = true
         declarChanged()
