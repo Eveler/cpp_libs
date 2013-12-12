@@ -4,7 +4,7 @@ QT += qml quick
 CONFIG += qt plugin
 
 TARGET = $$qtLibraryTarget($$TARGET)
-uri = extensions.mqmllibraries
+uri = extensions.mihail.mqmllibraries
 
 # Input
 SOURCES += \
@@ -29,7 +29,7 @@ OTHER_FILES = qmldir \
     PointedProgressBar/PointedProgressBar.qml \
     MenuButton/MenuButton.qml
 
-QT_INSTALL_QML = C:/Qt/Qt5.1.1/5.1.1/mingw48_32/qml
+QT_INSTALL_QML = C:/Qt/Qt5.2.0/5.2.0/mingw48_32/qml
 
 !equals(_PRO_FILE_PWD_, $$OUT_PWD) {
     copy_qmldir.target = $$OUT_PWD/qmldir

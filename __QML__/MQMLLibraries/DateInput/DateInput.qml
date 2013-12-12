@@ -1,5 +1,5 @@
 import QtQuick 2.0
-import extensions.mqmllibraries 1.0
+import extensions.mihail.mqmllibraries 1.0
 
 
 TextInput {

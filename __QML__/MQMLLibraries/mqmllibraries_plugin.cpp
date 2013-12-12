@@ -18,7 +18,7 @@ void MQMLLibrariesPlugin::initializeEngine( QQmlEngine *engine, const char *uri 
 
 void MQMLLibrariesPlugin::registerTypes(const char *uri)
 {
-    // @uri extensions.mqmllibraries
+    // @uri extensions.mihail.mqmllibraries
   qmlRegisterSingletonType<LogReader>( uri, 1, 0, "LogReader", logReader_Provider );
 
   qmlRegisterType<TreeItem>(uri, 1, 0, "TreeItem");

@@ -1,4 +1,4 @@
-module extensions.mqmllibraries
+module extensions.mihail.mqmllibraries
 plugin MQMLLibraries
 TreeView 1.0 TreeView.qml
 DateInput 1.0 DateInput.qml
