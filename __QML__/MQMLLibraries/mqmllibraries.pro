@@ -25,7 +25,9 @@ OTHER_FILES = qmldir \
     Tree/TreeView/TreeView.qml \
     Tree/TreeView/TreeItemView.qml \
     Tree/TreeView/TreeItemsList.qml \
-    DateInput/DateInput.qml
+    DateInput/DateInput.qml \
+    PointedProgressBar/PointedProgressBar.qml \
+    MenuButton/MenuButton.qml
 
 QT_INSTALL_QML = C:/Qt/Qt5.1.1/5.1.1/mingw48_32/qml
 
@@ -37,7 +39,7 @@ QT_INSTALL_QML = C:/Qt/Qt5.1.1/5.1.1/mingw48_32/qml
     PRE_TARGETDEPS += $$copy_qmldir.target
 }
 
-qmldir.files = qmldir
+qmldir.files = $$OTHER_FILES
 unix {
     installPath = $$[QT_INSTALL_QML]/$$replace(uri, \\., /)
     qmldir.path = $$installPath

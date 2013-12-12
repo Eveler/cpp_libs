@@ -2,3 +2,5 @@ module extensions.mqmllibraries
 plugin MQMLLibraries
 TreeView 1.0 TreeView.qml
 DateInput 1.0 DateInput.qml
+PointedProgressBar 1.0 PointedProgressBar.qml
+MenuButton 1.0 MenuButton.qml
