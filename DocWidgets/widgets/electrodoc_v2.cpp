@@ -154,7 +154,7 @@ void ElectroDoc_v2::setState( State state )
       ui->wgt_Details->setEnabled( false );
       ui->tBt_RemoveExt->setEnabled( false );
       ui->tBt_LoadExt->setEnabled( true );
-      ui->tBt_DeletePage->setEnabled(false);
+      ui->tBt_DeletePage->setEnabled(state==CopyCreate);
       ui->tBt_SaveDocument->setVisible( true );
       ui->tBt_RejectDocument->setVisible( true );
       ui->tBt_RejectDocument->setText( tr( "Отмена" ) );
@@ -889,7 +889,8 @@ void ElectroDoc_v2::save(){
   m_Document->setExpiresDate( ( ui->dEdit_DocExpires->date() > QDate( 1800, 1, 1 ) ?
                                   ui->dEdit_DocExpires->date() : QDate() ) );
 //  LogDebug()<<"m__State ="<<m__State;
-  if(m__State==Copy) m_Document->setCreateDate(QDateTime::currentDateTime());
+  if(m__State==Copy || m__State==CopyCreate)
+    m_Document->setCreateDate(QDateTime::currentDateTime());
   if(ui->cBox_DocAgency->currentIndex()>-1){
     m_Document->setAgency( ui->cBox_DocAgency->currentText() );
   }
