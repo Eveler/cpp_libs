@@ -3,6 +3,9 @@
 
 #include <qqml.h>
 
+#include <QDebug>
+
+
 void DeclarViewLibPlugin::registerTypes(const char *uri)
 {
   // @uri com.mihail.declarviewlib

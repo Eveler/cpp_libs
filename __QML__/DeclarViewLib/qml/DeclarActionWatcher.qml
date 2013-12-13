@@ -1,11 +1,14 @@
-import QtQuick 2.0
+pragma Singleton
+import QtQuick 2.2
 import com.mihail.clientsystem 1.0
 
 
 Item {
     property int declarId: 0
 
-    signal declarChanged
+    signal declarSwitched
+    signal changeNumber
+    signal changeService
 
     readonly property Declar declarObject: obj_Information.declar
 
@@ -17,7 +20,8 @@ Item {
             return
         }
         obj_Information.declar = DeclarLoader.source.declar( 0 )
-        obj_Information.serviceId = obj_Information.declar.serviceIdentifier
+
+        setServiceIdentifier( obj_Information.declar.serviceIdentifier )
 
         if ( !TrusteeLoader.load( "declar_id="+declarId ) ) return
         if ( !DeclarClientLoader.load( "declar_id="+declarId ) ||
@@ -44,9 +48,9 @@ Item {
         obj_Information.trustees = TrusteeLoader.source
 
         obj_Information.loaded = true
-        declarChanged()
+        declarSwitched()
     }
-    readonly property int serviceId: obj_Information.serviceId
+    readonly property Service service: obj_Information.service
     readonly property DeclarClientList clients: obj_Information.clients
     readonly property TrusteeList trustees: obj_Information.trustees
     readonly property bool loaded: obj_Information.loaded
@@ -54,17 +58,27 @@ Item {
     QtObject {
         id: obj_Information
         property Declar declar: null
-        property int serviceId: 0
+        property Service service: null
         property DeclarClientList clients: null
         property TrusteeList trustees: null
         property bool loaded: false
     }
 
+    Connections {
+        target: ServiceLoader.source
+        onCountChanged: {
+            if ( !obj_Information.loaded ) return
+
+            setServiceIdentifier( obj_Information.declar.serviceIdentifier )
+        }
+    }
+
     function setServiceIdentifier( identifier )
     {
-        if ( ServiceLoader.source.find( identifier ) )
+        var serviceObject = ServiceLoader.source.find( identifier )
+        if ( serviceObject )
         {
-            obj_Information.serviceId = identifier
+            obj_Information.service = serviceObject
             return true
         }
 

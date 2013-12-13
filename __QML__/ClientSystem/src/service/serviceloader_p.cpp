@@ -31,12 +31,13 @@ void ServiceLoader_P::run()
     return;
   }
   QSqlQuery qry( db );
-  if ( !qry.exec( tr( "SELECT s.id AS identifier, s.root, s.\"sIdx\" AS sidx,"
-                      " sn.srvname AS name, s.deadline, s.workdays, s.isactive"
-                      " FROM ctrldatesrvs s, service_names sn"
-                      " WHERE s.srv_name_id=sn.id%1"
-                      " ORDER BY \"sIdxFloat\"" )
-                  .arg( ( !m__Filter.isEmpty() ? " AND ("+m__Filter+")" : "" ) ) ) )
+  if ( !qry.exec( tr( "SELECT q_1.* FROM"
+                      "  (SELECT s.id AS identifier, s.root, s.\"sIdx\" AS sidx,"
+                      "     sn.srvname AS name, s.deadline, s.workdays, s.isactive"
+                      "    FROM ctrldatesrvs s, service_names sn"
+                      "    WHERE s.srv_name_id=sn.id"
+                      "    ORDER BY \"sIdxFloat\") q_1%1" )
+                  .arg( ( !m__Filter.isEmpty() ? " WHERE ("+m__Filter+")" : "" ) ) ) )
   {
     m__Successfully = false;
     emit sendError( tr( "Query error:\n%1" ).arg( qry.lastError().text() ) );

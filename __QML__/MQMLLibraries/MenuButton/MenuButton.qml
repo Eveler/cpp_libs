@@ -1,10 +1,11 @@
-import QtQuick 2.1
+import QtQuick 2.2
 import QtGraphicalEffects 1.0
 
 
 Rectangle {
     id: menuButton
 
+    property url iconSource: ""
     property string text: ""
     readonly property bool pressed: mouseArea.pressed
     property bool checked: false
@@ -30,9 +31,22 @@ Rectangle {
         ColorAnimation { duration: 200 }
     }
 
+    Image {
+        id: image
+        height: parent.height
+        width: height
+
+        visible: status === Image.Ready
+        source: menuButton.iconSource
+        opacity: ( menuButton.hovered ? 1.0 : 0.7 )
+        Behavior on opacity {
+            OpacityAnimator { duration: 200 }
+        }
+    }
     Text {
         id: text_Label
         anchors.fill: parent
+        anchors.leftMargin: ( image.visible ? image.width+2 : 0 )
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
 

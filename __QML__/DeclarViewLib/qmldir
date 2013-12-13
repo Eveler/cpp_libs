@@ -1,4 +1,5 @@
 module com.mihail.declarviewlib
 plugin DeclarViewLib
 DeclarInfo 1.0 DeclarInfo.qml
+singleton DeclarActionWatcher 1.0 DeclarActionWatcher.qml
 
