@@ -9,6 +9,10 @@ Item {
     signal declarSwitched
     signal changeNumber
     signal changeService
+    signal changeResultWay
+    signal changeResult
+    signal changeAssessmentType
+    signal changeAssessment
 
     readonly property Declar declarObject: obj_Information.declar
 
