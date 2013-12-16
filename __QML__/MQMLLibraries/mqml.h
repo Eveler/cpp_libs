@@ -19,8 +19,11 @@ class MQML : public QObject
 
     Q_INVOKABLE TreeItem * createTreeItem( QVariant value = QVariant() ) const;
 
-    Q_INVOKABLE int daysInMonth( QDate date );
-    Q_INVOKABLE int daysInMonth( int year, int month );
+    Q_INVOKABLE QDate invalidDate() const;
+    Q_INVOKABLE bool isValidDate( QDate date ) const;
+    Q_INVOKABLE int daysInMonth( QDate date ) const;
+    Q_INVOKABLE int daysInMonth( int year, int month ) const;
+    Q_INVOKABLE int daysBetween( QDate arg1, QDate arg2 ) const;
 };
 
 QML_DECLARE_TYPE(MQML)

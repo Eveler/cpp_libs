@@ -37,33 +37,41 @@ TextInput {
     }
 
     onTextChanged: {
-        var dateVals = text.split( "." )
-        var resetDate = false
-        obj_Information.day = dateVals[0]
-        obj_Information.intMonth = dateVals[1]
-        obj_Information.intMonth--
-        obj_Information.month = obj_Information.intMonth
-        if ( obj_Information.month > 11 )
+        if ( text === ".." )
         {
-            resetDate = true
-            obj_Information.month = 11
-            obj_Information.intMonth = obj_Information.month
+            obj_Information.someDate = minimumDate
+            obj_Information.resetDate()
         }
-        obj_Information.year = dateVals[2]
-        if ( obj_Information.day > MQML.daysInMonth( obj_Information.year,
-                                                    obj_Information.intMonth+1 ) )
+        else
         {
-            resetDate = true
-            obj_Information.day = MQML.daysInMonth( obj_Information.year,
-                                                   obj_Information.intMonth+1 )
-        }
+            var dateVals = text.split( "." )
+            var resetDate = false
+            obj_Information.day = dateVals[0]
+            obj_Information.intMonth = dateVals[1]
+            obj_Information.intMonth--
+            obj_Information.month = obj_Information.intMonth
+            if ( obj_Information.month > 11 )
+            {
+                resetDate = true
+                obj_Information.month = 11
+                obj_Information.intMonth = obj_Information.month
+            }
+            obj_Information.year = dateVals[2]
+            if ( obj_Information.day > MQML.daysInMonth( obj_Information.year,
+                                                        obj_Information.intMonth+1 ) )
+            {
+                resetDate = true
+                obj_Information.day = MQML.daysInMonth( obj_Information.year,
+                                                       obj_Information.intMonth+1 )
+            }
 
-        obj_Information.someDate = new Date( obj_Information.year,
-                                            obj_Information.month,
-                                            obj_Information.day, 0, 0, 0 )
-        if ( enteredDate.toString() !== obj_Information.someDate.toString() )
-            enteredDate = obj_Information.someDate
-        else obj_Information.resetDate()
+            obj_Information.someDate = new Date( obj_Information.year,
+                                                obj_Information.month,
+                                                obj_Information.day, 0, 0, 0 )
+            if ( enteredDate.toString() !== obj_Information.someDate.toString() )
+                enteredDate = obj_Information.someDate
+            else obj_Information.resetDate()
+        }
     }
 
     QtObject {

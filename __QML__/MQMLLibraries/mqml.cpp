@@ -2,6 +2,8 @@
 
 #include "Tree/treeitem.h"
 
+#include <QDebug>
+
 
 MQML::MQML(QObject *parent) :
   QObject(parent)
@@ -15,12 +17,27 @@ TreeItem * MQML::createTreeItem( QVariant value ) const
   return result;
 }
 
-int MQML::daysInMonth( QDate date )
+QDate MQML::invalidDate() const
+{
+  return QDate();
+}
+
+bool MQML::isValidDate( QDate date ) const
+{
+  return date.isValid();
+}
+
+int MQML::daysInMonth( QDate date ) const
 {
   return date.daysInMonth();
 }
 
-int MQML::daysInMonth( int year, int month )
+int MQML::daysInMonth( int year, int month ) const
 {
   return QDate( year, month, 1 ).daysInMonth();
+}
+
+int MQML::daysBetween( QDate arg1, QDate arg2 ) const
+{
+  return arg1.daysTo( arg2 );
 }
