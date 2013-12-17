@@ -17,6 +17,7 @@ class TrusteeList : public QObject
     Q_OBJECT
     Q_DISABLE_COPY(TrusteeList)
     Q_PROPERTY(int count READ count NOTIFY countChanged)
+    Q_PROPERTY(QList<QObject *> list READ listAsQObjects NOTIFY countChanged)
     friend class TrusteeLoader;
 
 
@@ -30,6 +31,9 @@ class TrusteeList : public QObject
     Q_INVOKABLE Trustee * trustee( int index ) const;
     Q_INVOKABLE int trusteeIndex( Trustee *trustee ) const;
     Q_INVOKABLE Trustee * addLink( Trustee *link ) const;
+
+    const QList<Trustee *> & list() const;
+    QList<QObject *> listAsQObjects() const;
 
     Q_INVOKABLE Trustee * find( QVariant identifier ) const;
 

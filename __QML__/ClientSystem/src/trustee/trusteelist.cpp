@@ -70,6 +70,20 @@ Trustee * TrusteeList::addLink( Trustee *link ) const
   return newTrustee;
 }
 
+
+const QList<Trustee *> & TrusteeList::list() const
+{
+  return p->m__Trustees;
+}
+
+QList<QObject *> TrusteeList::listAsQObjects() const
+{
+  QList<QObject *> res;
+  foreach ( Trustee *item, p->m__Trustees )
+    res << item;
+  return res;
+}
+
 Trustee * TrusteeList::find( QVariant identifier ) const
 {
   foreach ( Trustee *trustee, p->m__Trustees )

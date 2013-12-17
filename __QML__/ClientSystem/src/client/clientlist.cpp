@@ -70,6 +70,19 @@ Client * ClientList::addLink( Client *link ) const
   return newClient;
 }
 
+const QList<Client *> & ClientList::list() const
+{
+  return p->m__Clients;
+}
+
+QList<QObject *> ClientList::listAsQObjects() const
+{
+  QList<QObject *> res;
+  foreach ( Client *item, p->m__Clients )
+    res << item;
+  return res;
+}
+
 Client * ClientList::find( QVariant identifier ) const
 {
   foreach ( Client *client, p->m__Clients )
