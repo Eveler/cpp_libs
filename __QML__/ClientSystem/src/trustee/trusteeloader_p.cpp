@@ -31,25 +31,40 @@ void TrusteeLoader_P::run()
     return;
   }
   QSqlQuery qry( db );
-  if ( !qry.exec( tr( "SELECT id AS identifier, declar_id AS declarIdentifier,"
-                      " trustee_id AS trusteeClientIdentifier,"
+  if ( !qry.exec( tr( "SELECT trustee_id AS identifier, declar_id AS declarIdentifier,"
                       " client_id AS clientIdentifier"
-                      " FROM declar_trustees%1 ORDER BY id" )
+                      " FROM declar_trustees%1 ORDER BY declar_id, trustee_id, client_id" )
                   .arg( ( !m__Filter.isEmpty() ? " WHERE "+m__Filter : "" ) ) ) )
   {
     m__Successfully = false;
     emit sendError( tr( "Query error:\n%1" ).arg( qry.lastError().text() ) );
     return;
   }
+  TrusteeInfo info;
+  bool created = false;
   while ( qry.next() )
   {
-    TrusteeInfo info;
-    info.setIdentifier( qry.record().value( tr( "identifier" ) ) );
-    info.setDeclarIdentifier( qry.record().value( tr( "declarIdentifier" ) ) );
-    info.setTrusteeClientIdentifier( qry.record().value( tr( "trusteeClientIdentifier" ) ) );
-    info.setClientIdentifier( qry.record().value( tr( "clientIdentifier" ) ) );
-    emit sendTrusteeInfo( info );
+    QVariant identifier = qry.record().value( tr( "identifier" ) );
+    QVariant declarIdentifier = qry.record().value( tr( "declarIdentifier" ) );
+    QVariant clientIdentifier = qry.record().value( tr( "clientIdentifier" ) );
+    if ( !created )
+    {
+      info.setIdentifier( identifier );
+      info.setDeclarIdentifier( declarIdentifier );
+      info.addClientIdentifier( clientIdentifier );
+    }
+    else if ( info.identifier() == identifier )
+      info.addClientIdentifier( clientIdentifier );
+    else
+    {
+      emit sendTrusteeInfo( info );
+      info.clearClientIdentifiers();
+      info.setIdentifier( identifier );
+      info.setDeclarIdentifier( declarIdentifier );
+      info.addClientIdentifier( clientIdentifier );
+    }
   }
+  emit sendTrusteeInfo( info );
 }
 
 TrusteeLoader_P::TrusteeLoader_P( TrusteeLoader *parent ) :

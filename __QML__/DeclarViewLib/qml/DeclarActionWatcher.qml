@@ -40,7 +40,7 @@ Item {
                     DeclarClientLoader.source.declarclient( dcIdx ).clientIdentifier
         for ( var tIdx = 0; tIdx < TrusteeLoader.source.count; tIdx++ )
             clientIds += ( clientIds.length > 0 ? "," : "" )+
-                    TrusteeLoader.source.trustee( tIdx ).trusteeClientIdentifier
+                    TrusteeLoader.source.trustee( tIdx ).identifier
 
         if ( !ClientLoader.load( "id in ("+clientIds+")" ) ||
                 ClientLoader.source.count == 0 )

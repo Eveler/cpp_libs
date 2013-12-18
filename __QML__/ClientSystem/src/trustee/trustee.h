@@ -20,10 +20,8 @@ class Trustee : public QObject, public TrusteeInfo
     Q_PROPERTY(QVariant identifier READ identifier WRITE setIdentifier NOTIFY identifierChanged)
     Q_PROPERTY(QVariant declarIdentifier READ declarIdentifier
                WRITE setDeclarIdentifier NOTIFY declarIdentifierChanged)
-    Q_PROPERTY(QVariant trusteeClientIdentifier READ trusteeClientIdentifier
-               WRITE setTrusteeClientIdentifier NOTIFY trusteeClientIdentifierChanged)
-    Q_PROPERTY(QVariant clientIdentifier READ clientIdentifier
-               WRITE setClientIdentifier NOTIFY clientIdentifierChanged)
+    Q_PROPERTY(QVariantList clientIdentifiers READ clientIdentifiers
+               WRITE addClientIdentifier NOTIFY clientIdentifiersChanged)
 
 
   public:
@@ -34,7 +32,7 @@ class Trustee : public QObject, public TrusteeInfo
 
     Q_INVOKABLE TrusteeList * trusteeList() const;
 
-    int index() const;
+    Q_INVOKABLE int index() const;
 
     QVariant identifier() const;
     void setIdentifier( QVariant identifier );
@@ -42,19 +40,19 @@ class Trustee : public QObject, public TrusteeInfo
     QVariant declarIdentifier() const;
     void setDeclarIdentifier( QVariant declarIdentifier );
 
-    QVariant trusteeClientIdentifier() const;
-    void setTrusteeClientIdentifier( QVariant trusteeClientIdentifier );
-
-    QVariant clientIdentifier() const;
-    void setClientIdentifier( QVariant clientIdentifier );
+    QVariantList clientIdentifiers() const;
+    void addClientIdentifier( QVariant clientIdentifiers );
+    void removeClientIdentifier( QVariant clientIdentifier );
+    void clearClientIdentifiers();
 
 
   signals:
     void indexChanged();
     void identifierChanged();
     void declarIdentifierChanged();
-    void trusteeClientIdentifierChanged();
-    void clientIdentifierChanged();
+    void clientIdentifiersChanged();
+    void clientIdentifierAdded( int index );
+    void clientIdentifierRemoved( int index );
 
 
   public slots:

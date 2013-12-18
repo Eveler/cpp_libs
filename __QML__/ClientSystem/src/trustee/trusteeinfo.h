@@ -17,18 +17,16 @@ class TrusteeInfo
     QVariant declarIdentifier() const;
     void setDeclarIdentifier( QVariant declarIdentifier );
 
-    QVariant trusteeClientIdentifier() const;
-    void setTrusteeClientIdentifier( QVariant trusteeClientIdentifier );
-
-    QVariant clientIdentifier() const;
-    void setClientIdentifier( QVariant clientIdentifier );
+    QVariantList clientIdentifiers() const;
+    void addClientIdentifier( QVariant clientIdentifiers );
+    void removeClientIdentifier( QVariant clientIdentifiers );
+    void clearClientIdentifiers();
 
 
   private:
     QVariant m__Identifier;
     QVariant m__DeclarIdentifier;
-    QVariant m__TrusteeClientIdentifier;
-    QVariant m__ClientIdentifier;
+    QVariantList m__ClientIdentifiers;
 };
 
 #endif // TRUSTEEINFO_H

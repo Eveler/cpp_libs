@@ -89,44 +89,47 @@ void Trustee::setDeclarIdentifier( QVariant declarIdentifier )
     emit declarIdentifierChanged();
 }
 
-QVariant Trustee::trusteeClientIdentifier() const
+QVariantList Trustee::clientIdentifiers() const
 {
-    if ( parent() == NULL ) return QVariant();
+    if ( parent() == NULL ) return QVariantList();
 
     INFO_REF;
 
-    if ( p->m__Link != NULL ) return p->m__Link->trusteeClientIdentifier();
-    return info->trusteeClientIdentifier();
+    if ( p->m__Link != NULL ) return p->m__Link->clientIdentifiers();
+    return info->clientIdentifiers();
 }
 
-void Trustee::setTrusteeClientIdentifier( QVariant trusteeClientIdentifier )
+void Trustee::addClientIdentifier( QVariant clientIdentifier )
 {
     if ( parent() == NULL ) return;
 
     INFO_REF;
 
-    if ( p->m__Link != NULL ) p->m__Link->setTrusteeClientIdentifier( trusteeClientIdentifier );
-    else info->setTrusteeClientIdentifier( trusteeClientIdentifier );
-    emit trusteeClientIdentifierChanged();
+    if ( p->m__Link != NULL ) p->m__Link->addClientIdentifier( clientIdentifier );
+    else info->addClientIdentifier( clientIdentifier );
+    emit clientIdentifierAdded( clientIdentifiers().indexOf( clientIdentifier ) );
+    emit clientIdentifiersChanged();
 }
 
-QVariant Trustee::clientIdentifier() const
-{
-    if ( parent() == NULL ) return QVariant();
-
-    INFO_REF;
-
-    if ( p->m__Link != NULL ) return p->m__Link->clientIdentifier();
-    return info->clientIdentifier();
-}
-
-void Trustee::setClientIdentifier( QVariant clientIdentifier )
+void Trustee::removeClientIdentifier( QVariant clientIdentifier )
 {
     if ( parent() == NULL ) return;
 
     INFO_REF;
 
-    if ( p->m__Link != NULL ) p->m__Link->setClientIdentifier( clientIdentifier );
-    else info->setClientIdentifier( clientIdentifier );
-    emit clientIdentifierChanged();
+    int index = clientIdentifiers().indexOf( clientIdentifier );
+    if ( p->m__Link != NULL ) p->m__Link->removeClientIdentifier( clientIdentifier );
+    else info->removeClientIdentifier( clientIdentifier );
+    emit clientIdentifierRemoved( index );
+    emit clientIdentifiersChanged();
+}
+
+void Trustee::clearClientIdentifiers()
+{
+  QVariantList identifiers = clientIdentifiers();
+  while ( !identifiers.isEmpty() )
+  {
+    QVariant clientIdentifier = identifiers.takeFirst();
+    removeClientIdentifier( clientIdentifier );
+  }
 }

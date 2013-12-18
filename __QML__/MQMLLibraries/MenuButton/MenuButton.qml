@@ -10,6 +10,7 @@ Rectangle {
     readonly property bool pressed: mouseArea.pressed
     property bool checked: false
     property bool checkable: true
+    property bool uncheckByUser: false
     readonly property bool hovered: mouseArea.containsMouse
     property string textEnabledColor: "black"
     property string textDisabledColor: "#ff555555"
@@ -77,7 +78,11 @@ Rectangle {
 
         onClicked: {
             if ( menuButton.checkable )
-                menuButton.checked = true
+            {
+                if ( menuButton.uncheckByUser )
+                    menuButton.checked = !menuButton.checked
+                else menuButton.checked = true
+            }
             else menuButton.clicked()
         }
     }
