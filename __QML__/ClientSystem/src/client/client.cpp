@@ -47,6 +47,13 @@ int Client::index() const
     return pl->clientIndex( p->p_dptr() );
 }
 
+void Client::setClientInfo( const ClientInfo &info )
+{
+  setIdentifier( info.identifier() );
+  setOrganisationIdentifier( info.organisationIdentifier() );
+  setHumanIdentifier( info.humanIdentifier() );
+}
+
 QVariant Client::identifier() const
 {
     if ( parent() == NULL ) return QVariant();

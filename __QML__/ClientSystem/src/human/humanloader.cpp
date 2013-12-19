@@ -64,7 +64,6 @@ bool HumanLoader::load( const QString &filter ) const
 
   emit started();
   p->m__Filter = filter;
-  p->m__Source->clear();
   p->start();
   return ( loop->exec() == 0 );
 }

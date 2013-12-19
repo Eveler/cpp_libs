@@ -93,11 +93,16 @@ Client * ClientList::find( QVariant identifier ) const
 
 void ClientList::receivedClientInfo( ClientInfo clientinfo ) const
 {
-  Client *newClient = new Client( p->p_dptr(), clientinfo );
-  p->m__Clients << newClient;
-  connect( newClient, SIGNAL(destroyed()), SLOT(clientDestroyed()) );
-  emit clientAdded( newClient );
-  emit countChanged();
+  Client *newClient = find( clientinfo.identifier() );
+  if ( newClient != NULL ) newClient->setClientInfo( clientinfo );
+  else
+  {
+    newClient = new Client( p->p_dptr(), clientinfo );
+    p->m__Clients << newClient;
+    connect( newClient, SIGNAL(destroyed()), SLOT(clientDestroyed()) );
+    emit clientAdded( newClient );
+    emit countChanged();
+  }
 }
 
 void ClientList::clientDestroyed()

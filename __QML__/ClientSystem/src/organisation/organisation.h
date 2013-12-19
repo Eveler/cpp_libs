@@ -36,6 +36,8 @@ public:
 
     int index() const;
 
+    void setOrganisationInfo( const OrganisationInfo &info );
+
     QVariant identifier() const;
     void setIdentifier( QVariant identifier );
 
