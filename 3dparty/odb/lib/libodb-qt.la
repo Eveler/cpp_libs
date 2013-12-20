@@ -17,7 +17,7 @@ old_library='libodb-qt.a'
 inherited_linker_flags=' -mthreads'
 
 # Libraries that this one depends upon.
-dependency_libs=' -L/C/Qt/Qt5.2.0/5.2.0/mingw48_32/lib -L/D/devel/Libs/3dparty/odb/libodb-2.3.0//odb /D/devel/Libs/3dparty/odb/lib/libodb.la -lQt5Core'
+dependency_libs=' -L/c/Qt/Qt5.2.0/5.2.0/mingw48_32/lib/ -L/d/devel/Libs/3dparty/odb/libodb-2.3.0/odb /d/devel/Libs/3dparty/odb/lib/libodb.la -lQt5Core'
 
 # Names of additional weak libraries provided by this library
 weak_library_names=''
@@ -38,4 +38,4 @@ dlopen=''
 dlpreopen=''
 
 # Directory that this library needs to be installed in:
-libdir='/D/devel/Libs/3dparty/odb/lib'
+libdir='/d/devel/Libs/3dparty/odb/lib'

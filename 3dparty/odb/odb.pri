@@ -1,12 +1,14 @@
 # List of header files that should be compiled with the ODB compiler.
 #
 ##ODB_FILES += employee.hxx
-
 isEmpty(ODB_FILES):error("Need to specify ODB_FILES!")
 
 # ODB compiler flags.
 #
 ##ODB_FLAGS = --database pgsql --profile qt --generate-schema --generate-query --generate-session
+#ODB_FLAGS += -I$$PWD/include
+#ODB_FLAGS += -I$$PWD/odb-2.3.0-i686-windows/etc
+isEmpty(ODB_FLAGS):error("Need to specify ODB_FLAGS!")
 
 # Select the database we are going to use.
 #

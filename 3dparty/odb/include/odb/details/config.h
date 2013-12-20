@@ -10,8 +10,8 @@
 #define ODB_DETAILS_CONFIG_H
 
 /* #undef ODB_THREADS_NONE */
-#define ODB_THREADS_POSIX 1
-/* #undef ODB_THREADS_WIN32 */
+/* #undef ODB_THREADS_POSIX */
+#define ODB_THREADS_WIN32 1
 /* #undef ODB_THREADS_TLS_KEYWORD */
 /* #undef ODB_THREADS_TLS_DECLSPEC */
 

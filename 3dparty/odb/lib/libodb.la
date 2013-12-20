@@ -38,4 +38,4 @@ dlopen=''
 dlpreopen=''
 
 # Directory that this library needs to be installed in:
-libdir='/D/devel/Libs/3dparty/odb/lib'
+libdir='/d/devel/Libs/3dparty/odb/lib'
