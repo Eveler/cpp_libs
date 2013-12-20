@@ -36,6 +36,8 @@ public:
 
     int index() const;
 
+    void setHumanInfo( const HumanInfo &info );
+
     QVariant identifier() const;
     void setIdentifier( QVariant identifier );
 

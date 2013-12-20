@@ -80,11 +80,16 @@ Organisation * OrganisationList::find( QVariant identifier ) const
 
 void OrganisationList::receivedOrganisationInfo( OrganisationInfo organisationInfo ) const
 {
-    Organisation *newOrganisation = new Organisation( p->p_dptr(), organisationInfo );
+  Organisation *newOrganisation = find( organisationInfo.identifier() );
+  if ( newOrganisation != NULL ) newOrganisation;
+  else
+  {
+    newOrganisation = new Organisation( p->p_dptr(), organisationInfo );
     p->m__Organisations << newOrganisation;
     connect( newOrganisation, SIGNAL(destroyed()), SLOT(organisationDestroyed()) );
     emit organisationAdded( newOrganisation );
     emit countChanged();
+  }
 }
 
 void OrganisationList::organisationDestroyed()

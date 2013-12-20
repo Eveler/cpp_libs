@@ -34,6 +34,8 @@ class Client : public QObject, public ClientInfo
 
     int index() const;
 
+    void setClientInfo( const ClientInfo &info );
+
     QVariant identifier() const;
     void setIdentifier( QVariant identifier );
 
