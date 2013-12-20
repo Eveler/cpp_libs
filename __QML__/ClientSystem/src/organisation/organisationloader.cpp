@@ -9,24 +9,23 @@ OrganisationLoader::OrganisationLoader(QObject *parent) :
   QObject(parent)
 {
   p = new OrganisationLoader_P( this );
-  newSource();
+  connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
+  connect( p, SIGNAL(sendInfo(OrganisationInfo*)),
+           SIGNAL(newInfo(OrganisationInfo*)) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
 }
 
 OrganisationLoader::~OrganisationLoader()
 {
-  p->m__Errors.clear();
-  disconnect( p->m__Source, SIGNAL(destroyed()), this, SLOT(newSource()) );
+  p->m__LastError.clear();
   delete p;
   p = NULL;
 }
 
-QString OrganisationLoader::error( int errorId ) const
+QString OrganisationLoader::lastError() const
 {
-  QString errorText = p->m__Errors.value( errorId, QString() );
-  p->m__Errors.remove( errorId );
-  return errorText;
+  return p->m__LastError;
 }
 
 const QString & OrganisationLoader::connectionName() const
@@ -39,7 +38,7 @@ const QString & OrganisationLoader::connectionName() const
   return p->m__ConnectionName;
 }
 
-bool OrganisationLoader::setConnectionName( const QString &connectionName ) const
+bool OrganisationLoader::setConnectionName( const QString &connectionName )
 {
   if ( !QSqlDatabase::contains( connectionName ) )
   {
@@ -54,7 +53,7 @@ bool OrganisationLoader::setConnectionName( const QString &connectionName ) cons
   return true;
 }
 
-bool OrganisationLoader::load( const QString &filter ) const
+bool OrganisationLoader::load( const QString &filter, bool blockUI )
 {
   if ( p->isRunning() )
   {
@@ -65,25 +64,9 @@ bool OrganisationLoader::load( const QString &filter ) const
   emit started();
   p->m__Filter = filter;
   p->start();
-  return ( loop->exec() == 0 );
-}
-
-Organisation * OrganisationLoader::create() const
-{
-  return NULL;
-}
-
-OrganisationList * OrganisationLoader::source() const
-{
-  return p->m__Source;
-}
-
-void OrganisationLoader::newSource() const
-{
-  p->m__Source = new OrganisationList( p->p_dptr() );
-  connect( p->m__Source, SIGNAL(destroyed()), SLOT(newSource()) );
-  connect( p, SIGNAL(sendOrganisationInfo(OrganisationInfo)),
-           p->m__Source, SLOT(receivedOrganisationInfo(OrganisationInfo)) );
+  if ( blockUI )
+    return ( loop->exec() == 0 );
+  else return true;
 }
 
 void OrganisationLoader::threadFinished()
@@ -92,9 +75,8 @@ void OrganisationLoader::threadFinished()
   emit finished();
 }
 
-void OrganisationLoader::receivedError( QString errorText ) const
+void OrganisationLoader::receivedError( QString errorText )
 {
-  int errorId = p->m__ErrorLastId++;
-  p->m__Errors[errorId] = errorText;
-  emit errorAdded( errorId );
+  p->m__LastError = errorText;
+  emit lastErrorChanged();
 }

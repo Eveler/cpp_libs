@@ -1,26 +1,31 @@
 #ifndef TRUSTEEINFO_H
 #define TRUSTEEINFO_H
 
-#include <QtCore>
+#include <QObject>
+
+#include <QtQml>
 
 
-class TrusteeInfo
+class TrusteeInfo : public QObject
 {
+    Q_OBJECT
+    Q_DISABLE_COPY(TrusteeInfo)
+
+
   public:
     TrusteeInfo();
-    TrusteeInfo( const TrusteeInfo &other );
     ~TrusteeInfo();
 
-    QVariant identifier() const;
+    Q_INVOKABLE QVariant identifier() const;
     void setIdentifier( QVariant identifier );
 
-    QVariant declarIdentifier() const;
-    void setDeclarIdentifier( QVariant declarIdentifier );
+    Q_INVOKABLE QVariant declarIdentifier() const;
+    Q_INVOKABLE void setDeclarIdentifier( QVariant declarIdentifier );
 
-    QVariantList clientIdentifiers() const;
-    void addClientIdentifier( QVariant clientIdentifiers );
-    void removeClientIdentifier( QVariant clientIdentifiers );
-    void clearClientIdentifiers();
+    Q_INVOKABLE QVariantList clientIdentifiers() const;
+    Q_INVOKABLE void addClientIdentifier( QVariant clientIdentifiers );
+    Q_INVOKABLE void removeClientIdentifier( QVariant clientIdentifiers );
+    Q_INVOKABLE void clearClientIdentifiers();
 
 
   private:
@@ -28,5 +33,7 @@ class TrusteeInfo
     QVariant m__DeclarIdentifier;
     QVariantList m__ClientIdentifiers;
 };
+
+QML_DECLARE_TYPE(TrusteeInfo)
 
 #endif // TRUSTEEINFO_H

@@ -41,38 +41,32 @@ void ClientLoader_P::run()
   }
   while ( qry.next() )
   {
-    ClientInfo info;
-    info.setIdentifier( qry.record().value( tr( "identifier" ) ) );
+    ClientInfo *info = new ClientInfo();
+    info->setIdentifier( qry.record().value( tr( "identifier" ) ) );
     if ( qry.record().value( tr( "isorg" ) ).toInt() == 1 )
     {
-      info.setOrganisationIdentifier( qry.record().value( tr( "clid" ) ).toString() );
-      info.setHumanIdentifier( QVariant() );
+      info->setOrganisationIdentifier( qry.record().value( tr( "clid" ) ).toString() );
+      info->setHumanIdentifier( QVariant() );
     }
     else
     {
-      info.setOrganisationIdentifier( QVariant() );
-      info.setHumanIdentifier( qry.record().value( tr( "clid" ) ).toString() );
+      info->setOrganisationIdentifier( QVariant() );
+      info->setHumanIdentifier( qry.record().value( tr( "clid" ) ).toString() );
     }
-    emit sendClientInfo( info );
+    emit sendInfo( info );
   }
 }
 
 ClientLoader_P::ClientLoader_P( ClientLoader *parent ) :
   QThread(parent),
   m__Successfully(true),
-  m__ErrorLastId(-1),
-  m__Errors(QHash<int, QString>()),
-  m__ConnectionName(QString()),
-  m__Source(NULL)
+  m__LastError(QString()),
+  m__ConnectionName(QString())
 {
-  connect( this, SIGNAL(sendError(QString)), parent, SLOT(receivedError(QString)) );
-  qRegisterMetaType<ClientInfo>("ClientInfo");
 }
 
 ClientLoader_P::~ClientLoader_P()
 {
-  delete m__Source;
-  m__Source = NULL;
 }
 
 ClientLoader * ClientLoader_P::p_dptr() const

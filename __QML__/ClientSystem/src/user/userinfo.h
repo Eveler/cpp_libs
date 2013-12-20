@@ -1,45 +1,50 @@
 #ifndef USERINFO_H
 #define USERINFO_H
 
-#include <QtCore>
+#include <QObject>
+
+#include <QtQml>
 
 
-class UserInfo
+class UserInfo : public QObject
 {
+    Q_OBJECT
+    Q_DISABLE_COPY(UserInfo)
+
+
 public:
     UserInfo();
-    UserInfo( const UserInfo &other );
     ~UserInfo();
 
-    QVariant identifier() const;
+    Q_INVOKABLE QVariant identifier() const;
     void setIdentifier( QVariant identifier );
 
-    const QString & surname() const;
-    void setSurname( const QString &surname );
+    Q_INVOKABLE const QString & surname() const;
+    Q_INVOKABLE void setSurname( const QString &surname );
 
-    const QString & firstname() const;
-    void setFirstname( const QString &firstname );
+    Q_INVOKABLE const QString & firstname() const;
+    Q_INVOKABLE void setFirstname( const QString &firstname );
 
-    const QString & lastname() const;
-    void setLastname( const QString &lastname );
+    Q_INVOKABLE const QString & lastname() const;
+    Q_INVOKABLE void setLastname( const QString &lastname );
 
-    int post() const;
-    void setPost( int post );
+    Q_INVOKABLE QVariant postIdentifier() const;
+    Q_INVOKABLE void setPostIdentifier( QVariant postIdentifier );
 
-    int department() const;
-    void setDepartment( int department );
+    Q_INVOKABLE QVariant departmentIdentifier() const;
+    Q_INVOKABLE void setDepartmentIdentifier( QVariant departmentIdentifier );
 
-    bool isactive() const;
-    void setIsactive( bool isactive );
+    Q_INVOKABLE bool isactive() const;
+    Q_INVOKABLE void setIsactive( bool isactive );
 
-    bool dismissed() const;
-    void setDismissed( bool dismissed );
+    Q_INVOKABLE bool dismissed() const;
+    Q_INVOKABLE void setDismissed( bool dismissed );
 
-    const QString & dblogin() const;
-    void setDblogin( const QString &dblogin );
+    Q_INVOKABLE const QString & dblogin() const;
+    Q_INVOKABLE void setDblogin( const QString &dblogin );
 
-    int direction() const;
-    void setDirection( int direction );
+    Q_INVOKABLE QVariant directionIdentifier() const;
+    Q_INVOKABLE void setDirectionIdentifier( QVariant directionIdentifier );
 
 
 private:
@@ -47,12 +52,14 @@ private:
     QString m__Surname;
     QString m__Firstname;
     QString m__Lastname;
-    int m__Post;
-    int m__Department;
+    QVariant m__PostIdentifier;
+    QVariant m__DepartmentIdentifier;
     bool m__Isactive;
     bool m__Dismissed;
     QString m__Dblogin;
-    int m__Direction;
+    QVariant m__DirectionIdentifier;
 };
+
+QML_DECLARE_TYPE(UserInfo)
 
 #endif // USERINFO_H

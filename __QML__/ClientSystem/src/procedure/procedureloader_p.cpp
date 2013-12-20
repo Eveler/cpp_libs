@@ -41,29 +41,23 @@ void ProcedureLoader_P::run()
   }
   while ( qry.next() )
   {
-    ProcedureInfo info;
-    info.setIdentifier( qry.record().value( tr( "identifier" ) ) );
-    info.setName( qry.record().value( tr( "name" ) ).toString() );
-    emit sendProcedureInfo( info );
+    ProcedureInfo *info = new ProcedureInfo();
+    info->setIdentifier( qry.record().value( tr( "identifier" ) ) );
+    info->setName( qry.record().value( tr( "name" ) ).toString() );
+    emit sendInfo( info );
   }
 }
 
 ProcedureLoader_P::ProcedureLoader_P( ProcedureLoader *parent ) :
   QThread(parent),
   m__Successfully(true),
-  m__ErrorLastId(-1),
-  m__Errors(QHash<int, QString>()),
-  m__ConnectionName(QString()),
-  m__Source(NULL)
+  m__LastError(QString()),
+  m__ConnectionName(QString())
 {
-  connect( this, SIGNAL(sendError(QString)), parent, SLOT(receivedError(QString)) );
-  qRegisterMetaType<ProcedureInfo>("ProcedureInfo");
 }
 
 ProcedureLoader_P::~ProcedureLoader_P()
 {
-  delete m__Source;
-  m__Source = NULL;
 }
 
 ProcedureLoader * ProcedureLoader_P::p_dptr() const

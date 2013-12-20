@@ -4,7 +4,7 @@
 #include <QThread>
 
 #include "departmentloader.h"
-#include "departmentlist.h"
+#include "departmentinfo.h"
 
 #include <QHash>
 
@@ -20,7 +20,7 @@ class DepartmentLoader_P : public QThread
 
   signals:
     void sendError( QString errorText );
-    void sendDepartmentInfo( DepartmentInfo );
+    void sendInfo( DepartmentInfo * );
 
 
   public slots:
@@ -32,11 +32,9 @@ class DepartmentLoader_P : public QThread
 
   private:
     bool m__Successfully;
-    int m__ErrorLastId;
-    QHash<int, QString> m__Errors;
+    QString m__LastError;
     QString m__ConnectionName;
     QString m__Filter;
-    DepartmentList *m__Source;
 
     explicit DepartmentLoader_P( DepartmentLoader *parent );
     ~DepartmentLoader_P();

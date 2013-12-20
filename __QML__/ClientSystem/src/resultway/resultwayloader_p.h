@@ -4,7 +4,7 @@
 #include <QThread>
 
 #include "resultwayloader.h"
-#include "resultwaylist.h"
+#include "resultwayinfo.h"
 
 #include <QHash>
 
@@ -20,7 +20,7 @@ class ResultwayLoader_P : public QThread
 
   signals:
     void sendError( QString errorText );
-    void sendResultwayInfo( ResultwayInfo );
+    void sendInfo( ResultwayInfo * );
 
 
   public slots:
@@ -32,11 +32,9 @@ class ResultwayLoader_P : public QThread
 
   private:
     bool m__Successfully;
-    int m__ErrorLastId;
-    QHash<int, QString> m__Errors;
+    QString m__LastError;
     QString m__ConnectionName;
     QString m__Filter;
-    ResultwayList *m__Source;
 
     explicit ResultwayLoader_P( ResultwayLoader *parent );
     ~ResultwayLoader_P();

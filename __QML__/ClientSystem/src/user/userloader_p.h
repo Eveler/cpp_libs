@@ -4,7 +4,7 @@
 #include <QThread>
 
 #include "userloader.h"
-#include "userlist.h"
+#include "userinfo.h"
 
 #include <QHash>
 
@@ -20,7 +20,7 @@ class UserLoader_P : public QThread
 
   signals:
     void sendError( QString errorText );
-    void sendUserInfo( UserInfo );
+    void sendInfo( UserInfo * );
 
 
   public slots:
@@ -32,11 +32,9 @@ class UserLoader_P : public QThread
 
   private:
     bool m__Successfully;
-    int m__ErrorLastId;
-    QHash<int, QString> m__Errors;
+    QString m__LastError;
     QString m__ConnectionName;
     QString m__Filter;
-    UserList *m__Source;
 
     explicit UserLoader_P( UserLoader *parent );
     ~UserLoader_P();

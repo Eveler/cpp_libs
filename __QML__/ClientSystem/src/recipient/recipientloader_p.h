@@ -4,7 +4,7 @@
 #include <QThread>
 
 #include "recipientloader.h"
-#include "recipientlist.h"
+#include "recipientinfo.h"
 
 #include <QHash>
 
@@ -20,7 +20,7 @@ class RecipientLoader_P : public QThread
 
   signals:
     void sendError( QString errorText );
-    void sendRecipientInfo( RecipientInfo );
+    void sendInfo( RecipientInfo * );
 
 
   public slots:
@@ -32,11 +32,9 @@ class RecipientLoader_P : public QThread
 
   private:
     bool m__Successfully;
-    int m__ErrorLastId;
-    QHash<int, QString> m__Errors;
+    QString m__LastError;
     QString m__ConnectionName;
     QString m__Filter;
-    RecipientList *m__Source;
 
     explicit RecipientLoader_P( RecipientLoader *parent );
     ~RecipientLoader_P();

@@ -1,26 +1,33 @@
 #ifndef RECIPIENTINFO_H
 #define RECIPIENTINFO_H
 
-#include <QtCore>
+#include <QObject>
+
+#include <QtQml>
 
 
-class RecipientInfo
+class RecipientInfo : public QObject
 {
-public:
+    Q_OBJECT
+    Q_DISABLE_COPY(RecipientInfo)
+
+
+  public:
     RecipientInfo();
-    RecipientInfo( const RecipientInfo &other );
     ~RecipientInfo();
 
-    QVariant identifier() const;
+    Q_INVOKABLE QVariant identifier() const;
     void setIdentifier( QVariant identifier );
 
-    const QString & name() const;
-    void setName( const QString &name );
+    Q_INVOKABLE const QString & name() const;
+    Q_INVOKABLE void setName( const QString &name );
 
 
-private:
+  private:
     QVariant m__Identifier;
     QString m__Name;
 };
+
+QML_DECLARE_TYPE(RecipientInfo)
 
 #endif // RECIPIENTINFO_H

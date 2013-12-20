@@ -9,24 +9,23 @@ DeclarLoader::DeclarLoader(QObject *parent) :
   QObject(parent)
 {
   p = new DeclarLoader_P( this );
-  newSource();
+  connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
+  connect( p, SIGNAL(sendInfo(DeclarInfo*)),
+           SIGNAL(newInfo(DeclarInfo*)) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
 }
 
 DeclarLoader::~DeclarLoader()
 {
-  p->m__Errors.clear();
-  disconnect( p->m__Source, SIGNAL(destroyed()), this, SLOT(newSource()) );
+  p->m__LastError.clear();
   delete p;
   p = NULL;
 }
 
-QString DeclarLoader::error( int errorId ) const
+QString DeclarLoader::lastError() const
 {
-  QString errorText = p->m__Errors.value( errorId, QString() );
-  p->m__Errors.remove( errorId );
-  return errorText;
+  return p->m__LastError;
 }
 
 const QString & DeclarLoader::connectionName() const
@@ -39,7 +38,7 @@ const QString & DeclarLoader::connectionName() const
   return p->m__ConnectionName;
 }
 
-bool DeclarLoader::setConnectionName( const QString &connectionName ) const
+bool DeclarLoader::setConnectionName( const QString &connectionName )
 {
   if ( !QSqlDatabase::contains( connectionName ) )
   {
@@ -54,7 +53,7 @@ bool DeclarLoader::setConnectionName( const QString &connectionName ) const
   return true;
 }
 
-bool DeclarLoader::load( const QString &filter ) const
+bool DeclarLoader::load( const QString &filter, bool blockUI )
 {
   if ( p->isRunning() )
   {
@@ -64,27 +63,10 @@ bool DeclarLoader::load( const QString &filter ) const
 
   emit started();
   p->m__Filter = filter;
-  p->m__Source->clear();
   p->start();
-  return ( loop->exec() == 0 );
-}
-
-Declar * DeclarLoader::create() const
-{
-  return NULL;
-}
-
-DeclarList * DeclarLoader::source() const
-{
-  return p->m__Source;
-}
-
-void DeclarLoader::newSource() const
-{
-  p->m__Source = new DeclarList( p->p_dptr() );
-  connect( p->m__Source, SIGNAL(destroyed()), SLOT(newSource()) );
-  connect( p, SIGNAL(sendDeclarInfo(DeclarInfo)),
-           p->m__Source, SLOT(receivedDeclarInfo(DeclarInfo)) );
+  if ( blockUI )
+    return ( loop->exec() == 0 );
+  else return true;
 }
 
 void DeclarLoader::threadFinished()
@@ -93,9 +75,8 @@ void DeclarLoader::threadFinished()
   emit finished();
 }
 
-void DeclarLoader::receivedError( QString errorText ) const
+void DeclarLoader::receivedError( QString errorText )
 {
-  int errorId = p->m__ErrorLastId++;
-  p->m__Errors[errorId] = errorText;
-  emit errorAdded( errorId );
+  p->m__LastError = errorText;
+  emit lastErrorChanged();
 }

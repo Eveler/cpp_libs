@@ -7,39 +7,35 @@
 
 
 class ResultLoader_P;
-class ResultList;
-class Result;
+class ResultInfo;
 
 class ResultLoader : public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY(ResultLoader)
+    Q_PROPERTY(QString lastError READ lastError NOTIFY lastErrorChanged)
     Q_PROPERTY(QString connectionName READ connectionName
                WRITE setConnectionName NOTIFY connectionNameChanged)
-    Q_PROPERTY(ResultList* source READ source NOTIFY sourceChanged)
 
 
   public:
     ResultLoader(QObject *parent = 0);
     ~ResultLoader();
 
-    Q_INVOKABLE QString error( int errorId ) const;
+    Q_INVOKABLE QString lastError() const;
 
     const QString & connectionName() const;
-    bool setConnectionName( const QString &connectionName ) const;
+    bool setConnectionName( const QString &connectionName );
 
-    Q_INVOKABLE bool load( const QString &filter = QString() ) const;
-    Q_INVOKABLE Result * create() const;
-
-    ResultList * source() const;
+    Q_INVOKABLE bool load( const QString &filter = QString(), bool blockUI = false );
 
 
   signals:
-    void errorAdded( int errorId ) const;
+    void lastErrorChanged();
     void connectionNameChanged() const;
-    void started() const;
-    void finished() const;
-    void sourceChanged() const;
+    void started();
+    void finished();
+    void newInfo( ResultInfo *info );
 
 
   public slots:
@@ -50,9 +46,8 @@ class ResultLoader : public QObject
     QEventLoop *loop;
 
   private slots:
-    void newSource() const;
     void threadFinished();
-    void receivedError( QString errorText ) const;
+    void receivedError( QString errorText );
 };
 
 QML_DECLARE_TYPE(ResultLoader)

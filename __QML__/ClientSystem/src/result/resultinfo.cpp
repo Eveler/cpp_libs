@@ -2,14 +2,9 @@
 
 
 ResultInfo::ResultInfo() :
+  QObject(NULL),
   m__Identifier(QVariant()),
   m__Name(QString())
-{
-}
-
-ResultInfo::ResultInfo( const ResultInfo &other ) :
-  m__Identifier(other.identifier()),
-  m__Name(other.name())
 {
 }
 

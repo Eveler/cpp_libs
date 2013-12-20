@@ -4,7 +4,7 @@
 #include <QThread>
 
 #include "procedureloader.h"
-#include "procedurelist.h"
+#include "procedureinfo.h"
 
 #include <QHash>
 
@@ -20,7 +20,7 @@ class ProcedureLoader_P : public QThread
 
   signals:
     void sendError( QString errorText );
-    void sendProcedureInfo( ProcedureInfo );
+    void sendInfo( ProcedureInfo * );
 
 
   public slots:
@@ -32,11 +32,9 @@ class ProcedureLoader_P : public QThread
 
   private:
     bool m__Successfully;
-    int m__ErrorLastId;
-    QHash<int, QString> m__Errors;
+    QString m__LastError;
     QString m__ConnectionName;
     QString m__Filter;
-    ProcedureList *m__Source;
 
     explicit ProcedureLoader_P( ProcedureLoader *parent );
     ~ProcedureLoader_P();

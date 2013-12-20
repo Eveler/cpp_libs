@@ -7,39 +7,35 @@
 
 
 class UserLoader_P;
-class UserList;
-class User;
+class UserInfo;
 
 class UserLoader : public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY(UserLoader)
+    Q_PROPERTY(QString lastError READ lastError NOTIFY lastErrorChanged)
     Q_PROPERTY(QString connectionName READ connectionName
                WRITE setConnectionName NOTIFY connectionNameChanged)
-    Q_PROPERTY(UserList* source READ source NOTIFY sourceChanged)
 
 
   public:
     UserLoader(QObject *parent = 0);
     ~UserLoader();
 
-    Q_INVOKABLE QString error( int errorId ) const;
+    Q_INVOKABLE QString lastError() const;
 
     const QString & connectionName() const;
-    Q_INVOKABLE bool setConnectionName( const QString &connectionName ) const;
+    Q_INVOKABLE bool setConnectionName( const QString &connectionName );
 
-    Q_INVOKABLE bool load( const QString &filter = QString() ) const;
-    Q_INVOKABLE User * create() const;
-
-    UserList * source() const;
+    Q_INVOKABLE bool load( const QString &filter = QString(), bool blockUI = false );
 
 
   signals:
-    void errorAdded( int errorId ) const;
+    void lastErrorChanged();
     void connectionNameChanged() const;
-    void started() const;
-    void finished() const;
-    void sourceChanged() const;
+    void started();
+    void finished();
+    void newInfo( UserInfo *info );
 
 
   public slots:
@@ -50,9 +46,8 @@ class UserLoader : public QObject
     QEventLoop *loop;
 
   private slots:
-    void newSource() const;
     void threadFinished();
-    void receivedError( QString errorText ) const;
+    void receivedError( QString errorText );
 };
 
 QML_DECLARE_TYPE(UserLoader)

@@ -9,24 +9,23 @@ AssessmentLoader::AssessmentLoader(QObject *parent) :
   QObject(parent)
 {
   p = new AssessmentLoader_P( this );
-  newSource();
+  connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
+  connect( p, SIGNAL(sendInfo(AssessmentInfo*)),
+           SIGNAL(newInfo(AssessmentInfo*)) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
 }
 
 AssessmentLoader::~AssessmentLoader()
 {
-  p->m__Errors.clear();
-  disconnect( p->m__Source, SIGNAL(destroyed()), this, SLOT(newSource()) );
+  p->m__LastError.clear();
   delete p;
   p = NULL;
 }
 
-QString AssessmentLoader::error( int errorId ) const
+const QString &AssessmentLoader::lastError() const
 {
-  QString errorText = p->m__Errors.value( errorId, QString() );
-  p->m__Errors.remove( errorId );
-  return errorText;
+  return p->m__LastError;
 }
 
 const QString & AssessmentLoader::connectionName() const
@@ -39,7 +38,7 @@ const QString & AssessmentLoader::connectionName() const
   return p->m__ConnectionName;
 }
 
-bool AssessmentLoader::setConnectionName( const QString &connectionName ) const
+bool AssessmentLoader::setConnectionName( const QString &connectionName )
 {
   if ( !QSqlDatabase::contains( connectionName ) )
   {
@@ -54,7 +53,7 @@ bool AssessmentLoader::setConnectionName( const QString &connectionName ) const
   return true;
 }
 
-bool AssessmentLoader::load( const QString &filter ) const
+bool AssessmentLoader::load( const QString &filter, bool blockUI )
 {
   if ( p->isRunning() )
   {
@@ -64,27 +63,10 @@ bool AssessmentLoader::load( const QString &filter ) const
 
   emit started();
   p->m__Filter = filter;
-  p->m__Source->clear();
   p->start();
-  return ( loop->exec() == 0 );
-}
-
-Assessment * AssessmentLoader::create() const
-{
-  return NULL;
-}
-
-AssessmentList * AssessmentLoader::source() const
-{
-  return p->m__Source;
-}
-
-void AssessmentLoader::newSource() const
-{
-  p->m__Source = new AssessmentList( p->p_dptr() );
-  connect( p->m__Source, SIGNAL(destroyed()), SLOT(newSource()) );
-  connect( p, SIGNAL(sendAssessmentInfo(AssessmentInfo)),
-           p->m__Source, SLOT(receivedAssessmentInfo(AssessmentInfo)) );
+  if ( blockUI )
+    return ( loop->exec() == 0 );
+  else return true;
 }
 
 void AssessmentLoader::threadFinished()
@@ -93,9 +75,8 @@ void AssessmentLoader::threadFinished()
   emit finished();
 }
 
-void AssessmentLoader::receivedError( QString errorText ) const
+void AssessmentLoader::receivedError( QString errorText )
 {
-  int errorId = p->m__ErrorLastId++;
-  p->m__Errors[errorId] = errorText;
-  emit errorAdded( errorId );
+  p->m__LastError = errorText;
+  emit lastErrorChanged();
 }

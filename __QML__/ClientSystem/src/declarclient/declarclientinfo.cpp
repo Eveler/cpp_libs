@@ -2,16 +2,10 @@
 
 
 DeclarClientInfo::DeclarClientInfo() :
+  QObject(NULL),
   m__Identifier(QVariant()),
   m__DeclarIdentifier(QVariant()),
   m__ClientIdentifier(QVariant())
-{
-}
-
-DeclarClientInfo::DeclarClientInfo( const DeclarClientInfo &other ) :
-  m__Identifier(other.identifier()),
-  m__DeclarIdentifier(other.declarIdentifier()),
-  m__ClientIdentifier(other.clientIdentifier())
 {
 }
 

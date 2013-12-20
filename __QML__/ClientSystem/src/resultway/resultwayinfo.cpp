@@ -2,14 +2,9 @@
 
 
 ResultwayInfo::ResultwayInfo() :
+  QObject(NULL),
   m__Identifier(QVariant()),
   m__Name(QString())
-{
-}
-
-ResultwayInfo::ResultwayInfo( const ResultwayInfo &other ) :
-  m__Identifier(other.identifier()),
-  m__Name(other.name())
 {
 }
 

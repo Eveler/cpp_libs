@@ -4,7 +4,7 @@
 #include <QThread>
 
 #include "humanloader.h"
-#include "humanlist.h"
+#include "humaninfo.h"
 
 #include <QHash>
 
@@ -20,7 +20,7 @@ class HumanLoader_P : public QThread
 
   signals:
     void sendError( QString errorText );
-    void sendHumanInfo( HumanInfo );
+    void sendInfo( HumanInfo * );
 
 
   public slots:
@@ -32,11 +32,9 @@ class HumanLoader_P : public QThread
 
   private:
     bool m__Successfully;
-    int m__ErrorLastId;
-    QHash<int, QString> m__Errors;
+    QString m__LastError;
     QString m__ConnectionName;
     QString m__Filter;
-    HumanList *m__Source;
 
     explicit HumanLoader_P( HumanLoader *parent );
     ~HumanLoader_P();

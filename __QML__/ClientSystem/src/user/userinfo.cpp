@@ -2,30 +2,17 @@
 
 
 UserInfo::UserInfo() :
-    m__Identifier(QVariant()),
-    m__Surname(QString()),
-    m__Firstname(QString()),
-    m__Lastname(QString()),
-    m__Post(-1),
-    m__Department(-1),
-    m__Isactive(false),
-    m__Dismissed(false),
-    m__Dblogin(QString()),
-    m__Direction(-1)
-{
-}
-
-UserInfo::UserInfo( const UserInfo &other ) :
-    m__Identifier(other.identifier()),
-    m__Surname(other.surname()),
-    m__Firstname(other.firstname()),
-    m__Lastname(other.lastname()),
-    m__Post(other.post()),
-    m__Department(other.department()),
-    m__Isactive(other.isactive()),
-    m__Dismissed(other.dismissed()),
-    m__Dblogin(other.dblogin()),
-    m__Direction(other.direction())
+  QObject(NULL),
+  m__Identifier(QVariant()),
+  m__Surname(QString()),
+  m__Firstname(QString()),
+  m__Lastname(QString()),
+  m__PostIdentifier(QVariant()),
+  m__DepartmentIdentifier(QVariant()),
+  m__Isactive(false),
+  m__Dismissed(false),
+  m__Dblogin(QString()),
+  m__DirectionIdentifier(QVariant())
 {
 }
 
@@ -35,100 +22,100 @@ UserInfo::~UserInfo()
 
 QVariant UserInfo::identifier() const
 {
-    return m__Identifier;
+  return m__Identifier;
 }
 
 void UserInfo::setIdentifier( QVariant identifier )
 {
-    m__Identifier = identifier;
+  m__Identifier = identifier;
 }
 
 const QString & UserInfo::surname() const
 {
-    return m__Surname;
+  return m__Surname;
 }
 
 void UserInfo::setSurname( const QString &surname )
 {
-    m__Surname = surname;
+  m__Surname = surname;
 }
 
 const QString & UserInfo::firstname() const
 {
-    return m__Firstname;
+  return m__Firstname;
 }
 
 void UserInfo::setFirstname( const QString &firstname )
 {
-    m__Firstname = firstname;
+  m__Firstname = firstname;
 }
 
 const QString & UserInfo::lastname() const
 {
-    return m__Lastname;
+  return m__Lastname;
 }
 
 void UserInfo::setLastname( const QString &lastname )
 {
-    m__Lastname = lastname;
+  m__Lastname = lastname;
 }
 
-int UserInfo::post() const
+QVariant UserInfo::postIdentifier() const
 {
-    return m__Post;
+  return m__PostIdentifier;
 }
 
-void UserInfo::setPost( int post )
+void UserInfo::setPostIdentifier( QVariant postIdentifier )
 {
-    m__Post = post;
+  m__PostIdentifier = postIdentifier;
 }
 
-int UserInfo::department() const
+QVariant UserInfo::departmentIdentifier() const
 {
-    return m__Department;
+  return m__DepartmentIdentifier;
 }
 
-void UserInfo::setDepartment( int department )
+void UserInfo::setDepartmentIdentifier( QVariant departmentIdentifier )
 {
-    m__Department = department;
+  m__DepartmentIdentifier = departmentIdentifier;
 }
 
 bool UserInfo::isactive() const
 {
-    return m__Isactive;
+  return m__Isactive;
 }
 
 void UserInfo::setIsactive( bool isactive )
 {
-    m__Isactive = isactive;
+  m__Isactive = isactive;
 }
 
 bool UserInfo::dismissed() const
 {
-    return m__Dismissed;
+  return m__Dismissed;
 }
 
 void UserInfo::setDismissed( bool dismissed )
 {
-    m__Dismissed = dismissed;
+  m__Dismissed = dismissed;
 }
 
 const QString & UserInfo::dblogin() const
 {
-    return m__Dblogin;
+  return m__Dblogin;
 }
 
 void UserInfo::setDblogin( const QString &dblogin )
 {
-    m__Dblogin = dblogin;
+  m__Dblogin = dblogin;
 }
 
-int UserInfo::direction() const
+QVariant UserInfo::directionIdentifier() const
 {
-    return m__Direction;
+  return m__DirectionIdentifier;
 }
 
-void UserInfo::setDirection( int direction )
+void UserInfo::setDirectionIdentifier( QVariant directionIdentifier )
 {
-    m__Direction = direction;
+  m__DirectionIdentifier = directionIdentifier;
 }

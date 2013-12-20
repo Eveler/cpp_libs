@@ -9,24 +9,23 @@ CallstatusLoader::CallstatusLoader(QObject *parent) :
   QObject(parent)
 {
   p = new CallstatusLoader_P( this );
-  newSource();
+  connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
+  connect( p, SIGNAL(sendInfo(CallstatusInfo*)),
+           SIGNAL(newInfo(CallstatusInfo*)) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
 }
 
 CallstatusLoader::~CallstatusLoader()
 {
-  p->m__Errors.clear();
-  disconnect( p->m__Source, SIGNAL(destroyed()), this, SLOT(newSource()) );
+  p->m__LastError.clear();
   delete p;
   p = NULL;
 }
 
-QString CallstatusLoader::error( int errorId ) const
+QString CallstatusLoader::lastError() const
 {
-  QString errorText = p->m__Errors.value( errorId, QString() );
-  p->m__Errors.remove( errorId );
-  return errorText;
+  return p->m__LastError;
 }
 
 const QString & CallstatusLoader::connectionName() const
@@ -39,7 +38,7 @@ const QString & CallstatusLoader::connectionName() const
   return p->m__ConnectionName;
 }
 
-bool CallstatusLoader::setConnectionName( const QString &connectionName ) const
+bool CallstatusLoader::setConnectionName( const QString &connectionName )
 {
   if ( !QSqlDatabase::contains( connectionName ) )
   {
@@ -54,7 +53,7 @@ bool CallstatusLoader::setConnectionName( const QString &connectionName ) const
   return true;
 }
 
-bool CallstatusLoader::load() const
+bool CallstatusLoader::load( bool blockUI )
 {
   if ( p->isRunning() )
   {
@@ -62,15 +61,14 @@ bool CallstatusLoader::load() const
     return false;
   }
 
-  p->m__Source->clear();
   emit started();
-  connect( p, SIGNAL(sendCallstatusInfo(CallstatusInfo)),
-           p->m__Source, SLOT(addCallstatus(CallstatusInfo)) );
   p->start();
-  return ( loop->exec() == 0 );
+  if ( blockUI )
+    return ( loop->exec() == 0 );
+  else return true;
 }
 
-bool CallstatusLoader::load( QVariant identifier ) const
+bool CallstatusLoader::load( QVariant identifier, bool blockUI )
 {
   if ( p->isRunning() )
   {
@@ -80,41 +78,20 @@ bool CallstatusLoader::load( QVariant identifier ) const
 
   p->m__LoadIdentifier.setValue( identifier );
   emit started();
-  connect( p, SIGNAL(sendCallstatusInfo(CallstatusInfo)),
-           p->m__Source, SLOT(editCallstatus(CallstatusInfo)) );
   p->start();
-  return ( loop->exec() == 0 );
-}
-
-Callstatus * CallstatusLoader::create() const
-{
-  return NULL;
-}
-
-CallstatusList * CallstatusLoader::source() const
-{
-  return p->m__Source;
-}
-
-void CallstatusLoader::newSource() const
-{
-  p->m__Source = new CallstatusList( p->p_dptr() );
-  connect( p->m__Source, SIGNAL(destroyed()), SLOT(newSource()) );
+  if ( blockUI )
+    return ( loop->exec() == 0 );
+  else return true;
 }
 
 void CallstatusLoader::threadFinished()
 {
-  disconnect( p, SIGNAL(sendCallstatusInfo(CallstatusInfo)),
-              p->m__Source, SLOT(addCallstatus(CallstatusInfo)) );
-  disconnect( p, SIGNAL(sendCallstatusInfo(CallstatusInfo)),
-              p->m__Source, SLOT(editCallstatus(CallstatusInfo)) );
   loop->exit( ( p->m__Successfully ? 0 : 1 ) );
   emit finished();
 }
 
-void CallstatusLoader::receivedError( QString errorText ) const
+void CallstatusLoader::receivedError( QString errorText )
 {
-  int errorId = p->m__ErrorLastId++;
-  p->m__Errors[errorId] = errorText;
-  emit errorAdded( errorId );
+  p->m__LastError = errorText;
+  emit lastErrorChanged();
 }

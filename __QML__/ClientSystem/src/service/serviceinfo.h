@@ -1,36 +1,41 @@
 #ifndef SERVICEINFO_H
 #define SERVICEINFO_H
 
-#include <QtCore>
+#include <QObject>
+
+#include <QtQml>
 
 
-class ServiceInfo
+class ServiceInfo : public QObject
 {
+    Q_OBJECT
+    Q_DISABLE_COPY(ServiceInfo)
+
+
   public:
     ServiceInfo();
-    ServiceInfo( const ServiceInfo &other );
     ~ServiceInfo();
 
-    QVariant identifier() const;
+    Q_INVOKABLE QVariant identifier() const;
     void setIdentifier( QVariant identifier );
 
-    QVariant root() const;
-    void setRoot( QVariant root );
+    Q_INVOKABLE QVariant root() const;
+    Q_INVOKABLE void setRoot( QVariant root );
 
-    const QString & sidx() const;
-    void setSidx( const QString &sidx );
+    Q_INVOKABLE const QString & sidx() const;
+    Q_INVOKABLE void setSidx( const QString &sidx );
 
-    const QString & name() const;
-    void setName( const QString &name );
+    Q_INVOKABLE const QString & name() const;
+    Q_INVOKABLE void setName( const QString &name );
 
-    int deadline() const;
-    void setDeadline( int deadline );
+    Q_INVOKABLE int deadline() const;
+    Q_INVOKABLE void setDeadline( int deadline );
 
-    bool workdays() const;
-    void setWorkdays( bool workdays );
+    Q_INVOKABLE bool workdays() const;
+    Q_INVOKABLE void setWorkdays( bool workdays );
 
-    bool isactive() const;
-    void setIsactive( bool isactive );
+    Q_INVOKABLE bool isactive() const;
+    Q_INVOKABLE void setIsactive( bool isactive );
 
 
   private:
@@ -42,5 +47,7 @@ class ServiceInfo
     bool m__Workdays;
     bool m__Isactive;
 };
+
+QML_DECLARE_TYPE(ServiceInfo)
 
 #endif // SERVICEINFO_H

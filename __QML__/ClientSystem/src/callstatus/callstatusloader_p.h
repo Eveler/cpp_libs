@@ -4,7 +4,7 @@
 #include <QThread>
 
 #include "callstatusloader.h"
-#include "callstatuslist.h"
+#include "callstatusinfo.h"
 
 #include <QHash>
 
@@ -20,7 +20,7 @@ class CallstatusLoader_P : public QThread
 
   signals:
     void sendError( QString errorText );
-    void sendCallstatusInfo( CallstatusInfo );
+    void sendInfo( CallstatusInfo * );
 
 
   public slots:
@@ -32,10 +32,8 @@ class CallstatusLoader_P : public QThread
 
   private:
     bool m__Successfully;
-    int m__ErrorLastId;
-    QHash<int, QString> m__Errors;
+    QString m__LastError;
     QString m__ConnectionName;
-    CallstatusList *m__Source;
     QVariant m__LoadIdentifier;
 
     explicit CallstatusLoader_P( CallstatusLoader *parent );

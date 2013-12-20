@@ -1,0 +1,3 @@
+module com.mihail.clientsystemsources
+plugin ClientSystemSources
+singleton AssessmentsSource 1.0 AssessmentsSource.qml

@@ -2,16 +2,10 @@
 
 
 TrusteeInfo::TrusteeInfo() :
+  QObject(NULL),
   m__Identifier(QVariant()),
   m__DeclarIdentifier(QVariant()),
   m__ClientIdentifiers(QVariantList())
-{
-}
-
-TrusteeInfo::TrusteeInfo( const TrusteeInfo &other ) :
-  m__Identifier(other.identifier()),
-  m__DeclarIdentifier(other.declarIdentifier()),
-  m__ClientIdentifiers(other.clientIdentifiers())
 {
 }
 

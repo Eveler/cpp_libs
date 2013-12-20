@@ -4,7 +4,7 @@
 #include <QThread>
 
 #include "serviceloader.h"
-#include "servicelist.h"
+#include "serviceinfo.h"
 
 #include <QHash>
 
@@ -20,7 +20,7 @@ class ServiceLoader_P : public QThread
 
   signals:
     void sendError( QString errorText );
-    void sendServiceInfo( ServiceInfo );
+    void sendInfo( ServiceInfo * );
 
 
   public slots:
@@ -32,11 +32,9 @@ class ServiceLoader_P : public QThread
 
   private:
     bool m__Successfully;
-    int m__ErrorLastId;
-    QHash<int, QString> m__Errors;
+    QString m__LastError;
     QString m__ConnectionName;
     QString m__Filter;
-    ServiceList *m__Source;
 
     explicit ServiceLoader_P( ServiceLoader *parent );
     ~ServiceLoader_P();

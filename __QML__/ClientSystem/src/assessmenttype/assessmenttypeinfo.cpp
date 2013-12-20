@@ -2,14 +2,9 @@
 
 
 AssessmenttypeInfo::AssessmenttypeInfo() :
+  QObject(NULL),
   m__Identifier(QVariant()),
   m__Name(QString())
-{
-}
-
-AssessmenttypeInfo::AssessmenttypeInfo( const AssessmenttypeInfo &other ) :
-  m__Identifier(other.identifier()),
-  m__Name(other.name())
 {
 }
 

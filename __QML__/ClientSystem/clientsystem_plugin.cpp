@@ -1,71 +1,54 @@
 #include "clientsystem_plugin.h"
 
-#include "user/user.h"
-#include "user/userlist.h"
+#include "user/userinfo.h"
 #include "user/userloader.h"
 /// ============================================================================
-#include "procedure/procedure.h"
-#include "procedure/procedurelist.h"
+#include "procedure/procedureinfo.h"
 #include "procedure/procedureloader.h"
 /// ============================================================================
-#include "recipient/recipient.h"
-#include "recipient/recipientlist.h"
+#include "recipient/recipientinfo.h"
 #include "recipient/recipientloader.h"
 /// ============================================================================
-#include "department/department.h"
-#include "department/departmentlist.h"
+#include "department/departmentinfo.h"
 #include "department/departmentloader.h"
 /// ============================================================================
-#include "doctype/doctype.h"
-#include "doctype/doctypelist.h"
+#include "doctype/doctypeinfo.h"
 #include "doctype/doctypeloader.h"
 /// ============================================================================
-#include "callstatus/callstatus.h"
-#include "callstatus/callstatuslist.h"
+#include "callstatus/callstatusinfo.h"
 #include "callstatus/callstatusloader.h"
 /// ============================================================================
-#include "human/human.h"
-#include "human/humanlist.h"
+#include "human/humaninfo.h"
 #include "human/humanloader.h"
 /// ============================================================================
-#include "organisation/organisation.h"
-#include "organisation/organisationlist.h"
+#include "organisation/organisationinfo.h"
 #include "organisation/organisationloader.h"
 /// ============================================================================
-#include "client/client.h"
-#include "client/clientlist.h"
+#include "client/clientinfo.h"
 #include "client/clientloader.h"
 /// ============================================================================
-#include "service/service.h"
-#include "service/servicelist.h"
+#include "service/serviceinfo.h"
 #include "service/serviceloader.h"
 /// ============================================================================
-#include "trustee/trustee.h"
-#include "trustee/trusteelist.h"
+#include "trustee/trusteeinfo.h"
 #include "trustee/trusteeloader.h"
 /// ============================================================================
-#include "declarclient/declarclient.h"
-#include "declarclient/declarclientlist.h"
+#include "declarclient/declarclientinfo.h"
 #include "declarclient/declarclientloader.h"
 /// ============================================================================
-#include "declar/declar.h"
-#include "declar/declarlist.h"
+#include "declar/declarinfo.h"
 #include "declar/declarloader.h"
 /// ============================================================================
-#include "result/result.h"
-#include "result/resultlist.h"
+#include "result/resultinfo.h"
 #include "result/resultloader.h"
 /// ============================================================================
-#include "resultway/resultway.h"
-#include "resultway/resultwaylist.h"
+#include "resultway/resultwayinfo.h"
 #include "resultway/resultwayloader.h"
 /// ============================================================================
-#include "assessment/assessment.h"
-#include "assessment/assessmentlist.h"
+#include "assessment/assessmentinfo.h"
 #include "assessment/assessmentloader.h"
 /// ============================================================================
-#include "assessmenttype/assessmenttype.h"
-#include "assessmenttype/assessmenttypelist.h"
+#include "assessmenttype/assessmenttypeinfo.h"
 #include "assessmenttype/assessmenttypeloader.h"
 /// ============================================================================
 #include "clientprivatesystem.h"
@@ -75,94 +58,10 @@
 
 void ClientSystemPlugin::initializeEngine( QQmlEngine *engine, const char *uri )
 {
-  Q_UNUSED(uri)
+  Q_UNUSED(uri);
   ClientPrivateSystem *p = ClientPrivateSystem::instace();
   QQmlContext *context = engine->rootContext();
-
-  /// About users
-  UserLoader *userLoader = new UserLoader;
-  p->setUserLoader( userLoader );
-  context->setContextProperty( "UserLoader", userLoader );
-
-  /// About procedures
-  ProcedureLoader *procedureLoader = new ProcedureLoader;
-  p->setProcedureLoader( procedureLoader );
-  context->setContextProperty( "ProcedureLoader", procedureLoader );
-
-  /// About recipients
-  RecipientLoader *recipientLoader = new RecipientLoader;
-  p->setRecipientLoader( recipientLoader );
-  context->setContextProperty( "RecipientLoader", recipientLoader );
-
-  /// About departments
-  DepartmentLoader *departmentLoader = new DepartmentLoader;
-  p->setDepartmentLoader( departmentLoader );
-  context->setContextProperty( "DepartmentLoader", departmentLoader );
-
-  /// About doctypes
-  DoctypeLoader *doctypeLoader = new DoctypeLoader;
-  p->setDoctypeLoader( doctypeLoader );
-  context->setContextProperty( "DoctypeLoader", doctypeLoader );
-
-  /// About callstatuses
-  CallstatusLoader *callstatusLoader = new CallstatusLoader;
-  p->setCallstatusLoader( callstatusLoader );
-  context->setContextProperty( "CallstatusLoader", callstatusLoader );
-
-  /// About humans
-  HumanLoader *humanLoader = new HumanLoader;
-  p->setHumanLoader( humanLoader );
-  context->setContextProperty( "HumanLoader", humanLoader );
-
-  /// About organisations
-  OrganisationLoader *organisationLoader = new OrganisationLoader;
-  p->setOrganisationLoader( organisationLoader );
-  context->setContextProperty( "OrganisationLoader", organisationLoader );
-
-  /// About clients
-  ClientLoader *clientLoader = new ClientLoader;
-  p->setClientLoader( clientLoader );
-  context->setContextProperty( "ClientLoader", clientLoader );
-
-  /// About services
-  ServiceLoader *serviceLoader = new ServiceLoader;
-  p->setServiceLoader( serviceLoader );
-  context->setContextProperty( "ServiceLoader", serviceLoader );
-
-  /// About trustees
-  TrusteeLoader *trusteeLoader = new TrusteeLoader;
-  p->setTrusteeLoader( trusteeLoader );
-  context->setContextProperty( "TrusteeLoader", trusteeLoader );
-
-  /// About declarclients
-  DeclarClientLoader *declarClientLoader = new DeclarClientLoader;
-  p->setDeclarClientLoader( declarClientLoader );
-  context->setContextProperty( "DeclarClientLoader", declarClientLoader );
-
-  /// About declars
-  DeclarLoader *declarLoader = new DeclarLoader;
-  p->setDeclarLoader( declarLoader );
-  context->setContextProperty( "DeclarLoader", declarLoader );
-
-  /// About results
-  ResultLoader *resultLoader = new ResultLoader;
-  p->setResultLoader( resultLoader );
-  context->setContextProperty( "ResultLoader", resultLoader );
-
-  /// About resultways
-  ResultwayLoader *resultwayLoader = new ResultwayLoader;
-  p->setResultwayLoader( resultwayLoader );
-  context->setContextProperty( "ResultwayLoader", resultwayLoader );
-
-  /// About assessments
-  AssessmentLoader *assessmentLoader = new AssessmentLoader;
-  p->setAssessmentLoader( assessmentLoader );
-  context->setContextProperty( "AssessmentLoader", assessmentLoader );
-
-  /// About assessmenttypes
-  AssessmenttypeLoader *assessmenttypeLoader = new AssessmenttypeLoader;
-  p->setAssessmenttypeLoader( assessmenttypeLoader );
-  context->setContextProperty( "AssessmenttypeLoader", assessmenttypeLoader );
+  Q_UNUSED(context);
 }
 
 void ClientSystemPlugin::registerTypes(const char *uri)
@@ -170,71 +69,71 @@ void ClientSystemPlugin::registerTypes(const char *uri)
   // @uri com.mihail.clientsystem
 
   /// About users
-  qmlRegisterType<User>( uri, 1, 0, "User" );
-  qmlRegisterType<UserList>( uri, 1, 0, "UserList" );
+  qmlRegisterType<UserInfo>( uri, 1, 0, "UserInfo" );
+  qmlRegisterType<UserLoader>( uri, 1, 0, "UserLoader" );
 
   /// About procedures
-  qmlRegisterType<Procedure>( uri, 1, 0, "Procedure" );
-  qmlRegisterType<ProcedureList>( uri, 1, 0, "ProcedureList" );
+  qmlRegisterType<ProcedureInfo>( uri, 1, 0, "ProcedureInfo" );
+  qmlRegisterType<ProcedureLoader>( uri, 1, 0, "ProcedureLoader" );
 
   /// About recipients
-  qmlRegisterType<Recipient>( uri, 1, 0, "Recipient" );
-  qmlRegisterType<RecipientList>( uri, 1, 0, "RecipientList" );
+  qmlRegisterType<RecipientInfo>( uri, 1, 0, "RecipientInfo" );
+  qmlRegisterType<RecipientLoader>( uri, 1, 0, "RecipientLoader" );
 
   /// About departments
-  qmlRegisterType<Department>( uri, 1, 0, "Department" );
-  qmlRegisterType<DepartmentList>( uri, 1, 0, "DepartmentList" );
+  qmlRegisterType<DepartmentInfo>( uri, 1, 0, "DepartmentInfo" );
+  qmlRegisterType<DepartmentLoader>( uri, 1, 0, "DepartmentLoader" );
 
   /// About doctypes
-  qmlRegisterType<Doctype>( uri, 1, 0, "Doctype" );
-  qmlRegisterType<DoctypeList>( uri, 1, 0, "DoctypeList" );
+  qmlRegisterType<DoctypeInfo>( uri, 1, 0, "DoctypeInfo" );
+  qmlRegisterType<DoctypeLoader>( uri, 1, 0, "DoctypeLoader" );
 
   /// About callstatuses
-  qmlRegisterType<Callstatus>( uri, 1, 0, "Callstatus" );
-  qmlRegisterType<CallstatusList>( uri, 1, 0, "CallstatusList" );
+  qmlRegisterType<CallstatusInfo>( uri, 1, 0, "CallstatusInfo" );
+  qmlRegisterType<CallstatusLoader>( uri, 1, 0, "CallstatusLoader" );
 
   /// About humans
-  qmlRegisterType<Human>( uri, 1, 0, "Human" );
-  qmlRegisterType<HumanList>( uri, 1, 0, "HumanList" );
+  qmlRegisterType<HumanInfo>( uri, 1, 0, "HumanInfo" );
+  qmlRegisterType<HumanLoader>( uri, 1, 0, "HumanLoader" );
 
   /// About organisations
-  qmlRegisterType<Organisation>( uri, 1, 0, "Organisation" );
-  qmlRegisterType<OrganisationList>( uri, 1, 0, "OrganisationList" );
+  qmlRegisterType<OrganisationInfo>( uri, 1, 0, "OrganisationInfo" );
+  qmlRegisterType<OrganisationLoader>( uri, 1, 0, "OrganisationLoader" );
 
   /// About clients
-  qmlRegisterType<Client>( uri, 1, 0, "Client" );
-  qmlRegisterType<ClientList>( uri, 1, 0, "ClientList" );
+  qmlRegisterType<ClientInfo>( uri, 1, 0, "ClientInfo" );
+  qmlRegisterType<ClientLoader>( uri, 1, 0, "ClientLoader" );
 
   /// About services
-  qmlRegisterType<Service>( uri, 1, 0, "Service" );
-  qmlRegisterType<ServiceList>( uri, 1, 0, "ServiceList" );
+  qmlRegisterType<ServiceInfo>( uri, 1, 0, "ServiceInfo" );
+  qmlRegisterType<ServiceLoader>( uri, 1, 0, "ServiceLoader" );
 
   /// About trustees
-  qmlRegisterType<Trustee>( uri, 1, 0, "Trustee" );
-  qmlRegisterType<TrusteeList>( uri, 1, 0, "TrusteeList" );
+  qmlRegisterType<TrusteeInfo>( uri, 1, 0, "TrusteeInfo" );
+  qmlRegisterType<TrusteeLoader>( uri, 1, 0, "TrusteeLoader" );
 
   /// About declarclients
-  qmlRegisterType<DeclarClient>( uri, 1, 0, "DeclarClient" );
-  qmlRegisterType<DeclarClientList>( uri, 1, 0, "DeclarClientList" );
+  qmlRegisterType<DeclarClientInfo>( uri, 1, 0, "DeclarClientInfo" );
+  qmlRegisterType<DeclarClientLoader>( uri, 1, 0, "DeclarClientLoader" );
 
   /// About declars
-  qmlRegisterType<Declar>( uri, 1, 0, "Declar" );
-  qmlRegisterType<DeclarList>( uri, 1, 0, "DeclarList" );
+  qmlRegisterType<DeclarInfo>( uri, 1, 0, "DeclarInfo" );
+  qmlRegisterType<DeclarLoader>( uri, 1, 0, "DeclarLoader" );
 
   /// About results
-  qmlRegisterType<Result>( uri, 1, 0, "Result" );
-  qmlRegisterType<ResultList>( uri, 1, 0, "ResultList" );
+  qmlRegisterType<ResultInfo>( uri, 1, 0, "ResultInfo" );
+  qmlRegisterType<ResultLoader>( uri, 1, 0, "ResultLoader" );
 
   /// About resultways
-  qmlRegisterType<Resultway>( uri, 1, 0, "Resultway" );
-  qmlRegisterType<ResultwayList>( uri, 1, 0, "ResultwayList" );
+  qmlRegisterType<ResultwayInfo>( uri, 1, 0, "ResultwayInfo" );
+  qmlRegisterType<ResultwayLoader>( uri, 1, 0, "ResultwayLoader" );
 
   /// About assessments
-  qmlRegisterType<Assessment>( uri, 1, 0, "Assessment" );
-  qmlRegisterType<AssessmentList>( uri, 1, 0, "AssessmentList" );
+  qmlRegisterType<AssessmentInfo>( uri, 1, 0, "AssessmentInfo" );
+  qmlRegisterType<AssessmentLoader>( uri, 1, 0, "AssessmentLoader" );
 
   /// About assessmenttypes
-  qmlRegisterType<Assessmenttype>( uri, 1, 0, "Assessmenttype" );
-  qmlRegisterType<AssessmenttypeList>( uri, 1, 0, "AssessmenttypeList" );
+  qmlRegisterType<AssessmenttypeInfo>( uri, 1, 0, "AssessmenttypeInfo" );
+  qmlRegisterType<AssessmenttypeLoader>( uri, 1, 0, "AssessmenttypeLoader" );
 }
 

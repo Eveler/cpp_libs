@@ -43,37 +43,31 @@ void UserLoader_P::run()
   }
   while ( qry.next() )
   {
-    UserInfo info;
-    info.setIdentifier( qry.record().value( tr( "identifier" ) ) );
-    info.setSurname( qry.record().value( tr( "surname" ) ).toString() );
-    info.setFirstname( qry.record().value( tr( "firstname" ) ).toString() );
-    info.setLastname( qry.record().value( tr( "lastname" ) ).toString() );
-    info.setPost( qry.record().value( tr( "post" ) ).toInt() );
-    info.setDepartment( qry.record().value( tr( "department" ) ).toInt() );
-    info.setIsactive( qry.record().value( tr( "isactive" ) ).toBool() );
-    info.setDismissed( qry.record().value( tr( "dismissed" ) ).toBool() );
-    info.setDblogin( qry.record().value( tr( "dblogin" ) ).toString() );
-    info.setDirection( qry.record().value( tr( "direction" ) ).toInt() );
-    emit sendUserInfo( info );
+    UserInfo *info = new UserInfo();
+    info->setIdentifier( qry.record().value( tr( "identifier" ) ) );
+    info->setSurname( qry.record().value( tr( "surname" ) ).toString() );
+    info->setFirstname( qry.record().value( tr( "firstname" ) ).toString() );
+    info->setLastname( qry.record().value( tr( "lastname" ) ).toString() );
+    info->setPostIdentifier( qry.record().value( tr( "post" ) ) );
+    info->setDepartmentIdentifier( qry.record().value( tr( "department" ) ) );
+    info->setIsactive( qry.record().value( tr( "isactive" ) ).toBool() );
+    info->setDismissed( qry.record().value( tr( "dismissed" ) ).toBool() );
+    info->setDblogin( qry.record().value( tr( "dblogin" ) ).toString() );
+    info->setDirectionIdentifier( qry.record().value( tr( "direction" ) ) );
+    emit sendInfo( info );
   }
 }
 
 UserLoader_P::UserLoader_P( UserLoader *parent ) :
   QThread(parent),
   m__Successfully(true),
-  m__ErrorLastId(-1),
-  m__Errors(QHash<int, QString>()),
-  m__ConnectionName(QString()),
-  m__Source(NULL)
+  m__LastError(QString()),
+  m__ConnectionName(QString())
 {
-  connect( this, SIGNAL(sendError(QString)), parent, SLOT(receivedError(QString)) );
-  qRegisterMetaType<UserInfo>("UserInfo");
 }
 
 UserLoader_P::~UserLoader_P()
 {
-  delete m__Source;
-  m__Source = NULL;
 }
 
 UserLoader * UserLoader_P::p_dptr() const

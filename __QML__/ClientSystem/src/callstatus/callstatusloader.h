@@ -7,40 +7,36 @@
 
 
 class CallstatusLoader_P;
-class CallstatusList;
-class Callstatus;
+class CallstatusInfo;
 
 class CallstatusLoader : public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY(CallstatusLoader)
+    Q_PROPERTY(QString lastError READ lastError NOTIFY lastErrorChanged)
     Q_PROPERTY(QString connectionName READ connectionName
                WRITE setConnectionName NOTIFY connectionNameChanged)
-    Q_PROPERTY(CallstatusList* source READ source NOTIFY sourceChanged)
 
 
   public:
     CallstatusLoader(QObject *parent = 0);
     ~CallstatusLoader();
 
-    Q_INVOKABLE QString error( int errorId ) const;
+    Q_INVOKABLE QString lastError() const;
 
     const QString & connectionName() const;
-    bool setConnectionName( const QString &connectionName ) const;
+    bool setConnectionName( const QString &connectionName );
 
-    Q_INVOKABLE bool load() const;
-    Q_INVOKABLE bool load( QVariant identifier ) const;
-    Q_INVOKABLE Callstatus * create() const;
-
-    CallstatusList * source() const;
+    Q_INVOKABLE bool load( bool blockUI = false );
+    Q_INVOKABLE bool load( QVariant identifier, bool blockUI = false );
 
 
   signals:
-    void errorAdded( int errorId ) const;
+    void lastErrorChanged();
     void connectionNameChanged() const;
-    void started() const;
-    void finished() const;
-    void sourceChanged() const;
+    void started();
+    void finished();
+    void newInfo( CallstatusInfo *info );
 
 
   public slots:
@@ -50,10 +46,10 @@ class CallstatusLoader : public QObject
     CallstatusLoader_P *p;
     QEventLoop *loop;
 
+
   private slots:
-    void newSource() const;
     void threadFinished();
-    void receivedError( QString errorText ) const;
+    void receivedError( QString errorText );
 };
 
 QML_DECLARE_TYPE(CallstatusLoader)

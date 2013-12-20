@@ -1,3 +1,4 @@
 module com.mihail.clientsystem
 plugin ClientSystem
-LoaderErrors 1.0 LoaderErrors.qml
+Assessment 1.0 Assessment.qml
+AssessmentList 1.0 AssessmentList.qml

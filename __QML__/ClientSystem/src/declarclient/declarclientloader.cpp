@@ -9,24 +9,23 @@ DeclarClientLoader::DeclarClientLoader(QObject *parent) :
   QObject(parent)
 {
   p = new DeclarClientLoader_P( this );
-  newSource();
+  connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
+  connect( p, SIGNAL(sendInfo(DeclarClientInfo*)),
+           SIGNAL(newInfo(DeclarClientInfo*)) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
 }
 
 DeclarClientLoader::~DeclarClientLoader()
 {
-  p->m__Errors.clear();
-  disconnect( p->m__Source, SIGNAL(destroyed()), this, SLOT(newSource()) );
+  p->m__LastError.clear();
   delete p;
   p = NULL;
 }
 
-QString DeclarClientLoader::error( int errorId ) const
+QString DeclarClientLoader::lastError() const
 {
-  QString errorText = p->m__Errors.value( errorId, QString() );
-  p->m__Errors.remove( errorId );
-  return errorText;
+  return p->m__LastError;
 }
 
 const QString & DeclarClientLoader::connectionName() const
@@ -39,7 +38,7 @@ const QString & DeclarClientLoader::connectionName() const
   return p->m__ConnectionName;
 }
 
-bool DeclarClientLoader::setConnectionName( const QString &connectionName ) const
+bool DeclarClientLoader::setConnectionName( const QString &connectionName )
 {
   if ( !QSqlDatabase::contains( connectionName ) )
   {
@@ -54,7 +53,7 @@ bool DeclarClientLoader::setConnectionName( const QString &connectionName ) cons
   return true;
 }
 
-bool DeclarClientLoader::load( const QString &filter ) const
+bool DeclarClientLoader::load( const QString &filter, bool blockUI )
 {
   if ( p->isRunning() )
   {
@@ -64,27 +63,10 @@ bool DeclarClientLoader::load( const QString &filter ) const
 
   emit started();
   p->m__Filter = filter;
-  p->m__Source->clear();
   p->start();
-  return ( loop->exec() == 0 );
-}
-
-DeclarClient * DeclarClientLoader::create() const
-{
-  return NULL;
-}
-
-DeclarClientList * DeclarClientLoader::source() const
-{
-  return p->m__Source;
-}
-
-void DeclarClientLoader::newSource() const
-{
-  p->m__Source = new DeclarClientList( p->p_dptr() );
-  connect( p->m__Source, SIGNAL(destroyed()), SLOT(newSource()) );
-  connect( p, SIGNAL(sendDeclarClientInfo(DeclarClientInfo)),
-           p->m__Source, SLOT(receivedDeclarClientInfo(DeclarClientInfo)) );
+  if ( blockUI )
+    return ( loop->exec() == 0 );
+  else return true;
 }
 
 void DeclarClientLoader::threadFinished()
@@ -93,9 +75,8 @@ void DeclarClientLoader::threadFinished()
   emit finished();
 }
 
-void DeclarClientLoader::receivedError( QString errorText ) const
+void DeclarClientLoader::receivedError( QString errorText )
 {
-  int errorId = p->m__ErrorLastId++;
-  p->m__Errors[errorId] = errorText;
-  emit errorAdded( errorId );
+  p->m__LastError = errorText;
+  emit lastErrorChanged();
 }

@@ -45,34 +45,28 @@ void ServiceLoader_P::run()
   }
   while ( qry.next() )
   {
-    ServiceInfo info;
-    info.setIdentifier( qry.record().value( tr( "identifier" ) ) );
-    info.setRoot( qry.record().value( tr( "root" ) ) );
-    info.setSidx( qry.record().value( tr( "sidx" ) ).toString() );
-    info.setName( qry.record().value( tr( "name" ) ).toString() );
-    info.setDeadline( qry.record().value( tr( "deadline" ) ).toInt() );
-    info.setWorkdays( qry.record().value( tr( "workdays" ) ).toBool() );
-    info.setIsactive( qry.record().value( tr( "isactive" ) ).toBool() );
-    emit sendServiceInfo( info );
+    ServiceInfo *info = new ServiceInfo();
+    info->setIdentifier( qry.record().value( tr( "identifier" ) ) );
+    info->setRoot( qry.record().value( tr( "root" ) ) );
+    info->setSidx( qry.record().value( tr( "sidx" ) ).toString() );
+    info->setName( qry.record().value( tr( "name" ) ).toString() );
+    info->setDeadline( qry.record().value( tr( "deadline" ) ).toInt() );
+    info->setWorkdays( qry.record().value( tr( "workdays" ) ).toBool() );
+    info->setIsactive( qry.record().value( tr( "isactive" ) ).toBool() );
+    emit sendInfo( info );
   }
 }
 
 ServiceLoader_P::ServiceLoader_P( ServiceLoader *parent ) :
   QThread(parent),
   m__Successfully(true),
-  m__ErrorLastId(-1),
-  m__Errors(QHash<int, QString>()),
-  m__ConnectionName(QString()),
-  m__Source(NULL)
+  m__LastError(QString()),
+  m__ConnectionName(QString())
 {
-  connect( this, SIGNAL(sendError(QString)), parent, SLOT(receivedError(QString)) );
-  qRegisterMetaType<ServiceInfo>( "ServiceInfo" );
 }
 
 ServiceLoader_P::~ServiceLoader_P()
 {
-  delete m__Source;
-  m__Source = NULL;
 }
 
 ServiceLoader * ServiceLoader_P::p_dptr() const

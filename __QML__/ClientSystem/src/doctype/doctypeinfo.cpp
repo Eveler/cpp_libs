@@ -2,6 +2,7 @@
 
 
 DoctypeInfo::DoctypeInfo() :
+  QObject(NULL),
   m__Identifier(QVariant()),
   m__Name(QString())
 {

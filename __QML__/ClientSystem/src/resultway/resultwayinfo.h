@@ -1,26 +1,33 @@
 #ifndef RESULTWAYINFO_H
 #define RESULTWAYINFO_H
 
-#include <QtCore>
+#include <QObject>
+
+#include <QtQml>
 
 
-class ResultwayInfo
+class ResultwayInfo : public QObject
 {
+    Q_OBJECT
+    Q_DISABLE_COPY(ResultwayInfo)
+
+
   public:
     ResultwayInfo();
-    ResultwayInfo( const ResultwayInfo &other );
     ~ResultwayInfo();
 
-    QVariant identifier() const;
+    Q_INVOKABLE QVariant identifier() const;
     void setIdentifier( QVariant identifier );
 
-    const QString & name() const;
-    void setName( const QString &name );
+    Q_INVOKABLE const QString & name() const;
+    Q_INVOKABLE void setName( const QString &name );
 
 
   private:
     QVariant m__Identifier;
     QString m__Name;
 };
+
+QML_DECLARE_TYPE(ResultwayInfo)
 
 #endif // RESULTWAYINFO_H

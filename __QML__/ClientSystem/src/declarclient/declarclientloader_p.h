@@ -4,7 +4,7 @@
 #include <QThread>
 
 #include "declarclientloader.h"
-#include "declarclientlist.h"
+#include "declarclientinfo.h"
 
 #include <QHash>
 
@@ -20,7 +20,7 @@ class DeclarClientLoader_P : public QThread
 
   signals:
     void sendError( QString errorText );
-    void sendDeclarClientInfo( DeclarClientInfo );
+    void sendInfo( DeclarClientInfo * );
 
 
   public slots:
@@ -32,11 +32,9 @@ class DeclarClientLoader_P : public QThread
 
   private:
     bool m__Successfully;
-    int m__ErrorLastId;
-    QHash<int, QString> m__Errors;
+    QString m__LastError;
     QString m__ConnectionName;
     QString m__Filter;
-    DeclarClientList *m__Source;
 
     explicit DeclarClientLoader_P( DeclarClientLoader *parent );
     ~DeclarClientLoader_P();

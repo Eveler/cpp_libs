@@ -7,39 +7,35 @@
 
 
 class DeclarLoader_P;
-class DeclarList;
-class Declar;
+class DeclarInfo;
 
 class DeclarLoader : public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY(DeclarLoader)
+    Q_PROPERTY(QString lastError READ lastError NOTIFY lastErrorChanged)
     Q_PROPERTY(QString connectionName READ connectionName
                WRITE setConnectionName NOTIFY connectionNameChanged)
-    Q_PROPERTY(DeclarList* source READ source NOTIFY sourceChanged)
 
 
   public:
     DeclarLoader(QObject *parent = 0);
     ~DeclarLoader();
 
-    Q_INVOKABLE QString error( int errorId ) const;
+    Q_INVOKABLE QString lastError() const;
 
     const QString & connectionName() const;
-    bool setConnectionName( const QString &connectionName ) const;
+    bool setConnectionName( const QString &connectionName );
 
-    Q_INVOKABLE bool load( const QString &filter = QString() ) const;
-    Q_INVOKABLE Declar * create() const;
-
-    DeclarList * source() const;
+    Q_INVOKABLE bool load( const QString &filter = QString(), bool blockUI = false );
 
 
   signals:
-    void errorAdded( int errorId ) const;
+    void lastErrorChanged();
     void connectionNameChanged() const;
-    void started() const;
-    void finished() const;
-    void sourceChanged() const;
+    void started();
+    void finished();
+    void newInfo( DeclarInfo *info );
 
 
   public slots:
@@ -50,9 +46,8 @@ class DeclarLoader : public QObject
     QEventLoop *loop;
 
   private slots:
-    void newSource() const;
     void threadFinished();
-    void receivedError( QString errorText ) const;
+    void receivedError( QString errorText );
 };
 
 QML_DECLARE_TYPE(DeclarLoader)

@@ -9,24 +9,23 @@ HumanLoader::HumanLoader(QObject *parent) :
   QObject(parent)
 {
   p = new HumanLoader_P( this );
-  newSource();
+  connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
+  connect( p, SIGNAL(sendInfo(HumanInfo*)),
+           SIGNAL(newInfo(HumanInfo*)) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
 }
 
 HumanLoader::~HumanLoader()
 {
-  p->m__Errors.clear();
-  disconnect( p->m__Source, SIGNAL(destroyed()), this, SLOT(newSource()) );
+  p->m__LastError.clear();
   delete p;
   p = NULL;
 }
 
-QString HumanLoader::error( int errorId ) const
+QString HumanLoader::lastError() const
 {
-  QString errorText = p->m__Errors.value( errorId, QString() );
-  p->m__Errors.remove( errorId );
-  return errorText;
+  return p->m__LastError;
 }
 
 const QString & HumanLoader::connectionName() const
@@ -39,7 +38,7 @@ const QString & HumanLoader::connectionName() const
   return p->m__ConnectionName;
 }
 
-bool HumanLoader::setConnectionName( const QString &connectionName ) const
+bool HumanLoader::setConnectionName( const QString &connectionName )
 {
   if ( !QSqlDatabase::contains( connectionName ) )
   {
@@ -54,7 +53,7 @@ bool HumanLoader::setConnectionName( const QString &connectionName ) const
   return true;
 }
 
-bool HumanLoader::load( const QString &filter ) const
+bool HumanLoader::load( const QString &filter, bool blockUI )
 {
   if ( p->isRunning() )
   {
@@ -65,25 +64,9 @@ bool HumanLoader::load( const QString &filter ) const
   emit started();
   p->m__Filter = filter;
   p->start();
-  return ( loop->exec() == 0 );
-}
-
-Human * HumanLoader::create() const
-{
-  return NULL;
-}
-
-HumanList * HumanLoader::source() const
-{
-  return p->m__Source;
-}
-
-void HumanLoader::newSource() const
-{
-  p->m__Source = new HumanList( p->p_dptr() );
-  connect( p->m__Source, SIGNAL(destroyed()), SLOT(newSource()) );
-  connect( p, SIGNAL(sendHumanInfo(HumanInfo)),
-           p->m__Source, SLOT(receivedHumanInfo(HumanInfo)) );
+  if ( blockUI )
+    return ( loop->exec() == 0 );
+  else return true;
 }
 
 void HumanLoader::threadFinished()
@@ -92,9 +75,8 @@ void HumanLoader::threadFinished()
   emit finished();
 }
 
-void HumanLoader::receivedError( QString errorText ) const
+void HumanLoader::receivedError( QString errorText )
 {
-  int errorId = p->m__ErrorLastId++;
-  p->m__Errors[errorId] = errorText;
-  emit errorAdded( errorId );
+  p->m__LastError = errorText;
+  emit lastErrorChanged();
 }

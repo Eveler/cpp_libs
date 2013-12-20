@@ -9,24 +9,23 @@ ServiceLoader::ServiceLoader(QObject *parent) :
   QObject(parent)
 {
   p = new ServiceLoader_P( this );
-  newSource();
+  connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
+  connect( p, SIGNAL(sendInfo(ServiceInfo*)),
+           SIGNAL(newInfo(ServiceInfo*)) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
 }
 
 ServiceLoader::~ServiceLoader()
 {
-  p->m__Errors.clear();
-  disconnect( p->m__Source, SIGNAL(destroyed()), this, SLOT(newSource()) );
+  p->m__LastError.clear();
   delete p;
   p = NULL;
 }
 
-QString ServiceLoader::error( int errorId ) const
+QString ServiceLoader::lastError() const
 {
-  QString errorText = p->m__Errors.value( errorId, QString() );
-  p->m__Errors.remove( errorId );
-  return errorText;
+  return p->m__LastError;
 }
 
 const QString & ServiceLoader::connectionName() const
@@ -39,7 +38,7 @@ const QString & ServiceLoader::connectionName() const
   return p->m__ConnectionName;
 }
 
-bool ServiceLoader::setConnectionName( const QString &connectionName ) const
+bool ServiceLoader::setConnectionName( const QString &connectionName )
 {
   if ( !QSqlDatabase::contains( connectionName ) )
   {
@@ -54,7 +53,7 @@ bool ServiceLoader::setConnectionName( const QString &connectionName ) const
   return true;
 }
 
-bool ServiceLoader::load( const QString &filter ) const
+bool ServiceLoader::load( const QString &filter, bool blockUI )
 {
   if ( p->isRunning() )
   {
@@ -64,27 +63,10 @@ bool ServiceLoader::load( const QString &filter ) const
 
   emit started();
   p->m__Filter = filter;
-  p->m__Source->clear();
   p->start();
-  return ( loop->exec() == 0 );
-}
-
-Service * ServiceLoader::create() const
-{
-  return NULL;
-}
-
-ServiceList * ServiceLoader::source() const
-{
-  return p->m__Source;
-}
-
-void ServiceLoader::newSource() const
-{
-  p->m__Source = new ServiceList( p->p_dptr() );
-  connect( p->m__Source, SIGNAL(destroyed()), SLOT(newSource()) );
-  connect( p, SIGNAL(sendServiceInfo(ServiceInfo)),
-           p->m__Source, SLOT(receivedServiceInfo(ServiceInfo)) );
+  if ( blockUI )
+    return ( loop->exec() == 0 );
+  else return true;
 }
 
 void ServiceLoader::threadFinished()
@@ -93,9 +75,8 @@ void ServiceLoader::threadFinished()
   emit finished();
 }
 
-void ServiceLoader::receivedError( QString errorText ) const
+void ServiceLoader::receivedError( QString errorText )
 {
-  int errorId = p->m__ErrorLastId++;
-  p->m__Errors[errorId] = errorText;
-  emit errorAdded( errorId );
+  p->m__LastError = errorText;
+  emit lastErrorChanged();
 }

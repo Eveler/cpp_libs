@@ -4,7 +4,7 @@
 #include <QThread>
 
 #include "resultloader.h"
-#include "resultlist.h"
+#include "resultinfo.h"
 
 #include <QHash>
 
@@ -20,7 +20,7 @@ class ResultLoader_P : public QThread
 
   signals:
     void sendError( QString errorText );
-    void sendResultInfo( ResultInfo );
+    void sendInfo( ResultInfo * );
 
 
   public slots:
@@ -32,11 +32,9 @@ class ResultLoader_P : public QThread
 
   private:
     bool m__Successfully;
-    int m__ErrorLastId;
-    QHash<int, QString> m__Errors;
+    QString m__LastError;
     QString m__ConnectionName;
     QString m__Filter;
-    ResultList *m__Source;
 
     explicit ResultLoader_P( ResultLoader *parent );
     ~ResultLoader_P();

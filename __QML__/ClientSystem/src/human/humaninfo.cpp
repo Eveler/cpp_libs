@@ -2,6 +2,7 @@
 
 
 HumanInfo::HumanInfo() :
+  QObject(NULL),
   m__Identifier(QVariant()),
   m__Surname(QString()),
   m__Firstname(QString()),
@@ -9,17 +10,6 @@ HumanInfo::HumanInfo() :
   m__Address(QString()),
   m__Phone(QString()),
   m__Email(QString())
-{
-}
-
-HumanInfo::HumanInfo( const HumanInfo &other ) :
-  m__Identifier(other.identifier()),
-  m__Surname(other.surname()),
-  m__Firstname(other.firstname()),
-  m__Lastname(other.lastname()),
-  m__Address(other.address()),
-  m__Phone(other.phone()),
-  m__Email(other.email())
 {
 }
 

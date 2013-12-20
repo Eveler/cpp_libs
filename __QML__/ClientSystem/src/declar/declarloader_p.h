@@ -4,7 +4,7 @@
 #include <QThread>
 
 #include "declarloader.h"
-#include "declarlist.h"
+#include "declarinfo.h"
 
 #include <QHash>
 
@@ -20,7 +20,7 @@ class DeclarLoader_P : public QThread
 
   signals:
     void sendError( QString errorText );
-    void sendDeclarInfo( DeclarInfo );
+    void sendInfo( DeclarInfo * );
 
 
   public slots:
@@ -32,11 +32,9 @@ class DeclarLoader_P : public QThread
 
   private:
     bool m__Successfully;
-    int m__ErrorLastId;
-    QHash<int, QString> m__Errors;
+    QString m__LastError;
     QString m__ConnectionName;
     QString m__Filter;
-    DeclarList *m__Source;
 
     explicit DeclarLoader_P( DeclarLoader *parent );
     ~DeclarLoader_P();

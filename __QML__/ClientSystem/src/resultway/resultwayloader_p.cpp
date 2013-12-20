@@ -41,29 +41,23 @@ void ResultwayLoader_P::run()
   }
   while ( qry.next() )
   {
-    ResultwayInfo info;
-    info.setIdentifier( qry.record().value( tr( "identifier" ) ) );
-    info.setName( qry.record().value( tr( "name" ) ).toString() );
-    emit sendResultwayInfo( info );
+    ResultwayInfo *info = new ResultwayInfo();
+    info->setIdentifier( qry.record().value( tr( "identifier" ) ) );
+    info->setName( qry.record().value( tr( "name" ) ).toString() );
+    emit sendInfo( info );
   }
 }
 
 ResultwayLoader_P::ResultwayLoader_P( ResultwayLoader *parent ) :
   QThread(parent),
   m__Successfully(true),
-  m__ErrorLastId(-1),
-  m__Errors(QHash<int, QString>()),
-  m__ConnectionName(QString()),
-  m__Source(NULL)
+  m__LastError(QString()),
+  m__ConnectionName(QString())
 {
-  connect( this, SIGNAL(sendError(QString)), parent, SLOT(receivedError(QString)) );
-  qRegisterMetaType<ResultwayInfo>("ResultwayInfo");
 }
 
 ResultwayLoader_P::~ResultwayLoader_P()
 {
-  delete m__Source;
-  m__Source = NULL;
 }
 
 ResultwayLoader * ResultwayLoader_P::p_dptr() const

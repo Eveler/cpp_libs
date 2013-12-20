@@ -42,30 +42,24 @@ void DeclarClientLoader_P::run()
   }
   while ( qry.next() )
   {
-    DeclarClientInfo info;
-    info.setIdentifier( qry.record().value( tr( "identifier" ) ) );
-    info.setDeclarIdentifier( qry.record().value( tr( "declarIdentifier" ) ) );
-    info.setClientIdentifier( qry.record().value( tr( "clientIdentifier" ) ) );
-    emit sendDeclarClientInfo( info );
+    DeclarClientInfo *info = new DeclarClientInfo();
+    info->setIdentifier( qry.record().value( tr( "identifier" ) ) );
+    info->setDeclarIdentifier( qry.record().value( tr( "declarIdentifier" ) ) );
+    info->setClientIdentifier( qry.record().value( tr( "clientIdentifier" ) ) );
+    emit sendInfo( info );
   }
 }
 
 DeclarClientLoader_P::DeclarClientLoader_P( DeclarClientLoader *parent ) :
   QThread(parent),
   m__Successfully(true),
-  m__ErrorLastId(-1),
-  m__Errors(QHash<int, QString>()),
-  m__ConnectionName(QString()),
-  m__Source(NULL)
+  m__LastError(QString()),
+  m__ConnectionName(QString())
 {
-  connect( this, SIGNAL(sendError(QString)), parent, SLOT(receivedError(QString)) );
-  qRegisterMetaType<DeclarClientInfo>("DeclarClientInfo");
 }
 
 DeclarClientLoader_P::~DeclarClientLoader_P()
 {
-  delete m__Source;
-  m__Source = NULL;
 }
 
 DeclarClientLoader * DeclarClientLoader_P::p_dptr() const

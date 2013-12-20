@@ -9,24 +9,23 @@ AssessmenttypeLoader::AssessmenttypeLoader(QObject *parent) :
   QObject(parent)
 {
   p = new AssessmenttypeLoader_P( this );
-  newSource();
+  connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
+  connect( p, SIGNAL(sendInfo(AssessmenttypeInfo*)),
+           SIGNAL(newInfo(AssessmenttypeInfo*)) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
 }
 
 AssessmenttypeLoader::~AssessmenttypeLoader()
 {
-  p->m__Errors.clear();
-  disconnect( p->m__Source, SIGNAL(destroyed()), this, SLOT(newSource()) );
+  p->m__LastError.clear();
   delete p;
   p = NULL;
 }
 
-QString AssessmenttypeLoader::error( int errorId ) const
+QString AssessmenttypeLoader::lastError() const
 {
-  QString errorText = p->m__Errors.value( errorId, QString() );
-  p->m__Errors.remove( errorId );
-  return errorText;
+  return p->m__LastError;
 }
 
 const QString & AssessmenttypeLoader::connectionName() const
@@ -39,7 +38,7 @@ const QString & AssessmenttypeLoader::connectionName() const
   return p->m__ConnectionName;
 }
 
-bool AssessmenttypeLoader::setConnectionName( const QString &connectionName ) const
+bool AssessmenttypeLoader::setConnectionName( const QString &connectionName )
 {
   if ( !QSqlDatabase::contains( connectionName ) )
   {
@@ -54,7 +53,7 @@ bool AssessmenttypeLoader::setConnectionName( const QString &connectionName ) co
   return true;
 }
 
-bool AssessmenttypeLoader::load( const QString &filter ) const
+bool AssessmenttypeLoader::load( const QString &filter, bool blockUI )
 {
   if ( p->isRunning() )
   {
@@ -64,27 +63,10 @@ bool AssessmenttypeLoader::load( const QString &filter ) const
 
   emit started();
   p->m__Filter = filter;
-  p->m__Source->clear();
   p->start();
-  return ( loop->exec() == 0 );
-}
-
-Assessmenttype * AssessmenttypeLoader::create() const
-{
-  return NULL;
-}
-
-AssessmenttypeList * AssessmenttypeLoader::source() const
-{
-  return p->m__Source;
-}
-
-void AssessmenttypeLoader::newSource() const
-{
-  p->m__Source = new AssessmenttypeList( p->p_dptr() );
-  connect( p->m__Source, SIGNAL(destroyed()), SLOT(newSource()) );
-  connect( p, SIGNAL(sendAssessmenttypeInfo(AssessmenttypeInfo)),
-           p->m__Source, SLOT(receivedAssessmenttypeInfo(AssessmenttypeInfo)) );
+  if ( blockUI )
+    return ( loop->exec() == 0 );
+  else return true;
 }
 
 void AssessmenttypeLoader::threadFinished()
@@ -93,9 +75,8 @@ void AssessmenttypeLoader::threadFinished()
   emit finished();
 }
 
-void AssessmenttypeLoader::receivedError( QString errorText ) const
+void AssessmenttypeLoader::receivedError( QString errorText )
 {
-  int errorId = p->m__ErrorLastId++;
-  p->m__Errors[errorId] = errorText;
-  emit errorAdded( errorId );
+  p->m__LastError = errorText;
+  emit lastErrorChanged();
 }

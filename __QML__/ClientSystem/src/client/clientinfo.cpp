@@ -2,16 +2,10 @@
 
 
 ClientInfo::ClientInfo() :
+  QObject(NULL),
   m__Identifier(QVariant()),
   m__OrganisationIdentifier(QVariant()),
   m__HumanIdentifier(QVariant())
-{
-}
-
-ClientInfo::ClientInfo( const ClientInfo &other ) :
-  m__Identifier(other.identifier()),
-  m__OrganisationIdentifier(other.organisationIdentifier()),
-  m__HumanIdentifier(other.humanIdentifier())
 {
 }
 

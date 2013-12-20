@@ -1,33 +1,38 @@
 #ifndef ORGANISATIONINFO_H
 #define ORGANISATIONINFO_H
 
-#include <QtCore>
+#include <QObject>
+
+#include <QtQml>
 
 
-class OrganisationInfo
+class OrganisationInfo : public QObject
 {
+    Q_OBJECT
+    Q_DISABLE_COPY(OrganisationInfo)
+
+
   public:
     OrganisationInfo();
-    OrganisationInfo( const OrganisationInfo &other );
     ~OrganisationInfo();
 
-    QVariant identifier() const;
+    Q_INVOKABLE QVariant identifier() const;
     void setIdentifier( QVariant identifier );
 
-    const QString & fullname() const;
-    void setFullname( const QString &fullname );
+    Q_INVOKABLE const QString & fullname() const;
+    Q_INVOKABLE void setFullname( const QString &fullname );
 
-    QVariant humanIdentifier() const;
-    void setHumanIdentifier( QVariant humanIdentifier );
+    Q_INVOKABLE QVariant humanIdentifier() const;
+    Q_INVOKABLE void setHumanIdentifier( QVariant humanIdentifier );
 
-    const QString & address() const;
-    void setAddress( const QString &address );
+    Q_INVOKABLE const QString & address() const;
+    Q_INVOKABLE void setAddress( const QString &address );
 
-    const QString & phone() const;
-    void setPhone( const QString &phone );
+    Q_INVOKABLE const QString & phone() const;
+    Q_INVOKABLE void setPhone( const QString &phone );
 
-    const QString & email() const;
-    void setEmail( const QString &email );
+    Q_INVOKABLE const QString & email() const;
+    Q_INVOKABLE void setEmail( const QString &email );
 
 
   private:
@@ -38,5 +43,7 @@ class OrganisationInfo
     QString m__Phone;
     QString m__Email;
 };
+
+QML_DECLARE_TYPE(OrganisationInfo)
 
 #endif // ORGANISATIONINFO_H

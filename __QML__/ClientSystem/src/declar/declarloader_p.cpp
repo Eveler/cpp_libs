@@ -48,45 +48,39 @@ void DeclarLoader_P::run()
   }
   while ( qry.next() )
   {
-    DeclarInfo info;
-    info.setIdentifier( qry.record().value( tr( "identifier" ) ) );
-    info.setServiceIdentifier( qry.record().value( tr( "serviceIdentifier" ) ) );
-    info.setNumber( qry.record().value( tr( "number" ) ).toInt() );
-    info.setCreateDate( qry.record().value( tr( "createDate" ) ).toDateTime() );
-    info.setControlDate( qry.record().value( tr( "controlDate" ) ).toDateTime() );
-    info.setRespiteDate( qry.record().value( tr( "respiteDate" ) ).toDateTime() );
-    info.setCloseDate( qry.record().value( tr( "closeDate" ) ).toDateTime() );
-    info.setFirstLandmark( qry.record().value( tr( "firstLandmark" ) ).toString() );
-    info.setLastLandmark( qry.record().value( tr( "lastLandmark" ) ).toString() );
-    info.setDirectionIdentifier( qry.record().value( tr( "directionIdentifier" ) ) );
-    info.setResponsibleIdentifier( qry.record().value( tr( "responsibleIdentifier" ) ) );
-    info.setOwnerIdentifier( qry.record().value( tr( "ownerIdentifier" ) ) );
-    info.setIsnew( qry.record().value( tr( "isnew" ) ).toBool() );
-    info.setDeleted( qry.record().value( tr( "deleted" ) ).toBool() );
-    info.setResultIdentifier( qry.record().value( tr( "resultIdentifier" ) ) );
-    info.setAssessmentTypeIdentifier( qry.record().value( tr( "assessmentTypeIdentifier" ) ) );
-    info.setAssessmentIdentifier( qry.record().value( tr( "assessmentIdentifier" ) ) );
-    info.setResultWayIdentifier( qry.record().value( tr( "resultWayIdentifier" ) ) );
-    emit sendDeclarInfo( info );
+    DeclarInfo *info = new DeclarInfo();
+    info->setIdentifier( qry.record().value( tr( "identifier" ) ) );
+    info->setServiceIdentifier( qry.record().value( tr( "serviceIdentifier" ) ) );
+    info->setNumber( qry.record().value( tr( "number" ) ).toInt() );
+    info->setCreateDate( qry.record().value( tr( "createDate" ) ).toDateTime() );
+    info->setControlDate( qry.record().value( tr( "controlDate" ) ).toDateTime() );
+    info->setRespiteDate( qry.record().value( tr( "respiteDate" ) ).toDateTime() );
+    info->setCloseDate( qry.record().value( tr( "closeDate" ) ).toDateTime() );
+    info->setFirstLandmark( qry.record().value( tr( "firstLandmark" ) ).toString() );
+    info->setLastLandmark( qry.record().value( tr( "lastLandmark" ) ).toString() );
+    info->setDirectionIdentifier( qry.record().value( tr( "directionIdentifier" ) ) );
+    info->setResponsibleIdentifier( qry.record().value( tr( "responsibleIdentifier" ) ) );
+    info->setOwnerIdentifier( qry.record().value( tr( "ownerIdentifier" ) ) );
+    info->setIsnew( qry.record().value( tr( "isnew" ) ).toBool() );
+    info->setDeleted( qry.record().value( tr( "deleted" ) ).toBool() );
+    info->setResultIdentifier( qry.record().value( tr( "resultIdentifier" ) ) );
+    info->setAssessmentTypeIdentifier( qry.record().value( tr( "assessmentTypeIdentifier" ) ) );
+    info->setAssessmentIdentifier( qry.record().value( tr( "assessmentIdentifier" ) ) );
+    info->setResultWayIdentifier( qry.record().value( tr( "resultWayIdentifier" ) ) );
+    emit sendInfo( info );
   }
 }
 
 DeclarLoader_P::DeclarLoader_P( DeclarLoader *parent ) :
   QThread(parent),
   m__Successfully(true),
-  m__ErrorLastId(-1),
-  m__Errors(QHash<int, QString>()),
-  m__ConnectionName(QString()),
-  m__Source(NULL)
+  m__LastError(QString()),
+  m__ConnectionName(QString())
 {
-  connect( this, SIGNAL(sendError(QString)), parent, SLOT(receivedError(QString)) );
-  qRegisterMetaType<DeclarInfo>("DeclarInfo");
 }
 
 DeclarLoader_P::~DeclarLoader_P()
 {
-  delete m__Source;
-  m__Source = NULL;
 }
 
 DeclarLoader * DeclarLoader_P::p_dptr() const

@@ -2,22 +2,13 @@
 
 
 OrganisationInfo::OrganisationInfo() :
+  QObject(NULL),
   m__Identifier(QVariant()),
   m__Fullname(QString()),
   m__HumanIdentifier(QVariant()),
   m__Address(QString()),
   m__Phone(QString()),
   m__Email(QString())
-{
-}
-
-OrganisationInfo::OrganisationInfo( const OrganisationInfo &other ) :
-  m__Identifier(other.identifier()),
-  m__Fullname(other.fullname()),
-  m__HumanIdentifier(other.humanIdentifier()),
-  m__Address(other.address()),
-  m__Phone(other.phone()),
-  m__Email(other.email())
 {
 }
 

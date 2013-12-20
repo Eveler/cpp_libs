@@ -9,24 +9,23 @@ ClientLoader::ClientLoader(QObject *parent) :
   QObject(parent)
 {
   p = new ClientLoader_P( this );
-  newSource();
+  connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
+  connect( p, SIGNAL(sendInfo(ClientInfo*)),
+           SIGNAL(newInfo(ClientInfo*)) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
 }
 
 ClientLoader::~ClientLoader()
 {
-  p->m__Errors.clear();
-  disconnect( p->m__Source, SIGNAL(destroyed()), this, SLOT(newSource()) );
+  p->m__LastError.clear();
   delete p;
   p = NULL;
 }
 
-QString ClientLoader::error( int errorId ) const
+QString ClientLoader::lastError() const
 {
-  QString errorText = p->m__Errors.value( errorId, QString() );
-  p->m__Errors.remove( errorId );
-  return errorText;
+  return p->m__LastError;
 }
 
 const QString & ClientLoader::connectionName() const
@@ -39,7 +38,7 @@ const QString & ClientLoader::connectionName() const
   return p->m__ConnectionName;
 }
 
-bool ClientLoader::setConnectionName( const QString &connectionName ) const
+bool ClientLoader::setConnectionName( const QString &connectionName )
 {
   if ( !QSqlDatabase::contains( connectionName ) )
   {
@@ -54,7 +53,7 @@ bool ClientLoader::setConnectionName( const QString &connectionName ) const
   return true;
 }
 
-bool ClientLoader::load( const QString &filter ) const
+bool ClientLoader::load( const QString &filter, bool blockUI )
 {
   if ( p->isRunning() )
   {
@@ -65,25 +64,9 @@ bool ClientLoader::load( const QString &filter ) const
   emit started();
   p->m__Filter = filter;
   p->start();
-  return ( loop->exec() == 0 );
-}
-
-Client * ClientLoader::create() const
-{
-  return NULL;
-}
-
-ClientList * ClientLoader::source() const
-{
-  return p->m__Source;
-}
-
-void ClientLoader::newSource() const
-{
-  p->m__Source = new ClientList( p->p_dptr() );
-  connect( p->m__Source, SIGNAL(destroyed()), SLOT(newSource()) );
-  connect( p, SIGNAL(sendClientInfo(ClientInfo)),
-           p->m__Source, SLOT(receivedClientInfo(ClientInfo)) );
+  if ( blockUI )
+    return ( loop->exec() == 0 );
+  else return true;
 }
 
 void ClientLoader::threadFinished()
@@ -92,9 +75,8 @@ void ClientLoader::threadFinished()
   emit finished();
 }
 
-void ClientLoader::receivedError( QString errorText ) const
+void ClientLoader::receivedError( QString errorText )
 {
-  int errorId = p->m__ErrorLastId++;
-  p->m__Errors[errorId] = errorText;
-  emit errorAdded( errorId );
+  p->m__LastError = errorText;
+  emit lastErrorChanged();
 }

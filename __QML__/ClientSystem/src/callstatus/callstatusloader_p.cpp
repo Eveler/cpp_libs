@@ -49,29 +49,24 @@ void CallstatusLoader_P::run()
   }
   while ( qry.next() )
   {
-    CallstatusInfo info( qry.record().value( tr( "identifier" ) ) );
-    info.setName( qry.record().value( tr( "name" ) ).toString() );
-    emit sendCallstatusInfo( info );
+    CallstatusInfo *info = new CallstatusInfo();
+    info->setIdentifier( qry.record().value( tr( "identifier" ) ) );
+    info->setName( qry.record().value( tr( "name" ) ).toString() );
+    emit sendInfo( info );
   }
 }
 
 CallstatusLoader_P::CallstatusLoader_P( CallstatusLoader *parent ) :
   QThread(parent),
   m__Successfully(true),
-  m__ErrorLastId(-1),
-  m__Errors(QHash<int, QString>()),
+  m__LastError(QString()),
   m__ConnectionName(QString()),
-  m__Source(NULL),
   m__LoadIdentifier(QVariant())
 {
-  connect( this, SIGNAL(sendError(QString)), parent, SLOT(receivedError(QString)) );
-  qRegisterMetaType<CallstatusInfo>( "CallstatusInfo" );
 }
 
 CallstatusLoader_P::~CallstatusLoader_P()
 {
-  delete m__Source;
-  m__Source = NULL;
 }
 
 CallstatusLoader * CallstatusLoader_P::p_dptr() const

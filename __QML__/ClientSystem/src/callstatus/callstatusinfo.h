@@ -1,26 +1,33 @@
 #ifndef CALLSTATUSINFO_H
 #define CALLSTATUSINFO_H
 
-#include <QtCore>
+#include <QObject>
+
+#include <QtQml>
 
 
-class CallstatusInfo
+class CallstatusInfo : public QObject
 {
+    Q_OBJECT
+    Q_DISABLE_COPY(CallstatusInfo)
+
+
 public:
     CallstatusInfo();
-    CallstatusInfo( QVariant identifier );
-    CallstatusInfo( const CallstatusInfo &other );
     ~CallstatusInfo();
 
-    QVariant identifier() const;
+    Q_INVOKABLE QVariant identifier() const;
+    void setIdentifier( QVariant identifier );
 
-    const QString & name() const;
-    void setName( const QString &name );
+    Q_INVOKABLE const QString & name() const;
+    Q_INVOKABLE void setName( const QString &name );
 
 
 private:
     QVariant m__Identifier;
     QString m__Name;
 };
+
+QML_DECLARE_TYPE(CallstatusInfo)
 
 #endif // CALLSTATUSINFO_H

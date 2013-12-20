@@ -40,49 +40,48 @@ void TrusteeLoader_P::run()
     emit sendError( tr( "Query error:\n%1" ).arg( qry.lastError().text() ) );
     return;
   }
-  TrusteeInfo info;
-  bool created = false;
+  TrusteeInfo *info = NULL;
   while ( qry.next() )
   {
     QVariant identifier = qry.record().value( tr( "identifier" ) );
     QVariant declarIdentifier = qry.record().value( tr( "declarIdentifier" ) );
     QVariant clientIdentifier = qry.record().value( tr( "clientIdentifier" ) );
-    if ( !created )
+    if ( info != NULL )
     {
-      info.setIdentifier( identifier );
-      info.setDeclarIdentifier( declarIdentifier );
-      info.addClientIdentifier( clientIdentifier );
+      if ( info->identifier() == identifier )
+        info->addClientIdentifier( clientIdentifier );
+      else
+      {
+        emit sendInfo( info );
+        info = NULL;
+      }
     }
-    else if ( info.identifier() == identifier )
-      info.addClientIdentifier( clientIdentifier );
-    else
+
+    if ( info == NULL )
     {
-      emit sendTrusteeInfo( info );
-      info.clearClientIdentifiers();
-      info.setIdentifier( identifier );
-      info.setDeclarIdentifier( declarIdentifier );
-      info.addClientIdentifier( clientIdentifier );
+      info = new TrusteeInfo();
+      info->setIdentifier( identifier );
+      info->setDeclarIdentifier( declarIdentifier );
+      info->addClientIdentifier( clientIdentifier );
     }
   }
-  emit sendTrusteeInfo( info );
+  if ( info != NULL )
+  {
+    emit sendInfo( info );
+    info = NULL;
+  }
 }
 
 TrusteeLoader_P::TrusteeLoader_P( TrusteeLoader *parent ) :
   QThread(parent),
   m__Successfully(true),
-  m__ErrorLastId(-1),
-  m__Errors(QHash<int, QString>()),
-  m__ConnectionName(QString()),
-  m__Source(NULL)
+  m__LastError(QString()),
+  m__ConnectionName(QString())
 {
-  connect( this, SIGNAL(sendError(QString)), parent, SLOT(receivedError(QString)) );
-  qRegisterMetaType<TrusteeInfo>("TrusteeInfo");
 }
 
 TrusteeLoader_P::~TrusteeLoader_P()
 {
-  delete m__Source;
-  m__Source = NULL;
 }
 
 TrusteeLoader * TrusteeLoader_P::p_dptr() const

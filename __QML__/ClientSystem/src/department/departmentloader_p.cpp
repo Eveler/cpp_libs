@@ -41,29 +41,23 @@ void DepartmentLoader_P::run()
   }
   while ( qry.next() )
   {
-    DepartmentInfo info;
-    info.setIdentifier( qry.record().value( tr( "identifier" ) ) );
-    info.setName( qry.record().value( tr( "name" ) ).toString() );
-    emit sendDepartmentInfo( info );
+    DepartmentInfo *info = new DepartmentInfo();
+    info->setIdentifier( qry.record().value( tr( "identifier" ) ) );
+    info->setName( qry.record().value( tr( "name" ) ).toString() );
+    emit sendInfo( info );
   }
 }
 
 DepartmentLoader_P::DepartmentLoader_P( DepartmentLoader *parent ) :
   QThread(parent),
   m__Successfully(true),
-  m__ErrorLastId(-1),
-  m__Errors(QHash<int, QString>()),
-  m__ConnectionName(QString()),
-  m__Source(NULL)
+  m__LastError(QString()),
+  m__ConnectionName(QString())
 {
-  connect( this, SIGNAL(sendError(QString)), parent, SLOT(receivedError(QString)) );
-  qRegisterMetaType<DepartmentInfo>("DepartmentInfo");
 }
 
 DepartmentLoader_P::~DepartmentLoader_P()
 {
-  delete m__Source;
-  m__Source = NULL;
 }
 
 DepartmentLoader * DepartmentLoader_P::p_dptr() const

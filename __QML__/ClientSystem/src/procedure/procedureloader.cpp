@@ -9,24 +9,23 @@ ProcedureLoader::ProcedureLoader(QObject *parent) :
   QObject(parent)
 {
   p = new ProcedureLoader_P( this );
-  newSource();
+  connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
+  connect( p, SIGNAL(sendInfo(ProcedureInfo*)),
+           SIGNAL(newInfo(ProcedureInfo*)) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
 }
 
 ProcedureLoader::~ProcedureLoader()
 {
-  p->m__Errors.clear();
-  disconnect( p->m__Source, SIGNAL(destroyed()), this, SLOT(newSource()) );
+  p->m__LastError.clear();
   delete p;
   p = NULL;
 }
 
-QString ProcedureLoader::error( int errorId ) const
+QString ProcedureLoader::lastError() const
 {
-  QString errorText = p->m__Errors.value( errorId, QString() );
-  p->m__Errors.remove( errorId );
-  return errorText;
+  return p->m__LastError;
 }
 
 const QString & ProcedureLoader::connectionName() const
@@ -39,7 +38,7 @@ const QString & ProcedureLoader::connectionName() const
   return p->m__ConnectionName;
 }
 
-bool ProcedureLoader::setConnectionName( const QString &connectionName ) const
+bool ProcedureLoader::setConnectionName( const QString &connectionName )
 {
   if ( !QSqlDatabase::contains( connectionName ) )
   {
@@ -54,7 +53,7 @@ bool ProcedureLoader::setConnectionName( const QString &connectionName ) const
   return true;
 }
 
-bool ProcedureLoader::load( const QString &filter ) const
+bool ProcedureLoader::load( const QString &filter, bool blockUI )
 {
   if ( p->isRunning() )
   {
@@ -64,27 +63,10 @@ bool ProcedureLoader::load( const QString &filter ) const
 
   emit started();
   p->m__Filter = filter;
-  p->m__Source->clear();
   p->start();
-  return ( loop->exec() == 0 );
-}
-
-Procedure * ProcedureLoader::create() const
-{
-  return NULL;
-}
-
-ProcedureList * ProcedureLoader::source() const
-{
-  return p->m__Source;
-}
-
-void ProcedureLoader::newSource() const
-{
-  p->m__Source = new ProcedureList( p->p_dptr() );
-  connect( p->m__Source, SIGNAL(destroyed()), SLOT(newSource()) );
-  connect( p, SIGNAL(sendProcedureInfo(ProcedureInfo)),
-           p->m__Source, SLOT(receivedProcedureInfo(ProcedureInfo)) );
+  if ( blockUI )
+    return ( loop->exec() == 0 );
+  else return true;
 }
 
 void ProcedureLoader::threadFinished()
@@ -93,9 +75,8 @@ void ProcedureLoader::threadFinished()
   emit finished();
 }
 
-void ProcedureLoader::receivedError( QString errorText ) const
+void ProcedureLoader::receivedError( QString errorText )
 {
-  int errorId = p->m__ErrorLastId++;
-  p->m__Errors[errorId] = errorText;
-  emit errorAdded( errorId );
+  p->m__LastError = errorText;
+  emit lastErrorChanged();
 }

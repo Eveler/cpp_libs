@@ -9,24 +9,23 @@ RecipientLoader::RecipientLoader(QObject *parent) :
   QObject(parent)
 {
   p = new RecipientLoader_P( this );
-  newSource();
+  connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
+  connect( p, SIGNAL(sendInfo(RecipientInfo*)),
+           SIGNAL(newInfo(RecipientInfo*)) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
 }
 
 RecipientLoader::~RecipientLoader()
 {
-  p->m__Errors.clear();
-  disconnect( p->m__Source, SIGNAL(destroyed()), this, SLOT(newSource()) );
+  p->m__LastError.clear();
   delete p;
   p = NULL;
 }
 
-QString RecipientLoader::error( int errorId ) const
+QString RecipientLoader::lastError() const
 {
-  QString errorText = p->m__Errors.value( errorId, QString() );
-  p->m__Errors.remove( errorId );
-  return errorText;
+  return p->m__LastError;
 }
 
 const QString & RecipientLoader::connectionName() const
@@ -39,7 +38,7 @@ const QString & RecipientLoader::connectionName() const
   return p->m__ConnectionName;
 }
 
-bool RecipientLoader::setConnectionName( const QString &connectionName ) const
+bool RecipientLoader::setConnectionName( const QString &connectionName )
 {
   if ( !QSqlDatabase::contains( connectionName ) )
   {
@@ -54,7 +53,7 @@ bool RecipientLoader::setConnectionName( const QString &connectionName ) const
   return true;
 }
 
-bool RecipientLoader::load( const QString &filter ) const
+bool RecipientLoader::load( const QString &filter, bool blockUI )
 {
   if ( p->isRunning() )
   {
@@ -64,27 +63,10 @@ bool RecipientLoader::load( const QString &filter ) const
 
   emit started();
   p->m__Filter = filter;
-  p->m__Source->clear();
   p->start();
-  return ( loop->exec() == 0 );
-}
-
-Recipient * RecipientLoader::create() const
-{
-  return NULL;
-}
-
-RecipientList * RecipientLoader::source() const
-{
-  return p->m__Source;
-}
-
-void RecipientLoader::newSource() const
-{
-  p->m__Source = new RecipientList( p->p_dptr() );
-  connect( p->m__Source, SIGNAL(destroyed()), SLOT(newSource()) );
-  connect( p, SIGNAL(sendRecipientInfo(RecipientInfo)),
-           p->m__Source, SLOT(receivedRecipientInfo(RecipientInfo)) );
+  if ( blockUI )
+    return ( loop->exec() == 0 );
+  else return true;
 }
 
 void RecipientLoader::threadFinished()
@@ -93,9 +75,8 @@ void RecipientLoader::threadFinished()
   emit finished();
 }
 
-void RecipientLoader::receivedError( QString errorText ) const
+void RecipientLoader::receivedError( QString errorText )
 {
-  int errorId = p->m__ErrorLastId++;
-  p->m__Errors[errorId] = errorText;
-  emit errorAdded( errorId );
+  p->m__LastError = errorText;
+  emit lastErrorChanged();
 }

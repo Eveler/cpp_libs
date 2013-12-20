@@ -1,24 +1,29 @@
 #ifndef declarCLIENTINFO_H
 #define declarCLIENTINFO_H
 
-#include <QtCore>
+#include <QObject>
+
+#include <QtQml>
 
 
-class DeclarClientInfo
+class DeclarClientInfo : public QObject
 {
+    Q_OBJECT
+    Q_DISABLE_COPY(DeclarClientInfo)
+
+
   public:
     DeclarClientInfo();
-    DeclarClientInfo( const DeclarClientInfo &other );
     ~DeclarClientInfo();
 
-    QVariant identifier() const;
+    Q_INVOKABLE QVariant identifier() const;
     void setIdentifier( QVariant identifier );
 
-    QVariant declarIdentifier() const;
-    void setDeclarIdentifier( QVariant declarIdentifier );
+    Q_INVOKABLE QVariant declarIdentifier() const;
+    Q_INVOKABLE void setDeclarIdentifier( QVariant declarIdentifier );
 
-    QVariant clientIdentifier() const;
-    void setClientIdentifier( QVariant clientIdentifier );
+    Q_INVOKABLE QVariant clientIdentifier() const;
+    Q_INVOKABLE void setClientIdentifier( QVariant clientIdentifier );
 
 
   private:
@@ -26,5 +31,7 @@ class DeclarClientInfo
     QVariant m__DeclarIdentifier;
     QVariant m__ClientIdentifier;
 };
+
+QML_DECLARE_TYPE(DeclarClientInfo)
 
 #endif // declarCLIENTINFO_H

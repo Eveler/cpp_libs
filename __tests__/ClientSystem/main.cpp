@@ -43,6 +43,7 @@ int main(int argc, char *argv[])
   QQuickWindow *window = qobject_cast<QQuickWindow *>(topLevel);
   if ( !window ) {
     qWarning("Error: Your root item has to be a Window.");
+    qWarning() << engine.rootObjects();
     return -1;
   }
   window->show();

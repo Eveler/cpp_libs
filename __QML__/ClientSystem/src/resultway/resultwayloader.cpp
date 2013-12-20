@@ -9,24 +9,23 @@ ResultwayLoader::ResultwayLoader(QObject *parent) :
   QObject(parent)
 {
   p = new ResultwayLoader_P( this );
-  newSource();
+  connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
+  connect( p, SIGNAL(sendInfo(ResultwayInfo*)),
+           SIGNAL(newInfo(ResultwayInfo*)) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
 }
 
 ResultwayLoader::~ResultwayLoader()
 {
-  p->m__Errors.clear();
-  disconnect( p->m__Source, SIGNAL(destroyed()), this, SLOT(newSource()) );
+  p->m__LastError.clear();
   delete p;
   p = NULL;
 }
 
-QString ResultwayLoader::error( int errorId ) const
+QString ResultwayLoader::lastError() const
 {
-  QString errorText = p->m__Errors.value( errorId, QString() );
-  p->m__Errors.remove( errorId );
-  return errorText;
+  return p->m__LastError;
 }
 
 const QString & ResultwayLoader::connectionName() const
@@ -39,7 +38,7 @@ const QString & ResultwayLoader::connectionName() const
   return p->m__ConnectionName;
 }
 
-bool ResultwayLoader::setConnectionName( const QString &connectionName ) const
+bool ResultwayLoader::setConnectionName( const QString &connectionName )
 {
   if ( !QSqlDatabase::contains( connectionName ) )
   {
@@ -54,7 +53,7 @@ bool ResultwayLoader::setConnectionName( const QString &connectionName ) const
   return true;
 }
 
-bool ResultwayLoader::load( const QString &filter ) const
+bool ResultwayLoader::load( const QString &filter, bool blockUI )
 {
   if ( p->isRunning() )
   {
@@ -64,27 +63,10 @@ bool ResultwayLoader::load( const QString &filter ) const
 
   emit started();
   p->m__Filter = filter;
-  p->m__Source->clear();
   p->start();
-  return ( loop->exec() == 0 );
-}
-
-Resultway * ResultwayLoader::create() const
-{
-  return NULL;
-}
-
-ResultwayList * ResultwayLoader::source() const
-{
-  return p->m__Source;
-}
-
-void ResultwayLoader::newSource() const
-{
-  p->m__Source = new ResultwayList( p->p_dptr() );
-  connect( p->m__Source, SIGNAL(destroyed()), SLOT(newSource()) );
-  connect( p, SIGNAL(sendResultwayInfo(ResultwayInfo)),
-           p->m__Source, SLOT(receivedResultwayInfo(ResultwayInfo)) );
+  if ( blockUI )
+    return ( loop->exec() == 0 );
+  else return true;
 }
 
 void ResultwayLoader::threadFinished()
@@ -93,9 +75,8 @@ void ResultwayLoader::threadFinished()
   emit finished();
 }
 
-void ResultwayLoader::receivedError( QString errorText ) const
+void ResultwayLoader::receivedError( QString errorText )
 {
-  int errorId = p->m__ErrorLastId++;
-  p->m__Errors[errorId] = errorText;
-  emit errorAdded( errorId );
+  p->m__LastError = errorText;
+  emit lastErrorChanged();
 }

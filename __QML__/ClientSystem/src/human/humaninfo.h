@@ -1,36 +1,41 @@
 #ifndef HUMANINFO_H
 #define HUMANINFO_H
 
-#include <QtCore>
+#include <QObject>
+
+#include <QtQml>
 
 
-class HumanInfo
+class HumanInfo : public QObject
 {
+    Q_OBJECT
+    Q_DISABLE_COPY(HumanInfo)
+
+
   public:
     HumanInfo();
-    HumanInfo( const HumanInfo &other );
     ~HumanInfo();
 
-    QVariant identifier() const;
+    Q_INVOKABLE QVariant identifier() const;
     void setIdentifier( QVariant identifier );
 
-    const QString & surname() const;
-    void setSurname( const QString &surname );
+    Q_INVOKABLE const QString & surname() const;
+    Q_INVOKABLE void setSurname( const QString &surname );
 
-    const QString & firstname() const;
-    void setFirstname( const QString &firstname );
+    Q_INVOKABLE const QString & firstname() const;
+    Q_INVOKABLE void setFirstname( const QString &firstname );
 
-    const QString & lastname() const;
-    void setLastname( const QString &lastname );
+    Q_INVOKABLE const QString & lastname() const;
+    Q_INVOKABLE void setLastname( const QString &lastname );
 
-    const QString & address() const;
-    void setAddress( const QString &address );
+    Q_INVOKABLE const QString & address() const;
+    Q_INVOKABLE void setAddress( const QString &address );
 
-    const QString & phone() const;
-    void setPhone( const QString &phone );
+    Q_INVOKABLE const QString & phone() const;
+    Q_INVOKABLE void setPhone( const QString &phone );
 
-    const QString & email() const;
-    void setEmail( const QString &email );
+    Q_INVOKABLE const QString & email() const;
+    Q_INVOKABLE void setEmail( const QString &email );
 
 
   private:
@@ -42,5 +47,7 @@ class HumanInfo
     QString m__Phone;
     QString m__Email;
 };
+
+QML_DECLARE_TYPE(HumanInfo)
 
 #endif // HUMANINFO_H

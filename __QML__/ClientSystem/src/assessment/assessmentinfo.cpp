@@ -2,14 +2,9 @@
 
 
 AssessmentInfo::AssessmentInfo() :
+  QObject(NULL),
   m__Identifier(QVariant()),
   m__Name(QString())
-{
-}
-
-AssessmentInfo::AssessmentInfo( const AssessmentInfo &other ) :
-  m__Identifier(other.identifier()),
-  m__Name(other.name())
 {
 }
 
@@ -27,7 +22,7 @@ void AssessmentInfo::setIdentifier( QVariant identifier )
   m__Identifier = identifier;
 }
 
-const QString & AssessmentInfo::name() const
+QString AssessmentInfo::name() const
 {
   return m__Name;
 }

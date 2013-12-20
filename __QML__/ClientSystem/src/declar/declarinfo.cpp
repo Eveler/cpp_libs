@@ -2,6 +2,7 @@
 
 
 DeclarInfo::DeclarInfo() :
+  QObject(NULL),
   m__Identifier(QVariant()),
   m__ServiceIdentifier(QVariant()),
   m__Number(0),
@@ -20,28 +21,6 @@ DeclarInfo::DeclarInfo() :
   m__AssessmentTypeIdentifier(QVariant()),
   m__AssessmentIdentifier(QVariant()),
   m__ResultWayIdentifier(QVariant())
-{
-}
-
-DeclarInfo::DeclarInfo( const DeclarInfo &other ) :
-  m__Identifier(other.identifier()),
-  m__ServiceIdentifier(other.serviceIdentifier()),
-  m__Number(other.number()),
-  m__CreateDate(other.createDate()),
-  m__ControlDate(other.controlDate()),
-  m__RespiteDate(other.respiteDate()),
-  m__CloseDate(other.closeDate()),
-  m__FirstLandmark(other.firstLandmark()),
-  m__LastLandmark(other.lastLandmark()),
-  m__DirectionIdentifier(other.directionIdentifier()),
-  m__ResponsibleIdentifier(other.responsibleIdentifier()),
-  m__OwnerIdentifier(other.ownerIdentifier()),
-  m__Isnew(other.isnew()),
-  m__Deleted(other.deleted()),
-  m__ResultIdentifier(other.resultIdentifier()),
-  m__AssessmentTypeIdentifier(other.assessmentTypeIdentifier()),
-  m__AssessmentIdentifier(other.assessmentIdentifier()),
-  m__ResultWayIdentifier(other.resultWayIdentifier())
 {
 }
 

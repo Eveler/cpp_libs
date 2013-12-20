@@ -42,33 +42,27 @@ void OrganisationLoader_P::run()
   }
   while ( qry.next() )
   {
-    OrganisationInfo info;
-    info.setIdentifier( qry.record().value( tr( "identifier" ) ) );
-    info.setFullname( qry.record().value( tr( "fullname" ) ).toString() );
-    info.setHumanIdentifier( qry.record().value( tr( "humanIdentifier" ) ) );
-    info.setAddress( qry.record().value( tr( "address" ) ).toString() );
-    info.setPhone( qry.record().value( tr( "phone" ) ).toString() );
-    info.setEmail( qry.record().value( tr( "email" ) ).toString() );
-    emit sendOrganisationInfo( info );
+    OrganisationInfo *info = new OrganisationInfo();
+    info->setIdentifier( qry.record().value( tr( "identifier" ) ) );
+    info->setFullname( qry.record().value( tr( "fullname" ) ).toString() );
+    info->setHumanIdentifier( qry.record().value( tr( "humanIdentifier" ) ) );
+    info->setAddress( qry.record().value( tr( "address" ) ).toString() );
+    info->setPhone( qry.record().value( tr( "phone" ) ).toString() );
+    info->setEmail( qry.record().value( tr( "email" ) ).toString() );
+    emit sendInfo( info );
   }
 }
 
 OrganisationLoader_P::OrganisationLoader_P( OrganisationLoader *parent ) :
   QThread(parent),
   m__Successfully(true),
-  m__ErrorLastId(-1),
-  m__Errors(QHash<int, QString>()),
-  m__ConnectionName(QString()),
-  m__Source(NULL)
+  m__LastError(QString()),
+  m__ConnectionName(QString())
 {
-  connect( this, SIGNAL(sendError(QString)), parent, SLOT(receivedError(QString)) );
-  qRegisterMetaType<OrganisationInfo>("OrganisationInfo");
 }
 
 OrganisationLoader_P::~OrganisationLoader_P()
 {
-  delete m__Source;
-  m__Source = NULL;
 }
 
 OrganisationLoader * OrganisationLoader_P::p_dptr() const

@@ -7,39 +7,35 @@
 
 
 class OrganisationLoader_P;
-class OrganisationList;
-class Organisation;
+class OrganisationInfo;
 
 class OrganisationLoader : public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY(OrganisationLoader)
+    Q_PROPERTY(QString lastError READ lastError NOTIFY lastErrorChanged)
     Q_PROPERTY(QString connectionName READ connectionName
                WRITE setConnectionName NOTIFY connectionNameChanged)
-    Q_PROPERTY(OrganisationList* source READ source NOTIFY sourceChanged)
 
 
   public:
     OrganisationLoader(QObject *parent = 0);
     ~OrganisationLoader();
 
-    Q_INVOKABLE QString error( int errorId ) const;
+    Q_INVOKABLE QString lastError() const;
 
     const QString & connectionName() const;
-    bool setConnectionName( const QString &connectionName ) const;
+    bool setConnectionName( const QString &connectionName );
 
-    Q_INVOKABLE bool load( const QString &filter = QString() ) const;
-    Q_INVOKABLE Organisation * create() const;
-
-    OrganisationList * source() const;
+    Q_INVOKABLE bool load( const QString &filter = QString(), bool blockUI = false );
 
 
   signals:
-    void errorAdded( int errorId ) const;
+    void lastErrorChanged();
     void connectionNameChanged() const;
-    void started() const;
-    void finished() const;
-    void sourceChanged() const;
+    void started();
+    void finished();
+    void newInfo( OrganisationInfo *info );
 
 
   public slots:
@@ -50,9 +46,8 @@ class OrganisationLoader : public QObject
     QEventLoop *loop;
 
   private slots:
-    void newSource() const;
     void threadFinished();
-    void receivedError( QString errorText ) const;
+    void receivedError( QString errorText );
 };
 
 QML_DECLARE_TYPE(OrganisationLoader)

@@ -2,6 +2,7 @@
 
 
 ServiceInfo::ServiceInfo() :
+  QObject(NULL),
   m__Identifier(QVariant()),
   m__Root(QVariant()),
   m__Sidx(QString()),
@@ -9,17 +10,6 @@ ServiceInfo::ServiceInfo() :
   m__Deadline(0),
   m__Workdays(false),
   m__Isactive(false)
-{
-}
-
-ServiceInfo::ServiceInfo( const ServiceInfo &other ) :
-  m__Identifier(other.identifier()),
-  m__Root(other.root()),
-  m__Sidx(other.sidx()),
-  m__Name(other.name()),
-  m__Deadline(other.deadline()),
-  m__Workdays(other.workdays()),
-  m__Isactive(other.isactive())
 {
 }
 

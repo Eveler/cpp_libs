@@ -9,24 +9,23 @@ DoctypeLoader::DoctypeLoader(QObject *parent) :
   QObject(parent)
 {
   p = new DoctypeLoader_P( this );
-  newSource();
+  connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
+  connect( p, SIGNAL(sendInfo(DoctypeInfo*)),
+           SIGNAL(newInfo(DoctypeInfo*)) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
 }
 
 DoctypeLoader::~DoctypeLoader()
 {
-  p->m__Errors.clear();
-  disconnect( p->m__Source, SIGNAL(destroyed()), this, SLOT(newSource()) );
+  p->m__LastError.clear();
   delete p;
   p = NULL;
 }
 
-QString DoctypeLoader::error( int errorId ) const
+QString DoctypeLoader::lastError() const
 {
-  QString errorText = p->m__Errors.value( errorId, QString() );
-  p->m__Errors.remove( errorId );
-  return errorText;
+  return p->m__LastError;
 }
 
 const QString & DoctypeLoader::connectionName() const
@@ -39,7 +38,7 @@ const QString & DoctypeLoader::connectionName() const
   return p->m__ConnectionName;
 }
 
-bool DoctypeLoader::setConnectionName( const QString &connectionName ) const
+bool DoctypeLoader::setConnectionName( const QString &connectionName )
 {
   if ( !QSqlDatabase::contains( connectionName ) )
   {
@@ -54,7 +53,7 @@ bool DoctypeLoader::setConnectionName( const QString &connectionName ) const
   return true;
 }
 
-bool DoctypeLoader::load( const QString &filter ) const
+bool DoctypeLoader::load( const QString &filter, bool blockUI )
 {
   if ( p->isRunning() )
   {
@@ -64,27 +63,10 @@ bool DoctypeLoader::load( const QString &filter ) const
 
   emit started();
   p->m__Filter = filter;
-  p->m__Source->clear();
   p->start();
-  return ( loop->exec() == 0 );
-}
-
-Doctype * DoctypeLoader::create() const
-{
-  return NULL;
-}
-
-DoctypeList * DoctypeLoader::source() const
-{
-  return p->m__Source;
-}
-
-void DoctypeLoader::newSource() const
-{
-  p->m__Source = new DoctypeList( p->p_dptr() );
-  connect( p->m__Source, SIGNAL(destroyed()), SLOT(newSource()) );
-  connect( p, SIGNAL(sendDoctypeInfo(DoctypeInfo)),
-           p->m__Source, SLOT(receivedDoctypeInfo(DoctypeInfo)) );
+  if ( blockUI )
+    return ( loop->exec() == 0 );
+  else return true;
 }
 
 void DoctypeLoader::threadFinished()
@@ -93,9 +75,8 @@ void DoctypeLoader::threadFinished()
   emit finished();
 }
 
-void DoctypeLoader::receivedError( QString errorText ) const
+void DoctypeLoader::receivedError( QString errorText )
 {
-  int errorId = p->m__ErrorLastId++;
-  p->m__Errors[errorId] = errorText;
-  emit errorAdded( errorId );
+  p->m__LastError = errorText;
+  emit lastErrorChanged();
 }

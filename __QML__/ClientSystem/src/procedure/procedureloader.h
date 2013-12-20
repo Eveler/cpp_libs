@@ -7,39 +7,35 @@
 
 
 class ProcedureLoader_P;
-class ProcedureList;
-class Procedure;
+class ProcedureInfo;
 
 class ProcedureLoader : public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY(ProcedureLoader)
+    Q_PROPERTY(QString lastError READ lastError NOTIFY lastErrorChanged)
     Q_PROPERTY(QString connectionName READ connectionName
                WRITE setConnectionName NOTIFY connectionNameChanged)
-    Q_PROPERTY(ProcedureList* source READ source NOTIFY sourceChanged)
 
 
   public:
     ProcedureLoader(QObject *parent = 0);
     ~ProcedureLoader();
 
-    Q_INVOKABLE QString error( int errorId ) const;
+    Q_INVOKABLE QString lastError() const;
 
     const QString & connectionName() const;
-    bool setConnectionName( const QString &connectionName ) const;
+    bool setConnectionName( const QString &connectionName );
 
-    Q_INVOKABLE bool load( const QString &filter = QString() ) const;
-    Q_INVOKABLE Procedure * create() const;
-
-    ProcedureList * source() const;
+    Q_INVOKABLE bool load( const QString &filter = QString(), bool blockUI = false );
 
 
   signals:
-    void errorAdded( int errorId ) const;
+    void lastErrorChanged();
     void connectionNameChanged() const;
-    void started() const;
-    void finished() const;
-    void sourceChanged() const;
+    void started();
+    void finished();
+    void newInfo( ProcedureInfo *info );
 
 
   public slots:
@@ -50,9 +46,8 @@ class ProcedureLoader : public QObject
     QEventLoop *loop;
 
   private slots:
-    void newSource() const;
     void threadFinished();
-    void receivedError( QString errorText ) const;
+    void receivedError( QString errorText );
 };
 
 QML_DECLARE_TYPE(ProcedureLoader)

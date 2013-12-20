@@ -42,34 +42,28 @@ void HumanLoader_P::run()
   }
   while ( qry.next() )
   {
-    HumanInfo info;
-    info.setIdentifier( qry.record().value( tr( "identifier" ) ) );
-    info.setSurname( qry.record().value( tr( "surname" ) ).toString() );
-    info.setFirstname( qry.record().value( tr( "firstname" ) ).toString() );
-    info.setLastname( qry.record().value( tr( "lastname" ) ).toString() );
-    info.setAddress( qry.record().value( tr( "address" ) ).toString() );
-    info.setPhone( qry.record().value( tr( "phone" ) ).toString() );
-    info.setEmail( qry.record().value( tr( "email" ) ).toString() );
-    emit sendHumanInfo( info );
+    HumanInfo *info = new HumanInfo();
+    info->setIdentifier( qry.record().value( tr( "identifier" ) ) );
+    info->setSurname( qry.record().value( tr( "surname" ) ).toString() );
+    info->setFirstname( qry.record().value( tr( "firstname" ) ).toString() );
+    info->setLastname( qry.record().value( tr( "lastname" ) ).toString() );
+    info->setAddress( qry.record().value( tr( "address" ) ).toString() );
+    info->setPhone( qry.record().value( tr( "phone" ) ).toString() );
+    info->setEmail( qry.record().value( tr( "email" ) ).toString() );
+    emit sendInfo( info );
   }
 }
 
 HumanLoader_P::HumanLoader_P( HumanLoader *parent ) :
   QThread(parent),
   m__Successfully(true),
-  m__ErrorLastId(-1),
-  m__Errors(QHash<int, QString>()),
-  m__ConnectionName(QString()),
-  m__Source(NULL)
+  m__LastError(QString()),
+  m__ConnectionName(QString())
 {
-  connect( this, SIGNAL(sendError(QString)), parent, SLOT(receivedError(QString)) );
-  qRegisterMetaType<HumanInfo>("HumanInfo");
 }
 
 HumanLoader_P::~HumanLoader_P()
 {
-  delete m__Source;
-  m__Source = NULL;
 }
 
 HumanLoader * HumanLoader_P::p_dptr() const
