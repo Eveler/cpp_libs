@@ -12,6 +12,7 @@ AssessmenttypeLoader::AssessmenttypeLoader(QObject *parent) :
   connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
   connect( p, SIGNAL(sendInfo(AssessmenttypeInfo*)),
            SIGNAL(newInfo(AssessmenttypeInfo*)) );
+  connect( p, SIGNAL(started()), SLOT(threadStarted()) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
 }
@@ -28,7 +29,7 @@ QString AssessmenttypeLoader::lastError() const
   return p->m__LastError;
 }
 
-const QString & AssessmenttypeLoader::connectionName() const
+QString AssessmenttypeLoader::connectionName()
 {
   if ( p->m__ConnectionName.isEmpty() && !QSqlDatabase::connectionNames().isEmpty() )
   {
@@ -38,7 +39,7 @@ const QString & AssessmenttypeLoader::connectionName() const
   return p->m__ConnectionName;
 }
 
-bool AssessmenttypeLoader::setConnectionName( const QString &connectionName )
+bool AssessmenttypeLoader::setConnectionName( QString connectionName )
 {
   if ( !QSqlDatabase::contains( connectionName ) )
   {
@@ -53,6 +54,11 @@ bool AssessmenttypeLoader::setConnectionName( const QString &connectionName )
   return true;
 }
 
+bool AssessmenttypeLoader::started() const
+{
+  return p->isRunning();
+}
+
 bool AssessmenttypeLoader::load( const QString &filter, bool blockUI )
 {
   if ( p->isRunning() )
@@ -61,7 +67,6 @@ bool AssessmenttypeLoader::load( const QString &filter, bool blockUI )
     return false;
   }
 
-  emit started();
   p->m__Filter = filter;
   p->start();
   if ( blockUI )
@@ -69,10 +74,17 @@ bool AssessmenttypeLoader::load( const QString &filter, bool blockUI )
   else return true;
 }
 
+void AssessmenttypeLoader::threadStarted()
+{
+  p->m__Started = true;
+  emit startedChanged();
+}
+
 void AssessmenttypeLoader::threadFinished()
 {
+  p->m__Started = false;
   loop->exit( ( p->m__Successfully ? 0 : 1 ) );
-  emit finished();
+  emit startedChanged();
 }
 
 void AssessmenttypeLoader::receivedError( QString errorText )

@@ -12,6 +12,7 @@ UserLoader::UserLoader(QObject *parent) :
   connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
   connect( p, SIGNAL(sendInfo(UserInfo*)),
            SIGNAL(newInfo(UserInfo*)) );
+  connect( p, SIGNAL(started()), SLOT(threadStarted()) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
 }
@@ -28,7 +29,7 @@ QString UserLoader::lastError() const
   return p->m__LastError;
 }
 
-const QString & UserLoader::connectionName() const
+QString UserLoader::connectionName()
 {
   if ( p->m__ConnectionName.isEmpty() && !QSqlDatabase::connectionNames().isEmpty() )
   {
@@ -38,7 +39,7 @@ const QString & UserLoader::connectionName() const
   return p->m__ConnectionName;
 }
 
-bool UserLoader::setConnectionName( const QString &connectionName )
+bool UserLoader::setConnectionName( QString connectionName )
 {
   if ( !QSqlDatabase::contains( connectionName ) )
   {
@@ -53,6 +54,11 @@ bool UserLoader::setConnectionName( const QString &connectionName )
   return true;
 }
 
+bool UserLoader::started() const
+{
+  return p->isRunning();
+}
+
 bool UserLoader::load( const QString &filter, bool blockUI )
 {
   if ( p->isRunning() )
@@ -61,7 +67,6 @@ bool UserLoader::load( const QString &filter, bool blockUI )
     return false;
   }
 
-  emit started();
   p->m__Filter = filter;
   p->start();
   if ( blockUI )
@@ -69,10 +74,17 @@ bool UserLoader::load( const QString &filter, bool blockUI )
   else return true;
 }
 
+void UserLoader::threadStarted()
+{
+  p->m__Started = true;
+  emit startedChanged();
+}
+
 void UserLoader::threadFinished()
 {
+  p->m__Started = false;
   loop->exit( ( p->m__Successfully ? 0 : 1 ) );
-  emit finished();
+  emit startedChanged();
 }
 
 void UserLoader::receivedError( QString errorText )

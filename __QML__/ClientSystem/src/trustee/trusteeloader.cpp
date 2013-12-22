@@ -12,6 +12,7 @@ TrusteeLoader::TrusteeLoader(QObject *parent) :
   connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
   connect( p, SIGNAL(sendInfo(TrusteeInfo*)),
            SIGNAL(newInfo(TrusteeInfo*)) );
+  connect( p, SIGNAL(started()), SLOT(threadStarted()) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
 }
@@ -28,7 +29,7 @@ QString TrusteeLoader::lastError() const
   return p->m__LastError;
 }
 
-const QString & TrusteeLoader::connectionName() const
+QString TrusteeLoader::connectionName()
 {
   if ( p->m__ConnectionName.isEmpty() && !QSqlDatabase::connectionNames().isEmpty() )
   {
@@ -38,7 +39,7 @@ const QString & TrusteeLoader::connectionName() const
   return p->m__ConnectionName;
 }
 
-bool TrusteeLoader::setConnectionName( const QString &connectionName )
+bool TrusteeLoader::setConnectionName( QString connectionName )
 {
   if ( !QSqlDatabase::contains( connectionName ) )
   {
@@ -53,6 +54,11 @@ bool TrusteeLoader::setConnectionName( const QString &connectionName )
   return true;
 }
 
+bool TrusteeLoader::started() const
+{
+  return p->isRunning();
+}
+
 bool TrusteeLoader::load( const QString &filter, bool blockUI )
 {
   if ( p->isRunning() )
@@ -61,7 +67,6 @@ bool TrusteeLoader::load( const QString &filter, bool blockUI )
     return false;
   }
 
-  emit started();
   p->m__Filter = filter;
   p->start();
   if ( blockUI )
@@ -69,10 +74,17 @@ bool TrusteeLoader::load( const QString &filter, bool blockUI )
   else return true;
 }
 
+void TrusteeLoader::threadStarted()
+{
+  p->m__Started = true;
+  emit startedChanged();
+}
+
 void TrusteeLoader::threadFinished()
 {
+  p->m__Started = false;
   loop->exit( ( p->m__Successfully ? 0 : 1 ) );
-  emit finished();
+  emit startedChanged();
 }
 
 void TrusteeLoader::receivedError( QString errorText )

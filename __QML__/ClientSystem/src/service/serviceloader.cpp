@@ -12,6 +12,7 @@ ServiceLoader::ServiceLoader(QObject *parent) :
   connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
   connect( p, SIGNAL(sendInfo(ServiceInfo*)),
            SIGNAL(newInfo(ServiceInfo*)) );
+  connect( p, SIGNAL(started()), SLOT(threadStarted()) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
 }
@@ -28,7 +29,7 @@ QString ServiceLoader::lastError() const
   return p->m__LastError;
 }
 
-const QString & ServiceLoader::connectionName() const
+QString ServiceLoader::connectionName()
 {
   if ( p->m__ConnectionName.isEmpty() && !QSqlDatabase::connectionNames().isEmpty() )
   {
@@ -38,7 +39,7 @@ const QString & ServiceLoader::connectionName() const
   return p->m__ConnectionName;
 }
 
-bool ServiceLoader::setConnectionName( const QString &connectionName )
+bool ServiceLoader::setConnectionName( QString connectionName )
 {
   if ( !QSqlDatabase::contains( connectionName ) )
   {
@@ -53,6 +54,11 @@ bool ServiceLoader::setConnectionName( const QString &connectionName )
   return true;
 }
 
+bool ServiceLoader::started() const
+{
+  return p->isRunning();
+}
+
 bool ServiceLoader::load( const QString &filter, bool blockUI )
 {
   if ( p->isRunning() )
@@ -61,7 +67,6 @@ bool ServiceLoader::load( const QString &filter, bool blockUI )
     return false;
   }
 
-  emit started();
   p->m__Filter = filter;
   p->start();
   if ( blockUI )
@@ -69,10 +74,17 @@ bool ServiceLoader::load( const QString &filter, bool blockUI )
   else return true;
 }
 
+void ServiceLoader::threadStarted()
+{
+  p->m__Started = true;
+  emit startedChanged();
+}
+
 void ServiceLoader::threadFinished()
 {
+  p->m__Started = false;
   loop->exit( ( p->m__Successfully ? 0 : 1 ) );
-  emit finished();
+  emit startedChanged();
 }
 
 void ServiceLoader::receivedError( QString errorText )

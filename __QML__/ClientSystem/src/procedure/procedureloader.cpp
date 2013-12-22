@@ -12,6 +12,7 @@ ProcedureLoader::ProcedureLoader(QObject *parent) :
   connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
   connect( p, SIGNAL(sendInfo(ProcedureInfo*)),
            SIGNAL(newInfo(ProcedureInfo*)) );
+  connect( p, SIGNAL(started()), SLOT(threadStarted()) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
 }
@@ -28,7 +29,7 @@ QString ProcedureLoader::lastError() const
   return p->m__LastError;
 }
 
-const QString & ProcedureLoader::connectionName() const
+QString ProcedureLoader::connectionName()
 {
   if ( p->m__ConnectionName.isEmpty() && !QSqlDatabase::connectionNames().isEmpty() )
   {
@@ -38,7 +39,7 @@ const QString & ProcedureLoader::connectionName() const
   return p->m__ConnectionName;
 }
 
-bool ProcedureLoader::setConnectionName( const QString &connectionName )
+bool ProcedureLoader::setConnectionName( QString connectionName )
 {
   if ( !QSqlDatabase::contains( connectionName ) )
   {
@@ -53,6 +54,11 @@ bool ProcedureLoader::setConnectionName( const QString &connectionName )
   return true;
 }
 
+bool ProcedureLoader::started() const
+{
+  return p->isRunning();
+}
+
 bool ProcedureLoader::load( const QString &filter, bool blockUI )
 {
   if ( p->isRunning() )
@@ -61,7 +67,6 @@ bool ProcedureLoader::load( const QString &filter, bool blockUI )
     return false;
   }
 
-  emit started();
   p->m__Filter = filter;
   p->start();
   if ( blockUI )
@@ -69,10 +74,17 @@ bool ProcedureLoader::load( const QString &filter, bool blockUI )
   else return true;
 }
 
+void ProcedureLoader::threadStarted()
+{
+  p->m__Started = true;
+  emit startedChanged();
+}
+
 void ProcedureLoader::threadFinished()
 {
+  p->m__Started = false;
   loop->exit( ( p->m__Successfully ? 0 : 1 ) );
-  emit finished();
+  emit startedChanged();
 }
 
 void ProcedureLoader::receivedError( QString errorText )

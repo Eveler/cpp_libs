@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = MQMLLibraries
-QT += qml quick
+QT += qml quick core
 CONFIG += qt plugin
 
 TARGET = $$qtLibraryTarget($$TARGET)
@@ -12,14 +12,16 @@ SOURCES += \
     logreader.cpp \
     Tree/treeitem.cpp \
     Tree/treemodel.cpp \
-    mqml.cpp
+    mqml.cpp \
+    List/list.cpp
 
 HEADERS += \
     mqmllibraries_plugin.h \
     logreader.h \
     Tree/treeitem.h \
     Tree/treemodel.h \
-    mqml.h
+    mqml.h \
+    List/list.h
 
 OTHER_FILES = qmldir \
     Tree/TreeView/TreeView.qml \

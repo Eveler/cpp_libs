@@ -32,6 +32,7 @@ class CallstatusLoader_P : public QThread
 
   private:
     bool m__Successfully;
+    bool m__Started;
     QString m__LastError;
     QString m__ConnectionName;
     QVariant m__LoadIdentifier;

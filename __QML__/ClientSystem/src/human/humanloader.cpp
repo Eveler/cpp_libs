@@ -12,6 +12,7 @@ HumanLoader::HumanLoader(QObject *parent) :
   connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
   connect( p, SIGNAL(sendInfo(HumanInfo*)),
            SIGNAL(newInfo(HumanInfo*)) );
+  connect( p, SIGNAL(started()), SLOT(threadStarted()) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
 }
@@ -28,7 +29,7 @@ QString HumanLoader::lastError() const
   return p->m__LastError;
 }
 
-const QString & HumanLoader::connectionName() const
+QString HumanLoader::connectionName()
 {
   if ( p->m__ConnectionName.isEmpty() && !QSqlDatabase::connectionNames().isEmpty() )
   {
@@ -38,7 +39,7 @@ const QString & HumanLoader::connectionName() const
   return p->m__ConnectionName;
 }
 
-bool HumanLoader::setConnectionName( const QString &connectionName )
+bool HumanLoader::setConnectionName( QString connectionName )
 {
   if ( !QSqlDatabase::contains( connectionName ) )
   {
@@ -53,6 +54,11 @@ bool HumanLoader::setConnectionName( const QString &connectionName )
   return true;
 }
 
+bool HumanLoader::started() const
+{
+  return p->isRunning();
+}
+
 bool HumanLoader::load( const QString &filter, bool blockUI )
 {
   if ( p->isRunning() )
@@ -61,7 +67,6 @@ bool HumanLoader::load( const QString &filter, bool blockUI )
     return false;
   }
 
-  emit started();
   p->m__Filter = filter;
   p->start();
   if ( blockUI )
@@ -69,10 +74,17 @@ bool HumanLoader::load( const QString &filter, bool blockUI )
   else return true;
 }
 
+void HumanLoader::threadStarted()
+{
+  p->m__Started = true;
+  emit startedChanged();
+}
+
 void HumanLoader::threadFinished()
 {
+  p->m__Started = false;
   loop->exit( ( p->m__Successfully ? 0 : 1 ) );
-  emit finished();
+  emit startedChanged();
 }
 
 void HumanLoader::receivedError( QString errorText )

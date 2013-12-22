@@ -16,6 +16,7 @@ class TrusteeLoader : public QObject
     Q_PROPERTY(QString lastError READ lastError NOTIFY lastErrorChanged)
     Q_PROPERTY(QString connectionName READ connectionName
                WRITE setConnectionName NOTIFY connectionNameChanged)
+    Q_PROPERTY(bool started READ started NOTIFY startedChanged)
 
 
   public:
@@ -24,17 +25,18 @@ class TrusteeLoader : public QObject
 
     Q_INVOKABLE QString lastError() const;
 
-    const QString & connectionName() const;
-    bool setConnectionName( const QString &connectionName );
+    QString connectionName();
+    bool setConnectionName( QString connectionName );
+
+    bool started() const;
 
     Q_INVOKABLE bool load( const QString &filter = QString(), bool blockUI = false );
 
 
   signals:
     void lastErrorChanged();
-    void connectionNameChanged() const;
-    void started();
-    void finished();
+    void connectionNameChanged();
+    void startedChanged();
     void newInfo( TrusteeInfo *info );
 
 
@@ -46,6 +48,7 @@ class TrusteeLoader : public QObject
     QEventLoop *loop;
 
   private slots:
+    void threadStarted();
     void threadFinished();
     void receivedError( QString errorText );
 };

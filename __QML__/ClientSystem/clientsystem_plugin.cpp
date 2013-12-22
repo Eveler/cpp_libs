@@ -60,6 +60,7 @@ void ClientSystemPlugin::initializeEngine( QQmlEngine *engine, const char *uri )
 {
   Q_UNUSED(uri);
   ClientPrivateSystem *p = ClientPrivateSystem::instace();
+  Q_UNUSED(p);
   QQmlContext *context = engine->rootContext();
   Q_UNUSED(context);
 }

@@ -32,6 +32,7 @@ class OrganisationLoader_P : public QThread
 
   private:
     bool m__Successfully;
+    bool m__Started;
     QString m__LastError;
     QString m__ConnectionName;
     QString m__Filter;

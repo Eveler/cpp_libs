@@ -12,6 +12,7 @@ CallstatusLoader::CallstatusLoader(QObject *parent) :
   connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
   connect( p, SIGNAL(sendInfo(CallstatusInfo*)),
            SIGNAL(newInfo(CallstatusInfo*)) );
+  connect( p, SIGNAL(started()), SLOT(threadStarted()) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
 }
@@ -28,7 +29,7 @@ QString CallstatusLoader::lastError() const
   return p->m__LastError;
 }
 
-const QString & CallstatusLoader::connectionName() const
+QString CallstatusLoader::connectionName()
 {
   if ( p->m__ConnectionName.isEmpty() && !QSqlDatabase::connectionNames().isEmpty() )
   {
@@ -38,7 +39,7 @@ const QString & CallstatusLoader::connectionName() const
   return p->m__ConnectionName;
 }
 
-bool CallstatusLoader::setConnectionName( const QString &connectionName )
+bool CallstatusLoader::setConnectionName( QString connectionName )
 {
   if ( !QSqlDatabase::contains( connectionName ) )
   {
@@ -53,6 +54,11 @@ bool CallstatusLoader::setConnectionName( const QString &connectionName )
   return true;
 }
 
+bool CallstatusLoader::started() const
+{
+  return p->isRunning();
+}
+
 bool CallstatusLoader::load( bool blockUI )
 {
   if ( p->isRunning() )
@@ -61,7 +67,6 @@ bool CallstatusLoader::load( bool blockUI )
     return false;
   }
 
-  emit started();
   p->start();
   if ( blockUI )
     return ( loop->exec() == 0 );
@@ -84,10 +89,17 @@ bool CallstatusLoader::load( QVariant identifier, bool blockUI )
   else return true;
 }
 
+void CallstatusLoader::threadStarted()
+{
+  p->m__Started = true;
+  emit startedChanged();
+}
+
 void CallstatusLoader::threadFinished()
 {
+  p->m__Started = false;
   loop->exit( ( p->m__Successfully ? 0 : 1 ) );
-  emit finished();
+  emit startedChanged();
 }
 
 void CallstatusLoader::receivedError( QString errorText )

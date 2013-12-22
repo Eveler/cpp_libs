@@ -12,6 +12,7 @@ RecipientLoader::RecipientLoader(QObject *parent) :
   connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
   connect( p, SIGNAL(sendInfo(RecipientInfo*)),
            SIGNAL(newInfo(RecipientInfo*)) );
+  connect( p, SIGNAL(started()), SLOT(threadStarted()) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
 }
@@ -28,7 +29,7 @@ QString RecipientLoader::lastError() const
   return p->m__LastError;
 }
 
-const QString & RecipientLoader::connectionName() const
+QString RecipientLoader::connectionName()
 {
   if ( p->m__ConnectionName.isEmpty() && !QSqlDatabase::connectionNames().isEmpty() )
   {
@@ -38,7 +39,7 @@ const QString & RecipientLoader::connectionName() const
   return p->m__ConnectionName;
 }
 
-bool RecipientLoader::setConnectionName( const QString &connectionName )
+bool RecipientLoader::setConnectionName( QString connectionName )
 {
   if ( !QSqlDatabase::contains( connectionName ) )
   {
@@ -53,6 +54,11 @@ bool RecipientLoader::setConnectionName( const QString &connectionName )
   return true;
 }
 
+bool RecipientLoader::started() const
+{
+  return p->isRunning();
+}
+
 bool RecipientLoader::load( const QString &filter, bool blockUI )
 {
   if ( p->isRunning() )
@@ -61,7 +67,6 @@ bool RecipientLoader::load( const QString &filter, bool blockUI )
     return false;
   }
 
-  emit started();
   p->m__Filter = filter;
   p->start();
   if ( blockUI )
@@ -69,10 +74,17 @@ bool RecipientLoader::load( const QString &filter, bool blockUI )
   else return true;
 }
 
+void RecipientLoader::threadStarted()
+{
+  p->m__Started = true;
+  emit startedChanged();
+}
+
 void RecipientLoader::threadFinished()
 {
+  p->m__Started = false;
   loop->exit( ( p->m__Successfully ? 0 : 1 ) );
-  emit finished();
+  emit startedChanged();
 }
 
 void RecipientLoader::receivedError( QString errorText )

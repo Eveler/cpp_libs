@@ -3,6 +3,7 @@
 #include "logreader.h"
 #include "Tree/treeitem.h"
 #include "Tree/treemodel.h"
+#include "List/list.h"
 
 #include "mqml.h"
 
@@ -23,6 +24,8 @@ void MQMLLibrariesPlugin::registerTypes(const char *uri)
 
   qmlRegisterType<TreeItem>(uri, 1, 0, "TreeItem");
   qmlRegisterType<TreeModel>(uri, 1, 0, "TreeModel");
+
+  qmlRegisterType<List>(uri, 1, 0, "List");
 }
 
 

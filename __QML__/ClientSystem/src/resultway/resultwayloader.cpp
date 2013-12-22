@@ -12,6 +12,7 @@ ResultwayLoader::ResultwayLoader(QObject *parent) :
   connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
   connect( p, SIGNAL(sendInfo(ResultwayInfo*)),
            SIGNAL(newInfo(ResultwayInfo*)) );
+  connect( p, SIGNAL(started()), SLOT(threadStarted()) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
 }
@@ -28,7 +29,7 @@ QString ResultwayLoader::lastError() const
   return p->m__LastError;
 }
 
-const QString & ResultwayLoader::connectionName() const
+QString ResultwayLoader::connectionName()
 {
   if ( p->m__ConnectionName.isEmpty() && !QSqlDatabase::connectionNames().isEmpty() )
   {
@@ -38,7 +39,7 @@ const QString & ResultwayLoader::connectionName() const
   return p->m__ConnectionName;
 }
 
-bool ResultwayLoader::setConnectionName( const QString &connectionName )
+bool ResultwayLoader::setConnectionName( QString connectionName )
 {
   if ( !QSqlDatabase::contains( connectionName ) )
   {
@@ -53,6 +54,11 @@ bool ResultwayLoader::setConnectionName( const QString &connectionName )
   return true;
 }
 
+bool ResultwayLoader::started() const
+{
+  return p->isRunning();
+}
+
 bool ResultwayLoader::load( const QString &filter, bool blockUI )
 {
   if ( p->isRunning() )
@@ -61,7 +67,6 @@ bool ResultwayLoader::load( const QString &filter, bool blockUI )
     return false;
   }
 
-  emit started();
   p->m__Filter = filter;
   p->start();
   if ( blockUI )
@@ -69,10 +74,17 @@ bool ResultwayLoader::load( const QString &filter, bool blockUI )
   else return true;
 }
 
+void ResultwayLoader::threadStarted()
+{
+  p->m__Started = true;
+  emit startedChanged();
+}
+
 void ResultwayLoader::threadFinished()
 {
+  p->m__Started = false;
   loop->exit( ( p->m__Successfully ? 0 : 1 ) );
-  emit finished();
+  emit startedChanged();
 }
 
 void ResultwayLoader::receivedError( QString errorText )

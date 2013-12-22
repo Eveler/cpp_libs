@@ -16,6 +16,7 @@ class CallstatusLoader : public QObject
     Q_PROPERTY(QString lastError READ lastError NOTIFY lastErrorChanged)
     Q_PROPERTY(QString connectionName READ connectionName
                WRITE setConnectionName NOTIFY connectionNameChanged)
+    Q_PROPERTY(bool started READ started NOTIFY startedChanged)
 
 
   public:
@@ -24,8 +25,10 @@ class CallstatusLoader : public QObject
 
     Q_INVOKABLE QString lastError() const;
 
-    const QString & connectionName() const;
-    bool setConnectionName( const QString &connectionName );
+    QString connectionName();
+    bool setConnectionName( QString connectionName );
+
+    bool started() const;
 
     Q_INVOKABLE bool load( bool blockUI = false );
     Q_INVOKABLE bool load( QVariant identifier, bool blockUI = false );
@@ -33,9 +36,8 @@ class CallstatusLoader : public QObject
 
   signals:
     void lastErrorChanged();
-    void connectionNameChanged() const;
-    void started();
-    void finished();
+    void connectionNameChanged();
+    void startedChanged();
     void newInfo( CallstatusInfo *info );
 
 
@@ -48,6 +50,7 @@ class CallstatusLoader : public QObject
 
 
   private slots:
+    void threadStarted();
     void threadFinished();
     void receivedError( QString errorText );
 };

@@ -12,6 +12,7 @@ OrganisationLoader::OrganisationLoader(QObject *parent) :
   connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
   connect( p, SIGNAL(sendInfo(OrganisationInfo*)),
            SIGNAL(newInfo(OrganisationInfo*)) );
+  connect( p, SIGNAL(started()), SLOT(threadStarted()) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
 }
@@ -28,7 +29,7 @@ QString OrganisationLoader::lastError() const
   return p->m__LastError;
 }
 
-const QString & OrganisationLoader::connectionName() const
+QString OrganisationLoader::connectionName()
 {
   if ( p->m__ConnectionName.isEmpty() && !QSqlDatabase::connectionNames().isEmpty() )
   {
@@ -38,7 +39,7 @@ const QString & OrganisationLoader::connectionName() const
   return p->m__ConnectionName;
 }
 
-bool OrganisationLoader::setConnectionName( const QString &connectionName )
+bool OrganisationLoader::setConnectionName( QString connectionName )
 {
   if ( !QSqlDatabase::contains( connectionName ) )
   {
@@ -53,6 +54,11 @@ bool OrganisationLoader::setConnectionName( const QString &connectionName )
   return true;
 }
 
+bool OrganisationLoader::started() const
+{
+  return p->isRunning();
+}
+
 bool OrganisationLoader::load( const QString &filter, bool blockUI )
 {
   if ( p->isRunning() )
@@ -61,7 +67,6 @@ bool OrganisationLoader::load( const QString &filter, bool blockUI )
     return false;
   }
 
-  emit started();
   p->m__Filter = filter;
   p->start();
   if ( blockUI )
@@ -69,10 +74,17 @@ bool OrganisationLoader::load( const QString &filter, bool blockUI )
   else return true;
 }
 
+void OrganisationLoader::threadStarted()
+{
+  p->m__Started = true;
+  emit startedChanged();
+}
+
 void OrganisationLoader::threadFinished()
 {
+  p->m__Started = false;
   loop->exit( ( p->m__Successfully ? 0 : 1 ) );
-  emit finished();
+  emit startedChanged();
 }
 
 void OrganisationLoader::receivedError( QString errorText )
