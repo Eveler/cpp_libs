@@ -178,8 +178,8 @@ QVariant AbstractDocListSaver::saveDocumentToDatabase( MFCDocumentInfo *doc, con
     return QVariant();
   }
   if(!qry.next()){
-    setError(tr("Неизвестная ошибка запроса: %1 QUERY: %2")
-             .arg(qry.lastError().text()).arg(qry.lastQuery()));
+    setError(tr("Тип документа \"%1\" отсутствует в справочнике: %2 QUERY: %3")
+             .arg(doc->type()).arg(qry.lastError().text()).arg(qry.lastQuery()));
     return QVariant();
   }
   QVariant doctype_id=qry.value(0);
