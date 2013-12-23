@@ -12,6 +12,7 @@ ClientLoader::ClientLoader(QObject *parent) :
   connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
   connect( p, SIGNAL(sendInfo(ClientInfo*)),
            SIGNAL(newInfo(ClientInfo*)) );
+  connect( p, SIGNAL(countChanged()), SIGNAL(countChanged()) );
   connect( p, SIGNAL(started()), SLOT(threadStarted()) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
@@ -72,6 +73,11 @@ bool ClientLoader::load( const QString &filter, bool blockUI )
   if ( blockUI )
     return ( loop->exec() == 0 );
   else return true;
+}
+
+int ClientLoader::count() const
+{
+  return p->m__Count;
 }
 
 void ClientLoader::threadStarted()

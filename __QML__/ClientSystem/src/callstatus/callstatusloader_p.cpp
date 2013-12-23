@@ -34,13 +34,39 @@ void CallstatusLoader_P::run()
   QString query;
   if ( m__LoadIdentifier.isValid() )
   {
+    if ( !qry.exec( tr ( "SELECT COUNT(*) FROM call_statuses"
+                         " WHERE id=%1" ).arg( m__LoadIdentifier.toInt() ) ) )
+    {
+      m__Successfully = false;
+      emit sendError( tr( "Query error:\n%1" ).arg( qry.lastError().text() ) );
+      return;
+    }
+    qry.next();
+    m__Count = qry.record().value( 0 ).toInt();
+    emit countChanged();
+    qry.clear();
+
     query = tr( "SELECT id AS identifier, status AS name"
                 " FROM call_statuses"
                 " WHERE id=%1 ORDER BY status" ).arg( m__LoadIdentifier.toInt() );
     m__LoadIdentifier.clear();
   }
-  else query = tr( "SELECT id AS identifier, status AS name"
+  else
+  {
+    if ( !qry.exec( "SELECT COUNT(*) FROM call_statuses" ) )
+    {
+      m__Successfully = false;
+      emit sendError( tr( "Query error:\n%1" ).arg( qry.lastError().text() ) );
+      return;
+    }
+    qry.next();
+    m__Count = qry.record().value( 0 ).toInt();
+    emit countChanged();
+    qry.clear();
+
+    query = tr( "SELECT id AS identifier, status AS name"
                    " FROM call_statuses ORDER BY status" );
+  }
   if ( !qry.exec( query ) )
   {
     m__Successfully = false;
@@ -54,14 +80,18 @@ void CallstatusLoader_P::run()
     info->setName( qry.record().value( tr( "name" ) ).toString() );
     emit sendInfo( info );
   }
+  qry.clear();
+  db.close();
 }
 
 CallstatusLoader_P::CallstatusLoader_P( CallstatusLoader *parent ) :
   QThread(parent),
   m__Successfully(true),
+  m__Started(false),
   m__LastError(QString()),
   m__ConnectionName(QString()),
-  m__LoadIdentifier(QVariant())
+  m__LoadIdentifier(QVariant()),
+  m__Count(0)
 {
 }
 

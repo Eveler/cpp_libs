@@ -21,6 +21,7 @@ class CallstatusLoader_P : public QThread
   signals:
     void sendError( QString errorText );
     void sendInfo( CallstatusInfo * );
+    void countChanged();
 
 
   public slots:
@@ -36,6 +37,7 @@ class CallstatusLoader_P : public QThread
     QString m__LastError;
     QString m__ConnectionName;
     QVariant m__LoadIdentifier;
+    int m__Count;
 
     explicit CallstatusLoader_P( CallstatusLoader *parent );
     ~CallstatusLoader_P();

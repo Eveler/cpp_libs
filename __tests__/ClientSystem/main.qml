@@ -11,40 +11,35 @@ ApplicationWindow {
     width: 500
     height: 350
 
+    BusyIndicator {
+        anchors.centerIn: parent
+        width: 50
+        height: width
+
+        running: ClientSystemSources.started
+    }
+
     Connections {
         target: ClientSystemSources.assessmentLoader
-        onLastErrorChanged: {
-            console.debug( ClientSystemSources.assessmentLoader.lastError )
-        }
-        onStartedChanged: {
-            console.debug( ClientSystemSources.assessmentLoader.started )
-            if ( !ClientSystemSources.assessmentLoader.started )
-                ClientSystemSources.assessmenttypeLoader.load()
-        }
+
+        onLastErrorChanged: console.debug( ClientSystemSources.assessmentLoader.lastError )
     }
     Connections {
         target: ClientSystemSources.assessmenttypeLoader
-        onLastErrorChanged: {
-            console.debug( ClientSystemSources.assessmenttypeLoader.lastError )
-        }
-        onStartedChanged: {
-            console.debug( ClientSystemSources.assessmenttypeLoader.started )
-            if ( !ClientSystemSources.assessmenttypeLoader.started )
-                ClientSystemSources.callstatusLoader.load()
-        }
+
+        onLastErrorChanged: console.debug( ClientSystemSources.assessmenttypeLoader.lastError )
     }
     Connections {
         target: ClientSystemSources.callstatusLoader
-        onLastErrorChanged: {
-            console.debug( ClientSystemSources.callstatusLoader.lastError )
-        }
-        onStartedChanged: {
-            console.debug( ClientSystemSources.callstatusLoader.started )
-        }
+
+        onLastErrorChanged: console.debug( ClientSystemSources.callstatusLoader.lastError )
     }
 
     Component.onCompleted: {
-        console.debug( ClientSystemSources )
-        ClientSystemSources.assessmentLoader.load()
+        ClientSystemSources.enqueue( ClientSystemSources.assessmentLoader )
+        ClientSystemSources.enqueue( ClientSystemSources.assessmenttypeLoader )
+        ClientSystemSources.enqueue( ClientSystemSources.callstatusLoader )
+        ClientSystemSources.enqueue( ClientSystemSources.clientLoader )
+        ClientSystemSources.startQueue()
     }
 }

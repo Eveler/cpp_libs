@@ -6,6 +6,8 @@
 #include <QSqlRecord>
 #include <QSqlField>
 
+#include <QDebug>
+
 
 void AssessmentLoader_P::run()
 {
@@ -31,6 +33,17 @@ void AssessmentLoader_P::run()
     return;
   }
   QSqlQuery qry( db );
+  if ( !qry.exec( tr( "SELECT COUNT(*) FROM assessments%1" )
+                  .arg( ( !m__Filter.isEmpty() ? " WHERE "+m__Filter : "" ) ) ) )
+  {
+    m__Successfully = false;
+    emit sendError( tr( "Query error:\n%1" ).arg( qry.lastError().text() ) );
+    return;
+  }
+  qry.next();
+  m__Count = qry.record().value( 0 ).toInt();
+  emit countChanged();
+  qry.clear();
   if ( !qry.exec( tr( "SELECT id AS identifier, ass_name AS name"
                       " FROM assessments%1 ORDER BY id" )
                   .arg( ( !m__Filter.isEmpty() ? " WHERE "+m__Filter : "" ) ) ) )
@@ -46,13 +59,18 @@ void AssessmentLoader_P::run()
     info->setName( qry.record().value( tr( "name" ) ).toString() );
     emit sendInfo( info );
   }
+  qry.clear();
+  db.close();
 }
 
 AssessmentLoader_P::AssessmentLoader_P( AssessmentLoader *parent ) :
   QThread(parent),
   m__Successfully(true),
+  m__Started(false),
   m__LastError(QString()),
-  m__ConnectionName(QString())
+  m__ConnectionName(QString()),
+  m__Filter(QString()),
+  m__Count(0)
 {
 }
 

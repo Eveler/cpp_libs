@@ -7,9 +7,7 @@ Item {
     property var identifier: undefined
     property string name: ""
 
-    Component.onCompleted: {
-        console.profile()
-        console.trace()
-        console.profileEnd()
-    }
+//    Component.onCompleted: {
+//        console.trace()
+//    }
 }

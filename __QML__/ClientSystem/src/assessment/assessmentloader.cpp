@@ -14,6 +14,7 @@ AssessmentLoader::AssessmentLoader(QObject *parent) :
   connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
   connect( p, SIGNAL(sendInfo(AssessmentInfo*)),
            SIGNAL(newInfo(AssessmentInfo*)) );
+  connect( p, SIGNAL(countChanged()), SIGNAL(countChanged()) );
   connect( p, SIGNAL(started()), SLOT(threadStarted()) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
@@ -74,6 +75,11 @@ bool AssessmentLoader::load( const QString &filter, bool blockUI )
   if ( blockUI )
     return ( loop->exec() == 0 );
   else return true;
+}
+
+int AssessmentLoader::count() const
+{
+  return p->m__Count;
 }
 
 void AssessmentLoader::threadStarted()

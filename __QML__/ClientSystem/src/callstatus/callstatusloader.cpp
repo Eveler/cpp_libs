@@ -12,6 +12,7 @@ CallstatusLoader::CallstatusLoader(QObject *parent) :
   connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
   connect( p, SIGNAL(sendInfo(CallstatusInfo*)),
            SIGNAL(newInfo(CallstatusInfo*)) );
+  connect( p, SIGNAL(countChanged()), SIGNAL(countChanged()) );
   connect( p, SIGNAL(started()), SLOT(threadStarted()) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
@@ -87,6 +88,11 @@ bool CallstatusLoader::load( QVariant identifier, bool blockUI )
   if ( blockUI )
     return ( loop->exec() == 0 );
   else return true;
+}
+
+int CallstatusLoader::count() const
+{
+  return p->m__Count;
 }
 
 void CallstatusLoader::threadStarted()

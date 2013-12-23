@@ -21,6 +21,7 @@ class AssessmentLoader_P : public QThread
   signals:
     void sendError( QString errorText );
     void sendInfo( AssessmentInfo * );
+    void countChanged();
 
 
   public slots:
@@ -36,6 +37,7 @@ class AssessmentLoader_P : public QThread
     QString m__LastError;
     QString m__ConnectionName;
     QString m__Filter;
+    int m__Count;
 
     explicit AssessmentLoader_P( AssessmentLoader *parent );
     ~AssessmentLoader_P();

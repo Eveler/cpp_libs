@@ -2,10 +2,11 @@ import QtQuick 2.2
 
 
 Item {
-    id: assessmenttype
+    id: client
 
     property var identifier: undefined
-    property string name: ""
+    property var organisationIdentifier: undefined
+    property var humanIdentifier: undefined
 
 //    Component.onCompleted: {
 //        console.trace()

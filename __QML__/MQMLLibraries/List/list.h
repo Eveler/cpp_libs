@@ -8,7 +8,10 @@ class List : public QQuickItem
 {
     Q_OBJECT
     Q_DISABLE_COPY(List)
-    Q_PROPERTY(QString propertyName READ propertyName WRITE setPropertyName NOTIFY propertyNameChanged)
+    Q_PROPERTY(QString propertyName READ propertyName
+               WRITE setPropertyName NOTIFY propertyNameChanged)
+    Q_PROPERTY(QString specialObjects READ specialObjects
+               WRITE setSpecialObjects NOTIFY specialObjectsChanged)
     Q_PROPERTY(int length READ length NOTIFY lengthChanged)
     Q_PROPERTY(QList<QObject *> model READ model NOTIFY modelChanged)
 
@@ -20,6 +23,9 @@ class List : public QQuickItem
     QString propertyName() const;
     void setPropertyName( QString propertyName );
 
+    QString specialObjects() const;
+    void setSpecialObjects( QString specialObjects );
+
     int length() const;
     QList<QObject *> model() const;
 
@@ -30,6 +36,7 @@ class List : public QQuickItem
 
   signals:
     void propertyNameChanged();
+    void specialObjectsChanged();
     void lengthChanged();
     void modelChanged();
 
@@ -39,6 +46,7 @@ class List : public QQuickItem
 
   private:
     QString m__PropertyName;
+    QString m__SpecialObjects;
     QVariantList m__PropertyValues;
     QObjectList m__Objects;
 

@@ -17,6 +17,7 @@ class AssessmentLoader : public QObject
     Q_PROPERTY(QString connectionName READ connectionName
                WRITE setConnectionName NOTIFY connectionNameChanged)
     Q_PROPERTY(bool started READ started NOTIFY startedChanged)
+    Q_PROPERTY(int count READ count NOTIFY countChanged)
 
 
   public:
@@ -32,12 +33,15 @@ class AssessmentLoader : public QObject
 
     Q_INVOKABLE bool load( const QString &filter = QString(), bool blockUI = false );
 
+    int count() const;
+
 
   signals:
     void lastErrorChanged();
     void connectionNameChanged();
     void startedChanged();
     void newInfo( AssessmentInfo *info );
+    void countChanged();
 
 
   public slots:

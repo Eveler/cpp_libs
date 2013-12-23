@@ -17,6 +17,7 @@ class CallstatusLoader : public QObject
     Q_PROPERTY(QString connectionName READ connectionName
                WRITE setConnectionName NOTIFY connectionNameChanged)
     Q_PROPERTY(bool started READ started NOTIFY startedChanged)
+    Q_PROPERTY(int count READ count NOTIFY countChanged)
 
 
   public:
@@ -33,12 +34,15 @@ class CallstatusLoader : public QObject
     Q_INVOKABLE bool load( bool blockUI = false );
     Q_INVOKABLE bool load( QVariant identifier, bool blockUI = false );
 
+    int count() const;
+
 
   signals:
     void lastErrorChanged();
     void connectionNameChanged();
     void startedChanged();
     void newInfo( CallstatusInfo *info );
+    void countChanged();
 
 
   public slots:

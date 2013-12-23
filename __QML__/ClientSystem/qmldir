@@ -1,8 +1,6 @@
 module com.mihail.clientsystem
 plugin ClientSystem
 Assessment 1.0 Assessment.qml
-AssessmentList 1.0 AssessmentList.qml
 Assessmenttype 1.0 Assessmenttype.qml
-AssessmenttypeList 1.0 AssessmenttypeList.qml
 Callstatus 1.0 Callstatus.qml
-CallstatusList 1.0 CallstatusList.qml
+Client 1.0 Client.qml

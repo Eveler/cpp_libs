@@ -121,12 +121,10 @@ HEADERS += \
 
 OTHER_FILES = qmldir \
     qml/Assessment.qml \
-    qml/AssessmentList.qml \
     qml/Assessmenttype.qml \
-    qml/AssessmenttypeList.qml \
     qml/Callstatus.qml \
-    qml/CallstatusList.qml \
-    qml/ClientSystemSources.qml
+    qml/ClientSystemSources.qml \
+    qml/Client.qml
 
 !equals(_PRO_FILE_PWD_, $$OUT_PWD) {
     copy_qmldir.target = $$OUT_PWD/qmldir
