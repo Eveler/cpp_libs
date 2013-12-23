@@ -41,7 +41,7 @@ Item {
         property AssessmentLoader assessmentLoader: AssessmentLoader {
             property int interval: 500
             property Timer loader: Timer {
-                interval: 1; running: false; repeat: false
+                interval: 1
                 onTriggered: parent.createObject()
             }
             property bool initiated: false
@@ -100,7 +100,7 @@ Item {
         property AssessmenttypeLoader assessmenttypeLoader: AssessmenttypeLoader {
             property int interval: 500
             property Timer loader: Timer {
-                interval: 1; running: false; repeat: false
+                interval: 1
                 onTriggered: parent.createObject()
             }
             property bool initiated: false
@@ -159,7 +159,7 @@ Item {
         property CallstatusLoader callstatusLoader: CallstatusLoader {
             property int interval: 500
             property Timer loader: Timer {
-                interval: 1; running: false; repeat: false
+                interval: 1
                 onTriggered: parent.createObject()
             }
             property bool initiated: false
@@ -218,7 +218,7 @@ Item {
         property ClientLoader clientLoader: ClientLoader {
             property int interval: 500
             property Timer loader: Timer {
-                interval: 1; running: false; repeat: false
+                interval: 1
                 onTriggered: parent.createObject()
             }
             property bool initiated: false
@@ -278,7 +278,7 @@ Item {
         property DeclarLoader declarLoader: DeclarLoader {
             property int interval: 500
             property Timer loader: Timer {
-                interval: 1; running: false; repeat: false
+                interval: 1
                 onTriggered: parent.createObject()
             }
             property bool initiated: false
