@@ -6,7 +6,7 @@
 #include "declarloader.h"
 #include "declarinfo.h"
 
-#include <QHash>
+#include <QSqlQuery>
 
 
 class DeclarLoader_P : public QThread
@@ -20,7 +20,7 @@ class DeclarLoader_P : public QThread
 
   signals:
     void sendError( QString errorText );
-    void sendInfo( DeclarInfo * );
+    void availableCountChanged();
 
 
   public slots:
@@ -36,11 +36,16 @@ class DeclarLoader_P : public QThread
     QString m__LastError;
     QString m__ConnectionName;
     QString m__Filter;
+    QSqlQuery *m__Query;
+    int m__AvailableCount;
+    int m__ReceivedCount;
 
     explicit DeclarLoader_P( DeclarLoader *parent );
     ~DeclarLoader_P();
 
     DeclarLoader * p_dptr() const;
+
+    DeclarInfo * newInfo();
 };
 
 #endif // DECLARLOADER_P_H

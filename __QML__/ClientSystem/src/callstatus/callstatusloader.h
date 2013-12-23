@@ -36,12 +36,13 @@ class CallstatusLoader : public QObject
 
     int count() const;
 
+    Q_INVOKABLE CallstatusInfo * newInfo();
+
 
   signals:
     void lastErrorChanged();
     void connectionNameChanged();
     void startedChanged();
-    void newInfo( CallstatusInfo *info );
     void countChanged();
 
 

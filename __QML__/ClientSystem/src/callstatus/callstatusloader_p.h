@@ -6,7 +6,7 @@
 #include "callstatusloader.h"
 #include "callstatusinfo.h"
 
-#include <QHash>
+#include <QSqlQuery>
 
 
 class CallstatusLoader_P : public QThread
@@ -20,8 +20,7 @@ class CallstatusLoader_P : public QThread
 
   signals:
     void sendError( QString errorText );
-    void sendInfo( CallstatusInfo * );
-    void countChanged();
+    void availableCountChanged();
 
 
   public slots:
@@ -37,12 +36,16 @@ class CallstatusLoader_P : public QThread
     QString m__LastError;
     QString m__ConnectionName;
     QVariant m__LoadIdentifier;
-    int m__Count;
+    QSqlQuery *m__Query;
+    int m__AvailableCount;
+    int m__ReceivedCount;
 
     explicit CallstatusLoader_P( CallstatusLoader *parent );
     ~CallstatusLoader_P();
 
     CallstatusLoader * p_dptr() const;
+
+    CallstatusInfo * newInfo();
 };
 
 #endif // CALLSTATUSLOADER_P_H

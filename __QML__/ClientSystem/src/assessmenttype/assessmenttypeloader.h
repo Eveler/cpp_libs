@@ -35,12 +35,13 @@ class AssessmenttypeLoader : public QObject
 
     int count() const;
 
+    Q_INVOKABLE AssessmenttypeInfo * newInfo();
+
 
   signals:
     void lastErrorChanged();
     void connectionNameChanged();
     void startedChanged();
-    void newInfo( AssessmenttypeInfo *info );
     void countChanged();
 
 
@@ -50,6 +51,7 @@ class AssessmenttypeLoader : public QObject
   private:
     AssessmenttypeLoader_P *p;
     QEventLoop *loop;
+
 
   private slots:
     void threadStarted();

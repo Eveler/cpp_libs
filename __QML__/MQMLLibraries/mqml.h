@@ -24,6 +24,7 @@ class MQML : public QObject
     Q_INVOKABLE int daysInMonth( QDate date ) const;
     Q_INVOKABLE int daysInMonth( int year, int month ) const;
     Q_INVOKABLE int daysBetween( QDate arg1, QDate arg2 ) const;
+    Q_INVOKABLE qint64 millisecondsBetween( QDateTime arg1, QDateTime arg2 ) const;
 };
 
 QML_DECLARE_TYPE(MQML)

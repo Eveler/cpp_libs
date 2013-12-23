@@ -35,12 +35,13 @@ class ClientLoader : public QObject
 
     int count() const;
 
+    Q_INVOKABLE ClientInfo * newInfo();
+
 
   signals:
     void lastErrorChanged();
     void connectionNameChanged();
     void startedChanged();
-    void newInfo( ClientInfo *info );
     void countChanged();
 
 
@@ -50,6 +51,7 @@ class ClientLoader : public QObject
   private:
     ClientLoader_P *p;
     QEventLoop *loop;
+
 
   private slots:
     void threadStarted();

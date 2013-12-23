@@ -2,7 +2,6 @@
 
 #include <QSqlDatabase>
 #include <QSqlError>
-#include <QSqlQuery>
 #include <QSqlRecord>
 #include <QSqlField>
 
@@ -42,8 +41,9 @@ void CallstatusLoader_P::run()
       return;
     }
     qry.next();
-    m__Count = qry.record().value( 0 ).toInt();
-    emit countChanged();
+    m__AvailableCount = qry.record().value( 0 ).toInt();
+    m__ReceivedCount = 0;
+    emit availableCountChanged();
     qry.clear();
 
     query = tr( "SELECT id AS identifier, status AS name"
@@ -60,28 +60,27 @@ void CallstatusLoader_P::run()
       return;
     }
     qry.next();
-    m__Count = qry.record().value( 0 ).toInt();
-    emit countChanged();
+    m__AvailableCount = qry.record().value( 0 ).toInt();
+    m__ReceivedCount = 0;
+    emit availableCountChanged();
     qry.clear();
 
     query = tr( "SELECT id AS identifier, status AS name"
                    " FROM call_statuses ORDER BY status" );
   }
-  if ( !qry.exec( query ) )
+  if ( m__Query != NULL )
+  {
+    delete m__Query;
+    m__Query = NULL;
+  }
+  if ( m__AvailableCount == 0 ) return;
+  m__Query = new QSqlQuery( db );
+  if ( !m__Query->exec( query ) )
   {
     m__Successfully = false;
-    emit sendError( tr( "Query error:\n%1" ).arg( qry.lastError().text() ) );
+    emit sendError( tr( "Query error:\n%1" ).arg( m__Query->lastError().text() ) );
     return;
   }
-  while ( qry.next() )
-  {
-    CallstatusInfo *info = new CallstatusInfo();
-    info->setIdentifier( qry.record().value( tr( "identifier" ) ) );
-    info->setName( qry.record().value( tr( "name" ) ).toString() );
-    emit sendInfo( info );
-  }
-  qry.clear();
-  db.close();
 }
 
 CallstatusLoader_P::CallstatusLoader_P( CallstatusLoader *parent ) :
@@ -91,15 +90,40 @@ CallstatusLoader_P::CallstatusLoader_P( CallstatusLoader *parent ) :
   m__LastError(QString()),
   m__ConnectionName(QString()),
   m__LoadIdentifier(QVariant()),
-  m__Count(0)
+  m__Query(NULL),
+  m__AvailableCount(0),
+  m__ReceivedCount(0)
 {
 }
 
 CallstatusLoader_P::~CallstatusLoader_P()
 {
+  if ( m__Query != NULL )
+  {
+    delete m__Query;
+    m__Query = NULL;
+  }
 }
 
 CallstatusLoader * CallstatusLoader_P::p_dptr() const
 {
   return qobject_cast<CallstatusLoader *>( parent() );
+}
+
+CallstatusInfo * CallstatusLoader_P::newInfo()
+{
+  if ( m__Query != NULL && m__Query->next() )
+  {
+    CallstatusInfo *info = new CallstatusInfo();
+    info->setIdentifier( m__Query->record().value( tr( "identifier" ) ) );
+    info->setName( m__Query->record().value( tr( "name" ) ).toString() );
+    m__ReceivedCount++;
+    if ( m__ReceivedCount == m__AvailableCount )
+    {
+      delete m__Query;
+      m__Query = NULL;
+    }
+    return info;
+  }
+  return NULL;
 }

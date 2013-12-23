@@ -4,22 +4,27 @@ import QtGraphicalEffects 1.0
 
 Item {
     id: progressBar
-    property real progress: 0.2
+    property real progress: 0.0
+    onProgressChanged: {
+        if ( progress < 0.0 || progress > 1.0 )
+            obj_Information.progress = 0.0
+        else obj_Information.progress = progress
+    }
 
 
     RectangularGlow {
         id: effect1
         anchors.fill: stop1
         property real startPoint: 0.0
-        glowRadius: ( progressBar.progress > startPoint ? 10 : 3 )
+        glowRadius: ( obj_Information.progress > startPoint ? 10 : 3 )
         Behavior on glowRadius {
             NumberAnimation { duration: 150 }
         }
-        spread: ( progressBar.progress > startPoint ? 0.2 : 0.5 )
+        spread: ( obj_Information.progress > startPoint ? 0.2 : 0.5 )
         Behavior on spread {
             NumberAnimation { duration: 150 }
         }
-        color: ( progressBar.progress > startPoint ? "cyan" : "#ff444444" )
+        color: ( obj_Information.progress > startPoint ? "cyan" : "#ff444444" )
         Behavior on color {
             ColorAnimation { duration: 150 }
         }
@@ -30,15 +35,15 @@ Item {
         id: effect2
         anchors.fill: stop2
         property real startPoint: 0.225
-        glowRadius: ( progressBar.progress > startPoint ? 10 : 3 )
+        glowRadius: ( obj_Information.progress > startPoint ? 10 : 3 )
         Behavior on glowRadius {
             NumberAnimation { duration: 150 }
         }
-        spread: ( progressBar.progress > startPoint ? 0.2 : 0.5 )
+        spread: ( obj_Information.progress > startPoint ? 0.2 : 0.5 )
         Behavior on spread {
             NumberAnimation { duration: 150 }
         }
-        color: ( progressBar.progress > startPoint ? "cyan" : "#ff444444" )
+        color: ( obj_Information.progress > startPoint ? "cyan" : "#ff444444" )
         Behavior on color {
             ColorAnimation { duration: 150 }
         }
@@ -49,15 +54,15 @@ Item {
         id: effect3
         anchors.fill: stop3
         property real startPoint: 0.47
-        glowRadius: ( progressBar.progress > startPoint ? 10 : 3 )
+        glowRadius: ( obj_Information.progress > startPoint ? 10 : 3 )
         Behavior on glowRadius {
             NumberAnimation { duration: 150 }
         }
-        spread: ( progressBar.progress > startPoint ? 0.2 : 0.5 )
+        spread: ( obj_Information.progress > startPoint ? 0.2 : 0.5 )
         Behavior on spread {
             NumberAnimation { duration: 150 }
         }
-        color: ( progressBar.progress > startPoint ? "cyan" : "#ff444444" )
+        color: ( obj_Information.progress > startPoint ? "cyan" : "#ff444444" )
         Behavior on color {
             ColorAnimation { duration: 150 }
         }
@@ -68,15 +73,15 @@ Item {
         id: effect4
         anchors.fill: stop4
         property real startPoint: 0.715
-        glowRadius: ( progressBar.progress > startPoint ? 10 : 3 )
+        glowRadius: ( obj_Information.progress > startPoint ? 10 : 3 )
         Behavior on glowRadius {
             NumberAnimation { duration: 150 }
         }
-        spread: ( progressBar.progress > startPoint ? 0.2 : 0.5 )
+        spread: ( obj_Information.progress > startPoint ? 0.2 : 0.5 )
         Behavior on spread {
             NumberAnimation { duration: 150 }
         }
-        color: ( progressBar.progress > startPoint ? "cyan" : "#ff444444" )
+        color: ( obj_Information.progress > startPoint ? "cyan" : "#ff444444" )
         Behavior on color {
             ColorAnimation { duration: 150 }
         }
@@ -87,15 +92,15 @@ Item {
         id: effect5
         anchors.fill: stop5
         property real startPoint: 0.975
-        glowRadius: ( progressBar.progress > startPoint ? 10 : 3 )
+        glowRadius: ( obj_Information.progress > startPoint ? 10 : 3 )
         Behavior on glowRadius {
             NumberAnimation { duration: 150 }
         }
-        spread: ( progressBar.progress > startPoint ? 0.2 : 0.5 )
+        spread: ( obj_Information.progress > startPoint ? 0.2 : 0.5 )
         Behavior on spread {
             NumberAnimation { duration: 150 }
         }
-        color: ( progressBar.progress > startPoint ? "cyan" : "#ff444444" )
+        color: ( obj_Information.progress > startPoint ? "cyan" : "#ff444444" )
         Behavior on color {
             ColorAnimation { duration: 150 }
         }
@@ -143,7 +148,7 @@ Item {
         radius: width/2
         border.color: progressBorder.border.color
         border.width: progressBorder.border.width
-        color: ( progressBar.progress > 0.0 ? "cyan" : "#ffcccccc" )
+        color: ( obj_Information.progress > 0.0 ? "cyan" : "#ffcccccc" )
     }
 
     Rectangle {
@@ -155,7 +160,7 @@ Item {
         radius: width/2
         border.color: progressBorder.border.color
         border.width: progressBorder.border.width
-        color: ( progressBar.progress > 0.225 ? "cyan" : "#ffcccccc" )
+        color: ( obj_Information.progress > 0.225 ? "cyan" : "#ffcccccc" )
     }
 
     Rectangle {
@@ -167,7 +172,7 @@ Item {
         radius: width/2
         border.color: progressBorder.border.color
         border.width: progressBorder.border.width
-        color: ( progressBar.progress > 0.47 ? "cyan" : "#ffcccccc" )
+        color: ( obj_Information.progress > 0.47 ? "cyan" : "#ffcccccc" )
     }
 
     Rectangle {
@@ -179,7 +184,7 @@ Item {
         radius: width/2
         border.color: progressBorder.border.color
         border.width: progressBorder.border.width
-        color: ( progressBar.progress > 0.715 ? "cyan" : "#ffcccccc" )
+        color: ( obj_Information.progress > 0.715 ? "cyan" : "#ffcccccc" )
     }
 
     Rectangle {
@@ -191,7 +196,7 @@ Item {
         radius: width/2
         border.color: progressBorder.border.color
         border.width: progressBorder.border.width
-        color: ( progressBar.progress > 0.975 ? "cyan" : "#ffcccccc" )
+        color: ( obj_Information.progress > 0.975 ? "cyan" : "#ffcccccc" )
     }
 
     Rectangle {
@@ -200,7 +205,7 @@ Item {
         anchors.left: progressBackground.left
         anchors.bottom: progressBackground.bottom
 
-        width: progressBackground.width*progressBar.progress
+        width: progressBackground.width*obj_Information.progress
         Behavior on width {
             NumberAnimation { duration: 150 }
         }
@@ -212,14 +217,14 @@ Item {
     Text {
         anchors.fill: stop1
 
-        property int value: (progressBar.progress*100.0)
+        property int value: (obj_Information.progress*100.0)
 
         text: value+"%"
         font.pixelSize: 8
         font.bold: true
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
-        opacity: ( progressBar.progress <= effect2.startPoint ? 1.0 : 0.0 )
+        opacity: ( obj_Information.progress <= effect2.startPoint ? 1.0 : 0.0 )
         Behavior on opacity {
             NumberAnimation { duration: 150 }
         }
@@ -228,15 +233,15 @@ Item {
     Text {
         anchors.fill: stop2
 
-        property int value: (progressBar.progress*100.0)
+        property int value: (obj_Information.progress*100.0)
 
         text: value+"%"
         font.pixelSize: 8
         font.bold: true
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
-        opacity: ( progressBar.progress > effect2.startPoint &&
-                  progressBar.progress <= effect3.startPoint ? 1.0 : 0.0 )
+        opacity: ( obj_Information.progress > effect2.startPoint &&
+                  obj_Information.progress <= effect3.startPoint ? 1.0 : 0.0 )
         Behavior on opacity {
             NumberAnimation { duration: 150 }
         }
@@ -245,15 +250,15 @@ Item {
     Text {
         anchors.fill: stop3
 
-        property int value: (progressBar.progress*100.0)
+        property int value: (obj_Information.progress*100.0)
 
         text: value+"%"
         font.pixelSize: 8
         font.bold: true
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
-        opacity: ( progressBar.progress > effect3.startPoint &&
-                  progressBar.progress <= effect4.startPoint ? 1.0 : 0.0 )
+        opacity: ( obj_Information.progress > effect3.startPoint &&
+                  obj_Information.progress <= effect4.startPoint ? 1.0 : 0.0 )
         Behavior on opacity {
             NumberAnimation { duration: 150 }
         }
@@ -262,15 +267,15 @@ Item {
     Text {
         anchors.fill: stop4
 
-        property int value: (progressBar.progress*100.0)
+        property int value: (obj_Information.progress*100.0)
 
         text: value+"%"
         font.pixelSize: 8
         font.bold: true
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
-        opacity: ( progressBar.progress > effect4.startPoint &&
-                  progressBar.progress <= effect5.startPoint ? 1.0 : 0.0 )
+        opacity: ( obj_Information.progress > effect4.startPoint &&
+                  obj_Information.progress <= effect5.startPoint ? 1.0 : 0.0 )
         Behavior on opacity {
             NumberAnimation { duration: 150 }
         }
@@ -279,16 +284,22 @@ Item {
     Text {
         anchors.fill: stop5
 
-        property int value: (progressBar.progress*100.0)
+        property int value: (obj_Information.progress*100.0)
 
         text: value+"%"
         font.pixelSize: 8
         font.bold: true
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
-        opacity: ( progressBar.progress > effect5.startPoint ? 1.0 : 0.0 )
+        opacity: ( obj_Information.progress > effect5.startPoint ? 1.0 : 0.0 )
         Behavior on opacity {
             NumberAnimation { duration: 150 }
         }
+    }
+
+    QtObject {
+        id: obj_Information
+
+        property real progress: 0.0
     }
 }

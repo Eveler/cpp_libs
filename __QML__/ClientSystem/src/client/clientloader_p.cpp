@@ -2,7 +2,6 @@
 
 #include <QSqlDatabase>
 #include <QSqlError>
-#include <QSqlQuery>
 #include <QSqlRecord>
 #include <QSqlField>
 
@@ -39,35 +38,27 @@ void ClientLoader_P::run()
     return;
   }
   qry.next();
-  m__Count = qry.record().value( 0 ).toInt();
-  emit countChanged();
+  m__AvailableCount = qry.record().value( 0 ).toInt();
+  m__ReceivedCount = 0;
+  emit availableCountChanged();
   qry.clear();
-  if ( !qry.exec( tr( "SELECT id AS identifier, clid, isorg"
+  if ( m__Query != NULL )
+  {
+    delete m__Query;
+    m__Query = NULL;
+  }
+  if ( m__AvailableCount == 0 ) return;
+  m__Query = new QSqlQuery( db );
+  if ( !m__Query->exec( tr( "SELECT id AS identifier, clid, isorg"
                       " FROM clientlist%1 ORDER BY clname" )
                   .arg( ( !m__Filter.isEmpty() ? " WHERE "+m__Filter : "" ) ) ) )
   {
     m__Successfully = false;
-    emit sendError( tr( "Query error:\n%1" ).arg( qry.lastError().text() ) );
+    emit sendError( tr( "Query error:\n%1" ).arg( m__Query->lastError().text() ) );
+    delete m__Query;
+    m__Query = NULL;
     return;
   }
-  while ( qry.next() )
-  {
-    ClientInfo *info = new ClientInfo();
-    info->setIdentifier( qry.record().value( tr( "identifier" ) ) );
-    if ( qry.record().value( tr( "isorg" ) ).toInt() == 1 )
-    {
-      info->setOrganisationIdentifier( qry.record().value( tr( "clid" ) ).toString() );
-      info->setHumanIdentifier( QVariant() );
-    }
-    else
-    {
-      info->setOrganisationIdentifier( QVariant() );
-      info->setHumanIdentifier( qry.record().value( tr( "clid" ) ).toString() );
-    }
-    emit sendInfo( info );
-  }
-  qry.clear();
-  db.close();
 }
 
 ClientLoader_P::ClientLoader_P( ClientLoader *parent ) :
@@ -77,15 +68,49 @@ ClientLoader_P::ClientLoader_P( ClientLoader *parent ) :
   m__LastError(QString()),
   m__ConnectionName(QString()),
   m__Filter(QString()),
-  m__Count(0)
+  m__Query(NULL),
+  m__AvailableCount(0),
+  m__ReceivedCount(0)
 {
 }
 
 ClientLoader_P::~ClientLoader_P()
 {
+  if ( m__Query != NULL )
+  {
+    delete m__Query;
+    m__Query = NULL;
+  }
 }
 
 ClientLoader * ClientLoader_P::p_dptr() const
 {
   return qobject_cast<ClientLoader *>( parent() );
+}
+
+ClientInfo * ClientLoader_P::newInfo()
+{
+  if ( m__Query != NULL && m__Query->next() )
+  {
+    ClientInfo *info = new ClientInfo();
+    info->setIdentifier( m__Query->record().value( tr( "identifier" ) ) );
+    if ( m__Query->record().value( tr( "isorg" ) ).toInt() == 1 )
+    {
+      info->setOrganisationIdentifier( m__Query->record().value( tr( "clid" ) ).toString() );
+      info->setHumanIdentifier( QVariant() );
+    }
+    else
+    {
+      info->setOrganisationIdentifier( QVariant() );
+      info->setHumanIdentifier( m__Query->record().value( tr( "clid" ) ).toString() );
+    }
+    m__ReceivedCount++;
+    if ( m__ReceivedCount == m__AvailableCount )
+    {
+      delete m__Query;
+      m__Query = NULL;
+    }
+    return info;
+  }
+  return NULL;
 }

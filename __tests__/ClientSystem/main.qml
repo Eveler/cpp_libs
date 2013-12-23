@@ -4,6 +4,7 @@ import QtQuick.Window 2.0
 
 import com.mihail.clientsystem 1.0
 import com.mihail.clientsystemsources 1.0
+import extensions.mihail.mqmllibraries 1.0
 
 
 ApplicationWindow {
@@ -11,12 +12,31 @@ ApplicationWindow {
     width: 500
     height: 350
 
+    Rectangle {
+        anchors.fill: progressBar
+        anchors.margins: -15
+
+        radius: width/3
+        color: "#ff666666"
+    }
+
     BusyIndicator {
-        anchors.centerIn: parent
-        width: 50
+        anchors.verticalCenter: progressBar.verticalCenter
+        anchors.left: progressBar.right
+        anchors.leftMargin: 40
+        width: progressBar.height
         height: width
 
-        running: ClientSystemSources.started
+        running: ClientSystemSources.progress <= 0
+    }
+
+    PointedProgressBar {
+        id: progressBar
+        anchors.centerIn: parent
+        width: 300
+        height: 30
+
+        progress: (ClientSystemSources.progress/100.0)
     }
 
     Connections {
@@ -34,12 +54,23 @@ ApplicationWindow {
 
         onLastErrorChanged: console.debug( ClientSystemSources.callstatusLoader.lastError )
     }
+    Connections {
+        target: ClientSystemSources.clientLoader
+
+        onLastErrorChanged: console.debug( ClientSystemSources.clientLoader.lastError )
+    }
+    Connections {
+        target: ClientSystemSources.declarLoader
+
+        onLastErrorChanged: console.debug( ClientSystemSources.declarLoader.lastError )
+    }
 
     Component.onCompleted: {
         ClientSystemSources.enqueue( ClientSystemSources.assessmentLoader )
         ClientSystemSources.enqueue( ClientSystemSources.assessmenttypeLoader )
         ClientSystemSources.enqueue( ClientSystemSources.callstatusLoader )
         ClientSystemSources.enqueue( ClientSystemSources.clientLoader )
+        ClientSystemSources.enqueue( ClientSystemSources.declarLoader )
         ClientSystemSources.startQueue()
     }
 }

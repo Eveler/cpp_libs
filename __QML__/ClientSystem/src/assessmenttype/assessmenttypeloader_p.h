@@ -6,7 +6,7 @@
 #include "assessmenttypeloader.h"
 #include "assessmenttypeinfo.h"
 
-#include <QHash>
+#include <QSqlQuery>
 
 
 class AssessmenttypeLoader_P : public QThread
@@ -20,8 +20,7 @@ class AssessmenttypeLoader_P : public QThread
 
   signals:
     void sendError( QString errorText );
-    void sendInfo( AssessmenttypeInfo * );
-    void countChanged();
+    void availableCountChanged();
 
 
   public slots:
@@ -37,12 +36,16 @@ class AssessmenttypeLoader_P : public QThread
     QString m__LastError;
     QString m__ConnectionName;
     QString m__Filter;
-    int m__Count;
+    QSqlQuery *m__Query;
+    int m__AvailableCount;
+    int m__ReceivedCount;
 
     explicit AssessmenttypeLoader_P( AssessmenttypeLoader *parent );
     ~AssessmenttypeLoader_P();
 
     AssessmenttypeLoader * p_dptr() const;
+
+    AssessmenttypeInfo * newInfo();
 };
 
 #endif // ASSESSMENTTYPELOADER_P_H

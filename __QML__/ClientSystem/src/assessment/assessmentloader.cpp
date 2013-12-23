@@ -12,9 +12,7 @@ AssessmentLoader::AssessmentLoader(QObject *parent) :
 {
   p = new AssessmentLoader_P( this );
   connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
-  connect( p, SIGNAL(sendInfo(AssessmentInfo*)),
-           SIGNAL(newInfo(AssessmentInfo*)) );
-  connect( p, SIGNAL(countChanged()), SIGNAL(countChanged()) );
+  connect( p, SIGNAL(availableCountChanged()), SIGNAL(countChanged()) );
   connect( p, SIGNAL(started()), SLOT(threadStarted()) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
@@ -64,7 +62,7 @@ bool AssessmentLoader::started() const
 
 bool AssessmentLoader::load( const QString &filter, bool blockUI )
 {
-  if ( p->isRunning() )
+  if ( p->m__Started || p->m__AvailableCount != p->m__ReceivedCount )
   {
     receivedError( tr( "Процесс загрузки списка пользователей занят" ) );
     return false;
@@ -79,7 +77,12 @@ bool AssessmentLoader::load( const QString &filter, bool blockUI )
 
 int AssessmentLoader::count() const
 {
-  return p->m__Count;
+  return p->m__AvailableCount;
+}
+
+AssessmentInfo * AssessmentLoader::newInfo()
+{
+  return p->newInfo();
 }
 
 void AssessmentLoader::threadStarted()
