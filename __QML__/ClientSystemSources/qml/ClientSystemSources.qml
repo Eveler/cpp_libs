@@ -9,7 +9,7 @@ Item {
     id: clientSystemSources
 
     readonly property bool started: obj_Information.queueStarted
-    readonly property int progress: ( obj_Information.currentLoader.count === 0 ?
+    readonly property int progress: ( !obj_Information.currentLoader || obj_Information.currentLoader.count === 0 ?
                                          100 : (obj_Information.currentLoader.receivedCount/obj_Information.currentLoader.count*100.0) )
 
     readonly property List assessmentList: obj_Information.assessmentList

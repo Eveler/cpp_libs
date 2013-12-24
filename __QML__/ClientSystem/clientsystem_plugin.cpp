@@ -1,5 +1,7 @@
 #include "clientsystem_plugin.h"
 
+#include "database.h"
+/// ============================================================================
 #include "user/userinfo.h"
 #include "user/userloader.h"
 /// ============================================================================
@@ -62,7 +64,9 @@ void ClientSystemPlugin::initializeEngine( QQmlEngine *engine, const char *uri )
   ClientPrivateSystem *p = ClientPrivateSystem::instace();
   Q_UNUSED(p);
   QQmlContext *context = engine->rootContext();
-  Q_UNUSED(context);
+
+  Database *database = new Database;
+  context->setContextProperty( "Database", database );
 }
 
 void ClientSystemPlugin::registerTypes(const char *uri)

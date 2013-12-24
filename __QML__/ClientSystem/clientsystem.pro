@@ -62,7 +62,8 @@ SOURCES += \
     src/assessment/assessmentinfo.cpp \
     src/assessmenttype/assessmenttypeloader_p.cpp \
     src/assessmenttype/assessmenttypeloader.cpp \
-    src/assessmenttype/assessmenttypeinfo.cpp
+    src/assessmenttype/assessmenttypeinfo.cpp \
+    src/database.cpp
 
 HEADERS += \
     clientsystem_plugin.h \
@@ -117,7 +118,8 @@ HEADERS += \
     src/assessment/assessmentinfo.h \
     src/assessmenttype/assessmenttypeloader_p.h \
     src/assessmenttype/assessmenttypeloader.h \
-    src/assessmenttype/assessmenttypeinfo.h
+    src/assessmenttype/assessmenttypeinfo.h \
+    src/database.h
 
 OTHER_FILES = qmldir \
     qml/Assessment.qml \
