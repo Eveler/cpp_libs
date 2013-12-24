@@ -48,6 +48,7 @@ bool Database::setConnectionName( QString connectionName )
 
 QDateTime Database::serverTime()
 {
+  QDateTime startTime = QDateTime::currentDateTime();
   QSqlDatabase db = QSqlDatabase::database( connectionName(), false );
   db.open();
   if ( !db.isValid() )
@@ -72,7 +73,9 @@ QDateTime Database::serverTime()
     return QDateTime();
   }
   qry.next();
-  return qry.record().value( 0 ).toDateTime();
+  QDateTime result = qry.record().value( 0 ).toDateTime();
+  result = result.addMSecs( startTime.msecsTo( QDateTime::currentDateTime() )/2 );
+  return result;
 }
 
 void Database::receivedError( QString errorText )

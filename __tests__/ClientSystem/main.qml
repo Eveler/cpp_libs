@@ -73,7 +73,7 @@ ApplicationWindow {
             interval: 100
             running: true
             repeat: true
-            onTriggered: clock.clockTime = MQML.addMSecs( clock.clockTime, interval )
+            onTriggered: clock.clockTime = MQML.addMSecs( new Date(), serverTimeCheck.diff )
         }
     }
     Text {
@@ -90,10 +90,14 @@ ApplicationWindow {
     }
     Timer {
         id: serverTimeCheck
-        interval: 5000
-        repeat: true
+        interval: 600000
 
-        onTriggered: clock.clockTime = Database.serverTime()
+        property int diff: 0
+
+        onTriggered: {
+            diff = MQML.millisecondsBetween( new Date(), Database.serverTime() )
+            start()
+        }
     }
 
 
@@ -137,7 +141,7 @@ ApplicationWindow {
     }
 
     Component.onCompleted: {
-        clock.clockTime = Database.serverTime()
+        serverTimeCheck.diff = MQML.millisecondsBetween( new Date(), Database.serverTime() )
         ClientSystemSources.enqueue( ClientSystemSources.assessmentLoader )
         ClientSystemSources.enqueue( ClientSystemSources.assessmenttypeLoader )
         ClientSystemSources.enqueue( ClientSystemSources.callstatusLoader )
