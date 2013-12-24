@@ -750,8 +750,9 @@ void ElectroDoc_v2::saveToFile(){
      !(m_Document->haveAttachments() || m_Document->havePages()))
     return;
   QString fTypes=tr("Архив ZIP (*.zip)");
-  if(m_Document->havePages()) fTypes+=";;Набор изображений JPEG (*.jpg);;"
-      "Набор изображений PNG (*.png)";
+  if(m_Document->havePages()) fTypes+=tr(";;Файл формата PDF (*.pdf);;"
+      "Набор изображений JPEG (*.jpg);;"
+      "Набор изображений PNG (*.png)");
   QString fName=QFileDialog::getSaveFileName(
         this,tr("Сохранить в..."),"",fTypes);
   if(fName.isEmpty()) return;
@@ -769,24 +770,22 @@ void ElectroDoc_v2::saveToFile(){
     ui->pBar_Scan->setVisible(false);
   }else if(fi.suffix().toLower()=="png" || fi.suffix().toLower()=="jpg" ||
            fi.suffix().toLower()=="jpeg"){
-    if(m_Document->havePages()){
-      // создаём набор файлов "baseName+<page #>.<ext>"
-      ui->pBar_Scan->setVisible( true );
-      ui->pBar_Scan->setMaximum(m_Document->pages()->count());
-      ui->pBar_Scan->setFormat( "Сохранение: %p%" );
-      for(int pIdx = 0; pIdx < m_Document->pages()->count(); pIdx++ )
-      {
-        QPixmap pixmap=QPixmap();
-        MFCDocumentPage *page=m_Document->pages()->getPage(pIdx);
-        pixmap.loadFromData(page->getBody());
-        pixmap.save(
-              fi.absolutePath()+"/"+fi.completeBaseName()+
-              QVariant(pIdx+1).toString()+"."+fi.suffix(),
-              fi.suffix().toLower()=="png"?"PNG":"JPG");
-        ui->pBar_Scan->setValue(pIdx*100/m_Document->pages()->count());
-      }
-      ui->pBar_Scan->setVisible( false );
+    // создаём набор файлов "baseName+<page #>.<ext>"
+    ui->pBar_Scan->setVisible( true );
+    ui->pBar_Scan->setMaximum(m_Document->pages()->count());
+    ui->pBar_Scan->setFormat( "Сохранение: %p%" );
+    for(int pIdx = 0; pIdx < m_Document->pages()->count(); pIdx++ )
+    {
+      QPixmap pixmap=QPixmap();
+      MFCDocumentPage *page=m_Document->pages()->getPage(pIdx);
+      pixmap.loadFromData(page->getBody());
+      pixmap.save(
+            fi.absolutePath()+"/"+fi.completeBaseName()+
+            QVariant(pIdx+1).toString()+"."+fi.suffix(),
+            fi.suffix().toLower()=="png"?"PNG":"JPG");
+      ui->pBar_Scan->setValue(pIdx*100/m_Document->pages()->count());
     }
+    ui->pBar_Scan->setVisible( false );
     if(m_Document->haveAttachments()){
       for(int pIdx = 0; pIdx < m_Document->attachments()->count(); pIdx++ ){
         const DocAttachment &att=m_Document->attachments()->getAttachment(pIdx);
@@ -796,6 +795,30 @@ void ElectroDoc_v2::saveToFile(){
         f.close();
       }
     }
+  }else if(fi.suffix().toLower()=="pdf"){
+    QPrinter printer;
+    printer.setOutputFileName(fi.absoluteFilePath());
+    printer.setPaperSize(QPrinter::A4);
+    printer.setPageMargins(5, 5, 5, 5, QPrinter::Millimeter);
+
+    ui->pBar_Scan->setVisible( true );
+    ui->pBar_Scan->setMaximum(m_Document->pages()->count());
+    ui->pBar_Scan->setFormat( "Сохранение: %p%" );
+
+    QPainter painter;
+    painter.begin(&printer);
+    for(int pIdx=0;pIdx<m_Document->pages()->count();pIdx++){
+      QPixmap pixmap=QPixmap();
+      MFCDocumentPage *page=m_Document->pages()->getPage(pIdx);
+      pixmap.loadFromData(page->getBody());
+      painter.drawPixmap(
+            0, 0, pixmap.scaled(printer.pageRect().size(),
+                                Qt::KeepAspectRatio, Qt::SmoothTransformation));
+      if(pIdx<m_Document->pages()->count()-1) printer.newPage();
+      ui->pBar_Scan->setValue(pIdx*100/m_Document->pages()->count());
+    }
+    painter.end();
+    ui->pBar_Scan->setVisible( false );
   }
 }
 
