@@ -10,8 +10,7 @@ DeclarLoader::DeclarLoader(QObject *parent) :
 {
   p = new DeclarLoader_P( this );
   connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
-  connect( p, SIGNAL(sendInfo(DeclarInfo*)),
-           SIGNAL(newInfo(DeclarInfo*)) );
+  connect( p, SIGNAL(availableCountChanged()), SIGNAL(countChanged()) );
   connect( p, SIGNAL(started()), SLOT(threadStarted()) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
@@ -61,7 +60,7 @@ bool DeclarLoader::started() const
 
 bool DeclarLoader::load( const QString &filter, bool blockUI )
 {
-  if ( p->isRunning() )
+  if ( p->m__Started || p->m__AvailableCount != p->m__ReceivedCount )
   {
     receivedError( tr( "Процесс загрузки списка пользователей занят" ) );
     return false;
@@ -72,6 +71,16 @@ bool DeclarLoader::load( const QString &filter, bool blockUI )
   if ( blockUI )
     return ( loop->exec() == 0 );
   else return true;
+}
+
+int DeclarLoader::count() const
+{
+  return p->m__AvailableCount;
+}
+
+DeclarInfo * DeclarLoader::newInfo()
+{
+  return p->newInfo();
 }
 
 void DeclarLoader::threadStarted()

@@ -10,9 +10,7 @@ ClientLoader::ClientLoader(QObject *parent) :
 {
   p = new ClientLoader_P( this );
   connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
-  connect( p, SIGNAL(sendInfo(ClientInfo*)),
-           SIGNAL(newInfo(ClientInfo*)) );
-  connect( p, SIGNAL(countChanged()), SIGNAL(countChanged()) );
+  connect( p, SIGNAL(availableCountChanged()), SIGNAL(countChanged()) );
   connect( p, SIGNAL(started()), SLOT(threadStarted()) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
@@ -62,7 +60,7 @@ bool ClientLoader::started() const
 
 bool ClientLoader::load( const QString &filter, bool blockUI )
 {
-  if ( p->isRunning() )
+  if ( p->m__Started || p->m__AvailableCount != p->m__ReceivedCount )
   {
     receivedError( tr( "Процесс загрузки списка пользователей занят" ) );
     return false;
@@ -77,7 +75,12 @@ bool ClientLoader::load( const QString &filter, bool blockUI )
 
 int ClientLoader::count() const
 {
-  return p->m__Count;
+  return p->m__AvailableCount;
+}
+
+ClientInfo * ClientLoader::newInfo()
+{
+  return p->newInfo();
 }
 
 void ClientLoader::threadStarted()

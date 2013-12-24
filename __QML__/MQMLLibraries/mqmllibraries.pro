@@ -29,7 +29,8 @@ OTHER_FILES = qmldir \
     Tree/TreeView/TreeItemsList.qml \
     DateInput/DateInput.qml \
     PointedProgressBar/PointedProgressBar.qml \
-    MenuButton/MenuButton.qml
+    MenuButton/MenuButton.qml \
+    Clock/Clock.qml
 
 QT_INSTALL_QML = C:/Qt/Qt5.2.0/5.2.0/mingw48_32/qml
 

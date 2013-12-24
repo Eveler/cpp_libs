@@ -62,7 +62,8 @@ SOURCES += \
     src/assessment/assessmentinfo.cpp \
     src/assessmenttype/assessmenttypeloader_p.cpp \
     src/assessmenttype/assessmenttypeloader.cpp \
-    src/assessmenttype/assessmenttypeinfo.cpp
+    src/assessmenttype/assessmenttypeinfo.cpp \
+    src/database.cpp
 
 HEADERS += \
     clientsystem_plugin.h \
@@ -117,14 +118,16 @@ HEADERS += \
     src/assessment/assessmentinfo.h \
     src/assessmenttype/assessmenttypeloader_p.h \
     src/assessmenttype/assessmenttypeloader.h \
-    src/assessmenttype/assessmenttypeinfo.h
+    src/assessmenttype/assessmenttypeinfo.h \
+    src/database.h
 
 OTHER_FILES = qmldir \
     qml/Assessment.qml \
     qml/Assessmenttype.qml \
     qml/Callstatus.qml \
     qml/ClientSystemSources.qml \
-    qml/Client.qml
+    qml/Client.qml \
+    qml/Declar.qml
 
 !equals(_PRO_FILE_PWD_, $$OUT_PWD) {
     copy_qmldir.target = $$OUT_PWD/qmldir

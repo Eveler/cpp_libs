@@ -35,12 +35,13 @@ class AssessmentLoader : public QObject
 
     int count() const;
 
+    Q_INVOKABLE AssessmentInfo * newInfo();
+
 
   signals:
     void lastErrorChanged();
     void connectionNameChanged();
     void startedChanged();
-    void newInfo( AssessmentInfo *info );
     void countChanged();
 
 

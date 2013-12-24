@@ -6,7 +6,7 @@
 #include "clientloader.h"
 #include "clientinfo.h"
 
-#include <QHash>
+#include <QSqlQuery>
 
 
 class ClientLoader_P : public QThread
@@ -20,8 +20,7 @@ class ClientLoader_P : public QThread
 
   signals:
     void sendError( QString errorText );
-    void sendInfo( ClientInfo * );
-    void countChanged();
+    void availableCountChanged();
 
 
   public slots:
@@ -37,12 +36,16 @@ class ClientLoader_P : public QThread
     QString m__LastError;
     QString m__ConnectionName;
     QString m__Filter;
-    int m__Count;
+    QSqlQuery *m__Query;
+    int m__AvailableCount;
+    int m__ReceivedCount;
 
     explicit ClientLoader_P( ClientLoader *parent );
     ~ClientLoader_P();
 
     ClientLoader * p_dptr() const;
+
+    ClientInfo * newInfo();
 };
 
 #endif // CLIENTLOADER_P_H

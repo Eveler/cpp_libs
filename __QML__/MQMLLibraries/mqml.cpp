@@ -41,3 +41,13 @@ int MQML::daysBetween( QDate arg1, QDate arg2 ) const
 {
   return arg1.daysTo( arg2 );
 }
+
+qint64 MQML::millisecondsBetween( QDateTime arg1, QDateTime arg2 ) const
+{
+  return arg1.msecsTo( arg2 );
+}
+
+QDateTime MQML::addMSecs( QDateTime arg1, int msecs )
+{
+  return arg1.addMSecs( msecs );
+}
