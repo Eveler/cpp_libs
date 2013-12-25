@@ -80,7 +80,7 @@ CONFIG(debug, debug|release){
   UI_DIR = ../temp/$$TARGET/debug
 }
 
-LIBS += -lDossier -lAMSLogger
+LIBS += -lDossier -lAMSLogger -lMFCCore
 win32 {
 LIBS += -lQTwain
 }

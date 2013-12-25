@@ -198,56 +198,61 @@ void DocPagesViewer::setVisiblePage(int pageNum){
 }
 
 void DocPagesViewer::print(QPrinter *printer){
-  if(!doc->havePages()) return;
-  QPainter painter;
-  int count=doc->pages()->count();
+  if(!doc || !doc->havePages()) return;
+
+  QPainter *painter = new QPainter(printer);
+  MFCDocumentPages *pages = doc->pages();
+  int count = pages->count();
 
   // если на какой либо странице есть выделение - печатаем его
   // находим коэф масштабирования из размеров DocPageWidget
   int selectionCount=0;
   foreach(DocPageWidget *l,labels)
     if(l->hasSelection()) selectionCount++;
-  painter.begin(printer);
   int s=0;
-  for(int p=0;p<count;p++){
-    DocPageWidget *l=labels.value(p);
-    if(l==NULL){
-      painter.end();
-      return;
+  if(selectionCount>0){
+//    painter.begin(printer);
+    for(int p=0;p<count;p++){
+      DocPageWidget *l=labels.value(p);
+      if(l==NULL){
+//        painter.end();
+        delete painter;
+        return;
+      }
+      if(l->hasSelection()){
+        qreal factor=(qreal)100/previousScaleValue;
+        QRect selection(factor*l->selectionRect().x(),
+                        factor*l->selectionRect().y(),
+                        factor*l->selectionRect().width(),
+                        factor*l->selectionRect().height());
+        QPixmap pix1=QPixmap();
+        pix1.loadFromData(pages->getPage(p)->getBody());
+        QPixmap pix=QPixmap();
+        pix=pix1.copy(selection);
+        painter->drawPixmap(
+              0, 0, pix.scaled(printer->pageRect().size(),Qt::KeepAspectRatio,
+                               Qt::SmoothTransformation));
+        if(s<selectionCount-1) printer->newPage();
+        s++;
+        emit progress(s,selectionCount);
+        qApp->processEvents();
+      }
     }
-    if(l->hasSelection()){
-      qreal factor=(qreal)100/previousScaleValue;
-      QRect selection(factor*l->selectionRect().x(),
-                      factor*l->selectionRect().y(),
-                      factor*l->selectionRect().width(),
-                      factor*l->selectionRect().height());
-      QPixmap pix1=QPixmap();
-      pix1.loadFromData(doc->pages()->getPage(p)->getBody());
-      QPixmap pix=QPixmap();
-      pix=pix1.copy(selection);
-      pix=pix.scaled(printer->pageRect().size(),Qt::KeepAspectRatio,
-                     Qt::SmoothTransformation);
-      painter.drawPixmap(0,0,pix);
-      if(s<selectionCount-1) printer->newPage();
-      s++;
-      emit progress(s,selectionCount);
-      qApp->processEvents();
-    }
-  }
-  painter.end();
-
-  if(selectionCount==0){
-    painter.begin(printer);
+//    painter.end();
+  }else{
+//    painter.begin(printer);
     for(int p=0;p<count;p++){
       QPixmap pix=QPixmap();
-      pix.loadFromData(doc->pages()->getPage(p)->getBody());
-      pix=pix.scaled(printer->pageRect().size(),Qt::KeepAspectRatio,
-                     Qt::SmoothTransformation);
-      painter.drawPixmap(0,0,pix);
+      pix.loadFromData(pages->getPage(p)->getBody());
+      painter->drawPixmap(
+            0, 0, pix.scaled(printer->pageRect().size(),Qt::KeepAspectRatio,
+                             Qt::SmoothTransformation));
       if(p<count-1) printer->newPage();
       emit progress(p,count);
       qApp->processEvents();
     }
-    painter.end();
+//    painter.end();
   }
+
+  delete painter;
 }
