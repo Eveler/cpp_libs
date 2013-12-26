@@ -14,6 +14,7 @@ ApplicationWindow {
     height: 800
 
     Rectangle {
+        id: background
         anchors.fill: parent
 
         color: "#ff666666"
@@ -52,7 +53,7 @@ ApplicationWindow {
     }
     Text {
         id: clockLabel
-        anchors.top: progressBar.bottom
+        anchors.top: background.top
         anchors.topMargin: 55
         anchors.horizontalCenter: progressBar.horizontalCenter
         color: "white"
@@ -67,6 +68,8 @@ ApplicationWindow {
         anchors.top: clockLabel.bottom
         anchors.topMargin: 5
         anchors.horizontalCenter: clockLabel.horizontalCenter
+        width: 256
+        height: width
 
         Timer {
             id: clockTimer
