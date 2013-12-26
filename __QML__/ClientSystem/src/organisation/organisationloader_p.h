@@ -6,7 +6,7 @@
 #include "organisationloader.h"
 #include "organisationinfo.h"
 
-#include <QHash>
+#include <QSqlQuery>
 
 
 class OrganisationLoader_P : public QThread
@@ -20,7 +20,7 @@ class OrganisationLoader_P : public QThread
 
   signals:
     void sendError( QString errorText );
-    void sendInfo( OrganisationInfo * );
+    void availableCountChanged();
 
 
   public slots:
@@ -36,11 +36,16 @@ class OrganisationLoader_P : public QThread
     QString m__LastError;
     QString m__ConnectionName;
     QString m__Filter;
+    QSqlQuery *m__Query;
+    int m__AvailableCount;
+    int m__ReceivedCount;
 
     explicit OrganisationLoader_P( OrganisationLoader *parent );
     ~OrganisationLoader_P();
 
     OrganisationLoader * p_dptr() const;
+
+    OrganisationInfo * newInfo();
 };
 
 #endif // ORGANISATIONLOADER_P_H

@@ -58,7 +58,7 @@ bool DeclarLoader::started() const
   return p->isRunning();
 }
 
-bool DeclarLoader::load( const QString &filter, bool blockUI )
+bool DeclarLoader::load( QString filter, bool blockUI )
 {
   if ( p->m__Started || p->m__AvailableCount != p->m__ReceivedCount )
   {

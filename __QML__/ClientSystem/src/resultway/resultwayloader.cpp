@@ -10,8 +10,7 @@ ResultwayLoader::ResultwayLoader(QObject *parent) :
 {
   p = new ResultwayLoader_P( this );
   connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
-  connect( p, SIGNAL(sendInfo(ResultwayInfo*)),
-           SIGNAL(newInfo(ResultwayInfo*)) );
+  connect( p, SIGNAL(availableCountChanged()), SIGNAL(countChanged()) );
   connect( p, SIGNAL(started()), SLOT(threadStarted()) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
@@ -59,9 +58,9 @@ bool ResultwayLoader::started() const
   return p->isRunning();
 }
 
-bool ResultwayLoader::load( const QString &filter, bool blockUI )
+bool ResultwayLoader::load( QString filter, bool blockUI )
 {
-  if ( p->isRunning() )
+  if ( p->m__Started || p->m__AvailableCount != p->m__ReceivedCount )
   {
     receivedError( tr( "Процесс загрузки списка пользователей занят" ) );
     return false;
@@ -72,6 +71,16 @@ bool ResultwayLoader::load( const QString &filter, bool blockUI )
   if ( blockUI )
     return ( loop->exec() == 0 );
   else return true;
+}
+
+int ResultwayLoader::count() const
+{
+  return p->m__AvailableCount;
+}
+
+ResultwayInfo * ResultwayLoader::newInfo()
+{
+  return p->newInfo();
 }
 
 void ResultwayLoader::threadStarted()

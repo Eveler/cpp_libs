@@ -22,12 +22,12 @@ void AssessmenttypeInfo::setIdentifier( QVariant identifier )
   m__Identifier = identifier;
 }
 
-const QString & AssessmenttypeInfo::name() const
+QString AssessmenttypeInfo::name() const
 {
   return m__Name;
 }
 
-void AssessmenttypeInfo::setName( const QString &name )
+void AssessmenttypeInfo::setName( QString name )
 {
   m__Name = name;
 }

@@ -24,14 +24,14 @@ class AssessmentLoader : public QObject
     AssessmentLoader(QObject *parent = 0);
     ~AssessmentLoader();
 
-    const QString & lastError() const;
+    QString lastError() const;
 
     QString connectionName();
     bool setConnectionName( QString connectionName );
 
     bool started() const;
 
-    Q_INVOKABLE bool load( const QString &filter = QString(), bool blockUI = false );
+    Q_INVOKABLE bool load( QString filter = QString(), bool blockUI = false );
 
     int count() const;
 

@@ -10,8 +10,7 @@ DoctypeLoader::DoctypeLoader(QObject *parent) :
 {
   p = new DoctypeLoader_P( this );
   connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
-  connect( p, SIGNAL(sendInfo(DoctypeInfo*)),
-           SIGNAL(newInfo(DoctypeInfo*)) );
+  connect( p, SIGNAL(availableCountChanged()), SIGNAL(countChanged()) );
   connect( p, SIGNAL(started()), SLOT(threadStarted()) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
@@ -59,9 +58,9 @@ bool DoctypeLoader::started() const
   return p->isRunning();
 }
 
-bool DoctypeLoader::load( const QString &filter, bool blockUI )
+bool DoctypeLoader::load( QString filter, bool blockUI )
 {
-  if ( p->isRunning() )
+  if ( p->m__Started || p->m__AvailableCount != p->m__ReceivedCount )
   {
     receivedError( tr( "Процесс загрузки списка пользователей занят" ) );
     return false;
@@ -72,6 +71,16 @@ bool DoctypeLoader::load( const QString &filter, bool blockUI )
   if ( blockUI )
     return ( loop->exec() == 0 );
   else return true;
+}
+
+int DoctypeLoader::count() const
+{
+  return p->m__AvailableCount;
+}
+
+DoctypeInfo * DoctypeLoader::newInfo()
+{
+  return p->newInfo();
 }
 
 void DoctypeLoader::threadStarted()

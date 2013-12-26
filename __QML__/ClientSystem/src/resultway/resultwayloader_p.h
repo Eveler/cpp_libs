@@ -6,7 +6,7 @@
 #include "resultwayloader.h"
 #include "resultwayinfo.h"
 
-#include <QHash>
+#include <QSqlQuery>
 
 
 class ResultwayLoader_P : public QThread
@@ -20,7 +20,7 @@ class ResultwayLoader_P : public QThread
 
   signals:
     void sendError( QString errorText );
-    void sendInfo( ResultwayInfo * );
+    void availableCountChanged();
 
 
   public slots:
@@ -36,11 +36,16 @@ class ResultwayLoader_P : public QThread
     QString m__LastError;
     QString m__ConnectionName;
     QString m__Filter;
+    QSqlQuery *m__Query;
+    int m__AvailableCount;
+    int m__ReceivedCount;
 
     explicit ResultwayLoader_P( ResultwayLoader *parent );
     ~ResultwayLoader_P();
 
     ResultwayLoader * p_dptr() const;
+
+    ResultwayInfo * newInfo();
 };
 
 #endif // RESULTWAYLOADER_P_H

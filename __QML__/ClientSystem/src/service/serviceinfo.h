@@ -22,11 +22,11 @@ class ServiceInfo : public QObject
     Q_INVOKABLE QVariant root() const;
     Q_INVOKABLE void setRoot( QVariant root );
 
-    Q_INVOKABLE const QString & sidx() const;
-    Q_INVOKABLE void setSidx( const QString &sidx );
+    Q_INVOKABLE QString sidx() const;
+    Q_INVOKABLE void setSidx( QString sidx );
 
-    Q_INVOKABLE const QString & name() const;
-    Q_INVOKABLE void setName( const QString &name );
+    Q_INVOKABLE QString name() const;
+    Q_INVOKABLE void setName( QString name );
 
     Q_INVOKABLE int deadline() const;
     Q_INVOKABLE void setDeadline( int deadline );

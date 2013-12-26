@@ -30,7 +30,7 @@ class UserLoader : public QObject
 
     bool started() const;
 
-    Q_INVOKABLE bool load( const QString &filter = QString(), bool blockUI = false );
+    Q_INVOKABLE bool load( QString filter = QString(), bool blockUI = false );
 
 
   signals:

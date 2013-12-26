@@ -37,22 +37,22 @@ void ServiceInfo::setRoot( QVariant root )
   m__Root = root;
 }
 
-const QString & ServiceInfo::sidx() const
+QString ServiceInfo::sidx() const
 {
   return m__Sidx;
 }
 
-void ServiceInfo::setSidx( const QString &sidx )
+void ServiceInfo::setSidx( QString sidx )
 {
   m__Sidx = sidx;
 }
 
-const QString & ServiceInfo::name() const
+QString ServiceInfo::name() const
 {
   return m__Name;
 }
 
-void ServiceInfo::setName( const QString &name )
+void ServiceInfo::setName( QString name )
 {
   m__Name = name;
 }

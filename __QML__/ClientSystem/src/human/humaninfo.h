@@ -19,23 +19,23 @@ class HumanInfo : public QObject
     Q_INVOKABLE QVariant identifier() const;
     void setIdentifier( QVariant identifier );
 
-    Q_INVOKABLE const QString & surname() const;
-    Q_INVOKABLE void setSurname( const QString &surname );
+    Q_INVOKABLE QString surname() const;
+    Q_INVOKABLE void setSurname( QString surname );
 
-    Q_INVOKABLE const QString & firstname() const;
-    Q_INVOKABLE void setFirstname( const QString &firstname );
+    Q_INVOKABLE QString firstname() const;
+    Q_INVOKABLE void setFirstname( QString firstname );
 
-    Q_INVOKABLE const QString & lastname() const;
-    Q_INVOKABLE void setLastname( const QString &lastname );
+    Q_INVOKABLE QString lastname() const;
+    Q_INVOKABLE void setLastname( QString lastname );
 
-    Q_INVOKABLE const QString & address() const;
-    Q_INVOKABLE void setAddress( const QString &address );
+    Q_INVOKABLE QString address() const;
+    Q_INVOKABLE void setAddress( QString address );
 
-    Q_INVOKABLE const QString & phone() const;
-    Q_INVOKABLE void setPhone( const QString &phone );
+    Q_INVOKABLE QString phone() const;
+    Q_INVOKABLE void setPhone( QString phone );
 
-    Q_INVOKABLE const QString & email() const;
-    Q_INVOKABLE void setEmail( const QString &email );
+    Q_INVOKABLE QString email() const;
+    Q_INVOKABLE void setEmail( QString email );
 
 
   private:

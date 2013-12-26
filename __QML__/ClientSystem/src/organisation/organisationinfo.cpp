@@ -26,12 +26,12 @@ void OrganisationInfo::setIdentifier( QVariant identifier )
   m__Identifier = identifier;
 }
 
-const QString & OrganisationInfo::fullname() const
+QString OrganisationInfo::fullname() const
 {
   return m__Fullname;
 }
 
-void OrganisationInfo::setFullname( const QString &fullname )
+void OrganisationInfo::setFullname( QString fullname )
 {
   m__Fullname = fullname;
 }
@@ -46,32 +46,32 @@ void OrganisationInfo::setHumanIdentifier( QVariant humanIdentifier )
   m__HumanIdentifier = humanIdentifier;
 }
 
-const QString & OrganisationInfo::address() const
+QString OrganisationInfo::address() const
 {
   return m__Address;
 }
 
-void OrganisationInfo::setAddress( const QString &address )
+void OrganisationInfo::setAddress( QString address )
 {
   m__Address = address;
 }
 
-const QString & OrganisationInfo::phone() const
+QString OrganisationInfo::phone() const
 {
   return m__Phone;
 }
 
-void OrganisationInfo::setPhone( const QString &phone )
+void OrganisationInfo::setPhone( QString phone )
 {
   m__Phone = phone;
 }
 
-const QString & OrganisationInfo::email() const
+QString OrganisationInfo::email() const
 {
   return m__Email;
 }
 
-void OrganisationInfo::setEmail( const QString &email )
+void OrganisationInfo::setEmail( QString email )
 {
   m__Email = email;
 }

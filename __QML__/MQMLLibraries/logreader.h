@@ -17,7 +17,7 @@ class LogReader : public QObject
     LogReader( QObject *parent = NULL );
     ~LogReader();
 
-    Q_INVOKABLE QList<TreeItem *> load( const QString &filePath ) const;
+    Q_INVOKABLE QList<TreeItem *> load( QString filePath ) const;
 };
 
 QML_DECLARE_TYPE(LogReader)

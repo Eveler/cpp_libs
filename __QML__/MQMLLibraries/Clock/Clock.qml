@@ -13,20 +13,20 @@ Item {
         obj_Information.seconds = clockTime.getUTCSeconds();
     }
 
-    Rectangle {
-        anchors.fill: parent
-        anchors.margins: 10
-
-        color: ( obj_Information.night ? "#aa333333" : "#aaffffff" )
-        Behavior on color { ColorAnimation { duration: 200 } }
-
-        radius: width/2
-    }
     Image {
         id: background
         width: parent.width
         height: width
         source: "images/background.png"
+    }
+    Rectangle {
+        anchors.fill: parent
+        anchors.margins: 10
+
+        color: ( obj_Information.night ? "#33333333" : "#33ffffff" )
+        Behavior on color { ColorAnimation { duration: 200 } }
+
+        radius: width/2
     }
 
 

@@ -2,10 +2,10 @@
 
 
 TrusteeInfo::TrusteeInfo() :
-  QObject(NULL),
   m__Identifier(QVariant()),
   m__DeclarIdentifier(QVariant()),
-  m__ClientIdentifiers(QVariantList())
+  m__TrusteeClientIdentifier(QVariant()),
+  m__ClientIdentifier(QVariant())
 {
 }
 
@@ -28,27 +28,22 @@ QVariant TrusteeInfo::declarIdentifier() const
   return m__DeclarIdentifier;
 }
 
-void TrusteeInfo::setDeclarIdentifier( QVariant declarIdentifier )
+QVariant TrusteeInfo::trusteeClientIdentifier() const
 {
-  m__DeclarIdentifier = declarIdentifier;
-}
-QVariantList TrusteeInfo::clientIdentifiers() const
-{
-  return m__ClientIdentifiers;
+  return m__TrusteeClientIdentifier;
 }
 
-void TrusteeInfo::addClientIdentifier( QVariant clientIdentifier )
+void TrusteeInfo::setTrusteeClientIdentifier( QVariant trusteeClientIdentifier )
 {
-  if ( !m__ClientIdentifiers.contains( clientIdentifier ) )
-    m__ClientIdentifiers << clientIdentifier;
+  m__TrusteeClientIdentifier = trusteeClientIdentifier;
 }
 
-void TrusteeInfo::removeClientIdentifier( QVariant clientIdentifier )
+QVariant TrusteeInfo::clientIdentifier() const
 {
-  m__ClientIdentifiers.removeOne( clientIdentifier );
+  return m__ClientIdentifier;
 }
 
-void TrusteeInfo::clearClientIdentifiers()
+void TrusteeInfo::setClientIdentifier( QVariant clientIdentifier )
 {
-  m__ClientIdentifiers.clear();
+  m__ClientIdentifier = clientIdentifier;
 }

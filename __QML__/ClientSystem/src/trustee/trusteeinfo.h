@@ -17,21 +17,23 @@ class TrusteeInfo : public QObject
     ~TrusteeInfo();
 
     Q_INVOKABLE QVariant identifier() const;
-    void setIdentifier( QVariant identifier );
+    Q_INVOKABLE void setIdentifier( QVariant identifier );
 
     Q_INVOKABLE QVariant declarIdentifier() const;
     Q_INVOKABLE void setDeclarIdentifier( QVariant declarIdentifier );
 
-    Q_INVOKABLE QVariantList clientIdentifiers() const;
-    Q_INVOKABLE void addClientIdentifier( QVariant clientIdentifiers );
-    Q_INVOKABLE void removeClientIdentifier( QVariant clientIdentifiers );
-    Q_INVOKABLE void clearClientIdentifiers();
+    Q_INVOKABLE QVariant trusteeClientIdentifier() const;
+    Q_INVOKABLE void setTrusteeClientIdentifier( QVariant trusteeClientIdentifier );
+
+    Q_INVOKABLE QVariant clientIdentifier() const;
+    Q_INVOKABLE void setClientIdentifier( QVariant clientIdentifier );
 
 
   private:
     QVariant m__Identifier;
     QVariant m__DeclarIdentifier;
-    QVariantList m__ClientIdentifiers;
+    QVariant m__TrusteeClientIdentifier;
+    QVariant m__ClientIdentifier;
 };
 
 QML_DECLARE_TYPE(TrusteeInfo)

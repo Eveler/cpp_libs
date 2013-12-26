@@ -6,7 +6,7 @@
 #include "procedureloader.h"
 #include "procedureinfo.h"
 
-#include <QHash>
+#include <QSqlQuery>
 
 
 class ProcedureLoader_P : public QThread
@@ -20,7 +20,7 @@ class ProcedureLoader_P : public QThread
 
   signals:
     void sendError( QString errorText );
-    void sendInfo( ProcedureInfo * );
+    void availableCountChanged();
 
 
   public slots:
@@ -36,11 +36,16 @@ class ProcedureLoader_P : public QThread
     QString m__LastError;
     QString m__ConnectionName;
     QString m__Filter;
+    QSqlQuery *m__Query;
+    int m__AvailableCount;
+    int m__ReceivedCount;
 
     explicit ProcedureLoader_P( ProcedureLoader *parent );
     ~ProcedureLoader_P();
 
     ProcedureLoader * p_dptr() const;
+
+    ProcedureInfo * newInfo();
 };
 
 #endif // PROCEDURELOADER_P_H

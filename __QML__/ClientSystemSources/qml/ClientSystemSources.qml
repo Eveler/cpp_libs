@@ -27,6 +27,36 @@ Item {
     readonly property List declarList: obj_Information.declarList
     readonly property DeclarLoader declarLoader: obj_Information.declarLoader
 
+    readonly property List declarClientList: obj_Information.declarClientList
+    readonly property DeclarClientLoader declarClientLoader: obj_Information.declarClientLoader
+
+    readonly property List departmentList: obj_Information.departmentList
+    readonly property DepartmentLoader departmentLoader: obj_Information.departmentLoader
+
+    readonly property List doctypeList: obj_Information.doctypeList
+    readonly property DoctypeLoader doctypeLoader: obj_Information.doctypeLoader
+
+    readonly property List humanList: obj_Information.humanList
+    readonly property HumanLoader humanLoader: obj_Information.humanLoader
+
+    readonly property List organisationList: obj_Information.organisationList
+    readonly property OrganisationLoader organisationLoader: obj_Information.organisationLoader
+
+    readonly property List procedureList: obj_Information.procedureList
+    readonly property ProcedureLoader procedureLoader: obj_Information.procedureLoader
+
+    readonly property List recipientList: obj_Information.recipientList
+    readonly property RecipientLoader recipientLoader: obj_Information.recipientLoader
+
+    readonly property List resultList: obj_Information.resultList
+    readonly property ResultLoader resultLoader: obj_Information.resultLoader
+
+    readonly property List resultwayList: obj_Information.resultwayList
+    readonly property ResultwayLoader resultwayLoader: obj_Information.resultwayLoader
+
+    readonly property List serviceList: obj_Information.serviceList
+    readonly property ServiceLoader serviceLoader: obj_Information.serviceLoader
+
     QtObject {
         id: obj_Information
 
@@ -81,9 +111,10 @@ Item {
                         if ( obj_Information.assessmentList.specialObjects.length === 0 )
                         {
                             obj_Information.assessmentList.specialObjects =
-                                    obj_Information.className( curItem )
+                                    MQML.className( curItem )
                         }
                         obj_Information.assessmentList.append( curItem );
+                        info.destroy()
                         receivedCount++;
                     }
                     var milliseconds = MQML.millisecondsBetween( creationStarted, new Date() )
@@ -140,9 +171,10 @@ Item {
                         if ( obj_Information.assessmenttypeList.specialObjects.length === 0 )
                         {
                             obj_Information.assessmenttypeList.specialObjects =
-                                    obj_Information.className( curItem )
+                                    MQML.className( curItem )
                         }
                         obj_Information.assessmenttypeList.append( curItem );
+                        info.destroy()
                         receivedCount++;
                     }
                     var milliseconds = MQML.millisecondsBetween( creationStarted, new Date() )
@@ -199,9 +231,10 @@ Item {
                         if ( obj_Information.callstatusList.specialObjects.length === 0 )
                         {
                             obj_Information.callstatusList.specialObjects =
-                                    obj_Information.className( curItem )
+                                    MQML.className( curItem )
                         }
                         obj_Information.callstatusList.append( curItem );
+                        info.destroy()
                         receivedCount++;
                     }
                     var milliseconds = MQML.millisecondsBetween( creationStarted, new Date() )
@@ -259,9 +292,10 @@ Item {
                         if ( obj_Information.clientList.specialObjects.length === 0 )
                         {
                             obj_Information.clientList.specialObjects =
-                                    obj_Information.className( curItem )
+                                    MQML.className( curItem )
                         }
                         obj_Information.clientList.append( curItem );
+                        info.destroy()
                         receivedCount++;
                     }
                     var milliseconds = MQML.millisecondsBetween( creationStarted, new Date() )
@@ -330,13 +364,631 @@ Item {
                                         "resultIdentifier": info.resultIdentifier(),
                                         "assessmentTypeIdentifier": info.assessmentTypeIdentifier(),
                                         "assessmentIdentifier": info.assessmentIdentifier(),
-                                        "resultWayIdentifier": info.resultWayIdentifier()} )
+                                        "resultWayIdentifier": info.resultWayIdentifier(),
+                                        "declarClientIdentifiers": info.declarClientIdentifiers(),
+                                        "declarTrusteeIdentifiers": info.declarTrusteeIdentifiers()} )
                         if ( obj_Information.declarList.specialObjects.length === 0 )
                         {
                             obj_Information.declarList.specialObjects =
-                                    obj_Information.className( curItem )
+                                    MQML.className( curItem )
                         }
                         obj_Information.declarList.append( curItem );
+                        info.destroy()
+                        receivedCount++;
+                    }
+                    var milliseconds = MQML.millisecondsBetween( creationStarted, new Date() )
+                    interval = interval*(25.0/milliseconds)
+                    if ( interval < 1 ) interval = 1
+                    if ( receivedCount < count ) loader.start()
+                }
+                else console.debug( component.errorString() )
+            }
+        }
+        //----------------------------------------------------------------------
+        property Component declarClient: Component{ DeclarClient{} }
+        property List declarClientList: List{}
+        property DeclarClientLoader declarClientLoader: DeclarClientLoader {
+            property int interval: 500
+            property Timer loader: Timer {
+                interval: 1
+                onTriggered: parent.createObject()
+            }
+            property bool initiated: false
+            property int receivedCount: 0
+            readonly property bool finished: ( !started && receivedCount === count )
+            onFinishedChanged: {
+                if ( !initiated )
+                {
+                    initiated = true
+                    return
+                }
+
+                if ( finished )
+                {
+                    console.debug( "loaded count: "+count )
+                    obj_Information.loadNext()
+                }
+            }
+            onStartedChanged: {
+                if ( started || count === 0 ) return;
+
+                createObject()
+            }
+
+            function createObject()
+            {
+                var component = obj_Information.declarClient
+                if ( component.status === Component.Ready )
+                {
+                    var creationStarted = new Date()
+                    for ( var idx = 0; idx < interval && receivedCount < count; idx++ )
+                    {
+                        var info = newInfo()
+                        var curItem = component.createObject(
+                                    obj_Information.declarClientList, {"identifier": info.identifier(),
+                                        "declarIdentifier": info.declarIdentifier(),
+                                        "clientIdentifier": info.clientIdentifier()} )
+                        if ( obj_Information.declarClientList.specialObjects.length === 0 )
+                        {
+                            obj_Information.declarClientList.specialObjects =
+                                    MQML.className( curItem )
+                        }
+                        obj_Information.declarClientList.append( curItem );
+                        info.destroy()
+                        receivedCount++;
+                    }
+                    var milliseconds = MQML.millisecondsBetween( creationStarted, new Date() )
+                    interval = interval*(25.0/milliseconds)
+                    if ( interval < 1 ) interval = 1
+                    if ( receivedCount < count ) loader.start()
+                }
+                else console.debug( component.errorString() )
+            }
+        }
+        //----------------------------------------------------------------------
+        property Component department: Component{ Department{} }
+        property List departmentList: List{}
+        property DepartmentLoader departmentLoader: DepartmentLoader {
+            property int interval: 500
+            property Timer loader: Timer {
+                interval: 1
+                onTriggered: parent.createObject()
+            }
+            property bool initiated: false
+            property int receivedCount: 0
+            readonly property bool finished: ( !started && receivedCount === count )
+            onFinishedChanged: {
+                if ( !initiated )
+                {
+                    initiated = true
+                    return
+                }
+
+                if ( finished )
+                {
+                    console.debug( "loaded count: "+count )
+                    obj_Information.loadNext()
+                }
+            }
+            onStartedChanged: {
+                if ( started || count === 0 ) return;
+
+                createObject()
+            }
+
+            function createObject()
+            {
+                var component = obj_Information.department
+                if ( component.status === Component.Ready )
+                {
+                    var creationStarted = new Date()
+                    for ( var idx = 0; idx < interval && receivedCount < count; idx++ )
+                    {
+                        var info = newInfo()
+                        var curItem = component.createObject(
+                                    obj_Information.departmentList, {"identifier": info.identifier(),
+                                        "name": info.name()} )
+                        if ( obj_Information.departmentList.specialObjects.length === 0 )
+                        {
+                            obj_Information.departmentList.specialObjects =
+                                    MQML.className( curItem )
+                        }
+                        obj_Information.departmentList.append( curItem );
+                        info.destroy()
+                        receivedCount++;
+                    }
+                    var milliseconds = MQML.millisecondsBetween( creationStarted, new Date() )
+                    interval = interval*(25.0/milliseconds)
+                    if ( interval < 1 ) interval = 1
+                    if ( receivedCount < count ) loader.start()
+                }
+                else console.debug( component.errorString() )
+            }
+        }
+        //----------------------------------------------------------------------
+        property Component doctype: Component{ Doctype{} }
+        property List doctypeList: List{}
+        property DoctypeLoader doctypeLoader: DoctypeLoader {
+            property int interval: 500
+            property Timer loader: Timer {
+                interval: 1
+                onTriggered: parent.createObject()
+            }
+            property bool initiated: false
+            property int receivedCount: 0
+            readonly property bool finished: ( !started && receivedCount === count )
+            onFinishedChanged: {
+                if ( !initiated )
+                {
+                    initiated = true
+                    return
+                }
+
+                if ( finished )
+                {
+                    console.debug( "loaded count: "+count )
+                    obj_Information.loadNext()
+                }
+            }
+            onStartedChanged: {
+                if ( started || count === 0 ) return;
+
+                createObject()
+            }
+
+            function createObject()
+            {
+                var component = obj_Information.doctype
+                if ( component.status === Component.Ready )
+                {
+                    var creationStarted = new Date()
+                    for ( var idx = 0; idx < interval && receivedCount < count; idx++ )
+                    {
+                        var info = newInfo()
+                        var curItem = component.createObject(
+                                    obj_Information.doctypeList, {"identifier": info.identifier(),
+                                        "name": info.name()} )
+                        if ( obj_Information.doctypeList.specialObjects.length === 0 )
+                        {
+                            obj_Information.doctypeList.specialObjects =
+                                    MQML.className( curItem )
+                        }
+                        obj_Information.doctypeList.append( curItem );
+                        info.destroy()
+                        receivedCount++;
+                    }
+                    var milliseconds = MQML.millisecondsBetween( creationStarted, new Date() )
+                    interval = interval*(25.0/milliseconds)
+                    if ( interval < 1 ) interval = 1
+                    if ( receivedCount < count ) loader.start()
+                }
+                else console.debug( component.errorString() )
+            }
+        }
+        //----------------------------------------------------------------------
+        property Component human: Component{ Human{} }
+        property List humanList: List{}
+        property HumanLoader humanLoader: HumanLoader {
+            property int interval: 500
+            property Timer loader: Timer {
+                interval: 1
+                onTriggered: parent.createObject()
+            }
+            property bool initiated: false
+            property int receivedCount: 0
+            readonly property bool finished: ( !started && receivedCount === count )
+            onFinishedChanged: {
+                if ( !initiated )
+                {
+                    initiated = true
+                    return
+                }
+
+                if ( finished )
+                {
+                    console.debug( "loaded count: "+count )
+                    obj_Information.loadNext()
+                }
+            }
+            onStartedChanged: {
+                if ( started || count === 0 ) return;
+
+                createObject()
+            }
+
+            function createObject()
+            {
+                var component = obj_Information.human
+                if ( component.status === Component.Ready )
+                {
+                    var creationStarted = new Date()
+                    for ( var idx = 0; idx < interval && receivedCount < count; idx++ )
+                    {
+                        var info = newInfo()
+                        var curItem = component.createObject(
+                                    obj_Information.humanList, {"identifier": info.identifier(),
+                                        "surname": info.surname(),
+                                        "firstname": info.firstname(),
+                                        "lastname": info.lastname(),
+                                        "address": info.address(),
+                                        "phone": info.phone(),
+                                        "email": info.email()} )
+                        if ( obj_Information.humanList.specialObjects.length === 0 )
+                        {
+                            obj_Information.humanList.specialObjects =
+                                    MQML.className( curItem )
+                        }
+                        obj_Information.humanList.append( curItem );
+                        info.destroy()
+                        receivedCount++;
+                    }
+                    var milliseconds = MQML.millisecondsBetween( creationStarted, new Date() )
+                    interval = interval*(25.0/milliseconds)
+                    if ( interval < 1 ) interval = 1
+                    if ( receivedCount < count ) loader.start()
+                }
+                else console.debug( component.errorString() )
+            }
+        }
+        //----------------------------------------------------------------------
+        property Component organisation: Component{ Organisation{} }
+        property List organisationList: List{}
+        property OrganisationLoader organisationLoader: OrganisationLoader {
+            property int interval: 500
+            property Timer loader: Timer {
+                interval: 1
+                onTriggered: parent.createObject()
+            }
+            property bool initiated: false
+            property int receivedCount: 0
+            readonly property bool finished: ( !started && receivedCount === count )
+            onFinishedChanged: {
+                if ( !initiated )
+                {
+                    initiated = true
+                    return
+                }
+
+                if ( finished )
+                {
+                    console.debug( "loaded count: "+count )
+                    obj_Information.loadNext()
+                }
+            }
+            onStartedChanged: {
+                if ( started || count === 0 ) return;
+
+                createObject()
+            }
+
+            function createObject()
+            {
+                var component = obj_Information.organisation
+                if ( component.status === Component.Ready )
+                {
+                    var creationStarted = new Date()
+                    for ( var idx = 0; idx < interval && receivedCount < count; idx++ )
+                    {
+                        var info = newInfo()
+                        var curItem = component.createObject(
+                                    obj_Information.organisationList, {"identifier": info.identifier(),
+                                        "fullname": info.fullname(),
+                                        "humanIdentifier": info.humanIdentifier(),
+                                        "address": info.address(),
+                                        "phone": info.phone(),
+                                        "email": info.email()} )
+                        if ( obj_Information.organisationList.specialObjects.length === 0 )
+                        {
+                            obj_Information.organisationList.specialObjects =
+                                    MQML.className( curItem )
+                        }
+                        obj_Information.organisationList.append( curItem );
+                        info.destroy()
+                        receivedCount++;
+                    }
+                    var milliseconds = MQML.millisecondsBetween( creationStarted, new Date() )
+                    interval = interval*(25.0/milliseconds)
+                    if ( interval < 1 ) interval = 1
+                    if ( receivedCount < count ) loader.start()
+                }
+                else console.debug( component.errorString() )
+            }
+        }
+        //----------------------------------------------------------------------
+        property Component procedure: Component{ Procedure{} }
+        property List procedureList: List{}
+        property ProcedureLoader procedureLoader: ProcedureLoader {
+            property int interval: 500
+            property Timer loader: Timer {
+                interval: 1
+                onTriggered: parent.createObject()
+            }
+            property bool initiated: false
+            property int receivedCount: 0
+            readonly property bool finished: ( !started && receivedCount === count )
+            onFinishedChanged: {
+                if ( !initiated )
+                {
+                    initiated = true
+                    return
+                }
+
+                if ( finished )
+                {
+                    console.debug( "loaded count: "+count )
+                    obj_Information.loadNext()
+                }
+            }
+            onStartedChanged: {
+                if ( started || count === 0 ) return;
+
+                createObject()
+            }
+
+            function createObject()
+            {
+                var component = obj_Information.procedure
+                if ( component.status === Component.Ready )
+                {
+                    var creationStarted = new Date()
+                    for ( var idx = 0; idx < interval && receivedCount < count; idx++ )
+                    {
+                        var info = newInfo()
+                        var curItem = component.createObject(
+                                    obj_Information.procedureList, {"identifier": info.identifier(),
+                                        "name": info.name()} )
+                        if ( obj_Information.procedureList.specialObjects.length === 0 )
+                        {
+                            obj_Information.procedureList.specialObjects =
+                                    MQML.className( curItem )
+                        }
+                        obj_Information.procedureList.append( curItem );
+                        info.destroy()
+                        receivedCount++;
+                    }
+                    var milliseconds = MQML.millisecondsBetween( creationStarted, new Date() )
+                    interval = interval*(25.0/milliseconds)
+                    if ( interval < 1 ) interval = 1
+                    if ( receivedCount < count ) loader.start()
+                }
+                else console.debug( component.errorString() )
+            }
+        }
+        //----------------------------------------------------------------------
+        property Component recipient: Component{ Recipient{} }
+        property List recipientList: List{}
+        property RecipientLoader recipientLoader: RecipientLoader {
+            property int interval: 500
+            property Timer loader: Timer {
+                interval: 1
+                onTriggered: parent.createObject()
+            }
+            property bool initiated: false
+            property int receivedCount: 0
+            readonly property bool finished: ( !started && receivedCount === count )
+            onFinishedChanged: {
+                if ( !initiated )
+                {
+                    initiated = true
+                    return
+                }
+
+                if ( finished )
+                {
+                    console.debug( "loaded count: "+count )
+                    obj_Information.loadNext()
+                }
+            }
+            onStartedChanged: {
+                if ( started || count === 0 ) return;
+
+                createObject()
+            }
+
+            function createObject()
+            {
+                var component = obj_Information.recipient
+                if ( component.status === Component.Ready )
+                {
+                    var creationStarted = new Date()
+                    for ( var idx = 0; idx < interval && receivedCount < count; idx++ )
+                    {
+                        var info = newInfo()
+                        var curItem = component.createObject(
+                                    obj_Information.recipientList, {"identifier": info.identifier(),
+                                        "name": info.name()} )
+                        if ( obj_Information.recipientList.specialObjects.length === 0 )
+                        {
+                            obj_Information.recipientList.specialObjects =
+                                    MQML.className( curItem )
+                        }
+                        obj_Information.recipientList.append( curItem );
+                        info.destroy()
+                        receivedCount++;
+                    }
+                    var milliseconds = MQML.millisecondsBetween( creationStarted, new Date() )
+                    interval = interval*(25.0/milliseconds)
+                    if ( interval < 1 ) interval = 1
+                    if ( receivedCount < count ) loader.start()
+                }
+                else console.debug( component.errorString() )
+            }
+        }
+        //----------------------------------------------------------------------
+        property Component result: Component{ Result{} }
+        property List resultList: List{}
+        property ResultLoader resultLoader: ResultLoader {
+            property int interval: 500
+            property Timer loader: Timer {
+                interval: 1
+                onTriggered: parent.createObject()
+            }
+            property bool initiated: false
+            property int receivedCount: 0
+            readonly property bool finished: ( !started && receivedCount === count )
+            onFinishedChanged: {
+                if ( !initiated )
+                {
+                    initiated = true
+                    return
+                }
+
+                if ( finished )
+                {
+                    console.debug( "loaded count: "+count )
+                    obj_Information.loadNext()
+                }
+            }
+            onStartedChanged: {
+                if ( started || count === 0 ) return;
+
+                createObject()
+            }
+
+            function createObject()
+            {
+                var component = obj_Information.result
+                if ( component.status === Component.Ready )
+                {
+                    var creationStarted = new Date()
+                    for ( var idx = 0; idx < interval && receivedCount < count; idx++ )
+                    {
+                        var info = newInfo()
+                        var curItem = component.createObject(
+                                    obj_Information.resultList, {"identifier": info.identifier(),
+                                        "name": info.name()} )
+                        if ( obj_Information.resultList.specialObjects.length === 0 )
+                        {
+                            obj_Information.resultList.specialObjects =
+                                    MQML.className( curItem )
+                        }
+                        obj_Information.resultList.append( curItem );
+                        info.destroy()
+                        receivedCount++;
+                    }
+                    var milliseconds = MQML.millisecondsBetween( creationStarted, new Date() )
+                    interval = interval*(25.0/milliseconds)
+                    if ( interval < 1 ) interval = 1
+                    if ( receivedCount < count ) loader.start()
+                }
+                else console.debug( component.errorString() )
+            }
+        }
+        //----------------------------------------------------------------------
+        property Component resultway: Component{ Resultway{} }
+        property List resultwayList: List{}
+        property ResultwayLoader resultwayLoader: ResultwayLoader {
+            property int interval: 500
+            property Timer loader: Timer {
+                interval: 1
+                onTriggered: parent.createObject()
+            }
+            property bool initiated: false
+            property int receivedCount: 0
+            readonly property bool finished: ( !started && receivedCount === count )
+            onFinishedChanged: {
+                if ( !initiated )
+                {
+                    initiated = true
+                    return
+                }
+
+                if ( finished )
+                {
+                    console.debug( "loaded count: "+count )
+                    obj_Information.loadNext()
+                }
+            }
+            onStartedChanged: {
+                if ( started || count === 0 ) return;
+
+                createObject()
+            }
+
+            function createObject()
+            {
+                var component = obj_Information.resultway
+                if ( component.status === Component.Ready )
+                {
+                    var creationStarted = new Date()
+                    for ( var idx = 0; idx < interval && receivedCount < count; idx++ )
+                    {
+                        var info = newInfo()
+                        var curItem = component.createObject(
+                                    obj_Information.resultwayList, {"identifier": info.identifier(),
+                                        "name": info.name()} )
+                        if ( obj_Information.resultwayList.specialObjects.length === 0 )
+                        {
+                            obj_Information.resultwayList.specialObjects =
+                                    MQML.className( curItem )
+                        }
+                        obj_Information.resultwayList.append( curItem );
+                        info.destroy()
+                        receivedCount++;
+                    }
+                    var milliseconds = MQML.millisecondsBetween( creationStarted, new Date() )
+                    interval = interval*(25.0/milliseconds)
+                    if ( interval < 1 ) interval = 1
+                    if ( receivedCount < count ) loader.start()
+                }
+                else console.debug( component.errorString() )
+            }
+        }
+        //----------------------------------------------------------------------
+        property Component service: Component{ Service{} }
+        property List serviceList: List{}
+        property ServiceLoader serviceLoader: ServiceLoader {
+            property int interval: 500
+            property Timer loader: Timer {
+                interval: 1
+                onTriggered: parent.createObject()
+            }
+            property bool initiated: false
+            property int receivedCount: 0
+            readonly property bool finished: ( !started && receivedCount === count )
+            onFinishedChanged: {
+                if ( !initiated )
+                {
+                    initiated = true
+                    return
+                }
+
+                if ( finished )
+                {
+                    console.debug( "loaded count: "+count )
+                    obj_Information.loadNext()
+                }
+            }
+            onStartedChanged: {
+                if ( started || count === 0 ) return;
+
+                createObject()
+            }
+
+            function createObject()
+            {
+                var component = obj_Information.service
+                if ( component.status === Component.Ready )
+                {
+                    var creationStarted = new Date()
+                    for ( var idx = 0; idx < interval && receivedCount < count; idx++ )
+                    {
+                        var info = newInfo()
+                        var curItem = component.createObject(
+                                    obj_Information.serviceList, {"identifier": info.identifier(),
+                                        "root": info.root(),
+                                        "sidx": info.sidx(),
+                                        "name": info.name(),
+                                        "deadline": info.deadline(),
+                                        "workdays": info.workdays(),
+                                        "isactive": info.isactive()} )
+                        if ( obj_Information.serviceList.specialObjects.length === 0 )
+                        {
+                            obj_Information.serviceList.specialObjects =
+                                    MQML.className( curItem )
+                        }
+                        obj_Information.serviceList.append( curItem );
+                        info.destroy()
                         receivedCount++;
                     }
                     var milliseconds = MQML.millisecondsBetween( creationStarted, new Date() )
@@ -350,17 +1002,12 @@ Item {
         //======================================================================
 
         //======================================================================
-        function className( object )
-        {
-            return object.toString().split( "(" )[0]
-        }
         function loadNext()
         {
             if ( !queueStarted ) return
 
             if ( obj_Information.queue.length > 0 )
             {
-                console.debug( "\n\n" )
                 currentLoader = clientSystemSources.dequeue()
                 currentLoader.load()
             }
@@ -377,17 +1024,17 @@ Item {
     {
         obj_Information.queue.append( loader )
 
-//        if ( obj_Information.className( loader ) ===
-//                obj_Information.className( obj_Information.assessmentLoader ) )
+//        if ( MQML.className( loader ) ===
+//                MQML.className( obj_Information.assessmentLoader ) )
 //            obj_Information.queue.append( loader )
-//        else if ( obj_Information.className( loader ) ===
-//                 obj_Information.className( obj_Information.assessmenttypeLoader ) )
+//        else if ( MQML.className( loader ) ===
+//                 MQML.className( obj_Information.assessmenttypeLoader ) )
 //             obj_Information.queue.append( loader )
-//        else if ( obj_Information.className( loader ) ===
-//                 obj_Information.className( obj_Information.callstatusLoader ) )
+//        else if ( MQML.className( loader ) ===
+//                 MQML.className( obj_Information.callstatusLoader ) )
 //             obj_Information.queue.append( loader )
-//        else if ( obj_Information.className( loader ) ===
-//                 obj_Information.className( obj_Information.clientLoader ) )
+//        else if ( MQML.className( loader ) ===
+//                 MQML.className( obj_Information.clientLoader ) )
 //             obj_Information.queue.append( loader )
     }
     function dequeue()

@@ -27,7 +27,7 @@ QString AssessmentInfo::name() const
   return m__Name;
 }
 
-void AssessmentInfo::setName( const QString &name )
+void AssessmentInfo::setName( QString name )
 {
   m__Name = name;
 }

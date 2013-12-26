@@ -22,6 +22,8 @@ Item {
     property var assessmentTypeIdentifier: undefined
     property var assessmentIdentifier: undefined
     property var resultWayIdentifier: undefined
+    property var declarClientIdentifiers: undefined
+    property var declarTrusteeIdentifiers: undefined
 
 //    Component.onCompleted: {
 //        console.trace()

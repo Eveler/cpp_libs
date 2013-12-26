@@ -22,12 +22,12 @@ void ProcedureInfo::setIdentifier( QVariant identifier )
   m__Identifier = identifier;
 }
 
-const QString & ProcedureInfo::name() const
+QString ProcedureInfo::name() const
 {
   return m__Name;
 }
 
-void ProcedureInfo::setName( const QString &name )
+void ProcedureInfo::setName( QString name )
 {
   m__Name = name;
 }

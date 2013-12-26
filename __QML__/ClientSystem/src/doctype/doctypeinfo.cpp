@@ -28,12 +28,12 @@ void DoctypeInfo::setIdentifier( QVariant identifier )
   m__Identifier = identifier;
 }
 
-const QString & DoctypeInfo::name() const
+QString DoctypeInfo::name() const
 {
   return m__Name;
 }
 
-void DoctypeInfo::setName( const QString &name )
+void DoctypeInfo::setName( QString name )
 {
   m__Name = name;
 }

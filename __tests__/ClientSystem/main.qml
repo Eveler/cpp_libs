@@ -142,11 +142,22 @@ ApplicationWindow {
 
     Component.onCompleted: {
         serverTimeCheck.diff = MQML.millisecondsBetween( new Date(), Database.serverTime() )
-        ClientSystemSources.enqueue( ClientSystemSources.assessmentLoader )
-        ClientSystemSources.enqueue( ClientSystemSources.assessmenttypeLoader )
-        ClientSystemSources.enqueue( ClientSystemSources.callstatusLoader )
-        ClientSystemSources.enqueue( ClientSystemSources.clientLoader )
-        ClientSystemSources.enqueue( ClientSystemSources.declarLoader )
+//        ClientSystemSources.enqueue( ClientSystemSources.assessmentLoader )
+//        ClientSystemSources.enqueue( ClientSystemSources.assessmenttypeLoader )
+//        ClientSystemSources.enqueue( ClientSystemSources.callstatusLoader )
+//        ClientSystemSources.enqueue( ClientSystemSources.clientLoader )
+//        ClientSystemSources.enqueue( ClientSystemSources.declarLoader )
+//        ClientSystemSources.enqueue( ClientSystemSources.declarLoader )
+//        ClientSystemSources.enqueue( ClientSystemSources.declarClientLoader )
+//        ClientSystemSources.enqueue( ClientSystemSources.departmentLoader )
+//        ClientSystemSources.enqueue( ClientSystemSources.doctypeLoader )
+//        ClientSystemSources.enqueue( ClientSystemSources.humanLoader )
+//        ClientSystemSources.enqueue( ClientSystemSources.organisationLoader )
+//        ClientSystemSources.enqueue( ClientSystemSources.procedureLoader )
+//        ClientSystemSources.enqueue( ClientSystemSources.recipientLoader )
+//        ClientSystemSources.enqueue( ClientSystemSources.resultLoader )
+//        ClientSystemSources.enqueue( ClientSystemSources.resultwayLoader )
+//        ClientSystemSources.enqueue( ClientSystemSources.serviceLoader )
         ClientSystemSources.startQueue()
     }
 }

@@ -22,12 +22,12 @@ void ResultInfo::setIdentifier( QVariant identifier )
   m__Identifier = identifier;
 }
 
-const QString & ResultInfo::name() const
+QString ResultInfo::name() const
 {
   return m__Name;
 }
 
-void ResultInfo::setName( const QString &name )
+void ResultInfo::setName( QString name )
 {
   m__Name = name;
 }

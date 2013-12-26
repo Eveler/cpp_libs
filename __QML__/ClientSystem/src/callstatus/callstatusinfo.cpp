@@ -22,12 +22,12 @@ void CallstatusInfo::setIdentifier( QVariant identifier )
   m__Identifier = identifier;
 }
 
-const QString & CallstatusInfo::name() const
+QString CallstatusInfo::name() const
 {
   return m__Name;
 }
 
-void CallstatusInfo::setName( const QString &name )
+void CallstatusInfo::setName( QString name )
 {
   m__Name = name;
 }

@@ -127,7 +127,19 @@ OTHER_FILES = qmldir \
     qml/Callstatus.qml \
     qml/ClientSystemSources.qml \
     qml/Client.qml \
-    qml/Declar.qml
+    qml/Declar.qml \
+    qml/DeclarClient.qml \
+    qml/Department.qml \
+    qml/Doctype.qml \
+    qml/Human.qml \
+    qml/Organisation.qml \
+    qml/Procedure.qml \
+    qml/Recipient.qml \
+    qml/Result.qml \
+    qml/Resultway.qml \
+    qml/Service.qml \
+    qml/DeclarTrustee.qml \
+    qml/Trustee.qml
 
 !equals(_PRO_FILE_PWD_, $$OUT_PWD) {
     copy_qmldir.target = $$OUT_PWD/qmldir

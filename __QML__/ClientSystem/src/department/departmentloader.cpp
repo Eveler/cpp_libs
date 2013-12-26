@@ -10,8 +10,7 @@ DepartmentLoader::DepartmentLoader(QObject *parent) :
 {
   p = new DepartmentLoader_P( this );
   connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
-  connect( p, SIGNAL(sendInfo(DepartmentInfo*)),
-           SIGNAL(newInfo(DepartmentInfo*)) );
+  connect( p, SIGNAL(availableCountChanged()), SIGNAL(countChanged()) );
   connect( p, SIGNAL(started()), SLOT(threadStarted()) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
@@ -59,9 +58,9 @@ bool DepartmentLoader::started() const
   return p->isRunning();
 }
 
-bool DepartmentLoader::load( const QString &filter, bool blockUI )
+bool DepartmentLoader::load( QString filter, bool blockUI )
 {
-  if ( p->isRunning() )
+  if ( p->m__Started || p->m__AvailableCount != p->m__ReceivedCount )
   {
     receivedError( tr( "Процесс загрузки списка пользователей занят" ) );
     return false;
@@ -72,6 +71,16 @@ bool DepartmentLoader::load( const QString &filter, bool blockUI )
   if ( blockUI )
     return ( loop->exec() == 0 );
   else return true;
+}
+
+int DepartmentLoader::count() const
+{
+  return p->m__AvailableCount;
+}
+
+DepartmentInfo * DepartmentLoader::newInfo()
+{
+  return p->newInfo();
 }
 
 void DepartmentLoader::threadStarted()

@@ -10,6 +10,12 @@ MQML::MQML(QObject *parent) :
 {
 }
 
+QString MQML::className( QObject *obj ) const
+{
+  if ( obj == NULL ) return QString();
+  return obj->metaObject()->className();
+}
+
 TreeItem * MQML::createTreeItem( QVariant value ) const
 {
   TreeItem *result = new TreeItem;

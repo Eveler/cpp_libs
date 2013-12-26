@@ -25,7 +25,7 @@ AssessmentLoader::~AssessmentLoader()
   p = NULL;
 }
 
-const QString &AssessmentLoader::lastError() const
+QString AssessmentLoader::lastError() const
 {
   return p->m__LastError;
 }
@@ -60,7 +60,7 @@ bool AssessmentLoader::started() const
   return p->isRunning();
 }
 
-bool AssessmentLoader::load( const QString &filter, bool blockUI )
+bool AssessmentLoader::load( QString filter, bool blockUI )
 {
   if ( p->m__Started || p->m__AvailableCount != p->m__ReceivedCount )
   {

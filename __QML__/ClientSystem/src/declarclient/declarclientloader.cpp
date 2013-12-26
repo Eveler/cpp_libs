@@ -10,8 +10,7 @@ DeclarClientLoader::DeclarClientLoader(QObject *parent) :
 {
   p = new DeclarClientLoader_P( this );
   connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
-  connect( p, SIGNAL(sendInfo(DeclarClientInfo*)),
-           SIGNAL(newInfo(DeclarClientInfo*)) );
+  connect( p, SIGNAL(availableCountChanged()), SIGNAL(countChanged()) );
   connect( p, SIGNAL(started()), SLOT(threadStarted()) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
@@ -59,9 +58,9 @@ bool DeclarClientLoader::started() const
   return p->isRunning();
 }
 
-bool DeclarClientLoader::load( const QString &filter, bool blockUI )
+bool DeclarClientLoader::load( QString filter, bool blockUI )
 {
-  if ( p->isRunning() )
+  if ( p->m__Started || p->m__AvailableCount != p->m__ReceivedCount )
   {
     receivedError( tr( "Процесс загрузки списка пользователей занят" ) );
     return false;
@@ -72,6 +71,16 @@ bool DeclarClientLoader::load( const QString &filter, bool blockUI )
   if ( blockUI )
     return ( loop->exec() == 0 );
   else return true;
+}
+
+int DeclarClientLoader::count() const
+{
+  return p->m__AvailableCount;
+}
+
+DeclarClientInfo * DeclarClientLoader::newInfo()
+{
+  return p->newInfo();
 }
 
 void DeclarClientLoader::threadStarted()

@@ -10,8 +10,7 @@ TrusteeLoader::TrusteeLoader(QObject *parent) :
 {
   p = new TrusteeLoader_P( this );
   connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
-  connect( p, SIGNAL(sendInfo(TrusteeInfo*)),
-           SIGNAL(newInfo(TrusteeInfo*)) );
+  connect( p, SIGNAL(availableCountChanged()), SIGNAL(countChanged()) );
   connect( p, SIGNAL(started()), SLOT(threadStarted()) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
@@ -59,9 +58,9 @@ bool TrusteeLoader::started() const
   return p->isRunning();
 }
 
-bool TrusteeLoader::load( const QString &filter, bool blockUI )
+bool TrusteeLoader::load( QString filter, bool blockUI )
 {
-  if ( p->isRunning() )
+  if ( p->m__Started || p->m__AvailableCount != p->m__ReceivedCount )
   {
     receivedError( tr( "Процесс загрузки списка пользователей занят" ) );
     return false;
@@ -72,6 +71,16 @@ bool TrusteeLoader::load( const QString &filter, bool blockUI )
   if ( blockUI )
     return ( loop->exec() == 0 );
   else return true;
+}
+
+int TrusteeLoader::count() const
+{
+  return p->m__AvailableCount;
+}
+
+TrusteeInfo * TrusteeLoader::newInfo()
+{
+  return p->newInfo();
 }
 
 void TrusteeLoader::threadStarted()

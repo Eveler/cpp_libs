@@ -10,8 +10,7 @@ OrganisationLoader::OrganisationLoader(QObject *parent) :
 {
   p = new OrganisationLoader_P( this );
   connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
-  connect( p, SIGNAL(sendInfo(OrganisationInfo*)),
-           SIGNAL(newInfo(OrganisationInfo*)) );
+  connect( p, SIGNAL(availableCountChanged()), SIGNAL(countChanged()) );
   connect( p, SIGNAL(started()), SLOT(threadStarted()) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
@@ -59,9 +58,9 @@ bool OrganisationLoader::started() const
   return p->isRunning();
 }
 
-bool OrganisationLoader::load( const QString &filter, bool blockUI )
+bool OrganisationLoader::load( QString filter, bool blockUI )
 {
-  if ( p->isRunning() )
+  if ( p->m__Started || p->m__AvailableCount != p->m__ReceivedCount )
   {
     receivedError( tr( "Процесс загрузки списка пользователей занят" ) );
     return false;
@@ -72,6 +71,16 @@ bool OrganisationLoader::load( const QString &filter, bool blockUI )
   if ( blockUI )
     return ( loop->exec() == 0 );
   else return true;
+}
+
+int OrganisationLoader::count() const
+{
+  return p->m__AvailableCount;
+}
+
+OrganisationInfo * OrganisationLoader::newInfo()
+{
+  return p->newInfo();
 }
 
 void OrganisationLoader::threadStarted()

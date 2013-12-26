@@ -6,7 +6,7 @@
 #include "recipientloader.h"
 #include "recipientinfo.h"
 
-#include <QHash>
+#include <QSqlQuery>
 
 
 class RecipientLoader_P : public QThread
@@ -20,7 +20,7 @@ class RecipientLoader_P : public QThread
 
   signals:
     void sendError( QString errorText );
-    void sendInfo( RecipientInfo * );
+    void availableCountChanged();
 
 
   public slots:
@@ -36,11 +36,16 @@ class RecipientLoader_P : public QThread
     QString m__LastError;
     QString m__ConnectionName;
     QString m__Filter;
+    QSqlQuery *m__Query;
+    int m__AvailableCount;
+    int m__ReceivedCount;
 
     explicit RecipientLoader_P( RecipientLoader *parent );
     ~RecipientLoader_P();
 
     RecipientLoader * p_dptr() const;
+
+    RecipientInfo * newInfo();
 };
 
 #endif // RECIPIENTLOADER_P_H

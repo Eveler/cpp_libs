@@ -58,7 +58,7 @@ bool AssessmenttypeLoader::started() const
   return p->isRunning();
 }
 
-bool AssessmenttypeLoader::load( const QString &filter, bool blockUI )
+bool AssessmenttypeLoader::load( QString filter, bool blockUI )
 {
   if ( p->m__Started || p->m__AvailableCount != p->m__ReceivedCount )
   {

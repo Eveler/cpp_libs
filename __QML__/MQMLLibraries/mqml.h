@@ -17,6 +17,8 @@ class MQML : public QObject
   public:
     explicit MQML(QObject *parent = 0);
 
+    Q_INVOKABLE QString className( QObject *obj ) const;
+
     Q_INVOKABLE TreeItem * createTreeItem( QVariant value = QVariant() ) const;
 
     Q_INVOKABLE QDate invalidDate() const;

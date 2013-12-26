@@ -10,8 +10,7 @@ RecipientLoader::RecipientLoader(QObject *parent) :
 {
   p = new RecipientLoader_P( this );
   connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
-  connect( p, SIGNAL(sendInfo(RecipientInfo*)),
-           SIGNAL(newInfo(RecipientInfo*)) );
+  connect( p, SIGNAL(availableCountChanged()), SIGNAL(countChanged()) );
   connect( p, SIGNAL(started()), SLOT(threadStarted()) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
@@ -59,9 +58,9 @@ bool RecipientLoader::started() const
   return p->isRunning();
 }
 
-bool RecipientLoader::load( const QString &filter, bool blockUI )
+bool RecipientLoader::load( QString filter, bool blockUI )
 {
-  if ( p->isRunning() )
+  if ( p->m__Started || p->m__AvailableCount != p->m__ReceivedCount )
   {
     receivedError( tr( "Процесс загрузки списка пользователей занят" ) );
     return false;
@@ -72,6 +71,16 @@ bool RecipientLoader::load( const QString &filter, bool blockUI )
   if ( blockUI )
     return ( loop->exec() == 0 );
   else return true;
+}
+
+int RecipientLoader::count() const
+{
+  return p->m__AvailableCount;
+}
+
+RecipientInfo * RecipientLoader::newInfo()
+{
+  return p->newInfo();
 }
 
 void RecipientLoader::threadStarted()

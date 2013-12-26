@@ -59,7 +59,7 @@ bool UserLoader::started() const
   return p->isRunning();
 }
 
-bool UserLoader::load( const QString &filter, bool blockUI )
+bool UserLoader::load( QString filter, bool blockUI )
 {
   if ( p->isRunning() )
   {

@@ -13,7 +13,7 @@ LogReader::~LogReader()
 {
 }
 
-QList<TreeItem *> LogReader::load( const QString &filePath ) const
+QList<TreeItem *> LogReader::load( QString filePath ) const
 {
   QList<TreeItem *> result;
 

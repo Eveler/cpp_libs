@@ -30,32 +30,32 @@ void UserInfo::setIdentifier( QVariant identifier )
   m__Identifier = identifier;
 }
 
-const QString & UserInfo::surname() const
+QString UserInfo::surname() const
 {
   return m__Surname;
 }
 
-void UserInfo::setSurname( const QString &surname )
+void UserInfo::setSurname( QString surname )
 {
   m__Surname = surname;
 }
 
-const QString & UserInfo::firstname() const
+QString UserInfo::firstname() const
 {
   return m__Firstname;
 }
 
-void UserInfo::setFirstname( const QString &firstname )
+void UserInfo::setFirstname( QString firstname )
 {
   m__Firstname = firstname;
 }
 
-const QString & UserInfo::lastname() const
+QString UserInfo::lastname() const
 {
   return m__Lastname;
 }
 
-void UserInfo::setLastname( const QString &lastname )
+void UserInfo::setLastname( QString lastname )
 {
   m__Lastname = lastname;
 }
@@ -100,12 +100,12 @@ void UserInfo::setDismissed( bool dismissed )
   m__Dismissed = dismissed;
 }
 
-const QString & UserInfo::dblogin() const
+QString UserInfo::dblogin() const
 {
   return m__Dblogin;
 }
 
-void UserInfo::setDblogin( const QString &dblogin )
+void UserInfo::setDblogin( QString dblogin )
 {
   m__Dblogin = dblogin;
 }

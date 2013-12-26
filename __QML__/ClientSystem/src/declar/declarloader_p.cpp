@@ -51,14 +51,16 @@ void DeclarLoader_P::run()
   if ( m__AvailableCount == 0 ) return;
   m__Query = new QSqlQuery( db );
   if ( !m__Query->exec( tr( "SELECT id AS identifier, srvid AS serviceIdentifier,"
-                      " declarnum AS number, datein AS createDate, ctrldate AS controlDate,"
-                      " respite_date AS respiteDate, enddate AS closeDate,"
-                      " addr AS firstLandmark, addr1 AS lastLandmark,"
-                      " upravlenieid AS directionIdentifier, responsible AS responsibleIdentifier,"
-                      " decowner AS ownerIdentifier, isnew, deleted, resultsid AS resultIdentifier,"
-                      " assessment_type_id AS assessmentTypeIdentifier, assessment_id AS assessmentIdentifier,"
-                      " result_ways_id AS resultWayIdentifier"
-                      " FROM declars%1 ORDER BY declarnum" )
+                            " declarnum AS number, datein AS createDate, ctrldate AS controlDate,"
+                            " respite_date AS respiteDate, enddate AS closeDate,"
+                            " addr AS firstLandmark, addr1 AS lastLandmark,"
+                            " upravlenieid AS directionIdentifier, responsible AS responsibleIdentifier,"
+                            " decowner AS ownerIdentifier, isnew, deleted, resultsid AS resultIdentifier,"
+                            " assessment_type_id AS assessmentTypeIdentifier, assessment_id AS assessmentIdentifier,"
+                            " result_ways_id AS resultWayIdentifier,"
+                            " array_to_string(ARRAY(SELECT dc.id FROM declar_clients dc WHERE d.id=dc.declar_id), ';') AS declarClientIdentifiers,"
+                            " array_to_string(ARRAY(SELECT dt.id FROM declar_trustees dt WHERE d.id=dt.declar_id), ';') AS declarTrusteeIdentifiers"
+                            " FROM declars d%1 ORDER BY declarnum" )
                   .arg( ( !m__Filter.isEmpty() ? " WHERE "+m__Filter : "" ) ) ) )
   {
     m__Successfully = false;
@@ -117,6 +119,14 @@ DeclarInfo * DeclarLoader_P::newInfo()
     info->setAssessmentTypeIdentifier( m__Query->record().value( tr( "assessmentTypeIdentifier" ) ) );
     info->setAssessmentIdentifier( m__Query->record().value( tr( "assessmentIdentifier" ) ) );
     info->setResultWayIdentifier( m__Query->record().value( tr( "resultWayIdentifier" ) ) );
+    QList<QVariant> identifiers;
+    foreach ( QString identifier, m__Query->record().value( tr( "declarClientIdentifiers" ) ).toString().split( ";" ) )
+      identifiers << identifier.toInt();
+    info->setDeclarClientIdentifiers( identifiers );
+    identifiers.clear();
+    foreach ( QString identifier, m__Query->record().value( tr( "declarTrusteeIdentifiers" ) ).toString().split( ";" ) )
+      identifiers << identifier.toInt();
+    info->setDeclarTrusteeIdentifiers( identifiers );
     m__ReceivedCount++;
     if ( m__ReceivedCount == m__AvailableCount )
     {

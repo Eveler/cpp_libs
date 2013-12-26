@@ -58,7 +58,7 @@ bool ClientLoader::started() const
   return p->isRunning();
 }
 
-bool ClientLoader::load( const QString &filter, bool blockUI )
+bool ClientLoader::load( QString filter, bool blockUI )
 {
   if ( p->m__Started || p->m__AvailableCount != p->m__ReceivedCount )
   {

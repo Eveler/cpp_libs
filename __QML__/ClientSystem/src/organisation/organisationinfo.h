@@ -19,20 +19,20 @@ class OrganisationInfo : public QObject
     Q_INVOKABLE QVariant identifier() const;
     void setIdentifier( QVariant identifier );
 
-    Q_INVOKABLE const QString & fullname() const;
-    Q_INVOKABLE void setFullname( const QString &fullname );
+    Q_INVOKABLE QString fullname() const;
+    Q_INVOKABLE void setFullname( QString fullname );
 
     Q_INVOKABLE QVariant humanIdentifier() const;
     Q_INVOKABLE void setHumanIdentifier( QVariant humanIdentifier );
 
-    Q_INVOKABLE const QString & address() const;
-    Q_INVOKABLE void setAddress( const QString &address );
+    Q_INVOKABLE QString address() const;
+    Q_INVOKABLE void setAddress( QString address );
 
-    Q_INVOKABLE const QString & phone() const;
-    Q_INVOKABLE void setPhone( const QString &phone );
+    Q_INVOKABLE QString phone() const;
+    Q_INVOKABLE void setPhone( QString phone );
 
-    Q_INVOKABLE const QString & email() const;
-    Q_INVOKABLE void setEmail( const QString &email );
+    Q_INVOKABLE QString email() const;
+    Q_INVOKABLE void setEmail( QString email );
 
 
   private:

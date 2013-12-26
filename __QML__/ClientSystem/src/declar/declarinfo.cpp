@@ -98,22 +98,22 @@ void DeclarInfo::setCloseDate( QDateTime closeDate )
   m__CloseDate = closeDate;
 }
 
-const QString & DeclarInfo::firstLandmark() const
+QString DeclarInfo::firstLandmark() const
 {
   return m__FirstLandmark;
 }
 
-void DeclarInfo::setFirstLandmark( const QString &firstLandmark )
+void DeclarInfo::setFirstLandmark( QString firstLandmark )
 {
   m__FirstLandmark = firstLandmark;
 }
 
-const QString & DeclarInfo::lastLandmark() const
+QString DeclarInfo::lastLandmark() const
 {
   return m__LastLandmark;
 }
 
-void DeclarInfo::setLastLandmark( const QString &lastLandmark )
+void DeclarInfo::setLastLandmark( QString lastLandmark )
 {
   m__LastLandmark = lastLandmark;
 }
@@ -206,4 +206,24 @@ QVariant DeclarInfo::resultWayIdentifier() const
 void DeclarInfo::setResultWayIdentifier( QVariant resultWayIdentifier )
 {
   m__ResultWayIdentifier = resultWayIdentifier;
+}
+
+QList<QVariant> DeclarInfo::declarClientIdentifiers() const
+{
+  return m__DeclarClientIdentifiers;
+}
+
+void DeclarInfo::setDeclarClientIdentifiers( QList<QVariant> declarClientIdentifiers )
+{
+  m__DeclarClientIdentifiers = declarClientIdentifiers;
+}
+
+QList<QVariant> DeclarInfo::declarTrusteeIdentifiers() const
+{
+  return m__DeclarTrusteeIdentifiers;
+}
+
+void DeclarInfo::setDeclarTrusteeIdentifiers( QList<QVariant> declarTrusteeIdentifiers )
+{
+  m__DeclarTrusteeIdentifiers = declarTrusteeIdentifiers;
 }

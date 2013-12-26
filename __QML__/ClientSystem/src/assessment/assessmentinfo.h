@@ -20,7 +20,7 @@ class AssessmentInfo : public QObject
     void setIdentifier( QVariant identifier );
 
     Q_INVOKABLE QString name() const;
-    Q_INVOKABLE void setName( const QString &name );
+    Q_INVOKABLE void setName( QString name );
 
 
   private:

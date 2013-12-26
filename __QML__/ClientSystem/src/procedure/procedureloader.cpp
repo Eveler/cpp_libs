@@ -10,8 +10,7 @@ ProcedureLoader::ProcedureLoader(QObject *parent) :
 {
   p = new ProcedureLoader_P( this );
   connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
-  connect( p, SIGNAL(sendInfo(ProcedureInfo*)),
-           SIGNAL(newInfo(ProcedureInfo*)) );
+  connect( p, SIGNAL(availableCountChanged()), SIGNAL(countChanged()) );
   connect( p, SIGNAL(started()), SLOT(threadStarted()) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
@@ -59,9 +58,9 @@ bool ProcedureLoader::started() const
   return p->isRunning();
 }
 
-bool ProcedureLoader::load( const QString &filter, bool blockUI )
+bool ProcedureLoader::load( QString filter, bool blockUI )
 {
-  if ( p->isRunning() )
+  if ( p->m__Started || p->m__AvailableCount != p->m__ReceivedCount )
   {
     receivedError( tr( "Процесс загрузки списка пользователей занят" ) );
     return false;
@@ -72,6 +71,16 @@ bool ProcedureLoader::load( const QString &filter, bool blockUI )
   if ( blockUI )
     return ( loop->exec() == 0 );
   else return true;
+}
+
+int ProcedureLoader::count() const
+{
+  return p->m__AvailableCount;
+}
+
+ProcedureInfo * ProcedureLoader::newInfo()
+{
+  return p->newInfo();
 }
 
 void ProcedureLoader::threadStarted()

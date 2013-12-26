@@ -28,12 +28,12 @@ void DepartmentInfo::setIdentifier( QVariant identifier )
   m__Identifier = identifier;
 }
 
-const QString & DepartmentInfo::name() const
+QString DepartmentInfo::name() const
 {
   return m__Name;
 }
 
-void DepartmentInfo::setName( const QString &name )
+void DepartmentInfo::setName( QString name )
 {
   m__Name = name;
 }

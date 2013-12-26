@@ -6,7 +6,7 @@
 #include "departmentloader.h"
 #include "departmentinfo.h"
 
-#include <QHash>
+#include <QSqlQuery>
 
 
 class DepartmentLoader_P : public QThread
@@ -20,7 +20,7 @@ class DepartmentLoader_P : public QThread
 
   signals:
     void sendError( QString errorText );
-    void sendInfo( DepartmentInfo * );
+    void availableCountChanged();
 
 
   public slots:
@@ -36,11 +36,16 @@ class DepartmentLoader_P : public QThread
     QString m__LastError;
     QString m__ConnectionName;
     QString m__Filter;
+    QSqlQuery *m__Query;
+    int m__AvailableCount;
+    int m__ReceivedCount;
 
     explicit DepartmentLoader_P( DepartmentLoader *parent );
     ~DepartmentLoader_P();
 
     DepartmentLoader * p_dptr() const;
+
+    DepartmentInfo * newInfo();
 };
 
 #endif // DEPARTMENTLOADER_P_H

@@ -17,6 +17,7 @@ class ProcedureLoader : public QObject
     Q_PROPERTY(QString connectionName READ connectionName
                WRITE setConnectionName NOTIFY connectionNameChanged)
     Q_PROPERTY(bool started READ started NOTIFY startedChanged)
+    Q_PROPERTY(int count READ count NOTIFY countChanged)
 
 
   public:
@@ -30,14 +31,18 @@ class ProcedureLoader : public QObject
 
     bool started() const;
 
-    Q_INVOKABLE bool load( const QString &filter = QString(), bool blockUI = false );
+    Q_INVOKABLE bool load( QString filter = QString(), bool blockUI = false );
+
+    int count() const;
+
+    Q_INVOKABLE ProcedureInfo * newInfo();
 
 
   signals:
     void lastErrorChanged();
     void connectionNameChanged();
     void startedChanged();
-    void newInfo( ProcedureInfo *info );
+    void countChanged();
 
 
   public slots:

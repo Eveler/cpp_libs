@@ -10,8 +10,7 @@ ServiceLoader::ServiceLoader(QObject *parent) :
 {
   p = new ServiceLoader_P( this );
   connect( p, SIGNAL(sendError(QString)), SLOT(receivedError(QString)) );
-  connect( p, SIGNAL(sendInfo(ServiceInfo*)),
-           SIGNAL(newInfo(ServiceInfo*)) );
+  connect( p, SIGNAL(availableCountChanged()), SIGNAL(countChanged()) );
   connect( p, SIGNAL(started()), SLOT(threadStarted()) );
   connect( p, SIGNAL(finished()), SLOT(threadFinished()) );
   loop = new QEventLoop( this );
@@ -59,9 +58,9 @@ bool ServiceLoader::started() const
   return p->isRunning();
 }
 
-bool ServiceLoader::load( const QString &filter, bool blockUI )
+bool ServiceLoader::load( QString filter, bool blockUI )
 {
-  if ( p->isRunning() )
+  if ( p->m__Started || p->m__AvailableCount != p->m__ReceivedCount )
   {
     receivedError( tr( "Процесс загрузки списка пользователей занят" ) );
     return false;
@@ -72,6 +71,16 @@ bool ServiceLoader::load( const QString &filter, bool blockUI )
   if ( blockUI )
     return ( loop->exec() == 0 );
   else return true;
+}
+
+int ServiceLoader::count() const
+{
+  return p->m__AvailableCount;
+}
+
+ServiceInfo * ServiceLoader::newInfo()
+{
+  return p->newInfo();
 }
 
 void ServiceLoader::threadStarted()

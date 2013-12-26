@@ -21,12 +21,12 @@ void RecipientInfo::setIdentifier( QVariant identifier )
   m__Identifier = identifier;
 }
 
-const QString & RecipientInfo::name() const
+QString RecipientInfo::name() const
 {
   return m__Name;
 }
 
-void RecipientInfo::setName( const QString &name )
+void RecipientInfo::setName( QString name )
 {
   m__Name = name;
 }

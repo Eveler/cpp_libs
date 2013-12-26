@@ -6,7 +6,7 @@
 #include "serviceloader.h"
 #include "serviceinfo.h"
 
-#include <QHash>
+#include <QSqlQuery>
 
 
 class ServiceLoader_P : public QThread
@@ -20,7 +20,7 @@ class ServiceLoader_P : public QThread
 
   signals:
     void sendError( QString errorText );
-    void sendInfo( ServiceInfo * );
+    void availableCountChanged();
 
 
   public slots:
@@ -36,11 +36,16 @@ class ServiceLoader_P : public QThread
     QString m__LastError;
     QString m__ConnectionName;
     QString m__Filter;
+    QSqlQuery *m__Query;
+    int m__AvailableCount;
+    int m__ReceivedCount;
 
     explicit ServiceLoader_P( ServiceLoader *parent );
     ~ServiceLoader_P();
 
     ServiceLoader * p_dptr() const;
+
+    ServiceInfo * newInfo();
 };
 
 #endif // SERVICELOADER_P_H

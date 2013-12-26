@@ -22,12 +22,12 @@ void ResultwayInfo::setIdentifier( QVariant identifier )
   m__Identifier = identifier;
 }
 
-const QString & ResultwayInfo::name() const
+QString ResultwayInfo::name() const
 {
   return m__Name;
 }
 
-void ResultwayInfo::setName( const QString &name )
+void ResultwayInfo::setName( QString name )
 {
   m__Name = name;
 }

@@ -6,7 +6,7 @@
 #include "doctypeloader.h"
 #include "doctypeinfo.h"
 
-#include <QHash>
+#include <QSqlQuery>
 
 
 class DoctypeLoader_P : public QThread
@@ -20,7 +20,7 @@ class DoctypeLoader_P : public QThread
 
   signals:
     void sendError( QString errorText );
-    void sendInfo( DoctypeInfo * );
+    void availableCountChanged();
 
 
   public slots:
@@ -36,11 +36,16 @@ class DoctypeLoader_P : public QThread
     QString m__LastError;
     QString m__ConnectionName;
     QString m__Filter;
+    QSqlQuery *m__Query;
+    int m__AvailableCount;
+    int m__ReceivedCount;
 
     explicit DoctypeLoader_P( DoctypeLoader *parent );
     ~DoctypeLoader_P();
 
     DoctypeLoader * p_dptr() const;
+
+    DoctypeInfo * newInfo();
 };
 
 #endif // DOCTYPELOADER_P_H

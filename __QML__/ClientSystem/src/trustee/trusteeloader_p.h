@@ -6,7 +6,7 @@
 #include "trusteeloader.h"
 #include "trusteeinfo.h"
 
-#include <QHash>
+#include <QSqlQuery>
 
 
 class TrusteeLoader_P : public QThread
@@ -20,7 +20,7 @@ class TrusteeLoader_P : public QThread
 
   signals:
     void sendError( QString errorText );
-    void sendInfo( TrusteeInfo * );
+    void availableCountChanged();
 
 
   public slots:
@@ -36,11 +36,16 @@ class TrusteeLoader_P : public QThread
     QString m__LastError;
     QString m__ConnectionName;
     QString m__Filter;
+    QSqlQuery *m__Query;
+    int m__AvailableCount;
+    int m__ReceivedCount;
 
     explicit TrusteeLoader_P( TrusteeLoader *parent );
     ~TrusteeLoader_P();
 
     TrusteeLoader * p_dptr() const;
+
+    TrusteeInfo * newInfo();
 };
 
 #endif // TRUSTEELOADER_P_H

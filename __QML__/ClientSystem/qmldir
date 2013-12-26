@@ -5,3 +5,15 @@ Assessmenttype 1.0 Assessmenttype.qml
 Callstatus 1.0 Callstatus.qml
 Client 1.0 Client.qml
 Declar 1.0 Declar.qml
+DeclarClient 1.0 DeclarClient.qml
+Department 1.0 Department.qml
+Doctype 1.0 Doctype.qml
+Human 1.0 Human.qml
+Organisation 1.0 Organisation.qml
+Procedure 1.0 Procedure.qml
+Recipient 1.0 Recipient.qml
+Result 1.0 Result.qml
+Resultway 1.0 Resultway.qml
+Service 1.0 Service.qml
+DeclarTrustee 1.0 DeclarTrustee.qml
+Trustee 1.0 Trustee.qml

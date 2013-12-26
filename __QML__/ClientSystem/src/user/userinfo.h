@@ -19,14 +19,14 @@ public:
     Q_INVOKABLE QVariant identifier() const;
     void setIdentifier( QVariant identifier );
 
-    Q_INVOKABLE const QString & surname() const;
-    Q_INVOKABLE void setSurname( const QString &surname );
+    Q_INVOKABLE QString surname() const;
+    Q_INVOKABLE void setSurname( QString surname );
 
-    Q_INVOKABLE const QString & firstname() const;
-    Q_INVOKABLE void setFirstname( const QString &firstname );
+    Q_INVOKABLE QString firstname() const;
+    Q_INVOKABLE void setFirstname( QString firstname );
 
-    Q_INVOKABLE const QString & lastname() const;
-    Q_INVOKABLE void setLastname( const QString &lastname );
+    Q_INVOKABLE QString lastname() const;
+    Q_INVOKABLE void setLastname( QString lastname );
 
     Q_INVOKABLE QVariant postIdentifier() const;
     Q_INVOKABLE void setPostIdentifier( QVariant postIdentifier );
@@ -40,8 +40,8 @@ public:
     Q_INVOKABLE bool dismissed() const;
     Q_INVOKABLE void setDismissed( bool dismissed );
 
-    Q_INVOKABLE const QString & dblogin() const;
-    Q_INVOKABLE void setDblogin( const QString &dblogin );
+    Q_INVOKABLE QString dblogin() const;
+    Q_INVOKABLE void setDblogin( QString dblogin );
 
     Q_INVOKABLE QVariant directionIdentifier() const;
     Q_INVOKABLE void setDirectionIdentifier( QVariant directionIdentifier );

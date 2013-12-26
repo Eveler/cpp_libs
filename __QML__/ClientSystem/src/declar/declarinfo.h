@@ -37,11 +37,11 @@ class DeclarInfo : public QObject
     Q_INVOKABLE QDateTime closeDate() const;
     Q_INVOKABLE void setCloseDate( QDateTime closeDate );
 
-    Q_INVOKABLE const QString & firstLandmark() const;
-    Q_INVOKABLE void setFirstLandmark( const QString &firstLandmark );
+    Q_INVOKABLE QString firstLandmark() const;
+    Q_INVOKABLE void setFirstLandmark( QString firstLandmark );
 
-    Q_INVOKABLE const QString & lastLandmark() const;
-    Q_INVOKABLE void setLastLandmark( const QString &lastLandmark );
+    Q_INVOKABLE QString lastLandmark() const;
+    Q_INVOKABLE void setLastLandmark( QString lastLandmark );
 
     Q_INVOKABLE QVariant directionIdentifier() const;
     Q_INVOKABLE void setDirectionIdentifier( QVariant directionIdentifier );
@@ -70,6 +70,12 @@ class DeclarInfo : public QObject
     Q_INVOKABLE QVariant resultWayIdentifier() const;
     Q_INVOKABLE void setResultWayIdentifier( QVariant resultWayIdentifier );
 
+    Q_INVOKABLE QList<QVariant> declarClientIdentifiers() const;
+    Q_INVOKABLE void setDeclarClientIdentifiers( QList<QVariant> declarClientIdentifiers );
+
+    Q_INVOKABLE QList<QVariant> declarTrusteeIdentifiers() const;
+    Q_INVOKABLE void setDeclarTrusteeIdentifiers( QList<QVariant> declarTrusteeIdentifiers );
+
 
   private:
     QVariant m__Identifier;
@@ -90,6 +96,8 @@ class DeclarInfo : public QObject
     QVariant m__AssessmentTypeIdentifier;
     QVariant m__AssessmentIdentifier;
     QVariant m__ResultWayIdentifier;
+    QList<QVariant> m__DeclarClientIdentifiers;
+    QList<QVariant> m__DeclarTrusteeIdentifiers;
 };
 
 QML_DECLARE_TYPE(DeclarInfo)
