@@ -28,6 +28,11 @@ QVariant TrusteeInfo::declarIdentifier() const
   return m__DeclarIdentifier;
 }
 
+void TrusteeInfo::setDeclarIdentifier( QVariant declarIdentifier )
+{
+  m__DeclarIdentifier = declarIdentifier;
+}
+
 QVariant TrusteeInfo::trusteeClientIdentifier() const
 {
   return m__TrusteeClientIdentifier;

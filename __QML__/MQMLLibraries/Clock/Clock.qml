@@ -1,9 +1,10 @@
 import QtQuick 2.2
+import QtGraphicalEffects 1.0
 
 
 Item {
     id: clock
-    width: 200; height: 200
+    width: 512; height: 512
 
     property date clockTime: new Date()
     onClockTimeChanged: {
@@ -15,65 +16,147 @@ Item {
 
     Image {
         id: background
+        anchors.centerIn: parent
         width: parent.width
         height: width
         source: "images/background.png"
     }
-    Rectangle {
-        anchors.fill: parent
-        anchors.margins: 10
 
-        color: ( obj_Information.night ? "#33333333" : "#33ffffff" )
-        Behavior on color { ColorAnimation { duration: 200 } }
+    Item {
+        x: 0
+        y: 6*(width/512)
+        width: parent.width
+        height: width
+        Image {
+            anchors.centerIn: parent
+            width: parent.width
+            height: width
 
-        radius: width/2
+            source: "images/hour-shadow.png"
+            smooth: true
+            rotation: (obj_Information.hours * 30) + (obj_Information.minutes * 0.5)
+            Behavior on rotation {
+                SpringAnimation { spring: 2; damping: 0.2; modulus: 360 }
+            }
+        }
     }
-
-
     Image {
-        x: 92.5; y: 27
+        anchors.centerIn: parent
+        width: parent.width
+        height: width
+
         source: "images/hour.png"
         smooth: true
-        transform: Rotation {
-            id: hourRotation
-            origin.x: 7.5; origin.y: 73;
-            angle: (obj_Information.hours * 30) + (obj_Information.minutes * 0.5)
-            Behavior on angle {
+        rotation: (obj_Information.hours * 30) + (obj_Information.minutes * 0.5)
+        Behavior on rotation {
+            SpringAnimation { spring: 2; damping: 0.2; modulus: 360 }
+        }
+    }
+    Image {
+        anchors.centerIn: parent
+        width: parent.width
+        height: width
+
+        source: "images/hour-shine.png"
+        smooth: true
+        rotation: (obj_Information.hours * 30) + (obj_Information.minutes * 0.5)
+        Behavior on rotation {
+            SpringAnimation { spring: 2; damping: 0.2; modulus: 360 }
+        }
+    }
+
+    Item {
+        x: 0
+        y: 6*(width/512)
+        width: parent.width
+        height: width
+        Image {
+            anchors.centerIn: parent
+            width: parent.width
+            height: width
+
+            source: "images/minute-shadow.png"
+            smooth: true
+            rotation: obj_Information.minutes * 6
+            Behavior on rotation {
                 SpringAnimation { spring: 2; damping: 0.2; modulus: 360 }
             }
         }
     }
-
     Image {
-        x: 93.5; y: 17
+        anchors.centerIn: parent
+        width: parent.width
+        height: width
+
         source: "images/minute.png"
         smooth: true
-        transform: Rotation {
-            id: minuteRotation
-            origin.x: 6.5; origin.y: 83;
-            angle: obj_Information.minutes * 6
-            Behavior on angle {
+        rotation: obj_Information.minutes * 6
+        Behavior on rotation {
+            SpringAnimation { spring: 2; damping: 0.2; modulus: 360 }
+        }
+    }
+    Image {
+        anchors.centerIn: parent
+        width: parent.width
+        height: width
+
+        source: "images/minute-shine.png"
+        smooth: true
+        rotation: obj_Information.minutes * 6
+        Behavior on rotation {
+            SpringAnimation { spring: 2; damping: 0.2; modulus: 360 }
+        }
+    }
+
+    Item {
+        x: 0
+        y: 2*(width/512)
+        width: parent.width
+        height: width
+        Image {
+            anchors.centerIn: parent
+            width: parent.width
+            height: width
+
+            source: "images/second-shadow.png"
+            smooth: true
+            rotation: obj_Information.seconds * 6
+            Behavior on rotation {
                 SpringAnimation { spring: 2; damping: 0.2; modulus: 360 }
             }
         }
     }
-
     Image {
-        x: 97.5; y: 20
+        id: image_Second
+        anchors.centerIn: parent
+        width: parent.width
+        height: width
+
         source: "images/second.png"
         smooth: true
-        transform: Rotation {
-            id: secondRotation
-            origin.x: 2.5; origin.y: 80;
-            angle: obj_Information.seconds * 6
-            Behavior on angle {
-                SpringAnimation { spring: 2; damping: 0.2; modulus: 360 }
-            }
+        rotation: obj_Information.seconds * 6
+        Behavior on rotation {
+            SpringAnimation { spring: 2; damping: 0.2; modulus: 360 }
+        }
+    }
+    Image {
+        anchors.centerIn: parent
+        width: parent.width
+        height: width
+
+        source: "images/second-shine.png"
+        smooth: true
+        rotation: obj_Information.seconds * 6
+        Behavior on rotation {
+            SpringAnimation { spring: 2; damping: 0.2; modulus: 360 }
         }
     }
 
     Image {
-        anchors.centerIn: background; source: "images/center.png"
+        anchors.centerIn: parent
+        width: parent.width
+        height: width
+        source: "images/center.png"
     }
 
     QtObject {
