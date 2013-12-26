@@ -11,8 +11,11 @@
 #include <QStandardItemModel>
 #include <QTextDecoder>
 #include <QMetaEnum>
+#include <QPrintDialog>
+#include <QUuid>
 #include "mfcdocumentzipper.h"
 #include "amslogger.h"
+#include "mfccore.h"
 
 ElectroDoc_v2::ElectroDoc_v2(QWidget *parent) :
   MFCWidget(parent),
@@ -799,24 +802,29 @@ void ElectroDoc_v2::saveToFile(){
     QPrinter printer;
     printer.setOutputFileName(fi.absoluteFilePath());
     printer.setPaperSize(QPrinter::A4);
+    printer.setOrientation(QPrinter::Portrait);
     printer.setPageMargins(5, 5, 5, 5, QPrinter::Millimeter);
 
     ui->pBar_Scan->setVisible( true );
-    ui->pBar_Scan->setMaximum(m_Document->pages()->count());
+    MFCDocumentPages *pages = m_Document->pages();
+    int count = pages->count();
+    ui->pBar_Scan->setMaximum(count);
     ui->pBar_Scan->setFormat( "Сохранение: %p%" );
 
     QPainter painter;
     painter.begin(&printer);
-    for(int pIdx=0;pIdx<m_Document->pages()->count();pIdx++){
-      QPixmap pixmap=QPixmap();
-      MFCDocumentPage *page=m_Document->pages()->getPage(pIdx);
+
+    for(int pIdx=0;pIdx<count;pIdx++){
+      QPixmap pixmap = QPixmap();
+      MFCDocumentPage *page = pages->getPage(pIdx);
       pixmap.loadFromData(page->getBody());
       painter.drawPixmap(
             0, 0, pixmap.scaled(printer.pageRect().size(),
                                 Qt::KeepAspectRatio, Qt::SmoothTransformation));
-      if(pIdx<m_Document->pages()->count()-1) printer.newPage();
-      ui->pBar_Scan->setValue(pIdx*100/m_Document->pages()->count());
+      if(pIdx<count-1) printer.newPage();
+      ui->pBar_Scan->setValue(pIdx*100/count);
     }
+
     painter.end();
     ui->pBar_Scan->setVisible( false );
   }
@@ -824,27 +832,71 @@ void ElectroDoc_v2::saveToFile(){
 
 void ElectroDoc_v2::print(){
   if(!m_Document || !m_Document->havePages()) return;
-  QPrinter *printer=new QPrinter;
-  QPrintPreviewDialog *printPreview=new QPrintPreviewDialog( printer );
+//  QPrinter *printer=new QPrinter;
 
-  ui->pBar_Scan->setMaximum(m_Document->pages()->count());
-  ui->pBar_Scan->setFormat(tr("Печать: %p%"));
-  ui->pBar_Scan->setVisible(true);
-  qApp->processEvents();
+  QString pdf = QUuid::createUuid().toString().mid(1);
+  pdf.chop(1);
+  pdf = tr("print%1.pdf").arg(pdf);
 
-  printer->setPageSize(QPrinter::A4);
-  printer->setPaperSize(QPrinter::A4);
-  printer->setOrientation(QPrinter::Portrait);
-  printer->setPageMargins(5,5,5,5,QPrinter::Millimeter);
-  printPreview->setWindowState(Qt::WindowMaximized);
+  QPrinter printer;
+  printer.setPaperSize(QPrinter::A4);
+  printer.setOrientation(QPrinter::Portrait);
+  printer.setPageMargins(5, 5, 5, 5, QPrinter::Millimeter);
 
-  QObject::connect( printPreview, SIGNAL(paintRequested(QPrinter*)),
-                    this, SLOT(doPrint(QPrinter*)) );
-  printPreview->exec();
+  printer.setOutputFileName(pdf);
+  printer.setOutputFormat(QPrinter::PdfFormat);
 
-  ui->pBar_Scan->setVisible(false);
-  delete printer;
-  delete printPreview;
+//  QPrintPreviewDialog *printPreview=new QPrintPreviewDialog( printer );
+  //  QPrintDialog *printDialog = new QPrintDialog(&printer, this);
+
+//  ui->pBar_Scan->setMaximum(m_Document->pages()->count());
+//  ui->pBar_Scan->setFormat(tr("Печать: %p%"));
+//  ui->pBar_Scan->setVisible(true);
+//  qApp->processEvents();
+
+//  printer->setPageSize(QPrinter::A4);
+//  printer->setPaperSize(QPrinter::A4);
+//  printer->setOrientation(QPrinter::Portrait);
+//  printer->setPageMargins(5,5,5,5,QPrinter::Millimeter);
+//  printPreview->setWindowState(Qt::WindowMaximized);
+
+//  QObject::connect( printPreview, SIGNAL(paintRequested(QPrinter*)),
+//                    this, SLOT(doPrint(QPrinter*)) );
+//  printPreview->exec();
+//  if(printDialog->exec()==QDialog::Accepted){
+//    doPrint(printer);
+
+    ui->pBar_Scan->setVisible( true );
+    MFCDocumentPages *pages = m_Document->pages();
+    int count = pages->count();
+    ui->pBar_Scan->setMaximum(count);
+    ui->pBar_Scan->setFormat(tr("Печать: %p%"));
+
+    QPainter painter;
+    painter.begin(&printer);
+
+    for(int pIdx=0;pIdx<count;pIdx++){
+      QPixmap pixmap = QPixmap();
+      MFCDocumentPage *page = pages->getPage(pIdx);
+      pixmap.loadFromData(page->getBody());
+      painter.drawPixmap(
+            0, 0, pixmap.scaled(printer.pageRect().size(),
+                                Qt::KeepAspectRatio, Qt::SmoothTransformation));
+      if(pIdx<count-1) printer.newPage();
+      ui->pBar_Scan->setValue(pIdx*100/count);
+    }
+
+    painter.end();
+    ui->pBar_Scan->setVisible( false );
+    //  }
+
+//  ui->pBar_Scan->setVisible(false);
+//  delete printer;
+//  delete printPreview;
+    //    delete printDialog;
+
+  MFCCore::execFile(pdf);
+  QFile::remove(pdf);
 }
 
 void ElectroDoc_v2::doPrint(QPrinter *printer){
