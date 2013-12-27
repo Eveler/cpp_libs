@@ -4,11 +4,11 @@
 #include <QtCore/QDateTime>
 #include <odb/core.hxx>
 
-#pragma db object
-class declars
+#pragma db object table("declars")
+class Declar
 {
 public:
-  explicit declars();
+  explicit Declar();
 #pragma db get(getID)
   int getID() const;
 #pragma db set(setID)
