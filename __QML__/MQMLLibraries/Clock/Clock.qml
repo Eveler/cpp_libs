@@ -1,5 +1,4 @@
 import QtQuick 2.2
-import QtGraphicalEffects 1.0
 
 
 Item {
@@ -20,92 +19,6 @@ Item {
         width: parent.width
         height: width
         source: "images/background.png"
-    }
-
-    Item {
-        x: 0
-        y: 6*(width/512)
-        width: parent.width
-        height: width
-        Image {
-            anchors.centerIn: parent
-            width: parent.width
-            height: width
-
-            source: "images/hour-shadow.png"
-            smooth: true
-            rotation: (obj_Information.hours * 30) + (obj_Information.minutes * 0.5)
-            Behavior on rotation {
-                SpringAnimation { spring: 2; damping: 0.2; modulus: 360 }
-            }
-        }
-    }
-    Image {
-        anchors.centerIn: parent
-        width: parent.width
-        height: width
-
-        source: "images/hour.png"
-        smooth: true
-        rotation: (obj_Information.hours * 30) + (obj_Information.minutes * 0.5)
-        Behavior on rotation {
-            SpringAnimation { spring: 2; damping: 0.2; modulus: 360 }
-        }
-    }
-    Image {
-        anchors.centerIn: parent
-        width: parent.width
-        height: width
-
-        source: "images/hour-shine.png"
-        smooth: true
-        rotation: (obj_Information.hours * 30) + (obj_Information.minutes * 0.5)
-        Behavior on rotation {
-            SpringAnimation { spring: 2; damping: 0.2; modulus: 360 }
-        }
-    }
-
-    Item {
-        x: 0
-        y: 6*(width/512)
-        width: parent.width
-        height: width
-        Image {
-            anchors.centerIn: parent
-            width: parent.width
-            height: width
-
-            source: "images/minute-shadow.png"
-            smooth: true
-            rotation: obj_Information.minutes * 6
-            Behavior on rotation {
-                SpringAnimation { spring: 2; damping: 0.2; modulus: 360 }
-            }
-        }
-    }
-    Image {
-        anchors.centerIn: parent
-        width: parent.width
-        height: width
-
-        source: "images/minute.png"
-        smooth: true
-        rotation: obj_Information.minutes * 6
-        Behavior on rotation {
-            SpringAnimation { spring: 2; damping: 0.2; modulus: 360 }
-        }
-    }
-    Image {
-        anchors.centerIn: parent
-        width: parent.width
-        height: width
-
-        source: "images/minute-shine.png"
-        smooth: true
-        rotation: obj_Information.minutes * 6
-        Behavior on rotation {
-            SpringAnimation { spring: 2; damping: 0.2; modulus: 360 }
-        }
     }
 
     Item {
@@ -139,14 +52,64 @@ Item {
             SpringAnimation { spring: 2; damping: 0.2; modulus: 360 }
         }
     }
+
+    Item {
+        x: 0
+        y: 4*(width/512)
+        width: parent.width
+        height: width
+        Image {
+            anchors.centerIn: parent
+            width: parent.width
+            height: width
+
+            source: "images/hour-shadow.png"
+            smooth: true
+            rotation: (obj_Information.hours * 30) + (obj_Information.minutes * 0.5)
+            Behavior on rotation {
+                SpringAnimation { spring: 2; damping: 0.2; modulus: 360 }
+            }
+        }
+    }
     Image {
         anchors.centerIn: parent
         width: parent.width
         height: width
 
-        source: "images/second-shine.png"
+        source: "images/hour.png"
         smooth: true
-        rotation: obj_Information.seconds * 6
+        rotation: (obj_Information.hours * 30) + (obj_Information.minutes * 0.5)
+        Behavior on rotation {
+            SpringAnimation { spring: 2; damping: 0.2; modulus: 360 }
+        }
+    }
+
+    Item {
+        x: 0
+        y: 6*(width/512)
+        width: parent.width
+        height: width
+        Image {
+            anchors.centerIn: parent
+            width: parent.width
+            height: width
+
+            source: "images/minute-shadow.png"
+            smooth: true
+            rotation: obj_Information.minutes * 6
+            Behavior on rotation {
+                SpringAnimation { spring: 2; damping: 0.2; modulus: 360 }
+            }
+        }
+    }
+    Image {
+        anchors.centerIn: parent
+        width: parent.width
+        height: width
+
+        source: "images/minute.png"
+        smooth: true
+        rotation: obj_Information.minutes * 6
         Behavior on rotation {
             SpringAnimation { spring: 2; damping: 0.2; modulus: 360 }
         }

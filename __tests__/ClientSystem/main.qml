@@ -103,6 +103,99 @@ ApplicationWindow {
         }
     }
 
+    Rectangle {
+        id: rect_1
+        anchors.bottom: background.bottom
+        anchors.horizontalCenter: background.horizontalCenter
+        width: 200
+        height: width
+        radius: width/2
+
+        visible: false
+    }
+    ConicalGradient {
+        id: cgrad_1
+        anchors.fill: rect_1
+
+        source: rect_1
+        angle: 0.0
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: "#ffff7733" }
+            GradientStop { position: 0.95; color: "#ffdd5511" }
+            GradientStop { position: 0.9501; color: "transparent" }
+        }
+
+        visible: false
+    }
+    DropShadow {
+        id: dshadow_3
+        anchors.fill: cgrad_1
+        horizontalOffset: 1
+        verticalOffset: 1
+        radius: 1.0
+        samples: 16
+        color: "#80000000"
+        source: cgrad_1
+    }
+    InnerShadow {
+        anchors.fill: cgrad_1
+        radius: 3.0
+        samples: 16
+        horizontalOffset: 1
+        verticalOffset: 1
+        color: "#ffffaa55"
+        source: cgrad_1
+    }
+    Rectangle {
+        id: rect_2
+        anchors.centerIn: rect_1
+        width: rect_1.width/2
+        height: width
+
+        radius: width/2
+        color: "#ffdddddd"
+        visible: false
+    }
+    DropShadow {
+        anchors.fill: rect_2
+        horizontalOffset: 2
+        verticalOffset: 2
+        radius: 1.0
+        samples: 16
+        color: "#80000000"
+        source: rect_2
+    }
+    InnerShadow {
+        id: iShadow_1
+        anchors.fill: rect_2
+        radius: 3.0
+        samples: 16
+        horizontalOffset: 2
+        verticalOffset: 2
+        color: "#ffffffff"
+        source: rect_2
+        visible: false
+    }
+    InnerShadow {
+        anchors.fill: iShadow_1
+        radius: 3.0
+        samples: 16
+        horizontalOffset: -1
+        verticalOffset: -1
+        color: "#ffaaaaaa"
+        source: iShadow_1
+    }
+    Text {
+        anchors.centerIn: rect_2
+
+        text: "95%"
+        color: "#ffff7733"
+        font.pixelSize: 24
+        font.bold: true
+        style: Text.Raised
+        styleColor: "#ffaaaaaa"
+    }
+
 
     Connections {
         target: ClientSystemSources
