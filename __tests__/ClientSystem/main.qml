@@ -103,6 +103,11 @@ ApplicationWindow {
         }
     }
 
+    Slider {
+        id: slider
+        width: 200
+        anchors.bottom: rect_1.top
+    }
     Rectangle {
         id: rect_1
         anchors.bottom: background.bottom
@@ -121,8 +126,8 @@ ApplicationWindow {
         angle: 0.0
         gradient: Gradient {
             GradientStop { position: 0.0; color: "#ffff7733" }
-            GradientStop { position: 0.95; color: "#ffdd5511" }
-            GradientStop { position: 0.9501; color: "transparent" }
+            GradientStop { position: slider.value; color: "#ffdd5511" }
+            GradientStop { position: (slider.value+0.0001); color: "transparent" }
         }
 
         visible: false
@@ -130,7 +135,6 @@ ApplicationWindow {
     DropShadow {
         id: dshadow_3
         anchors.fill: cgrad_1
-        horizontalOffset: 1
         verticalOffset: 1
         radius: 1.0
         samples: 16
@@ -141,7 +145,6 @@ ApplicationWindow {
         anchors.fill: cgrad_1
         radius: 3.0
         samples: 16
-        horizontalOffset: 1
         verticalOffset: 1
         color: "#ffffaa55"
         source: cgrad_1
@@ -158,7 +161,6 @@ ApplicationWindow {
     }
     DropShadow {
         anchors.fill: rect_2
-        horizontalOffset: 2
         verticalOffset: 2
         radius: 1.0
         samples: 16
@@ -170,7 +172,6 @@ ApplicationWindow {
         anchors.fill: rect_2
         radius: 3.0
         samples: 16
-        horizontalOffset: 2
         verticalOffset: 2
         color: "#ffffffff"
         source: rect_2
@@ -180,7 +181,6 @@ ApplicationWindow {
         anchors.fill: iShadow_1
         radius: 3.0
         samples: 16
-        horizontalOffset: -1
         verticalOffset: -1
         color: "#ffaaaaaa"
         source: iShadow_1
@@ -188,7 +188,8 @@ ApplicationWindow {
     Text {
         anchors.centerIn: rect_2
 
-        text: "95%"
+        property int value: (slider.value*100)
+        text: value+"%"
         color: "#ffff7733"
         font.pixelSize: 24
         font.bold: true
