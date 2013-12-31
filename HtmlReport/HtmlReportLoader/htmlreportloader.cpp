@@ -70,7 +70,10 @@ QStringList HtmlReportLoader::list(const QUrl &url)
 
 bool HtmlReportLoader::select(const QString &name)
 {
-  if(!plugins.contains(name)) return false;
+  if(!plugins.contains(name)){
+    setError(tr("Шаблон %1 отсутствует!").arg(name));
+    return false;
+  }
 
   QPluginLoader* plugin = plugins.value(name);
   if(!plugin->isLoaded())

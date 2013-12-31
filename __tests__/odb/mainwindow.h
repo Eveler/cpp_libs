@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+//#include <QSharedPointer>
 
 namespace Ui {
 class MainWindow;
@@ -18,7 +19,7 @@ public:
 
 private:
   Ui::MainWindow *ui;
-  Declar *declar;
+  /*QSharedPointer<*/Declar*/*>*/ declar;
 };
 
 #endif // MAINWINDOW_H
