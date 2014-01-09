@@ -1,4 +1,4 @@
-__author__ = 'Savenko'
+__author__ = 'Savenko Mike'
 
 from .imagescanner import ImageScanner
 

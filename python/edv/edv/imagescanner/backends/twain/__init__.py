@@ -3,6 +3,7 @@
 $Id$"""
 
 import logging
+import win32com.client, os
 # from StringIO import StringIO
 
 # import Image

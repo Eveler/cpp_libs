@@ -1,4 +1,9 @@
-__author__ = 'Savenko'
+from PyQt5.QtWidgets import QMainWindow
+
+__author__ = 'Savenko Mike'
 
 
-from edv import scanner
+class EdvWindow(QMainWindow):
+    def __init__(self):
+        super.__init__()
+        from edv import scanner

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-__author__ = 'Savenko'
+__author__ = 'Savenko Mike'
 
 
 from . import *
