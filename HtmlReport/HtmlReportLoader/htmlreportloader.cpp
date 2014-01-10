@@ -241,7 +241,7 @@ void HtmlReportLoader::clearPlugins()
     QPluginLoader *p = values.takeFirst();
     values.removeAll(p);
     if(p->isLoaded()) p->unload();
-    delete p;
+    if(p!=loader) delete p;
   }
 }
 
