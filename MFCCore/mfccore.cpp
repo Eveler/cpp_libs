@@ -210,12 +210,10 @@ QString MFCCore::execFile(const QString &fName, const bool block_ui){
     if(sys_out.simplified().length()>0)
       errStr+=tr("Вывод процесса: %1").arg(sys_out);
 
-//    ext_proc->deleteLater();
     delete ext_proc;
     ext_proc=NULL;
     if(ext_proc_file){
       ext_proc_file->remove();
-//      ext_proc_file->deleteLater();
       delete ext_proc_file;
       ext_proc_file=NULL;
     }
@@ -223,16 +221,97 @@ QString MFCCore::execFile(const QString &fName, const bool block_ui){
   }else{
 #ifdef Q_OS_WIN
     fileName.replace("/","\\");
-    ext_proc->start(tr("cmd /C %1").arg(fileName));
+    ext_proc->start(tr("cmd /C \"%1\"").arg(fileName));
 #else
-    ext_proc->start(tr("xdg-open %1").arg(fileName));
+    ext_proc->start(tr("xdg-open \"%1\"").arg(fileName));
 #endif
-    if(!ext_proc->waitForStarted()){
+    if(ext_proc && !ext_proc->waitForStarted()){
       errStr=tr("Истекло время ожидания запуска процесса: %1")
-          .arg(ext_proc->errorString());
-//      ext_proc->deleteLater();
-      delete ext_proc;
-      ext_proc=NULL;
+          .arg(ext_proc?ext_proc->errorString():"");
+      if(ext_proc){
+        delete ext_proc;
+        ext_proc=NULL;
+      }
+    }
+  }
+
+  return errStr;
+}
+
+QString MFCCore::startSoffice(const QString &fName, const bool block_ui)
+{
+  LogDebug()<<tr("About to execute \"%1\"").arg(fName);
+  if(!m__Core && !block_ui) m__Core=new MFCCore;
+  if(!ext_proc){
+    ext_proc=new QProcess(m__Core);
+    ext_proc->setProcessChannelMode(QProcess::MergedChannels);
+    if(!block_ui){
+      connect(ext_proc,SIGNAL(finished(int)),m__Core,SLOT(processFinished(int)));
+      connect(ext_proc,SIGNAL(error(QProcess::ProcessError)),
+              m__Core,SLOT(processError(QProcess::ProcessError)));
+    }
+  }
+  QString errStr;
+
+#ifdef Q_OS_WIN
+    QSettings s("LibreOffice", "LibreOffice");
+    QString prog;
+    foreach(QString key, s.allKeys()){
+      if(key.contains("Path")) prog = s.value(key).toString();
+    }
+#endif
+
+  QString fileName=fName;
+  if(block_ui){
+#ifdef Q_OS_WIN
+    QSettings s("LibreOffice", "LibreOffice");
+    QString prog;
+    foreach(QString key, s.allKeys()){
+      if(key.contains("Path")) prog = s.value(key).toString();
+    }
+    fileName.replace("/","\\");
+    QTextCodec *c=QTextCodec::codecForLocale();
+    QTextCodec::setCodecForLocale(QTextCodec::codecForName("IBM 866"));
+    ext_proc->start(tr("\"%1\" --writer -o \"%2\"").arg(prog).arg(
+                      fileName.toLocal8Bit().constData()));
+    QTextCodec::setCodecForLocale(c);
+#else
+    ext_proc->start(tr("xdg-open \"%1\"").arg(fileName));
+#endif
+    bool res = ext_proc->waitForFinished(-1);
+    if(!res){
+      errStr=tr("Нет возможности запустить дочерний процесс: %1: %2")
+               .arg(fileName).arg(ext_proc->errorString());
+    }else if(!ext_proc->errorString().isEmpty() &&
+             ext_proc->errorString()!="Unknown error")
+      errStr=tr("Дочерний процесс вернул ошибку: %1").arg(ext_proc->errorString());
+    QString sys_out=ext_proc->readAllStandardOutput()+" "+
+        ext_proc->readAllStandardError();
+    if(sys_out.simplified().length()>0)
+      errStr+=tr("Вывод процесса: %1").arg(sys_out);
+
+    delete ext_proc;
+    ext_proc=NULL;
+    if(ext_proc_file){
+      ext_proc_file->remove();
+      delete ext_proc_file;
+      ext_proc_file=NULL;
+    }
+    return errStr;
+  }else{
+#ifdef Q_OS_WIN
+    fileName.replace("/","\\");
+    ext_proc->start(tr("\"%1\" --writer -o %2").arg(prog).arg(fileName));
+#else
+    ext_proc->start(tr("xdg-open \"%1\"").arg(fileName));
+#endif
+    if(ext_proc && !ext_proc->waitForStarted()){
+      errStr=tr("Истекло время ожидания запуска процесса: %1")
+          .arg(ext_proc?ext_proc->errorString():"");
+      if(ext_proc){
+        delete ext_proc;
+        ext_proc=NULL;
+      }
     }
   }
 
@@ -284,6 +363,50 @@ QString MFCCore::execFile(const QByteArray &buf, const QString &extension,
   return execFile(fileName,block_ui);
 }
 
+QString MFCCore::startSoffice(const QByteArray &buf, const QString &extension,
+                              const bool block_ui)
+{
+  QUuid uuid=QUuid::createUuid();
+  QString fileName=uuid.toString();
+
+  QDir d(qApp->applicationDirPath()+tr("/temp/"));
+  if(!d.exists()){
+    d.mkpath(d.absolutePath());
+  }
+
+  fileName=d.absolutePath()+tr("/exec%1.%2").arg(
+        fileName.mid(1,fileName.length()-2)).arg(extension);
+  if(!m__Core && !block_ui) m__Core=new MFCCore;
+  QString errStr;
+
+  if(!ext_proc_file){
+    ext_proc_file=new QFile(fileName,m__Core);
+  }else{
+    return tr("Файл \"%1\" уже открыт").arg(ext_proc_file->fileName());
+  }
+
+  if(!ext_proc_file->open(QFile::WriteOnly)){
+    errStr=tr("Ошибка создания временного файла: %1: %2")
+        .arg(fileName).arg(ext_proc_file->errorString());
+    delete ext_proc_file;
+    ext_proc_file=NULL;
+    return errStr;
+  }
+  ext_proc_file->write(buf);
+  if(ext_proc_file->error()!=QFile::NoError){
+    errStr=tr("Ошибка записи данных во временный файл: %1").arg(
+          ext_proc_file->errorString());
+    ext_proc_file->close();
+    ext_proc_file->remove();
+    delete ext_proc_file;
+    ext_proc_file=NULL;
+    return errStr;
+  }
+  ext_proc_file->close();
+
+  return startSoffice(fileName,block_ui);
+}
+
 MFCCore::MFCCore() {}
 
 void MFCCore::settingsDestroyed()
@@ -325,7 +448,9 @@ void MFCCore::processError(QProcess::ProcessError err){
   if(err==QProcess::FailedToStart || err==QProcess::Crashed ||
      err==QProcess::Timedout || err==QProcess::UnknownError){
     if(ext_proc){
+
 //      ext_proc->deleteLater();
+      LogDebug()<<ext_proc->errorString();
       delete ext_proc;
       ext_proc=NULL;
 

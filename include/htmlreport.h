@@ -28,7 +28,7 @@ class HTMLREPORTSHARED_EXPORT HtmlReport : public QObject
   Q_OBJECT
 public:
   explicit HtmlReport(QObject *parent = 0);
-
+  ~HtmlReport();
   /// Устанавливает данные \param data отчёта
   bool setData(const QString &data);
   /// Устанавливает данные \param data для секции \param name
