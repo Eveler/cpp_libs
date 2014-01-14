@@ -2,12 +2,13 @@
 
 $Id$"""
 
+
 class ScannerManager(object):
     """Abstract ScannerManager class"""
 
     def __init__(self, **kwargs):
         self._devices = []
-    
+
     def _refresh(self):
         """Look for new scanner devices"""
         raise NotImplementedError
@@ -24,7 +25,8 @@ class ScannerManager(object):
     def list_scanners(self):
         """Return a list with all the available devices"""
         self._refresh()
-        return self._devices      
+        return self._devices
+
 
 class Scanner(object):
     """Abstract Scanner class"""

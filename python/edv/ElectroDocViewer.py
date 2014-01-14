@@ -32,14 +32,9 @@ if __name__ == "__main__":
 
     app.exec()
 
-    # import win32com.client
-    #
-    # WIA_IMG_FORMAT_PNG = "{B96B3CAF-0728-11D3-9D7B-0000F81EF32E}"
     # # WIA_COMMAND_TAKE_PICTURE = "{AF933CAC-ACAD-11D2-A093-00C04F72DC3C}"
     #
     # # os.chdir('c:/temp')
-    # wia = win32com.client.Dispatch("WIA.CommonDialog")
-    # dev = wia.ShowSelectDevice()
     # items = wia.ShowSelectItems(dev)
     #
     # image = items[0].Transfer(WIA_IMG_FORMAT_PNG)
