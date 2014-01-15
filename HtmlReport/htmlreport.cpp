@@ -16,6 +16,14 @@ HtmlReport::HtmlReport(QObject *parent) :
 {
 }
 
+HtmlReport::~HtmlReport()
+{
+  if(repModel){
+    repModel = NULL;
+  }
+  sectionsModels.clear();
+}
+
 bool HtmlReport::setData(const QString &data){
   if(data.simplified().isEmpty()) return false;
 

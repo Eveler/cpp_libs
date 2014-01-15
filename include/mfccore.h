@@ -73,9 +73,16 @@ public:
   static QString execFile(const QString &fName, const bool block_ui=true);
   static QString execFile(const QByteArray &buf, const QString &extension,
                           const bool block_ui=true);
-  static QString execFile(const QString &buf, const QString extension,
+  static QString execFile(const QString &buf, const QString &extension,
                           const bool block_ui=true) {
     return execFile(buf.toLocal8Bit(),extension,block_ui);
+  }
+  static QString startSoffice(const QString &fName, const bool block_ui=true);
+  static QString startSoffice(const QByteArray &buf, const QString &extension,
+                          const bool block_ui=true);
+  static QString startSoffice(const QString &buf, const QString &extension,
+                          const bool block_ui=true) {
+    return startSoffice(buf.toLocal8Bit(),extension,block_ui);
   }
 
 private:

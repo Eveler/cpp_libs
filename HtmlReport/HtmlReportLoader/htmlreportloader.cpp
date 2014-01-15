@@ -15,9 +15,10 @@ HtmlReportLoader::HtmlReportLoader(QObject *parent):
 
 HtmlReportLoader::~HtmlReportLoader()
 {
+  clearPlugins();
   if(loader->isLoaded()) loader->unload();
   delete loader;
-  clearPlugins();
+  loader = NULL;
 }
 
 QStringList HtmlReportLoader::list(const QUrl &url)
@@ -210,7 +211,8 @@ bool HtmlReportLoader::exec()
       return false;
     }
   }
-  QString res=MFCCore::execFile(rep->report()->generate(),ext);
+//  QString res=MFCCore::execFile(rep->report()->generate(), ext, false);
+  QString res=MFCCore::startSoffice(rep->report()->generate(), ext/*, false*/);
   if(res.isEmpty()) return true;
   setError(tr("Ошибка открытия отчёта: %1").arg(res));
   return false;
@@ -232,13 +234,14 @@ void HtmlReportLoader::set_error(const QString file, const int line,
 
 void HtmlReportLoader::clearPlugins()
 {
-  QMutableMapIterator<QString, QPluginLoader*> i(plugins);
-  while(i.hasNext()){
-    i.next();
-    QPluginLoader *pl = i.value();
-    i.remove();
-    pl->unload();
-    if(pl!=loader) delete pl;
+  QList<QPluginLoader*> values = plugins.values();
+  plugins.clear();
+
+  while(!values.isEmpty()){
+    QPluginLoader *p = values.takeFirst();
+    values.removeAll(p);
+    if(p->isLoaded()) p->unload();
+    if(p!=loader) delete p;
   }
 }
 
