@@ -1,6 +1,7 @@
 #include "qmldocumentloader.h"
 
 #include "docmanager.h"
+#include "mfcdocument.h"
 
 #include <QSqlDatabase>
 

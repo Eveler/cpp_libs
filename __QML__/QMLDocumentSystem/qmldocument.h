@@ -3,7 +3,7 @@
 
 #include <QQuickItem>
 
-#include "docmanager.h"
+#include "mfcdocument.h"
 
 
 class QMLDocument_P;

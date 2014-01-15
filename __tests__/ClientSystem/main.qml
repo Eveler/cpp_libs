@@ -255,6 +255,7 @@ ApplicationWindow {
 //        ClientSystemSources.enqueue( ClientSystemSources.resultLoader )
 //        ClientSystemSources.enqueue( ClientSystemSources.resultwayLoader )
 //        ClientSystemSources.enqueue( ClientSystemSources.serviceLoader )
+        ClientSystemSources.enqueue( ClientSystemSources.trusteeLoader )
         ClientSystemSources.startQueue()
     }
 }

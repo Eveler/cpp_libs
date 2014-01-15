@@ -57,6 +57,9 @@ Item {
     readonly property List serviceList: obj_Information.serviceList
     readonly property ServiceLoader serviceLoader: obj_Information.serviceLoader
 
+    readonly property List trusteeList: obj_Information.trusteeList
+    readonly property TrusteeLoader trusteeLoader: obj_Information.trusteeLoader
+
     QtObject {
         id: obj_Information
 
@@ -988,6 +991,68 @@ Item {
                                     MQML.className( curItem )
                         }
                         obj_Information.serviceList.append( curItem );
+                        info.destroy()
+                        receivedCount++;
+                    }
+                    var milliseconds = MQML.millisecondsBetween( creationStarted, new Date() )
+                    interval = interval*(25.0/milliseconds)
+                    if ( interval < 1 ) interval = 1
+                    if ( receivedCount < count ) loader.start()
+                }
+                else console.debug( component.errorString() )
+            }
+        }
+        //----------------------------------------------------------------------
+        property Component declarTrustee: Component{ DeclarTrustee{} }
+        property List trusteeList: List{}
+        property TrusteeLoader trusteeLoader: TrusteeLoader {
+            property int interval: 500
+            property Timer loader: Timer {
+                interval: 1
+                onTriggered: parent.createObject()
+            }
+            property bool initiated: false
+            property int receivedCount: 0
+            readonly property bool finished: ( !started && receivedCount === count )
+            onFinishedChanged: {
+                if ( !initiated )
+                {
+                    initiated = true
+                    return
+                }
+
+                if ( finished )
+                {
+                    console.debug( "loaded count: "+count )
+                    obj_Information.loadNext()
+                }
+            }
+            onStartedChanged: {
+                if ( started || count === 0 ) return;
+
+                createObject()
+            }
+
+            function createObject()
+            {
+                var component = obj_Information.declarTrustee
+                if ( component.status === Component.Ready )
+                {
+                    var creationStarted = new Date()
+                    for ( var idx = 0; idx < interval && receivedCount < count; idx++ )
+                    {
+                        var info = newInfo()
+                        var curItem = component.createObject(
+                                    obj_Information.trusteeList, {"identifier": info.identifier(),
+                                        "declarIdentifier": info.declarIdentifier(),
+                                        "trusteeClientIdentifier": info.trusteeClientIdentifier(),
+                                        "clientIdentifier": info.clientIdentifier()} )
+                        if ( obj_Information.trusteeList.specialObjects.length === 0 )
+                        {
+                            obj_Information.trusteeList.specialObjects =
+                                    MQML.className( curItem )
+                        }
+                        obj_Information.trusteeList.append( curItem );
                         info.destroy()
                         receivedCount++;
                     }
