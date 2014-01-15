@@ -39,7 +39,7 @@ if __name__ == "__main__":
 
     window = component.create()
     assert isinstance(window, QWindow)
-    window.setIcon(QIcon("ElectroDocViewer.ico"))
+    window.setIcon(QIcon("./ElectroDocViewer.png"))
     window.show()
 
     app.exec()
