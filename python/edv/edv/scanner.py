@@ -12,7 +12,7 @@ class MyClass(QObject):
         print("Hello")
 
 
-# from .imagescanner import ImageScanner
-# s = ImageScanner()
-# scanners = s.list_scanners()
-# print("Scanners found: %s" % scanners)
+from .imagescanner import ImageScanner
+s = ImageScanner()
+scanners = s.list_scanners()
+print("Scanners found: %s" % scanners)
