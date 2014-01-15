@@ -1,6 +1,6 @@
 #!/bin/env python -O
 # -*- coding: utf-8 -*-
-import os
+from os import getenv, putenv
 import sys
 
 from PyQt5.QtCore import QUrl
@@ -14,13 +14,14 @@ __author__ = 'Savenko Mike'
 
 
 if __name__ == "__main__":
-    env = os.getenv("QML2_IMPORT_PATH")
+    env = getenv("QML2_IMPORT_PATH")
     if env is None:
         env = ""
     else:
         env += ";"
     env += ".\qml"
-    os.putenv("QML2_IMPORT_PATH", env)
+    putenv("QML2_IMPORT_PATH", env)
+    env = getenv("QML2_IMPORT_PATH")
 
     app = QApplication(sys.argv)
     # from edv.window import EdvWindow
@@ -28,9 +29,6 @@ if __name__ == "__main__":
     # w.show()
     engine = QQmlEngine()
     component = QQmlComponent(engine)
-    # m = MyClass()
-    # engine.rootContext().setContextProperty("MyClass", m)
-    # qmlRegisterType(MyClass, 'PyPlugin', 1, 0, 'MyClass')
     import PyPlugin
     component.loadUrl(QUrl("main.qml"))
     if not component.isReady():
