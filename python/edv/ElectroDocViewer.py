@@ -21,7 +21,6 @@ if __name__ == "__main__":
         env += ";"
     env += ".\qml"
     putenv("QML2_IMPORT_PATH", env)
-    env = getenv("QML2_IMPORT_PATH")
 
     app = QApplication(sys.argv)
     # from edv.window import EdvWindow
