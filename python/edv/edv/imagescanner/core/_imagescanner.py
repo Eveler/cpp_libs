@@ -11,6 +11,7 @@ from ...imagescanner import settings
 
 POSIX_BACKEND = 'edv.imagescanner.backends.sane'
 NT_BACKEND = 'edv.imagescanner.backends.twain'
+WIA_BACKEND = 'edv.imagescanner.backends.wia'
 NETWORK_BACKEND = 'edv.imagescanner.backends.net'
 TEST_BACKEND = 'edv.imagescanner.backends.test'
 
@@ -36,8 +37,12 @@ class ImageScanner(object):
             logging.debug('Posix backend enabled (%s)', POSIX_BACKEND)
             backends.append(POSIX_BACKEND)
         elif os.name == 'nt':
-            logging.debug('NT backend enabled (%s)', NT_BACKEND)
-            backends.append(NT_BACKEND)
+            if getattr(settings, 'ENABLE_WIA_BACKEND', False):
+                logging.debug('WIA backend enabled (%s)', WIA_BACKEND)
+                backends.append(WIA_BACKEND)
+            else:
+                logging.debug('NT backend enabled (%s)', NT_BACKEND)
+                backends.append(NT_BACKEND)
         
         # Check if we should load the test backend
         if getattr(settings, 'ENABLE_TEST_BACKEND', False):

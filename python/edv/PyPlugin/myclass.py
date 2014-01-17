@@ -13,4 +13,5 @@ class MyClass(QObject):
     def p(self):
         QMessageBox.information(self.parent(), u"Опа", u"Батончик нажали o_O")
 
+
 qmlRegisterType(MyClass, "PyPlugin", 1, 0, "MyClass")
