@@ -9,7 +9,7 @@ Item {
 
     property bool checked: false
     property bool circularIndicator: false
-    property real textPercentSize: 0.3
+    property real textPercentSize: 0.25
     property bool textVisible: true
 
 
@@ -279,9 +279,9 @@ Item {
             height: contentHeight
 
             visible: onoffButton.textVisible
-            text: ( onoffButton.checked ? "On" : "Off" )
+            text: ( onoffButton.checked ? "Вкл" : "Выкл" )
             font.bold: true
-            font.letterSpacing: 3
+            font.letterSpacing: 0
             color: "#ff555555"
             font.pixelSize: onoffButton.height*onoffButton.textPercentSize
         }

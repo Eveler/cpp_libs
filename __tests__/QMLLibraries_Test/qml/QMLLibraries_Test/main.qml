@@ -10,30 +10,24 @@ Rectangle {
 
     color: "#ff555555"
 
-//    OnOffButton {
-//        anchors.centerIn: parent
-//        width: parent.width*slider.value
+    OnOffButton {
+        anchors.centerIn: parent
+        width: parent.width*slider.value
 
-//        circularIndicator: bt.checked
-//    }
+        circularIndicator: bt.checked
+    }
 
-//    Slider {
-//        id: slider
-//        anchors.bottom: bt.top
-//        anchors.bottomMargin: 10
-//        width: parent.width
+    Slider {
+        id: slider
+        anchors.bottom: bt.top
+        anchors.bottomMargin: 10
+        width: parent.width
 
-//        value: 0.2
-//    }
+        value: 0.2
+    }
 
-//    OnOffButton {
-//        id: bt
-//        anchors.bottom: parent.bottom
-//    }
-    Image {
-        anchors.fill: parent
-
-        source: "page0.jpg"
-        antialiasing: true
+    OnOffButton {
+        id: bt
+        anchors.bottom: parent.bottom
     }
 }
