@@ -36,13 +36,13 @@ class Scanner(base.Scanner):
         self._source_name = source_name
         self._device = device
 
-        for p in device.Properties:
-            print(p.Name, " (", p.PropertyID, ") = ", p.Value)
-        self.name = None
-        self.manufacturer = None
-        self.description = None
-        self._src_manager = None
-        self._scanner = None
+        # for p in device.Properties:
+        #     print(p.Name, " (", p.PropertyID, ") = ", p.Value)
+        self.name = device.Properties["Name"]
+        self.manufacturer = device.Properties["Manufacturer"]
+        self.description = device.Properties["Description"]
+        # self._src_manager = None
+        # self._scanner = None
         self._img_format = self.WIA_IMG_FORMAT_PNG
 
     def __repr__(self):
@@ -50,17 +50,14 @@ class Scanner(base.Scanner):
 
     def scan(self, dpi=200):
         try:
-            items = self._source_name.ShowSelectItems(self._device)
-            i = 0
+            items = self._source_name.ShowSelectItems(self._device, 0, 0, False)
+            if items is None:
+                return None
             images = []
             for item in items:
-                image = item.ShowTransfer(self._img_format)
+                # image = item.Transfer(self._img_format)
+                image = self._source_name.ShowTransfer(item, self._img_format)
                 images.append(image)
-                from os import remove
-                from os.path import exists
-
-                if exists("test%s.png" % i):
-                    remove("test%s.png" % i)
 
             return images
         except com_error as e:
