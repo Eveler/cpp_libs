@@ -30,6 +30,7 @@ class Scanner(base.Scanner):
     WIA_IMG_FORMAT_GIF = "{B96B3CB0-0728-11D3-9D7B-0000F81EF32E}"
     WIA_IMG_FORMAT_JPG = "{B96B3CAE-0728-11D3-9D7B-0000F81EF32E}"
     WIA_IMG_FORMAT_TIFF = "{B96B3CB1-0728-11D3-9D7B-0000F81EF32E}"
+    wiaEventItemCreated = "{4C8F4EF5-E14F-11D2-B326-00C04F68CE61}"
 
     def __init__(self, scanner_id, source_name, device):
         self.id = scanner_id
@@ -44,6 +45,8 @@ class Scanner(base.Scanner):
         # self._src_manager = None
         # self._scanner = None
         self._img_format = self.WIA_IMG_FORMAT_PNG
+        self.images = []
+        self._device_manager = Com.Dispatch("WIA.DeviceManager")
 
     def __repr__(self):
         return '<%s: %s - %s>' % (self.id, self.manufacturer, self.name)
@@ -53,13 +56,14 @@ class Scanner(base.Scanner):
             items = self._source_name.ShowSelectItems(self._device, 0, 0, False)
             if items is None:
                 return None
-            images = []
-            for item in items:
-                # image = item.Transfer(self._img_format)
-                image = self._source_name.ShowTransfer(item, self._img_format)
-                images.append(image)
+            self.images = []
+            self._device_manager.RegisterEvent(self.wiaEventItemCreated)
+            # for item in items:
+            #     # image = item.Transfer(self._img_format)
+            #     image = self._source_name.ShowTransfer(item, self._img_format)
+            #     self.images.append(image)
 
-            return images
+            return self.images
         except com_error as e:
             logging.fatal(e.__str__())
 
@@ -67,3 +71,9 @@ class Scanner(base.Scanner):
 
     def status(self):
         pass
+
+    def __onevent__(self, event_id, dev_id, item_id):
+        dev = self._device_manager.DeviceInfos(dev_id).Connect
+        item = dev.GetItem(item_id)
+        image = self._source_name.ShowTransfer(item)
+        self.images.append(image)
