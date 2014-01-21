@@ -53,11 +53,12 @@ class Scanner(base.Scanner):
 
     def scan(self, dpi=200):
         try:
+            self._device_manager.RegisterEvent(self.wiaEventItemCreated)
+            # self._device_manager.OnEvent[0] = self.__onevent__
             items = self._source_name.ShowSelectItems(self._device, 0, 0, False)
             if items is None:
                 return None
             self.images = []
-            self._device_manager.RegisterEvent(self.wiaEventItemCreated)
             # for item in items:
             #     # image = item.Transfer(self._img_format)
             #     image = self._source_name.ShowTransfer(item, self._img_format)

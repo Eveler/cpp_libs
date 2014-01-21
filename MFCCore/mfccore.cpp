@@ -268,9 +268,12 @@ QString MFCCore::startSoffice(const QString &fName, const bool block_ui)
 
   QTextCodec *c=QTextCodec::codecForLocale();
   QTextCodec::setCodecForLocale(QTextCodec::codecForName("IBM 866"));
-  int res = spawnlp(block_ui?P_WAIT:P_NOWAIT, prog.toLocal8Bit().constData(),
-                    tr("--writer -o \"%2\"").arg(
-                      fileName.toLocal8Bit().constData()).toLocal8Bit().constData(), NULL);
+  QFileInfo fi(prog);
+  int res = spawnlp(
+        block_ui?P_WAIT:P_NOWAIT, prog.toLocal8Bit().constData(),
+        fi.fileName().toLocal8Bit().constData(), "--writer", "-o",
+        tr("\"%1\"").arg(
+          fileName.toLocal8Bit().constData()).toLocal8Bit().constData(), NULL);
   QTextCodec::setCodecForLocale(c);
   if(res>0){
     errStr=tr("Ошибка в дочернем процессе: %1").arg(fileName);
