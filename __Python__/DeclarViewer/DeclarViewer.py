@@ -1,12 +1,12 @@
 from PyQt5.QtCore import QUrl
-from PyQt5.QtQml import QQmlEngine, QQmlComponent, QQmlError
+from PyQt5.QtQml import QQmlComponent, QQmlError, QQmlApplicationEngine
 from PyQt5.QtWidgets import QApplication
 import sys
 
 __author__ = 'Михаил'
 
 app = QApplication(sys.argv)
-engine = QQmlEngine()
+engine = QQmlApplicationEngine()
 engine.rootContext()
 component = QQmlComponent(engine)
 component.loadUrl(QUrl.fromLocalFile("DeclarViewer.qml"))
