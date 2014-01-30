@@ -242,15 +242,15 @@ QString MFCCore::startSoffice(const QString &fName, const bool block_ui)
 {
   LogDebug()<<tr("About to execute \"%1\"").arg(fName);
   if(!m__Core && !block_ui) m__Core=new MFCCore;
-  if(!ext_proc){
-    ext_proc=new QProcess(m__Core);
-    ext_proc->setProcessChannelMode(QProcess::MergedChannels);
-    if(!block_ui){
-      connect(ext_proc,SIGNAL(finished(int)),m__Core,SLOT(processFinished(int)));
-      connect(ext_proc,SIGNAL(error(QProcess::ProcessError)),
-              m__Core,SLOT(processError(QProcess::ProcessError)));
-    }
-  }
+//  if(!ext_proc){
+//    ext_proc=new QProcess(m__Core);
+//    ext_proc->setProcessChannelMode(QProcess::MergedChannels);
+//    if(!block_ui){
+//      connect(ext_proc,SIGNAL(finished(int)),m__Core,SLOT(processFinished(int)));
+//      connect(ext_proc,SIGNAL(error(QProcess::ProcessError)),
+//              m__Core,SLOT(processError(QProcess::ProcessError)));
+//    }
+//  }
   QString errStr;
 
 #ifdef Q_OS_WIN
@@ -262,36 +262,61 @@ QString MFCCore::startSoffice(const QString &fName, const bool block_ui)
 #endif
 
   QString fileName=fName;
+
+#ifdef Q_OS_WIN
+  fileName.replace("/","\\");
+
+  QTextCodec *c=QTextCodec::codecForLocale();
+  QTextCodec::setCodecForLocale(QTextCodec::codecForName("IBM 866"));
+  QFileInfo fi(prog);
+  int res = spawnlp(
+        block_ui?P_WAIT:P_NOWAIT, prog.toLocal8Bit().constData(),
+        fi.fileName().toLocal8Bit().constData(), "--writer", "-o",
+        tr("\"%1\"").arg(
+          fileName.toLocal8Bit().constData()).toLocal8Bit().constData(), NULL);
+  QTextCodec::setCodecForLocale(c);
+  if(res>0){
+    errStr=tr("Ошибка в дочернем процессе: %1").arg(fileName);
+  }else if(res<0){
+    if(errno == E2BIG)
+      errStr=tr("Список аргументов превышает 128 байт или простраство, требуемое для "
+                "информации окружения, превышает 32К");
+    else if(errno == EINVAL)
+      errStr=tr("Ошибочный 1-й аргумент");
+    else if(errno == ENOENT)
+      errStr=tr("Файл %1 отсутствует").arg(prog);
+    else if(errno == ENOEXEC)
+      errStr=tr("Файл %1 не является выполимым или имеет неверный формат").arg(prog);
+    else if(errno == ENOMEM)
+      errStr=tr("Мало памяти для запуска дочернего процесса");
+  }
+#endif
+
   if(block_ui){
 #ifdef Q_OS_WIN
-    QSettings s("LibreOffice", "LibreOffice");
-    QString prog;
-    foreach(QString key, s.allKeys()){
-      if(key.contains("Path")) prog = s.value(key).toString();
-    }
-    fileName.replace("/","\\");
-    QTextCodec *c=QTextCodec::codecForLocale();
-    QTextCodec::setCodecForLocale(QTextCodec::codecForName("IBM 866"));
-    ext_proc->start(tr("\"%1\" --writer -o \"%2\"").arg(prog).arg(
-                      fileName.toLocal8Bit().constData()));
-    QTextCodec::setCodecForLocale(c);
+//    fileName.replace("/","\\");
+//    QTextCodec *c=QTextCodec::codecForLocale();
+//    QTextCodec::setCodecForLocale(QTextCodec::codecForName("IBM 866"));
+//    ext_proc->start(tr("\"%1\" --writer -o \"%2\"").arg(prog).arg(
+//                      fileName.toLocal8Bit().constData()));
+//    QTextCodec::setCodecForLocale(c);
 #else
     ext_proc->start(tr("xdg-open \"%1\"").arg(fileName));
 #endif
-    bool res = ext_proc->waitForFinished(-1);
-    if(!res){
-      errStr=tr("Нет возможности запустить дочерний процесс: %1: %2")
-               .arg(fileName).arg(ext_proc->errorString());
-    }else if(!ext_proc->errorString().isEmpty() &&
-             ext_proc->errorString()!="Unknown error")
-      errStr=tr("Дочерний процесс вернул ошибку: %1").arg(ext_proc->errorString());
-    QString sys_out=ext_proc->readAllStandardOutput()+" "+
-        ext_proc->readAllStandardError();
-    if(sys_out.simplified().length()>0)
-      errStr+=tr("Вывод процесса: %1").arg(sys_out);
+//    bool res = ext_proc->waitForFinished(-1);
+//    if(!res){
+//      errStr=tr("Нет возможности запустить дочерний процесс: %1: %2")
+//               .arg(fileName).arg(ext_proc->errorString());
+//    }else if(!ext_proc->errorString().isEmpty() &&
+//             ext_proc->errorString()!="Unknown error")
+//      errStr=tr("Дочерний процесс вернул ошибку: %1").arg(ext_proc->errorString());
+//    QString sys_out=ext_proc->readAllStandardOutput()+" "+
+//        ext_proc->readAllStandardError();
+//    if(sys_out.simplified().length()>0)
+//      errStr+=tr("Вывод процесса: %1").arg(sys_out);
 
-    delete ext_proc;
-    ext_proc=NULL;
+//    delete ext_proc;
+//    ext_proc=NULL;
     if(ext_proc_file){
       ext_proc_file->remove();
       delete ext_proc_file;
@@ -301,18 +326,18 @@ QString MFCCore::startSoffice(const QString &fName, const bool block_ui)
   }else{
 #ifdef Q_OS_WIN
     fileName.replace("/","\\");
-    ext_proc->start(tr("\"%1\" --writer -o %2").arg(prog).arg(fileName));
+//    ext_proc->start(tr("\"%1\" --writer -o %2").arg(prog).arg(fileName));
 #else
     ext_proc->start(tr("xdg-open \"%1\"").arg(fileName));
 #endif
-    if(ext_proc && !ext_proc->waitForStarted()){
-      errStr=tr("Истекло время ожидания запуска процесса: %1")
-          .arg(ext_proc?ext_proc->errorString():"");
-      if(ext_proc){
-        delete ext_proc;
-        ext_proc=NULL;
-      }
-    }
+//    if(ext_proc && !ext_proc->waitForStarted()){
+//      errStr=tr("Истекло время ожидания запуска процесса: %1")
+//          .arg(ext_proc?ext_proc->errorString():"");
+//      if(ext_proc){
+//        delete ext_proc;
+//        ext_proc=NULL;
+//      }
+//    }
   }
 
   return errStr;
