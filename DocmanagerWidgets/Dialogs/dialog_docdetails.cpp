@@ -16,8 +16,7 @@ Dialog_DocDetails::~Dialog_DocDetails()
   delete ui;
 }
 
-MFCDocumentInfo * Dialog_DocDetails::exec( const QStringList &doctypes,
-                                           const QStringList &docagencies )
+MFCDocumentInfo * Dialog_DocDetails::exec( const QStringList &doctypes, const QStringList &docagencies, const QString &num, QDate date, QDate expires )
 {
   ui->cBox_Doctype->setEditable( true );
   ui->lEdit_Name->setReadOnly( false );
@@ -38,9 +37,9 @@ MFCDocumentInfo * Dialog_DocDetails::exec( const QStringList &doctypes,
   ui->cBox_Doctype->setCurrentIndex( currentIndex );
   ui->lEdit_Name->clear();
   ui->lEdit_Series->clear();
-  ui->lEdit_Number->clear();
-  ui->dEdit_Date->clear();
-  ui->dEdit_Expires->clear();
+  ui->lEdit_Number->setText( num );
+  ui->dEdit_Date->setDate( date );
+  ui->dEdit_Expires->setDate( expires );
   ui->cBox_Docagency->clear();
   ui->cBox_Docagency->addItems( docagencies );
   currentIndex = -1;
