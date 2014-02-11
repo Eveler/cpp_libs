@@ -39,30 +39,58 @@ class Scanner(base.Scanner):
 
         # for p in device.Properties:
         #     print(p.Name, " (", p.PropertyID, ") = ", p.Value)
-        self.name = device.Properties["Name"]
-        self.manufacturer = device.Properties["Manufacturer"]
-        self.description = device.Properties["Description"]
+        for p in device.Properties:
+            if p.Name == "Name":
+                self.name = p.Value
+            if p.Name == "Manufacturer":
+                self.manufacturer = p.Value
+            if p.Name == "Description":
+                self.description = p.Value
+
+        # for c in device.Commands:
+        #     print(c.Name, ": ", c.CommandID)
+
+        # self.name = device.Properties["Name"]
+        # self.manufacturer = device.Properties["Manufacturer"]
+        # self.description = device.Properties["Description"]
+
         # self._src_manager = None
         # self._scanner = None
         self._img_format = self.WIA_IMG_FORMAT_PNG
         self.images = []
         self._device_manager = Com.Dispatch("WIA.DeviceManager")
+        for di in self._device_manager.DeviceInfos:
+            dev = di.Connect()
+            for i in dev.Items:
+                for c in i.Commands:
+                    print(c.Name, ": ", c.CommandID)
 
     def __repr__(self):
         return '<%s: %s - %s>' % (self.id, self.manufacturer, self.name)
 
     def scan(self, dpi=200):
         try:
-            self._device_manager.RegisterEvent(self.wiaEventItemCreated)
-            # self._device_manager.OnEvent[0] = self.__onevent__
-            items = self._source_name.ShowSelectItems(self._device, 0, 0, False)
-            if items is None:
-                return None
             self.images = []
+            # self._device_manager.RegisterEvent(self.wiaEventItemCreated)
+            # self._device_manager.OnEvent[0] = self.__onevent__
+
+            # items = self._source_name.ShowSelectItems(self._device, 0, 0, False)
+            # if items is None:
+            #     return None
             # for item in items:
             #     # image = item.Transfer(self._img_format)
             #     image = self._source_name.ShowTransfer(item, self._img_format)
             #     self.images.append(image)
+
+            image = self._source_name.ShowAcquireImage(1, 2, 131072, self._img_format)
+            self.images.append(image)
+            while True:
+                item = self._device.ExecuteCommand("{9B26B7B2-ACAD-11D2-A093-00C04F72DC3C}")
+                if item:
+                    image = self._source_name.ShowTransfer(item, self._img_format)
+                    self.images.append(image)
+                else:
+                    break
 
             return self.images
         except com_error as e:

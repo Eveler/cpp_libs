@@ -286,7 +286,7 @@ QString MFCCore::startSoffice(const QString &fName, const bool block_ui)
     else if(errno == ENOENT)
       errStr=tr("Файл %1 отсутствует").arg(prog);
     else if(errno == ENOEXEC)
-      errStr=tr("Файл %1 не является выполимым или имеет неверный формат").arg(prog);
+      errStr=tr("Файл %1 не является выполнимым или имеет неверный формат").arg(prog);
     else if(errno == ENOMEM)
       errStr=tr("Мало памяти для запуска дочернего процесса");
   }
