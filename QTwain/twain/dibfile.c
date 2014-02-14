@@ -56,13 +56,13 @@ DWORD PASCAL MyWrite(int, VOID FAR *, DWORD);
 *************************************************************************/
 HDIB LoadDIB(LPSTR lpFileName)
 {
-  HDIB hDIB;
+  // HDIB hDIB;
   int hFile;
   OFSTRUCT ofs;
   SetCursor(LoadCursor(NULL, IDC_WAIT));
   if ((hFile = OpenFile(lpFileName, &ofs, OF_READ)) != -1)
   {
-    hDIB = ReadDIBFile(hFile);
+    HDIB hDIB = ReadDIBFile(hFile);
     _lclose(hFile);
     SetCursor(LoadCursor(NULL, IDC_ARROW));
     return hDIB;
@@ -187,10 +187,10 @@ Comments:
 BOOL MyRead(int hFile, LPSTR lpBuffer, DWORD dwSize)
 {
   char *lpInBuf = (char *)lpBuffer;
-  int nBytes;
+  // int nBytes;
   while (dwSize)
   {
-    nBytes = (int)(dwSize > (DWORD)32767 ? 32767 : LOWORD (dwSize));
+    int nBytes = (int)(dwSize > (DWORD)32767 ? 32767 : LOWORD (dwSize));
     if (_lread(hFile, (LPSTR)lpInBuf, nBytes) != (WORD)nBytes)
       return FALSE;
     dwSize -= nBytes;

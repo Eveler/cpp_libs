@@ -3,6 +3,7 @@
 //#include <QAxObject>
 #include <QImage>
 #include <QTemporaryFile>
+//#include <QUuid>
 
 // The application must instantiate the CDataCallback object using
 // the "new" operator, and call QueryInterface to retrieve the
@@ -179,9 +180,7 @@ QWia::QWia(QObject *parent): QObject(parent)
   setFileName();
   devMgr = NULL;
   devID = NULL;
-  HRESULT hr = /*CoCreateInstance(CLSID_WiaDevMgr, NULL, CLSCTX_LOCAL_SERVER,
-                                IID_IWiaDevMgr, (void**)&devMgr)*/
-      createWiaDeviceManager(&devMgr);
+  HRESULT hr = createWiaDeviceManager(&devMgr);
   if(0>hr){
     LogWarning()<<errorString(hr);
     devMgr = NULL;
@@ -202,15 +201,41 @@ void QWia::setFileName(const QString &fn)
 
 bool QWia::scan()
 {
-  if(!devMgr) return false;
+//  if(!devMgr) return false;
 
   HRESULT hr = 0;
   IWiaItem *rootItem = NULL;
 
-  hr = devMgr->SelectDeviceDlg(GetTopWindow(0), 0, WIA_SELECT_DEVICE_NODEFAULT,
-                               NULL, &rootItem);
+//  QAxObject *dialog = new QAxObject("WIA.CommonDialog");
+//  connect(dialog, SIGNAL(exception(int,QString,QString,QString)),
+//          SLOT(comError(int,QString,QString,QString)));
+//  if(!dialog) return false;
+//  QAxObject *dev = dialog->querySubObject("ShowSelectDevice()");
+//  connect(dev, SIGNAL(exception(int,QString,QString,QString)),
+//          SLOT(comError(int,QString,QString,QString)));
+//  if(!dev){
+//    delete dialog;
+//    return false;
+//  }
+//  QAxObject *wiaI = dev->querySubObject("WiaItem");
+//  connect(wiaI, SIGNAL(exception(int,QString,QString,QString)),
+//          SLOT(comError(int,QString,QString,QString)));
+//  if(!wiaI){
+//    delete dev;
+//    delete dialog;
+//    return false;
+//  }
+//  hr = wiaI->queryInterface(QUuid(IID_IWiaItem), (void**)&rootItem);
+//  LogDebug()<<"hr ="<<(int)hr<<errorString(hr);
+
+  hr = devMgr->SelectDeviceDlg(GetTopWindow(0), 0, 0, NULL, &rootItem);
   LogDebug()<<"hr ="<<(int)hr<<"Top wnd ="<<GetTopWindow(0)<<errorString(hr);
-  if(!rootItem) return false;
+  if(!rootItem){
+    delete wiaI;
+    delete dev;
+    delete dialog;
+    return false;
+  }
 
   long itemCount = 0;
   IWiaItem **items = NULL;
@@ -228,8 +253,10 @@ bool QWia::scan()
     for(int i=0;i<itemCount;i++){
       hr = transferWiaItem(items[i]);
       LogDebug()<<"hr ="<<(int)hr<<errorString(hr);
-      while(doContinue && S_OK == hr) hr = transferWiaItem(items[i]);
-      LogDebug()<<"hr ="<<(int)hr<<errorString(hr);
+      while(doContinue && S_OK == hr){
+        hr = transferWiaItem(items[i]);
+        LogDebug()<<"hr ="<<(int)hr<<errorString(hr);
+      }
     }
   }
   CoTaskMemFree(items);
@@ -248,6 +275,9 @@ bool QWia::scan()
 
 //  delete fileName;
   if(rootItem) rootItem->Release();
+  delete wiaI;
+  delete dev;
+  delete dialog;
   return true;
 }
 
@@ -315,6 +345,12 @@ QString QWia::errorString(HRESULT hr) const
       break;
     case E_INVALIDARG:
       errStr = "E_INVALIDARG";
+      break;
+    case E_NOINTERFACE:
+      errStr = "E_NOINTERFACE";
+      break;
+    case E_FAIL:
+      errStr = "E_FAIL";
       break;
     default:
       errStr = "unknown error";
@@ -466,14 +502,14 @@ HRESULT QWia::readSomeWiaProperties( IWiaPropertyStorage *pWiaPropertyStorage )
   return hr;
 }
 
-HRESULT QWia::getWiaItemProperties(IWiaItem *rootItem, PROPSPEC propSpec[],
+HRESULT QWia::getWiaItemProperties(IWiaItem *rootItem, ULONG c_nPropCount,
+                                   PROPSPEC propSpec[],
                                    PROPVARIANT propRet[]) const
 {
   IWiaPropertyStorage *pWiaPropertyStorage = NULL;
   HRESULT hr = rootItem->QueryInterface(IID_IWiaPropertyStorage,
                            (void**)&pWiaPropertyStorage);
   if(SUCCEEDED(hr)){
-    const ULONG c_nPropCount = sizeof(propRet)/sizeof(propRet[0]);
     if(c_nPropCount==0){
       pWiaPropertyStorage->Release();
       return E_INVALIDARG;
@@ -672,7 +708,8 @@ bool QWia::isAcquiredFromFeeder(IWiaItem *rootItem) const
   PropSpec[0].propid = WIA_DPS_DOCUMENT_HANDLING_SELECT;
   const ULONG c_nPropCount = sizeof(PropVariant)/sizeof(PropVariant[0]);
 
-  HRESULT hr = getWiaItemProperties(rootItem, PropSpec, PropVariant);
+  HRESULT hr = getWiaItemProperties(rootItem, c_nPropCount, PropSpec,
+                                    PropVariant);
   if(SUCCEEDED(hr)){
     doContinue = PropVariant[0].lVal & FEEDER;
     for(uint i=0;i<c_nPropCount;i++)

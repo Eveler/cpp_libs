@@ -1,19 +1,18 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2014-02-07T12:16:21
+# Project created by QtCreator 2014-02-14T12:11:28
 #
 #-------------------------------------------------
 
 QT       += core gui
-QT += axcontainer
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = WiaTest
+TARGET = TwainTest
 TEMPLATE = app
 
 INCLUDEPATH += ./ \
-    ../../include/
+    ../../include/ \
 
 SOURCES += main.cpp\
         mainwindow.cpp
@@ -22,4 +21,7 @@ HEADERS  += mainwindow.h
 
 FORMS    += mainwindow.ui
 
-LIBS += -lQWia -lAMSLogger
+LIBS += -lAMSLogger
+win32 {
+LIBS += -lQTwain
+}

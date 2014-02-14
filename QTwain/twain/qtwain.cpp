@@ -64,6 +64,7 @@ void QTwain::CopyImage(HANDLE hBitmap, TW_IMAGEINFO& info)
   else
   {
     emit dibAcquired(dib);
+    delete dib;
   }
 } // !CopyImage()
 bool QTwain::processMessage(MSG& msg)
@@ -95,12 +96,12 @@ void QTwain::Create24Bit(CDIB& source,CDIB& dest)
   }
   int j;
   int i;
-  BYTE *src,*dst,*ptr;
+  BYTE *src,*dst;
   for(i=0; i < source.Height(); i++)
   {
     src = source.GetLinePtr(i);
     dst = dest.GetLinePtr(i);
-    ptr = dst;
+    BYTE *ptr = dst;
     int index=0;
     for(j=0; j < source.Width(); j++,ptr+=3)
     {

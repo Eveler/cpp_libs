@@ -20,9 +20,9 @@ public slots:
 
 private:
   IWiaDevMgr *devMgr;
-  QAxObject *devMgr1;
-  QAxObject *commonDlg;
-  QAxObject *dev;
+//  QAxObject *devMgr1;
+//  QAxObject *commonDlg;
+//  QAxObject *dev;
   QString fName;
   BSTR devID;
 
@@ -31,7 +31,7 @@ private:
   HRESULT createWiaDeviceManager(IWiaDevMgr **ppWiaDevMgr);
   HRESULT enumerateWiaDevices(IWiaDevMgr *pWiaDevMgr);
   HRESULT readSomeWiaProperties(IWiaPropertyStorage *pWiaPropertyStorage);
-  HRESULT getWiaItemProperties(IWiaItem *rootItem, PROPSPEC propSpec[],
+  HRESULT getWiaItemProperties(IWiaItem *rootItem, ULONG c_nPropCount, PROPSPEC propSpec[],
                                PROPVARIANT propRet[]) const;
   HRESULT createWiaDevice(IWiaDevMgr *pWiaDevMgr, BSTR bstrDeviceID,
                           IWiaItem **ppWiaDevice);
