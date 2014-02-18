@@ -212,7 +212,7 @@ bool HtmlReportLoader::exec()
     }
   }
 //  QString res=MFCCore::execFile(rep->report()->generate(), ext, false);
-  QString res=MFCCore::startSoffice(rep->report()->generate(), ext, false);
+  QString res=MFCCore::startSoffice(rep->report()->generate(), ext);
   if(res.isEmpty()) return true;
   setError(tr("Ошибка открытия отчёта: %1").arg(res));
   return false;
