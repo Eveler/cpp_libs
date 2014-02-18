@@ -166,7 +166,7 @@ void CDIB::CopyLine(int source,int dest)
 }
 void CDIB::InitDIB(COLORREF color)
 {
-  int i,j;
+  int i/*,j*/;
   unsigned char *ptr;
   if(m_pInfo->bmiHeader.biBitCount == 24)
   {
@@ -177,7 +177,7 @@ void CDIB::InitDIB(COLORREF color)
     for(i=0,ptr = m_pBits; i < height; i++)
     {
       ptr = m_pBits + i*bytes;
-      for(j=0; j < width ; j++,ptr+=3)
+      for(int j=0; j < width ; j++,ptr+=3)
       {
         memcpy(ptr,col,3);
       }
@@ -219,13 +219,13 @@ void CDIB::Expand(int nXDest,int nYDest,int xRatio,int yRatio,CDIB& dibSrc,int x
   yNum = nDHeight/yRatio;
   xErr = nDWidth%xRatio;
   yErr = nDHeight%yRatio;
-  unsigned char *buffer,*srcPtr,*destPtr,*ptr;
+  unsigned char *buffer/*,*srcPtr*/,*destPtr,*ptr;
   int i,j,k=0;
   buffer = (unsigned char *)malloc(nDWidth+20);
   if(!buffer) return;
   for(i=0; i < yNum; i++,ySrc++)
   {
-    srcPtr = dibSrc.GetLinePtr(ySrc) + xSrc;
+    unsigned char *srcPtr = dibSrc.GetLinePtr(ySrc) + xSrc;
     ptr = buffer;
     for(j=0; j < xNum; j++,ptr+=xRatio)
     {
@@ -264,13 +264,13 @@ void CDIB::StretchBlt(int nXDest,int nYDest,int nDWidth,int nDHeight,CDIB& dibSr
     ExpandBlt(nXDest,nYDest,xDiv,yDiv,dibSrc,xSrc,ySrc,nSWidth,nSHeight);
     return;
   }
-  unsigned char *tempPtr,*srcPix,*destPix,*q;
+  unsigned char *tempPtr/*,*srcPix*/,*destPix,*q;
   tempPtr = (unsigned char *)malloc(nDWidth+20);
-  int i,j,k,l,x,y,m;
+  int i,j,k,l,x,/*y,*/m;
   int xErr,yErr;
   for(i=yErr=m=0; i < nSHeight; i++)
   {
-    srcPix = dibSrc.GetLinePtr(i+ySrc) + xSrc;
+    unsigned char *srcPix = dibSrc.GetLinePtr(i+ySrc) + xSrc;
     q = tempPtr;
     for(j=l=xErr=0; j < nSWidth; j++,srcPix++)
     {
@@ -301,7 +301,7 @@ void CDIB::StretchBlt(int nXDest,int nYDest,int nDWidth,int nDHeight,CDIB& dibSr
       k++;
       yErr%=nSHeight;
     }
-    y=0;
+    int y=0;
     while(m < nDHeight && y < k)
     {
       destPix = GetLinePtr(m+nYDest) + nXDest;
@@ -351,7 +351,7 @@ void CDIB::BitBlt(int nXDest,int nYDest,int nWidth,int nHeight,CDIB& dibSrc,int 
   nHeight = nSrcY+nHeight > dibSrc.height? dibSrc.height-nSrcY : nHeight;
   nWidth = qMax(0,nWidth);
   nHeight = qMax(0,nHeight);
-  int i,k,l,j;
+  int i,k,l/*,j*/;
   unsigned char *srcPtr,*destPtr;
   if(!colors)
   {
@@ -381,7 +381,7 @@ void CDIB::BitBlt(int nXDest,int nYDest,int nWidth,int nHeight,CDIB& dibSrc,int 
       {
         srcPtr = dibSrc.GetLinePtr(k)+nXDest;
         destPtr = GetLinePtr(l)+nSrcX;
-        for(j=0; j < nWidth; j++,srcPtr++,destPtr++)
+        for(int j=0; j < nWidth; j++,srcPtr++,destPtr++)
         {
           if(colors[*srcPtr]) *destPtr=*srcPtr;
         }
@@ -409,10 +409,10 @@ bool CDIB::CopyDIB(CDIB& dib)
 void CDIB::ReplaceColor(unsigned char oldColor,unsigned char newColor)
 {
   int i,j;
-  unsigned char *ptr;
+  // unsigned char *ptr;
   for(i=0; i < height; i++)
   {
-    ptr = GetLinePtr(i);
+    unsigned char *ptr = GetLinePtr(i);
     for(j=0; j < width; j++)
     {
       if(ptr[j] == oldColor) ptr[j] = newColor;
@@ -566,7 +566,7 @@ return true;
 bool CDIB::SwitchFromOne(CDIB& dib)
 {
   int i,j,w,h;
-  unsigned char *sPtr,*dPtr;
+  // unsigned char *sPtr,*dPtr;
   unsigned char cols[2];
   w = Width();
   h = Height();
@@ -575,6 +575,7 @@ bool CDIB::SwitchFromOne(CDIB& dib)
   cols[1]=ClosestColor(dib.m_pRGB+1);
   for(i=0; i < h; i++)
   {
+    unsigned char *sPtr,*dPtr;
     dPtr = GetLinePtr(i);
     sPtr = dib.GetLinePtr(i);
     for(j=0 ; j < w; j++,dPtr++)
@@ -588,7 +589,7 @@ bool CDIB::SwitchFromOne(CDIB& dib)
 bool CDIB::SwitchFromFour(CDIB& dib)
 {
   int i,n,j,w,h;
-  unsigned char *sPtr,*dPtr;
+  // unsigned char *sPtr,*dPtr;
   unsigned char cols[16];
   w = Width();
   h = Height();
@@ -599,6 +600,7 @@ bool CDIB::SwitchFromFour(CDIB& dib)
   }
   for(i=0; i < h; i++)
   {
+    unsigned char *sPtr,*dPtr;
     dPtr = GetLinePtr(i);
     sPtr = dib.GetLinePtr(i);
     for(j=0 ; j < w; j++,dPtr++)
@@ -617,7 +619,7 @@ bool CDIB::SwitchFromFour(CDIB& dib)
 bool CDIB::SwitcHPALETTE(CDIB& dib)
 {
   int i,j,w,h;
-  unsigned char *sPtr,*dPtr;
+  // unsigned char *sPtr,*dPtr;
   unsigned char cols[256];
   w = Width();
   h = Height();
@@ -628,6 +630,7 @@ bool CDIB::SwitcHPALETTE(CDIB& dib)
   }
   for(i=0; i < h; i++)
   {
+    unsigned char *sPtr,*dPtr;
     dPtr = GetLinePtr(i);
     sPtr = dib.GetLinePtr(i);
     for(j=0 ; j < w; j++,sPtr++,dPtr++)
@@ -639,7 +642,7 @@ bool CDIB::SwitcHPALETTE(CDIB& dib)
 }
 int CDIB::ClosestColor(RGBQUAD *pRgb)
 {
-  unsigned int dist=BIG_DISTANCE,i,d,c=0;
+  unsigned int dist=BIG_DISTANCE,i/*,d*/,c=0;
   RGBQUAD *pQuad=m_pRGB;
   int pSize=GetPaletteSize();
   for(i=0; i < (unsigned int)pSize;i++)
@@ -654,7 +657,7 @@ int CDIB::ClosestColor(RGBQUAD *pRgb)
   }
   for(i=0; i < (unsigned int)pSize; i++,pQuad++)
   {
-    d = Distance(*pRgb,*pQuad);
+    unsigned int d = Distance(*pRgb,*pQuad);
     if(!d)
     {
       CacheQuad[i]=*pRgb;
@@ -681,14 +684,14 @@ unsigned int CDIB::Distance(RGBQUAD& rgb1,RGBQUAD& rgb2)
 }
 int CDIB::CountColors()
 {
-  BYTE colors[256],*ptr;
+  BYTE colors[256]/*,*ptr*/;
   int nNum=0,i,j,w,d;
   w = Width();
   d = Height();
   memset(colors,0,256);
   for(i=0; i < d; i++)
   {
-    ptr = GetLinePtr(i);
+    BYTE *ptr = GetLinePtr(i);
     for(j=0; j < w; j++,ptr++)
     {
       if(!colors[*ptr])
@@ -702,14 +705,14 @@ int CDIB::CountColors()
 }
 int CDIB::EnumColors(BYTE *array)
 {
-  BYTE *ptr;
+  // BYTE *ptr;
   int nNum=0,i,j,w,d;
   w = Width();
   d = Height();
   memset(array,0,256);
   for(i=0; i < d; i++)
   {
-    ptr = GetLinePtr(i);
+    BYTE *ptr = GetLinePtr(i);
     for(j=0; j < w; j++,ptr++)
     {
       if(!array[*ptr])
@@ -729,7 +732,7 @@ COLORREF CDIB::PaletteColor(int nIndex)
 bool CDIB::SwitchFrom24(CDIB& dib)
 {
   int i,j,w,h,c;
-  unsigned char *sPtr,*dPtr;
+  // unsigned char *sPtr,*dPtr;
   BYTE *index_ptr=NULL;
   RGBQUAD rgb;
   w = Width();
@@ -746,6 +749,7 @@ bool CDIB::SwitchFrom24(CDIB& dib)
   }
   for(i=0; i < h; i++)
   {
+    unsigned char *sPtr,*dPtr;
     dPtr = GetLinePtr(i);
     sPtr = dib.GetLinePtr(i);
     for(j=0 ; j < w; j++,dPtr++,sPtr+=3)

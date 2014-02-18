@@ -50,7 +50,7 @@ QWidget * QTwainInterface::parentWidget() const
     return m_pParent;
 }
 
-QPixmap QTwainInterface::fromWinHBITMAP(HBITMAP bitmap, HBitmapFormat format)
+QPixmap *QTwainInterface::fromWinHBITMAP(HBITMAP bitmap, HBitmapFormat format)
 {
     // Verify size
     BITMAP bitmap_info;
@@ -59,7 +59,7 @@ QPixmap QTwainInterface::fromWinHBITMAP(HBITMAP bitmap, HBitmapFormat format)
     int res = GetObject(bitmap, sizeof(BITMAP), &bitmap_info);
     if (!res) {
         qErrnoWarning("QPixmap::fromWinHBITMAP(), failed to get bitmap info");
-        return QPixmap();
+        return /*QPixmap()*/NULL;
     }
     int w = bitmap_info.bmWidth;
     int h = bitmap_info.bmHeight;
@@ -74,26 +74,26 @@ QPixmap QTwainInterface::fromWinHBITMAP(HBITMAP bitmap, HBitmapFormat format)
     bmi.bmiHeader.biCompression = BI_RGB;
     bmi.bmiHeader.biSizeImage   = w * h * 4;
 
-    QImage result;
+    QImage::Format imageFormat = QImage::Format_ARGB32_Premultiplied;
+    uint mask = 0;
+    if (format == NoAlpha) {
+        imageFormat = QImage::Format_RGB32;
+        mask = 0xff000000;
+    }
+
+    QImage result(w, h, imageFormat);
     // Get bitmap bits
     uchar *data = (uchar *) malloc(bmi.bmiHeader.biSizeImage);
 
     HDC display_dc = GetDC(0);
     if (GetDIBits(display_dc, bitmap, 0, h, data, &bmi, DIB_RGB_COLORS)) {
 
-        QImage::Format imageFormat = QImage::Format_ARGB32_Premultiplied;
-        uint mask = 0;
-        if (format == NoAlpha) {
-            imageFormat = QImage::Format_RGB32;
-            mask = 0xff000000;
-        }
-
         // Create image and copy data into image.
-        QImage image(w, h, imageFormat);
-        if (!image.isNull()) { // failed to alloc?
+//        QImage image(w, h, imageFormat);
+        if (!result.isNull()) { // failed to alloc?
             int bytes_per_line = w * sizeof(QRgb);
             for (int y=0; y<h; ++y) {
-                QRgb *dest = (QRgb *) image.scanLine(y);
+                QRgb *dest = (QRgb *) result.scanLine(y);
                 const QRgb *src = (const QRgb *) (data + y * bytes_per_line);
                 for (int x=0; x<w; ++x) {
                     const uint pixel = src[x];
@@ -104,13 +104,15 @@ QPixmap QTwainInterface::fromWinHBITMAP(HBITMAP bitmap, HBitmapFormat format)
                 }
             }
         }
-        result = image;
+//        result = image;
     } else {
         qWarning("QPixmap::fromWinHBITMAP(), failed to get bitmap bits");
     }
     ReleaseDC(0, display_dc);
     free(data);
-    return QPixmap::fromImage(result);
+//    return QPixmap::fromImage(result);
+    QPixmap *pix = new QPixmap(QPixmap::fromImage(result));
+    return pix;
 }
 QPixmap* QTwainInterface::convertToPixmap(CDIB* pDib)//,const unsigned int nWidth,const unsigned int nHeight)
 {
@@ -126,7 +128,9 @@ QPixmap* QTwainInterface::convertToPixmap(CDIB* pDib)//,const unsigned int nWidt
   HANDLE hdib=pDib->DIBHandle();
   HPALETTE pepe =CreateDIBPalette(hdib);
   HBITMAP ima =DIBToBitmap(hdib,pepe);
-  QPixmap* retval2= new QPixmap(fromWinHBITMAP ( ima,NoAlpha));
+  QPixmap* retval2= /*new QPixmap(*/fromWinHBITMAP(ima,NoAlpha)/*)*/;
+//  delete pepe;
+//  delete ima;
   //return retval2;
   //HDC hehe;
   /*pDib->BitBlt(hehe,

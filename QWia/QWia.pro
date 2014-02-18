@@ -1,58 +1,34 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2011-04-18T18:17:45
+# Project created by QtCreator 2014-02-06T20:02:46
 #
 #-------------------------------------------------
 
-QT     += core gui
-greaterThan( QT_MAJOR_VERSION, 4 ) QT += widgets
+QT       -= gui
+QT += axcontainer
 
-TARGET = QTwain
+TARGET = QWia
 TEMPLATE = lib
+
+#TYPELIBS = $$system(dumpcpp -getfile {94A0E92D-43C0-494E-AC29-FD45948A5221})
 
 exists( ../install_path.pri ){
     include(../install_path.pri)
 }
 
-DEFINES += QTWAIN_LIBRARY
-DEFINES += NOMINMAX
-
+DEFINES += QWIA_LIBRARY
 
 INCLUDEPATH += ./ \
     ../include/
 
-SOURCES += \
-    twain/twaincpp.cpp \
-    twain/qtwaininterface.cpp \
-    twain/qtwain.cpp \
-    twain/dib.cpp \
-    twain/dibutil.c \
-    twain/dibfile.c
+SOURCES += qwia.cpp
 
 HEADERS += \
-    ../include/twaincpp.h \
-    ../include/twain.h \
-    twain/stdafx.h \
-    ../include/qtwaininterface.h \
-    ../include/qtwain.h \
-    twain/dibutil.h \
-    twain/dibapi.h \
-    ../include/dib.h
+    ../include/export/qwia_export.h \
+    ../include/qwia.h
 
-RESOURCES +=
-
-unix:!symbian {
-
-    maemo5 {
-        target.path = /opt/usr/lib
-    } else {
-        target.path = /usr/lib
-    }
-    INSTALLS += target
-}
-
-win32 {
-    target.path = $$INSTALL_WIN_LIB
+unix {
+    target.path = /usr/lib
     INSTALLS += target
 }
 
@@ -78,3 +54,6 @@ CONFIG(debug, debug|release){
   RCC_DIR = ../temp/$$TARGET/debug
   UI_DIR = ../temp/$$TARGET/debug
 }
+
+#LIBS += -LC:\Windows\System32 -lwiaaut -LC:\Windows\SysWOW64 -lcrtdll
+LIBS += -lAMSLogger

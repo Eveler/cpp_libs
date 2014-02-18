@@ -210,7 +210,7 @@ HPALETTE CreateDIBPalette(HDIB hDIB)
   LPLOGPALETTE lpPal; // pointer to a logical palette
   HANDLE hLogPal=0; // handle to a logical palette
   HPALETTE hPal = NULL; // handle to a palette
-  int i, wNumColors; // loop index, number of colors in color table
+  int /*i,*/ wNumColors; // loop index, number of colors in color table
   LPSTR lpbi; // pointer to packed-DIB
   LPBITMAPINFO lpbmi; // pointer to BITMAPINFO structure (Win3.0)
   LPBITMAPCOREINFO lpbmc; // pointer to BITMAPCOREINFO structure (OS/2)
@@ -234,6 +234,7 @@ HPALETTE CreateDIBPalette(HDIB hDIB)
     lpPal = (LPLOGPALETTE)GlobalLock(hLogPal);
     lpPal->palVersion = PALVERSION;
     lpPal->palNumEntries = (WORD)wNumColors;
+    int i;
     for (i = 0; i < wNumColors; i++)
     {
       if (bWinStyleDIB)
@@ -398,7 +399,7 @@ HDIB BitmapToDIB(HBITMAP hBitmap, HPALETTE hPal)
     ReleaseDC(NULL, hDC);
     return hDIB = NULL;
   }
-  bi = *lpbi;
+  // bi = *lpbi;
   GlobalUnlock(hDIB);
   SelectPalette(hDC, hPal, TRUE);
   RealizePalette(hDC);
@@ -424,8 +425,8 @@ HDIB BitmapToDIB(HBITMAP hBitmap, HPALETTE hPal)
 ************************************************************************/
 int PalEntriesOnDevice(HDC hDC)
 {
-  int nColors=16; // number of colors
-  nColors = GetDeviceCaps(hDC, SIZEPALETTE);
+  // int nColors=16; // number of colors
+  int nColors = GetDeviceCaps(hDC, SIZEPALETTE);
   if (!nColors)
     nColors = GetDeviceCaps(hDC, NUMCOLORS);
   assert(nColors);

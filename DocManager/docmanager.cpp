@@ -439,7 +439,7 @@ bool Docmanager::newDocument(MFCDocumentInfo *doc) {
        curClientDocs == NULL &&
        curDocpathsDocs == NULL )
   {
-    setError( tr( "Doclists is not setted" ) );
+    setError( tr( "Doclists is not set" ) );
     return false;
   }
 
@@ -455,7 +455,7 @@ bool Docmanager::newDocument(MFCDocumentInfo *doc) {
       declarDocs->load(DB);
       dm=declarDocs->documents();
     }
-    LogDebug()<<"Adding to declarDocs";
+    LogDebug()<<"Adding to declarDocs"<<QUOTED_STR(doc->type());
     dm->addDocument(doc,documentID(doc));
   }
 
@@ -465,7 +465,7 @@ bool Docmanager::newDocument(MFCDocumentInfo *doc) {
       curClientDocs->load(DB);
       dm=curClientDocs->documents();
     }
-    LogDebug()<<"Adding to curClientDocs";
+    LogDebug()<<"Adding to curClientDocs"<<QUOTED_STR(doc->type());
     dm->addDocument(doc,documentID(doc));
   }
 
@@ -475,7 +475,7 @@ bool Docmanager::newDocument(MFCDocumentInfo *doc) {
       curDocpathsDocs->load(DB);
       dm=curDocpathsDocs->documents();
     }
-    LogDebug()<<"Adding to curDocpathsDocs";
+    LogDebug()<<"Adding to curDocpathsDocs"<<QUOTED_STR(doc->type());
     dm->addDocument(doc,documentID(doc));
   }
 

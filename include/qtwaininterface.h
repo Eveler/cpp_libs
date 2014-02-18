@@ -119,7 +119,7 @@ public:
       PremultipliedAlpha,
       Alpha
   };
-  static QPixmap fromWinHBITMAP(HBITMAP bitmap, HBitmapFormat format);
+  static QPixmap *fromWinHBITMAP(HBITMAP bitmap, HBitmapFormat format);
   static QPixmap* convertToPixmap();
   static QPixmap* convertToPixmap(CDIB* pDib);//,unsigned int nWidth = 0,unsigned int nHeight = 0);
   /**
