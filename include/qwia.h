@@ -17,6 +17,7 @@ public:
   void setFileName(const QString& fn="scan.png");
 
 public slots:
+  bool selectDevice();
   bool scan();
   void comError(int code,QString source,QString descr,QString help);
 

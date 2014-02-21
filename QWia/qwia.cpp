@@ -1,24 +1,18 @@
 #include "qwia.h"
 #include "amslogger.h"
 #include <QAxObject>
+#include <QFileInfo>
 //#include <QImage>
 //#include <QTemporaryFile>
 //#include "cdatacallback.h"
 
-QWia::QWia(QObject *parent): QObject(parent)
+QWia::QWia(QObject *parent): QObject(parent),
+  dev(NULL)
 {
   setFileName();
   commonDlg = new QAxObject("WIA.CommonDialog");
   connect(commonDlg, SIGNAL(exception(int,QString,QString,QString)),
           SLOT(comError(int,QString,QString,QString)));
-  dev = commonDlg->querySubObject("ShowSelectDevice(DeviceType,AlwaysSelectDevice)",
-                                  0, true);
-  if(!dev){
-    delete commonDlg;
-    commonDlg = NULL;
-  }else
-    connect(dev, SIGNAL(exception(int,QString,QString,QString)),
-            SLOT(comError(int,QString,QString,QString)));
 //  devMgr = NULL;
 //  devID = NULL;
 //  HRESULT hr = createWiaDeviceManager(&devMgr);
@@ -41,9 +35,38 @@ void QWia::setFileName(const QString &fn)
   fName = fn;
 }
 
+bool QWia::selectDevice()
+{
+  if(!commonDlg) return false;
+
+  QAxObject *devManager = new QAxObject("WIA.DeviceManager");
+  QAxObject *infos = devManager->querySubObject("DeviceInfos()");
+  if(infos){
+    int count = infos->property("Count").toInt();
+    LogDebug()<<"DeviceInfos.Count ="<<count;
+    for(int i=1;i<=count;i++){
+
+    }
+    delete infos;
+  }
+  delete devManager;
+
+  dev = commonDlg->querySubObject("ShowSelectDevice(DeviceType,AlwaysSelectDevice)",
+                                  0, true);
+  if(!dev){
+    delete commonDlg;
+    commonDlg = NULL;
+  }else
+    connect(dev, SIGNAL(exception(int,QString,QString,QString)),
+            SLOT(comError(int,QString,QString,QString)));
+}
+
 bool QWia::scan()
 {
-  if(!commonDlg || !dev) return false;
+  if(!commonDlg) return false;
+
+  if(!dev) selectDevice();
+  if(!dev) return false;
 
   int fileNumber = 0;
   QAxObject *items = commonDlg->querySubObject("ShowSelectItems(Device)",
@@ -72,8 +95,11 @@ bool QWia::scan()
       QAxObject *image = commonDlg->querySubObject("ShowTransfer(Item, FormatID)",
                                               item->asVariant(),
                                               WIA_IMG_FORMAT_PNG);
+      QFileInfo fi(fName);
+      QString fileName = tr("%1%2.%3").arg(fi.baseName()).arg(fileNumber++)
+          .arg(fi.completeSuffix());
       if(image){
-        image->dynamicCall("SaveFile(Filename)", tr("scan%1.png").arg(fileNumber++));
+        image->dynamicCall("SaveFile(Filename)", fileName);
         delete image;
       }
       while(isFeeder && image){
@@ -81,7 +107,7 @@ bool QWia::scan()
                                                 item->asVariant(),
                                                 WIA_IMG_FORMAT_PNG);
         if(image){
-          image->dynamicCall("SaveFile(Filename)", tr("scan%1.png").arg(fileNumber++));
+          image->dynamicCall("SaveFile(Filename)", fileName);
           delete image;
         }
       }
