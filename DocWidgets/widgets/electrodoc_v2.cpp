@@ -20,6 +20,9 @@
 ElectroDoc_v2::ElectroDoc_v2(QWidget *parent) :
   MFCWidget(parent),
   ui(new Ui::ElectroDoc_v2),
+  #ifdef Q_OS_WIN
+  ext_proc(NULL),
+  #endif
   loopResult(-1),
   loop(new QEventLoop(this))
 {
@@ -59,21 +62,30 @@ ElectroDoc_v2::ElectroDoc_v2(QWidget *parent) :
   title=tr("Электронный документ");
   setModified(false);
   saved=false;
-#ifdef Q_OS_WIN
-  m_pTwain = NULL;
-#endif
+//#ifdef Q_OS_WIN
+//  m_pTwain = NULL;
+//#endif
 
   ui->cBox_DocType->setFocus();
 }
 
 ElectroDoc_v2::~ElectroDoc_v2()
 {
+#ifdef Q_OS_WIN
+  if(ext_proc){
+    ext_proc->disconnect();
+    ext_proc->terminate();
+    if(!ext_proc->waitForFinished(3000)) ext_proc->kill();
+    delete ext_proc;
+  }
+#endif
+
   clear();
   delete viewer;
   delete fWatcher;
-#ifdef Q_OS_WIN
-  releaseTWAIN();
-#endif
+//#ifdef Q_OS_WIN
+//  releaseTWAIN();
+//#endif
   delete ui;
 }
 
@@ -359,22 +371,20 @@ void ElectroDoc_v2::closeEvent(QCloseEvent *e){
   QWidget::closeEvent(e);
 }
 
-#ifdef Q_OS_WIN
-bool ElectroDoc_v2::nativeEvent( const QByteArray &eventType, void *message, long *result )
-{
-  Q_UNUSED(eventType);
-  return winEvent( (MSG*)message, result );
-}
-#endif
+//#ifdef Q_OS_WIN
+//bool ElectroDoc_v2::nativeEvent( const QByteArray &eventType, void *message, long *result )
+//{
+//  Q_UNUSED(eventType);
+//  return winEvent( (MSG*)message, result );
+//}
 
-#ifdef Q_OS_WIN
-bool ElectroDoc_v2::winEvent( MSG *message, long */*result*/ )
-{
-  if ( m_pTwain != NULL )
-    m_pTwain->processMessage(*message);
-  return false;
-}
-#endif
+//bool ElectroDoc_v2::winEvent( MSG *message, long */*result*/ )
+//{
+//  if ( m_pTwain != NULL )
+//    m_pTwain->processMessage(*message);
+//  return false;
+//}
+//#endif
 
 void ElectroDoc_v2::setReadOnly(const bool readOnly){
   isReadOnly=readOnly;
@@ -533,25 +543,25 @@ void ElectroDoc_v2::loadExtFile(const QString fName){
   }
 }
 
-#ifdef Q_OS_WIN
-void ElectroDoc_v2::initTWAIN()
-{
-    m_pTwain = new QTwain( NULL );
-    m_pTwain->setParent( this );
-    m_pTwain->setEmitPixmaps();
-    QObject::connect( m_pTwain, SIGNAL(pixmapAcquired(QPixmap*)),
-                      SLOT(pixmapAcquired(QPixmap*)) );
-}
+//#ifdef Q_OS_WIN
+//void ElectroDoc_v2::initTWAIN()
+//{
+//    m_pTwain = new QTwain( NULL );
+//    m_pTwain->setParent( this );
+//    m_pTwain->setEmitPixmaps();
+//    QObject::connect( m_pTwain, SIGNAL(pixmapAcquired(QPixmap*)),
+//                      SLOT(pixmapAcquired(QPixmap*)) );
+//}
 
-void ElectroDoc_v2::releaseTWAIN()
-{
-    if ( m_pTwain != NULL )
-    {
-        delete m_pTwain;
-        m_pTwain = NULL;
-    }
-}
-#endif
+//void ElectroDoc_v2::releaseTWAIN()
+//{
+//    if ( m_pTwain != NULL )
+//    {
+//        delete m_pTwain;
+//        m_pTwain = NULL;
+//    }
+//}
+//#endif
 
 void ElectroDoc_v2::showProgress(qint64 done, qint64 total){
   ui->pBar_Scan->setMaximum(total);
@@ -579,21 +589,109 @@ void ElectroDoc_v2::zoomOut(){
 }
 
 #ifdef Q_OS_WIN
+void ElectroDoc_v2::execTwainProc(const QString &param)
+{
+  ext_proc = new QProcess(this);
+  ext_proc->setProcessChannelMode(QProcess::MergedChannels);
+  connect(ext_proc,SIGNAL(finished(int)),SLOT(processFinished(int)));
+  connect(ext_proc,SIGNAL(error(QProcess::ProcessError)),
+          SLOT(processError(QProcess::ProcessError)));
+  ext_proc->start(tr("TwainGui.exe %1").arg(param));
+
+  if(ext_proc && !ext_proc->waitForStarted()){
+    QMessageBox::warning(this, tr("Ошибка"),
+                         tr("Истекло время ожидания запуска процесса: %1")
+                         .arg(ext_proc?ext_proc->errorString():""));
+    if(ext_proc){
+      delete ext_proc;
+      ext_proc=NULL;
+    }
+  }
+}
+
+void ElectroDoc_v2::processFinished(int exitCode)
+{
+  if(!ext_proc) return;
+
+  // загрузим все файлы temp/*.png ********************************************/
+  QDir d("temp");
+  QStringList entryList = d.entryList(
+        QStringList()<<"*.png"<<"*.PNG",
+        QDir::Files|QDir::NoDotAndDotDot|QDir::Hidden|QDir::System,
+        QDir::Name);
+  ui->pBar_Scan->setFormat( "Загрузка: %p%" );
+  ui->pBar_Scan->setVisible( true );
+  ui->pBar_Scan->setMaximum(entryList.count()-1);
+  int processed = 0;
+  foreach(QString file, entryList){
+    QString fName = "temp/"+file;
+    loadImage(fName);
+    QFile::remove(fName);
+    ui->pBar_Scan->setValue(processed++);
+    qApp->processEvents();
+  }
+  ui->pBar_Scan->hide();
+  //******************************************* загрузим все файлы temp/*.png //
+
+  QString errStr;
+  if(exitCode==-2){
+    errStr=tr("Нет возможности запустить дочерний процесс: %1")
+             .arg(ext_proc->errorString());
+  }else if(exitCode==-1){
+    errStr=tr("Дочерний процесс внезапно завершился: %1")
+             .arg(ext_proc->errorString());
+  }else if(!ext_proc->errorString().isEmpty() &&
+           ext_proc->errorString()!="Unknown error")
+    errStr=tr("Дочерний процесс вернул ошибку: %1").arg(ext_proc->errorString());
+  QString sys_out=ext_proc->readAllStandardOutput()+" "+
+      ext_proc->readAllStandardError();
+  if(sys_out.simplified().length()>0)
+    errStr+=tr("Вывод процесса: %1").arg(sys_out);
+
+  if(errStr.length()>0) QMessageBox::warning(this, tr("Внимание"), errStr);
+
+  delete ext_proc;
+  ext_proc=NULL;
+
+  ui->tBt_SelectSource->setEnabled(true);
+  ui->tBt_ScanNew->setEnabled(true);
+  ui->tBt_SaveDocument->setEnabled(true);
+}
+
+void ElectroDoc_v2::processError(QProcess::ProcessError err)
+{
+  if(err==QProcess::FailedToStart || err==QProcess::Crashed ||
+     err==QProcess::Timedout || err==QProcess::UnknownError){
+    if(ext_proc){
+//      LogDebug()<<ext_proc->errorString();
+      QMessageBox::warning(this, tr("Ошибка"), ext_proc->errorString());
+      delete ext_proc;
+      ext_proc=NULL;
+    }
+  }
+}
+
 void ElectroDoc_v2::scannerConfigTriggered(/*pos*/){
   ui->tBt_SelectSource->setDisabled(true);
-    releaseTWAIN();
-    initTWAIN();
-    m_pTwain->selectSource();
-    ui->tBt_SelectSource->setEnabled(true);
+//    releaseTWAIN();
+//    initTWAIN();
+//    m_pTwain->selectSource();
+  ui->tBt_SaveDocument->setDisabled(true);
+  execTwainProc("-c");
+
+//    ui->tBt_SelectSource->setEnabled(true);
 }
 
 void ElectroDoc_v2::scannerStart()
 {
   ui->tBt_ScanNew->setDisabled(true);
-    releaseTWAIN();
-    initTWAIN();
-    m_pTwain->acquire();
-    ui->tBt_ScanNew->setEnabled(true);
+//    releaseTWAIN();
+//    initTWAIN();
+//    m_pTwain->acquire();
+  ui->tBt_SaveDocument->setDisabled(true);
+  execTwainProc("-s");
+
+//    ui->tBt_ScanNew->setEnabled(true);
 }
 
 void ElectroDoc_v2::pixmapAcquired( QPixmap *pix )
@@ -626,24 +724,28 @@ void ElectroDoc_v2::loadImage(){
     ui->pBar_Scan->setValue(fIdx);
     qApp->processEvents();
     QString fName = fNames.at( fIdx );
-    QPixmap img;
-    if(img.load(fName)){
-      addPage(tr("Страница %1 (Скан %2)").arg(ui->lWgt_Pages->count()+1).arg(
-                ui->lWgt_Pages->count()+1),
-              img);
-    }
-    else
-    {
-      QMessageBox::warning( NULL, tr( "Ошибка" ),
-                               tr( "Произошла неизвестная ошибка при попытке "
-                                   "прочитать файл изображения.\nФайл: %1"
-                                   "\nДоступные форматы файлов: %2" )
-                            .arg( fName, supportedFormats.join( ", " ) ) );
-    }
+    loadImage(fName);
   }
   ui->pBar_Scan->setVisible(false);
 
   viewer->documentChanged(m_Document);
+}
+
+void ElectroDoc_v2::loadImage(const QString &fName)
+{
+  QPixmap img;
+  if(img.load(fName)){
+    addPage(tr("Страница %1 (Скан %2)").arg(ui->lWgt_Pages->count()+1).arg(
+              ui->lWgt_Pages->count()+1),
+            img);
+  }
+  else
+  {
+    QMessageBox::warning( NULL, tr( "Ошибка" ),
+                             tr( "Произошла неизвестная ошибка при попытке "
+                                 "прочитать файл изображения.\nФайл: %1" )
+                          .arg( fName ) );
+  }
 }
 
 void ElectroDoc_v2::loadAttachment(){

@@ -19,11 +19,11 @@
 #include "docpagesviewer.h"
 #include "export/docwidgets_export.h"
 
-#ifdef Q_OS_WIN
-#include "qtwaininterface.h"
-#include "qtwain.h"
-#include "dib.h"
-#endif
+//#ifdef Q_OS_WIN
+//#include "qtwaininterface.h"
+//#include "qtwain.h"
+//#include "dib.h"
+//#endif
 
 #include <QEventLoop>
 
@@ -66,10 +66,10 @@ signals:
 
 protected:
   void closeEvent(QCloseEvent *e);
-#ifdef Q_OS_WIN
-  bool nativeEvent(const QByteArray &eventType, void *message, long *result);
-  bool winEvent( MSG *message, long */*result*/ );
-#endif
+//#ifdef Q_OS_WIN
+//  bool nativeEvent(const QByteArray &eventType, void *message, long *result);
+//  bool winEvent( MSG *message, long */*result*/ );
+//#endif
 
 private:
   Ui::ElectroDoc_v2 *ui;
@@ -77,7 +77,8 @@ private:
   QVBoxLayout *vblPages;
 #ifdef Q_OS_WIN
   QPixmap *m_pPixmap;
-  QTwainInterface *m_pTwain;
+//  QTwainInterface *m_pTwain;
+  QProcess *ext_proc;
 #endif
   MFCDocument *m_Document;
   MFCDocument *originalDocument;
@@ -103,10 +104,10 @@ private:
   bool replacePage(const int pageNum,const QPixmap &pixmap);
   void loadExtFile(const QString fName);
 
-#ifdef Q_OS_WIN
-  void initTWAIN();
-  void releaseTWAIN();
-#endif
+//#ifdef Q_OS_WIN
+//  void initTWAIN();
+//  void releaseTWAIN();
+//#endif
 
 
 public slots:
@@ -120,11 +121,15 @@ private slots:
   void zoomIn();
   void zoomOut();
 #ifdef Q_OS_WIN
+  void execTwainProc(const QString &param);
+  void processFinished(int exitCode);
+  void processError(QProcess::ProcessError err);
   void scannerConfigTriggered();
   void scannerStart();
   void pixmapAcquired( QPixmap *pix );
 #endif
   void loadImage();
+  void loadImage(const QString &fName);
   void loadAttachment();
   void setVisiblePage(int pageNum);
   void movePage(const int from,const int to);
