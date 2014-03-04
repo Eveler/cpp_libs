@@ -27,7 +27,8 @@ SOURCES += \
     twain/qtwain.cpp \
     twain/dib.cpp \
     twain/dibutil.c \
-    twain/dibfile.c
+    twain/dibfile.c \
+    mtwain.cpp
 
 HEADERS += \
     ../include/twaincpp.h \
@@ -37,7 +38,8 @@ HEADERS += \
     ../include/qtwain.h \
     twain/dibutil.h \
     twain/dibapi.h \
-    ../include/dib.h
+    ../include/dib.h \
+    mtwain.h
 
 RESOURCES +=
 

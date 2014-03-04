@@ -81,6 +81,6 @@ CONFIG(debug, debug|release){
 }
 
 LIBS += -lDossier -lAMSLogger -lMFCCore
-#win32 {
-#LIBS += -lQTwain
-#}
+win32 {
+LIBS += -lQTwain
+}
