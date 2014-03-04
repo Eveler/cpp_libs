@@ -39,7 +39,7 @@ HEADERS += \
     twain/dibutil.h \
     twain/dibapi.h \
     ../include/dib.h \
-    mtwain.h
+    ../include/mtwain.h
 
 RESOURCES +=
 
