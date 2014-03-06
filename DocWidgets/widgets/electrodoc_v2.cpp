@@ -669,6 +669,10 @@ void ElectroDoc_v2::processError(QProcess::ProcessError err)
       ext_proc=NULL;
     }
   }
+
+  ui->tBt_SelectSource->setEnabled(true);
+  ui->tBt_ScanNew->setEnabled(true);
+  ui->tBt_SaveDocument->setEnabled(true);
 }
 
 void ElectroDoc_v2::scannerConfigTriggered(/*pos*/){

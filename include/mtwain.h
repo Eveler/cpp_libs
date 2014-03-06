@@ -15,6 +15,9 @@ typedef int (*DSMparent)(TW_IDENTITY, int, int, int, int, HWND);
 typedef int (*DSMident)(TW_IDENTITY, int, int, int, int, pTW_IDENTITY);
 typedef int (*DSuserif)(TW_IDENTITY, TW_IDENTITY, int, int, int, pTW_USERINTERFACE);
 typedef int (*DScap)(TW_IDENTITY, TW_IDENTITY, int, int, int, pTW_CAPABILITY);
+typedef int (*DSiinf)(TW_IDENTITY, TW_IDENTITY, int, int, int, pTW_IMAGEINFO);
+typedef int (*DSixfer)(TW_IDENTITY, TW_IDENTITY, int, int, int, HBITMAP);
+typedef int (*DSpxfer)(TW_IDENTITY, TW_IDENTITY, int, int, int, pTW_PENDINGXFERS);
 
 class EXPORT_QTWAIN MTwain : public QObject
 {
@@ -29,6 +32,7 @@ public:
   void select();
   bool acquire();
   QList<HBITMAP> transfer();
+  bool saveImg(void *dibhandp, QString &fileName);
 
 signals:
 
@@ -48,6 +52,12 @@ private:
   DSMident dsmIdent;
   DSuserif dsUserif;
   DScap dsCap;
+  DSiinf dsIinf;
+  DSixfer dsIxfer;
+  DSpxfer dsPxfer;
+
+  void *getPixelInfo(void *bmpptr);
+  bool getCodecClsid(QString &filename, LPCLSID clsid);
 };
 
 
