@@ -272,6 +272,7 @@ bool Docmanager::removeClientDocument(MFCDocumentInfo *doc){
 }
 
 bool Docmanager::setDeclar(const QVariant id){
+//  LogDebug()<<Q_FUNC_INFO<<"BEGIN";
   if(id.isNull()) return false;
 
   unsetDeclar();
@@ -302,6 +303,7 @@ bool Docmanager::setDeclar(const QVariant id){
   emit declarSet(declarDocs->model());
   emit declarSet(dm);
 
+//  LogDebug()<<Q_FUNC_INFO<<"END";
   return true;
 }
 

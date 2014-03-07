@@ -67,6 +67,7 @@ void FtpDocsStorage::setDataBaseName(const QString dataBaseName){
 
 bool FtpDocsStorage::connectToHost(const QString uName, const QString pass,
                                 const QString host, const quint16 port){
+//  LogDebug()<<Q_FUNC_INFO<<"BEGIN: param1 ="<<uName<<"param2 ="<<pass<<"param3 ="<<host<<"param4 ="<<port;
 //  if(connected) return true;
   userName=uName;
   userPass=pass;
@@ -90,9 +91,13 @@ bool FtpDocsStorage::connectToHost(const QString uName, const QString pass,
   url.setUserName(userName);
   url.setPassword(userPass);
   bool res=ftpEng->connectToHost(url,ftpPort);
-  if(!res) setError(tr("Ошибка соединения: %1").arg(ftpEng->lastError()));
+  if(!res){
+    setError(tr("Ошибка соединения: %1").arg(ftpEng->lastError()));
+    return res;
+  }
 
 //  setRoot();
+//  LogDebug()<<Q_FUNC_INFO<<"END";
   return ( loop->exec() == 0 );
 }
 
@@ -124,6 +129,7 @@ void FtpDocsStorage::putNextFile(){
 
 void FtpDocsStorage::emitError(QString err,QString file,int line){
   errStr=tr("%1 (%2): %3").arg(file).arg(line).arg(err);
+  LogDebug()<<errStr;
   emit error(errStr);
 }
 
@@ -204,6 +210,7 @@ void FtpDocsStorage::ftpAnswer(FTPEngine::Command cmd, bool res){
       docsDone=1;
       docCount=1;
       isDownloading=false;
+      loop->exit();
     }
     else putNextFile();
   }

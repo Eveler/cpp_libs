@@ -32,6 +32,7 @@ DocumentsModel *DeclarDocuments::documents(){
 }
 
 void DeclarDocuments::load(QSqlDatabase db){
+//  LogDebug()<<Q_FUNC_INFO<<"BEGIN";
   if(!loader){
     setLoader(new DeclarDocsLoader(db,this));
     connect(loader,SIGNAL(modelDestroyed()),SLOT(modelDestroyed()));
@@ -42,6 +43,7 @@ void DeclarDocuments::load(QSqlDatabase db){
   doclistModel->setObjectName(tr("DeclarDocuments_model_%1").arg(ID.toString()));
   sortedModel->setSourceModel(doclistModel);
   sortedModel->sort(doclistModel->findColumn("created"),Qt::DescendingOrder);
+//  LogDebug()<<Q_FUNC_INFO<<"END";
 }
 
 bool DeclarDocuments::load( MFCDocumentInfo *doc ) const
