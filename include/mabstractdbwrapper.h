@@ -19,7 +19,8 @@ class EXPORT_MDATASET MAbstractDBWrapper : public QThread, public ObjectListPriv
   public:
     enum SourceType {
       Founded = 0,
-      Initiated
+      Initiated,
+      Selected
     };
     enum JobType {
       None = 0,
@@ -36,9 +37,10 @@ class EXPORT_MDATASET MAbstractDBWrapper : public QThread, public ObjectListPriv
     QString connectionName() const;
     bool setConnectionName( const QString &connectionName );
 
-    void find( const QString &filter );
-    void initiate();
-    void save( QObject *object );
+    bool find( const QString &filter );
+    bool initiate();
+    bool select( int indexInFounded );
+    bool save( int indexInInitiated );
 
     QObject * object( int sourceType, int index ) const;
     int count( int sourceType ) const;
@@ -53,8 +55,8 @@ class EXPORT_MDATASET MAbstractDBWrapper : public QThread, public ObjectListPriv
   protected:
     QReadWriteLock * locker() const;
     void run();
-    void job();
-    QPair<JobType, QVariant> objective();
+    void job( int objectiveType, const QVariant &objectiveValue );
+    QPair<int, QVariant> objective();
     virtual bool searching( const QString &queryText ) = 0;
     virtual bool initiating() = 0;
     virtual bool saving( QObject *object ) = 0;
@@ -63,7 +65,7 @@ class EXPORT_MDATASET MAbstractDBWrapper : public QThread, public ObjectListPriv
   private:
     QReadWriteLock *m__Locker;
     QString m__ConnectionName;
-    JobType m__ObjectiveType;
+    int m__ObjectiveType;
     QVariant m__ObjectiveValue;
 };
 

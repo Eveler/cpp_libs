@@ -16,6 +16,7 @@ class EXPORT_MDATASET MDataSource : public QObject
     Q_PROPERTY(int status READ status NOTIFY statusChanged)
     Q_PROPERTY(MDataSourceModel * founded READ founded NOTIFY foundedChanged)
     Q_PROPERTY(MDataSourceModel * initiated READ initiated NOTIFY initiatedChanged)
+    Q_PROPERTY(MDataSourceModel * selected READ selected NOTIFY selectedChanged)
 
 
   public:
@@ -30,13 +31,15 @@ class EXPORT_MDATASET MDataSource : public QObject
 
     Q_INVOKABLE void findObject( const QString &filter = QString() );
     Q_INVOKABLE void initiateObject();
-    Q_INVOKABLE void saveObject( QObject *object );
+    Q_INVOKABLE void selectObject( int indexInFounded );
+    Q_INVOKABLE void saveObject( int indexInInitiated );
 
     QString connectionName() const;
     void setConnectionName( const QString & connectionName );
     int status() const;
     MDataSourceModel * founded() const;
     MDataSourceModel * initiated() const;
+    MDataSourceModel * selected() const;
 
 
   signals:
@@ -44,6 +47,7 @@ class EXPORT_MDATASET MDataSource : public QObject
     void statusChanged();
     void foundedChanged();
     void initiatedChanged();
+    void selectedChanged();
     void saved();
 
 
@@ -59,6 +63,7 @@ class EXPORT_MDATASET MDataSource : public QObject
     MAbstractDBWrapper *m__Wrapper;
     MDataSourceModel *m__Founded;
     MDataSourceModel *m__Initiated;
+    MDataSourceModel *m__Selected;
     int m__SavedObjectIndex;
 
 

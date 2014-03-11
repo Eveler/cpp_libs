@@ -14,7 +14,7 @@ ObjectListPrivate::~ObjectListPrivate()
 
 QObject * ObjectListPrivate::pObject( int sourceType, int index ) const
 {
-  return m__Objects.value( sourceType, QObjectList() ).value( index );
+  return m__Objects.value( sourceType, QObjectList() ).value( index, NULL );
 }
 
 int ObjectListPrivate::pCount( int sourceType ) const

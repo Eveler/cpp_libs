@@ -59,39 +59,63 @@ bool MAbstractDBWrapper::setConnectionName( const QString & connectionName )
   return true;
 }
 
-void MAbstractDBWrapper::find( const QString &filter )
+bool MAbstractDBWrapper::find( const QString &filter )
 {
-  if ( isRunning() ) return;
+  if ( isRunning() ) return false;
 
   locker()->lockForWrite();
-  m__ObjectiveType = Searching;
+  m__ObjectiveType = (int)Searching;
   m__ObjectiveValue.setValue( filter );
   locker()->unlock();
 
   start();
+  return true;
 }
 
-void MAbstractDBWrapper::initiate()
+bool MAbstractDBWrapper::initiate()
 {
-  if ( isRunning() ) return;
+  if ( isRunning() ) return false;
 
   locker()->lockForWrite();
-  m__ObjectiveType = Initiating;
+  m__ObjectiveType = (int)Initiating;
   locker()->unlock();
 
   start();
+  return true;
 }
 
-void MAbstractDBWrapper::save( QObject *object )
+bool MAbstractDBWrapper::select( int indexInFounded )
 {
-  if ( isRunning() ) return;
+  if ( isRunning() ) return false;
+
+  locker()->lockForRead();
+  QObject *object = pObject( (int)Founded, indexInFounded );
+  locker()->unlock();
+  if ( object == NULL ) return false;
 
   locker()->lockForWrite();
-  m__ObjectiveType = Saving;
+  pAppend( (int)Selected, object );
+  locker()->unlock();
+
+  return true;
+}
+
+bool MAbstractDBWrapper::save( int indexInInitiated )
+{
+  if ( isRunning() ) return false;
+
+  locker()->lockForRead();
+  QObject *object = pObject( (int)Initiated, indexInInitiated );
+  locker()->unlock();
+  if ( object == NULL ) return false;
+
+  locker()->lockForWrite();
+  m__ObjectiveType = (int)Saving;
   m__ObjectiveValue = QVariant::fromValue( object );
   locker()->unlock();
 
   start();
+  return true;
 }
 
 QObject * MAbstractDBWrapper::object( int sourceType, int index ) const
@@ -128,22 +152,22 @@ QReadWriteLock * MAbstractDBWrapper::locker() const
 
 void MAbstractDBWrapper::run()
 {
-  job();
+  QPair<int, QVariant> objective = this->objective();
+  job( objective.first, objective.second );
 }
 
-void MAbstractDBWrapper::job()
+void MAbstractDBWrapper::job( int objectiveType, const QVariant &objectiveValue )
 {
-  QPair<JobType, QVariant> objective = this->objective();
-  if ( objective.first == Searching ) searching( objective.second.toString() );
-  if ( objective.first == Initiating ) initiating();
-  if ( objective.first == Saving ) saving( objective.second.value<QObject *>() );
+  if ( objectiveType == (int)Searching ) searching( objectiveValue.toString() );
+  if ( objectiveType == (int)Initiating ) initiating();
+  if ( objectiveType == (int)Saving ) saving( objectiveValue.value<QObject *>() );
 }
 
-QPair<MAbstractDBWrapper::JobType, QVariant> MAbstractDBWrapper::objective()
+QPair<int, QVariant> MAbstractDBWrapper::objective()
 {
   locker()->lockForRead();
-  QPair<JobType, QVariant> result = qMakePair( m__ObjectiveType, m__ObjectiveValue );
-  m__ObjectiveType = None;
+  QPair<int, QVariant> result = qMakePair( m__ObjectiveType, m__ObjectiveValue );
+  m__ObjectiveType = (int)None;
   m__ObjectiveValue.clear();
   locker()->unlock();
 

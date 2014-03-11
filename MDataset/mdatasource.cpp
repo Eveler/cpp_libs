@@ -18,6 +18,9 @@ MDataSource::MDataSource(QObject *parent) :
 
   m__Initiated = new MDataSourceModel( this );
   m__Initiated->setSourceType( MAbstractDBWrapper::Initiated );
+
+  m__Selected = new MDataSourceModel( this );
+  m__Selected->setSourceType( MAbstractDBWrapper::Selected );
 }
 
 MDataSource::MDataSource( MAbstractDBWrapper *wrapper, QObject *parent ) :
@@ -34,6 +37,10 @@ MDataSource::MDataSource( MAbstractDBWrapper *wrapper, QObject *parent ) :
   m__Initiated = new MDataSourceModel( this );
   m__Initiated->setSource( wrapper );
   m__Initiated->setSourceType( MAbstractDBWrapper::Initiated );
+
+  m__Selected = new MDataSourceModel( this );
+  m__Selected->setSource( wrapper );
+  m__Selected->setSourceType( MAbstractDBWrapper::Selected );
 }
 
 MDataSource::~MDataSource()
@@ -45,6 +52,9 @@ MDataSource::~MDataSource()
 
   delete m__Initiated;
   m__Initiated = NULL;
+
+  delete m__Selected;
+  m__Selected = NULL;
 }
 
 void MDataSource::findObject( const QString &filter )
@@ -52,8 +62,9 @@ void MDataSource::findObject( const QString &filter )
   if ( m__Wrapper == NULL ) return;
 
   connect( m__Wrapper, SIGNAL(finished()), this, SLOT(findObjectFinished()) );
-  m__Wrapper->find( filter );
-  emit statusChanged();
+  if ( m__Wrapper->find( filter ) )
+    emit statusChanged();
+  else disconnect( m__Wrapper, SIGNAL(finished()), this, SLOT(findObjectFinished()) );
 }
 
 void MDataSource::initiateObject()
@@ -61,18 +72,28 @@ void MDataSource::initiateObject()
   if ( m__Wrapper == NULL ) return;
 
   connect( m__Wrapper, SIGNAL(finished()), this, SLOT(initiateObjectFinished()) );
-  m__Wrapper->initiate();
-  emit statusChanged();
+  if ( m__Wrapper->initiate() )
+    emit statusChanged();
+  else disconnect( m__Wrapper, SIGNAL(finished()), this, SLOT(initiateObjectFinished()) );
 }
 
-void MDataSource::saveObject( QObject *object )
+void MDataSource::selectObject( int indexInFounded )
+{
+  if ( m__Wrapper == NULL || !m__Wrapper->select( indexInFounded ) ) return;
+
+  int index = m__Wrapper->count( (int)MAbstractDBWrapper::Selected )-1;
+  m__Selected->insertObjects( index, index );
+}
+
+void MDataSource::saveObject( int indexInInitiated )
 {
   if ( m__Wrapper == NULL ) return;
 
   connect( m__Wrapper, SIGNAL(finished()), this, SLOT(saveObjectFinished()) );
-  m__SavedObjectIndex = m__Wrapper->index( MAbstractDBWrapper::Initiated, object );
-  m__Wrapper->save( object );
-  emit statusChanged();
+  m__SavedObjectIndex = indexInInitiated;
+  if ( m__Wrapper->save( indexInInitiated ) )
+    emit statusChanged();
+  else disconnect( m__Wrapper, SIGNAL(finished()), this, SLOT(saveObjectFinished()) );
 }
 
 QString MDataSource::connectionName() const
@@ -106,6 +127,11 @@ MDataSourceModel * MDataSource::initiated() const
   return m__Initiated;
 }
 
+MDataSourceModel * MDataSource::selected() const
+{
+  return m__Selected;
+}
+
 void MDataSource::setDBWrapper( MAbstractDBWrapper *wrapper )
 {
   if ( m__Wrapper != NULL && m__Wrapper != wrapper )
@@ -116,6 +142,7 @@ void MDataSource::setDBWrapper( MAbstractDBWrapper *wrapper )
   m__Wrapper = wrapper;
   m__Founded->setSource( m__Wrapper );
   m__Initiated->setSource( m__Wrapper );
+  m__Selected->setSource( m__Wrapper );
 }
 
 MAbstractDBWrapper * MDataSource::dbWrapper() const
@@ -148,8 +175,7 @@ void MDataSource::saveObjectFinished()
 
   int index = m__SavedObjectIndex;
   m__SavedObjectIndex = -1;
-  if ( index > -1 )
-    m__Initiated->removeObjects( index, index );
+  if ( index > -1 ) m__Initiated->removeObjects( index, index );
 
   emit saved();
   emit statusChanged();
