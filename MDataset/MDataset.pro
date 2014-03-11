@@ -1,27 +1,26 @@
-QT       += gui core quick
+QT       += gui core quick sql
 
-TARGET = MModels
+TARGET = MDataset
 CONFIG(debug, debug|release): TARGET = $${TARGET}d
 #CONFIG += create_prl
 
 TEMPLATE = lib
 
-DEFINES += EXPORT_LIB_MMODELS
+DEFINES += EXPORT_LIB_MDATASET
 
 LIB_LIST = \
-    -lAMSLogger
+    -lAMSLogger \
+    -lMModels
 
 INCLUDEPATH += ./ \
     ../bin/ \
     ../bin_qt5/ \
-    ../include/ \
-    ./MCalculationalModel/
+    ../include/
 
 
 exists( ../install_path.pri ){
     include(../install_path.pri)
 }
-include(./MCalculationalModel/MCalculationalModel.pri)
 
 
 symbian {
@@ -29,7 +28,7 @@ symbian {
     TARGET.UID3 = 0xE279790D
     TARGET.CAPABILITY =
     TARGET.EPOCALLOWDLLDATA = 1
-    addFiles.sources = MModels.dll
+    addFiles.sources = MDataset.dll
     addFiles.path = !:/sys/bin
     DEPLOYMENT += addFiles
 }
@@ -77,12 +76,18 @@ CONFIG(debug, debug|release){
   UI_DIR = ../temp/$$TARGET/debug
 }
 
-HEADERS += \
-    ../include/export/mmodels_export_lib.h \
-    ../include/mobjectmodel.h
+HEADERS += \ 
+    ../include/export/mdataset_export_lib.h \
+    ../include/mabstractdbwrapper.h \
+    ../include/mdatabase.h \
+    ../include/mdatasource.h \
+    ../include/mdatasourcemodel.h
 
-SOURCES += \
-    MObjectModel/mobjectmodel.cpp
+SOURCES += \ 
+    mabstractdbwrapper.cpp \
+    mdatabase.cpp \
+    mdatasource.cpp \
+    mdatasourcemodel.cpp
 
 
 
