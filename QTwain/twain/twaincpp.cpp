@@ -319,6 +319,9 @@ bool CTwain::SetCapability(TW_UINT16 cap,TW_UINT16 value,bool sign)
     {
       pVal = (pTW_ONEVALUE)GlobalLock(twCap.hContainer);
       pVal->ItemType = sign ? TWTY_INT16 : TWTY_UINT16;
+#ifdef SCAN_DEBUG
+    qDebug()<<__func__<<"value ="<<value;
+#endif
       pVal->Item = (TW_UINT32)value;
       GlobalUnlock(twCap.hContainer);
       ret_value = SetCapability(twCap);

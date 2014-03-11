@@ -1,3 +1,6 @@
 [submodule "qt-coding"]
 	path = qt-coding
 	url = https://github.com/francescmm/qt-coding.git
+[submodule "icons"]
+	path = icons
+	url = git://192.168.91.60/icons.git

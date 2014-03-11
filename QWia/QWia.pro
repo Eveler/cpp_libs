@@ -21,11 +21,13 @@ DEFINES += QWIA_LIBRARY
 INCLUDEPATH += ./ \
     ../include/
 
-SOURCES += qwia.cpp
+SOURCES += qwia.cpp \
+    cdatacallback.cpp
 
 HEADERS += \
     ../include/export/qwia_export.h \
-    ../include/qwia.h
+    ../include/qwia.h \
+    cdatacallback.h
 
 unix {
     target.path = /usr/lib

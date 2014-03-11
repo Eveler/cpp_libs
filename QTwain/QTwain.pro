@@ -16,7 +16,7 @@ exists( ../install_path.pri ){
 
 DEFINES += QTWAIN_LIBRARY
 DEFINES += NOMINMAX
-
+#DEFINES += SCAN_DEBUG
 
 INCLUDEPATH += ./ \
     ../include/
@@ -27,7 +27,8 @@ SOURCES += \
     twain/qtwain.cpp \
     twain/dib.cpp \
     twain/dibutil.c \
-    twain/dibfile.c
+    twain/dibfile.c \
+    mtwain.cpp
 
 HEADERS += \
     ../include/twaincpp.h \
@@ -37,7 +38,8 @@ HEADERS += \
     ../include/qtwain.h \
     twain/dibutil.h \
     twain/dibapi.h \
-    ../include/dib.h
+    ../include/dib.h \
+    ../include/mtwain.h
 
 RESOURCES +=
 
@@ -78,3 +80,5 @@ CONFIG(debug, debug|release){
   RCC_DIR = ../temp/$$TARGET/debug
   UI_DIR = ../temp/$$TARGET/debug
 }
+
+LIBS += -lgdiplus

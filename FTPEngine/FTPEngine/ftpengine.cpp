@@ -474,6 +474,7 @@ void FTPEngine::setDefaultConnect()
 void FTPEngine::executeCommand( QString text )
 {
   QString command = text;
+  command = command.replace("\r", "").replace("\n", "")+"\r\n"; // fix for MS :-\ ftp
   text = text.replace( "\r", "" ).replace( "\n", "" );
 #ifdef FTPENGINE_DEBUG
   LogDebug() << QString( "------> " ) <<
@@ -484,7 +485,10 @@ void FTPEngine::executeCommand( QString text )
 //  qint64 result = m__Socket->write(
 //        QTextCodec::codecForName( "IBM 866" )->fromUnicode( command ) );
 //#else
-  /*qint64 result = */m__Socket->write( command.toUtf8() );
+#ifdef FTPENGINE_DEBUG
+  qint64 result =
+    #endif
+      m__Socket->write( command.toUtf8() );
 //#endif
 #ifdef FTPENGINE_DEBUG
   LogDebug() << QString( "Written bytes: " ) << result;
@@ -579,6 +583,9 @@ FTPCommandsPool * FTPEngine::getFile_P( QString name, QIODevice *buffer )
 
 int FTPEngine::ftpAnswerCode( const QByteArray &answer )
 {
+#ifdef FTPENGINE_DEBUG
+  LogDebug()<<"answer ="<<answer;
+#endif
   return answer.left( 3 ).toInt();
 }
 
@@ -593,7 +600,7 @@ bool FTPEngine::checkCode( const QByteArray &answer, int code )
   if ( ansCode != code )
   {
 #ifdef FTPENGINE_DEBUG
-    LogDebug() << QString( "Unknown FTP-answer code: " ) << code;
+    LogDebug() << QString( "Unknown FTP-answer code: " ) << code<<"ansCode ="<<ansCode;
 #endif
     return false;
   }

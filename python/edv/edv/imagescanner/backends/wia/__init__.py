@@ -1,6 +1,7 @@
 """WIA backend.
 
 $Id$"""
+from inspect import _empty
 
 import logging
 import win32com.client as Com
@@ -58,12 +59,12 @@ class Scanner(base.Scanner):
         # self._scanner = None
         self._img_format = self.WIA_IMG_FORMAT_PNG
         self.images = []
-        self._device_manager = Com.Dispatch("WIA.DeviceManager")
-        for di in self._device_manager.DeviceInfos:
-            dev = di.Connect()
-            for i in dev.Items:
-                for c in i.Commands:
-                    print(c.Name, ": ", c.CommandID)
+        # self._device_manager = Com.Dispatch("WIA.DeviceManager")
+        # for di in self._device_manager.DeviceInfos:
+        #     dev = di.Connect()
+        #     for i in dev.Items:
+        #         for c in i.Commands:
+        #             print(c.Name, ": ", c.CommandID)
 
     def __repr__(self):
         return '<%s: %s - %s>' % (self.id, self.manufacturer, self.name)
@@ -74,26 +75,39 @@ class Scanner(base.Scanner):
             # self._device_manager.RegisterEvent(self.wiaEventItemCreated)
             # self._device_manager.OnEvent[0] = self.__onevent__
 
-            # items = self._source_name.ShowSelectItems(self._device, 0, 0, False)
-            # if items is None:
-            #     return None
-            # for item in items:
-            #     # image = item.Transfer(self._img_format)
-            #     image = self._source_name.ShowTransfer(item, self._img_format)
-            #     self.images.append(image)
-
-            image = self._source_name.ShowAcquireImage(1, 2, 131072, self._img_format)
-            self.images.append(image)
-            while True:
-                item = self._device.ExecuteCommand("{9B26B7B2-ACAD-11D2-A093-00C04F72DC3C}")
-                if item:
+            items = self._source_name.ShowSelectItems(self._device, 0, 0, False)
+            # for p in self._device.Properties:
+            #     print(p.Name, "(", p.PropertyID, ")", p.Value)
+            is_feeder = self._device.Properties["Document Handling Select"].Value == 1
+            if items is None:
+                return None
+            for item in items:
+                # image = item.Transfer(self._img_format)
+                image = self._source_name.ShowTransfer(item, self._img_format)
+                if image is None:
+                    return None
+                self.images.append(image)
+                while is_feeder and not image is None:
                     image = self._source_name.ShowTransfer(item, self._img_format)
-                    self.images.append(image)
-                else:
-                    break
+                    if not image is None:
+                        self.images.append(image)
+                    else:
+                        break
+
+            # image = self._source_name.ShowAcquireImage(1, 2, 131072, self._img_format)
+            # self.images.append(image)
+            # while True:
+            #     item = self._device.ExecuteCommand("{9B26B7B2-ACAD-11D2-A093-00C04F72DC3C}")
+            #     if item:
+            #         image = self._source_name.ShowTransfer(item, self._img_format)
+            #         self.images.append(image)
+            #     else:
+            #         break
 
             return self.images
         except com_error as e:
+            if str(e).__contains__("-2147352567") and (self.images.__len__() > 0):
+                return self.images
             logging.fatal(e.__str__())
 
         return None

@@ -16,6 +16,7 @@ DeclarDocsLoader::~DeclarDocsLoader(){
 }
 
 DocumentsModel *DeclarDocsLoader::load(QVariant foreignID){
+//  LogDebug()<<Q_FUNC_INFO<<"BEGIN: param ="<<foreignID;
   if(foreignID.isNull()) return NULL;
   if(!DB.isValid()){
     setError(tr("Указано ошибочное подключение к базе данных"));
@@ -114,5 +115,6 @@ DocumentsModel *DeclarDocsLoader::load(QVariant foreignID){
 //    doc->setUrl(qry.record().value("url").toString());
   }
 
+//  LogDebug()<<Q_FUNC_INFO<<"END";
   return docListModel;
 }
