@@ -150,36 +150,16 @@ MAbstractDBWrapper * MDataSource::dbWrapper() const
   return m__Wrapper;
 }
 
-void MDataSource::findObjectFinished()
+int MDataSource::savedObjectIndex() const
 {
-  disconnect( m__Wrapper, SIGNAL(finished()), this, SLOT(findObjectFinished()) );
-
-  m__Founded->resetModel();
-
-  emit statusChanged();
+  return m__SavedObjectIndex;
 }
 
-void MDataSource::initiateObjectFinished()
+void MDataSource::setSavedObjectIndex( int savedObjectIndex )
 {
-  disconnect( m__Wrapper, SIGNAL(finished()), this, SLOT(initiateObjectFinished()) );
-
-  int index = m__Wrapper->count( (int)MAbstractDBWrapper::Initiated )-1;
-  m__Initiated->insertObjects( index, index );
-
-  emit statusChanged();
+  m__SavedObjectIndex = savedObjectIndex;
 }
 
-void MDataSource::saveObjectFinished()
-{
-  disconnect( m__Wrapper, SIGNAL(finished()), this, SLOT(saveObjectFinished()) );
-
-  int index = m__SavedObjectIndex;
-  m__SavedObjectIndex = -1;
-  if ( index > -1 ) m__Initiated->removeObjects( index, index );
-
-  emit saved();
-  emit statusChanged();
-}
 /*
  * End class definition: *[ MDataSource ]*
 */

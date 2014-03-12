@@ -12,6 +12,12 @@ class MHumanDataSource : public MDataSource
   public:
     explicit MHumanDataSource(QObject *parent = 0);
     ~MHumanDataSource();
+
+
+  protected slots:
+    void findObjectFinished();
+    void initiateObjectFinished();
+    void saveObjectFinished();
 };
 
 QML_DECLARE_TYPE( MHumanDataSource )

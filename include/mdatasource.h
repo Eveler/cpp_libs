@@ -58,6 +58,15 @@ class EXPORT_MDATASET MDataSource : public QObject
     void setDBWrapper( MAbstractDBWrapper *wrapper );
     MAbstractDBWrapper *dbWrapper() const;
 
+    int savedObjectIndex() const;
+    void setSavedObjectIndex( int savedObjectIndex );
+
+
+  protected slots:
+    virtual void findObjectFinished() = 0;
+    virtual void initiateObjectFinished() = 0;
+    virtual void saveObjectFinished() = 0;
+
 
   private:
     MAbstractDBWrapper *m__Wrapper;
@@ -65,12 +74,6 @@ class EXPORT_MDATASET MDataSource : public QObject
     MDataSourceModel *m__Initiated;
     MDataSourceModel *m__Selected;
     int m__SavedObjectIndex;
-
-
-  private slots:
-    void findObjectFinished();
-    void initiateObjectFinished();
-    void saveObjectFinished();
 };
 
 QML_DECLARE_TYPE( MDataSource )

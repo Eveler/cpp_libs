@@ -147,7 +147,8 @@ bool MHumanDBWrapper::searching( const QString &queryText )
   while ( pCount( (int)Founded ) > 0 )
   {
     QObject *mhuman = pTake( (int)Founded, 0 );
-    connect( this, SIGNAL(finished()), mhuman, SLOT(deleteLater()) );
+    if ( pIndex( (int)Selected, mhuman ) == -1 )
+      connect( this, SIGNAL(finished()), mhuman, SLOT(deleteLater()) );
   }
   while ( qry.next() )
   {
@@ -243,7 +244,8 @@ bool MHumanDBWrapper::saving( QObject *object )
   qry.clear();
 
   int index = this->index( (int)Initiated, object );
-  if ( index > -1 ) pTake( (int)Initiated, index );
+  pTake( (int)Initiated, index );
+  pAppend( (int)Selected, object );
 
   return true;
 }

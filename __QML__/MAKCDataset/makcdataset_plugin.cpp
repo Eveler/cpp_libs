@@ -13,7 +13,8 @@ void MAKCDatasetPlugin::initializeEngine( QQmlEngine *engine, const char *uri )
   Q_UNUSED(uri)
   QQmlContext *context = engine->rootContext();
   context->setContextProperty( "MDatabase", new MDatabase );
-  context->setContextProperty( "DSHumans", new MHumanDataSource );
+  context->setContextProperty( "DSClientHumans", new MHumanDataSource );
+  context->setContextProperty( "DSOrgHumans", new MHumanDataSource );
 }
 
 void MAKCDatasetPlugin::registerTypes( const char *uri )
