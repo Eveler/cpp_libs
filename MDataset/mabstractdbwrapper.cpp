@@ -28,6 +28,20 @@ MAbstractDBWrapper::~MAbstractDBWrapper()
   while ( pCount( (int)Founded ) > 0 )
   {
     QObject *object = pTake( (int)Founded, 0 );
+    int index = pIndex( (int)Selected, object );
+    if ( index != -1 ) pTake( (int)Selected, index );
+    delete object;
+    object = NULL;
+  }
+  while ( pCount( (int)Initiated ) > 0 )
+  {
+    QObject *object = pTake( (int)Initiated, 0 );
+    delete object;
+    object = NULL;
+  }
+  while ( pCount( (int)Selected ) > 0 )
+  {
+    QObject *object = pTake( (int)Selected, 0 );
     delete object;
     object = NULL;
   }

@@ -18,7 +18,7 @@ MHuman::MHuman( QQuickItem *parent ) :
 
 MHuman::~MHuman()
 {
-//  qDebug() << __func__;
+//  qDebug() << __func__ << this;
 }
 
 QVariant MHuman::identifier() const
@@ -243,9 +243,9 @@ bool MHumanDBWrapper::saving( QObject *object )
   }
   qry.clear();
 
-  int index = this->index( (int)Initiated, object );
+  int index = pIndex( (int)Initiated, human );
   pTake( (int)Initiated, index );
-  pAppend( (int)Selected, object );
+  pAppend( (int)Selected, human );
 
   return true;
 }

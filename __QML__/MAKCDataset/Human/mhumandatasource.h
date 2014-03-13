@@ -10,7 +10,7 @@ class MHumanDataSource : public MDataSource
 
 
   public:
-    explicit MHumanDataSource(QObject *parent = 0);
+    explicit MHumanDataSource( QObject *parent = NULL );
     ~MHumanDataSource();
 
 
