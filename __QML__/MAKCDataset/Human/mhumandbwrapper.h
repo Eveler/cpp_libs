@@ -7,7 +7,6 @@
 class MHuman: public QQuickItem
 {
     Q_OBJECT
-    friend class HumanDBWrapper;
     Q_PROPERTY(QVariant identifier READ identifier NOTIFY identifierChanged)
     Q_PROPERTY(QVariant surname READ surname WRITE setSurname NOTIFY surnameChanged)
     Q_PROPERTY(QVariant firstname READ firstname WRITE setFirstname NOTIFY firstnameChanged)
@@ -16,6 +15,7 @@ class MHuman: public QQuickItem
     Q_PROPERTY(QVariant address READ address WRITE setAddress NOTIFY addressChanged)
     Q_PROPERTY(QVariant email READ email WRITE setEmail NOTIFY emailChanged)
     Q_PROPERTY(QVariant birthday READ birthday WRITE setBirthday NOTIFY birthdayChanged)
+    Q_PROPERTY(MDataSourceModel * documents READ documents)
 
 
   public:
@@ -46,6 +46,8 @@ class MHuman: public QQuickItem
     const QVariant & birthday() const;
     void setBirthday( const QVariant &birthday );
 
+    MDataSourceModel * documents() const;
+
 
   signals:
     void identifierChanged();
@@ -67,6 +69,7 @@ class MHuman: public QQuickItem
     QVariant m__Address;
     QVariant m__Email;
     QVariant m__Birthday;
+    MDataSourceModel *m__Documents;
 };
 
 QML_DECLARE_TYPE( MHuman )
@@ -78,7 +81,7 @@ class MHumanDBWrapper : public MAbstractDBWrapper
 
 
   public:
-    explicit MHumanDBWrapper( MDataSource *parent = NULL );
+    explicit MHumanDBWrapper( MAbstractDataSource *parent = NULL );
 
 
   protected:
@@ -86,7 +89,5 @@ class MHumanDBWrapper : public MAbstractDBWrapper
     bool initiating();
     bool saving( QObject *object );
 };
-
-QML_DECLARE_TYPE( MHumanDBWrapper )
 
 #endif // MHUMANDBWRAPPER_H

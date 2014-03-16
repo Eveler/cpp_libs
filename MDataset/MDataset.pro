@@ -80,14 +80,14 @@ HEADERS += \
     ../include/export/mdataset_export_lib.h \
     ../include/mabstractdbwrapper.h \
     ../include/mdatabase.h \
-    ../include/mdatasource.h \
-    ../include/mdatasourcemodel.h
+    ../include/mdatasourcemodel.h \
+    ../include/mabstractdatasource.h
 
 SOURCES += \ 
     mabstractdbwrapper.cpp \
     mdatabase.cpp \
-    mdatasource.cpp \
-    mdatasourcemodel.cpp
+    mdatasourcemodel.cpp \
+    mabstractdatasource.cpp
 
 
 

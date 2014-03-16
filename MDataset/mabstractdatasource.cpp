@@ -1,4 +1,4 @@
-#include "mdatasource.h"
+#include "mabstractdatasource.h"
 
 #include "mabstractdbwrapper.h"
 
@@ -8,7 +8,7 @@
 /*
  * Begin C++ - QML class definition: *[ MDataSource ]*
 */
-MDataSource::MDataSource(QObject *parent) :
+MAbstractDataSource::MAbstractDataSource(QObject *parent) :
   QObject(parent),
   m__Wrapper(NULL),
   m__SavedObjectIndex(-1)
@@ -23,7 +23,7 @@ MDataSource::MDataSource(QObject *parent) :
   m__Selected->setSourceType( MAbstractDBWrapper::Selected );
 }
 
-MDataSource::MDataSource( MAbstractDBWrapper *wrapper, QObject *parent ) :
+MAbstractDataSource::MAbstractDataSource( MAbstractDBWrapper *wrapper, QObject *parent ) :
   QObject(parent),
   m__SavedObjectIndex(-1)
 {
@@ -43,7 +43,7 @@ MDataSource::MDataSource( MAbstractDBWrapper *wrapper, QObject *parent ) :
   m__Selected->setSourceType( MAbstractDBWrapper::Selected );
 }
 
-MDataSource::~MDataSource()
+MAbstractDataSource::~MAbstractDataSource()
 {
   m__Wrapper = NULL;
 
@@ -57,7 +57,7 @@ MDataSource::~MDataSource()
   m__Selected = NULL;
 }
 
-void MDataSource::findObject( const QString &filter )
+void MAbstractDataSource::findObject( const QString &filter )
 {
   if ( m__Wrapper == NULL ) return;
 
@@ -67,7 +67,7 @@ void MDataSource::findObject( const QString &filter )
   else disconnect( m__Wrapper, SIGNAL(finished()), this, SLOT(findObjectFinished()) );
 }
 
-void MDataSource::initiateObject()
+void MAbstractDataSource::initiateObject()
 {
   if ( m__Wrapper == NULL ) return;
 
@@ -77,7 +77,7 @@ void MDataSource::initiateObject()
   else disconnect( m__Wrapper, SIGNAL(finished()), this, SLOT(initiateObjectFinished()) );
 }
 
-void MDataSource::selectObject( int indexInFounded )
+void MAbstractDataSource::selectObject( int indexInFounded )
 {
   if ( m__Wrapper == NULL || !m__Wrapper->select( indexInFounded ) ) return;
 
@@ -85,7 +85,7 @@ void MDataSource::selectObject( int indexInFounded )
   m__Selected->insertObjects( index, index );
 }
 
-void MDataSource::saveObject( int indexInInitiated )
+void MAbstractDataSource::saveObject( int indexInInitiated )
 {
   if ( m__Wrapper == NULL ) return;
 
@@ -96,12 +96,12 @@ void MDataSource::saveObject( int indexInInitiated )
   else disconnect( m__Wrapper, SIGNAL(finished()), this, SLOT(saveObjectFinished()) );
 }
 
-QString MDataSource::connectionName() const
+QString MAbstractDataSource::connectionName() const
 {
   return m__Wrapper->connectionName();
 }
 
-void MDataSource::setConnectionName( const QString &connectionName )
+void MAbstractDataSource::setConnectionName( const QString &connectionName )
 {
   if ( m__Wrapper == NULL ) return;
 
@@ -110,29 +110,29 @@ void MDataSource::setConnectionName( const QString &connectionName )
   emit connectionNameChanged();
 }
 
-int MDataSource::status() const
+int MAbstractDataSource::status() const
 {
   if ( m__Wrapper == NULL || !m__Wrapper->isRunning() ) return Ready;
 
   return Loading;
 }
 
-MDataSourceModel * MDataSource::founded() const
+MDataSourceModel * MAbstractDataSource::founded() const
 {
   return m__Founded;
 }
 
-MDataSourceModel * MDataSource::initiated() const
+MDataSourceModel * MAbstractDataSource::initiated() const
 {
   return m__Initiated;
 }
 
-MDataSourceModel * MDataSource::selected() const
+MDataSourceModel * MAbstractDataSource::selected() const
 {
   return m__Selected;
 }
 
-void MDataSource::setDBWrapper( MAbstractDBWrapper *wrapper )
+void MAbstractDataSource::setDBWrapper( MAbstractDBWrapper *wrapper )
 {
   if ( m__Wrapper != NULL && m__Wrapper != wrapper )
   {
@@ -145,17 +145,17 @@ void MDataSource::setDBWrapper( MAbstractDBWrapper *wrapper )
   m__Selected->setSource( m__Wrapper );
 }
 
-MAbstractDBWrapper * MDataSource::dbWrapper() const
+MAbstractDBWrapper * MAbstractDataSource::dbWrapper() const
 {
   return m__Wrapper;
 }
 
-int MDataSource::savedObjectIndex() const
+int MAbstractDataSource::savedObjectIndex() const
 {
   return m__SavedObjectIndex;
 }
 
-void MDataSource::setSavedObjectIndex( int savedObjectIndex )
+void MAbstractDataSource::setSavedObjectIndex( int savedObjectIndex )
 {
   m__SavedObjectIndex = savedObjectIndex;
 }

@@ -1,5 +1,5 @@
-#ifndef MDATASOURCE_H
-#define MDATASOURCE_H
+#ifndef MABSTRACTDATASOURCE_H
+#define MABSTRACTDATASOURCE_H
 
 #include <QObject>
 
@@ -9,7 +9,7 @@
 
 class MAbstractDBWrapper;
 
-class EXPORT_MDATASET MDataSource : public QObject
+class EXPORT_MDATASET MAbstractDataSource : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString connectionName READ connectionName WRITE setConnectionName NOTIFY connectionNameChanged)
@@ -25,9 +25,9 @@ class EXPORT_MDATASET MDataSource : public QObject
       Loading
     };
 
-    explicit MDataSource( QObject *parent = NULL );
-    explicit MDataSource( MAbstractDBWrapper *wrapper, QObject *parent = NULL );
-    ~MDataSource();
+    explicit MAbstractDataSource( QObject *parent = NULL );
+    explicit MAbstractDataSource( MAbstractDBWrapper *wrapper, QObject *parent = NULL );
+    ~MAbstractDataSource();
 
     Q_INVOKABLE void findObject( const QString &filter = QString() );
     Q_INVOKABLE void initiateObject();
@@ -76,6 +76,6 @@ class EXPORT_MDATASET MDataSource : public QObject
     int m__SavedObjectIndex;
 };
 
-QML_DECLARE_TYPE( MDataSource )
+QML_DECLARE_TYPE( MAbstractDataSource )
 
-#endif // MDATASOURCE_H
+#endif // MABSTRACTDATASOURCE_H

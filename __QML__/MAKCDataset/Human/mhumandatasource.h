@@ -1,10 +1,10 @@
 #ifndef MHUMANDATASOURCE_H
 #define MHUMANDATASOURCE_H
 
-#include "mdatasource.h"
+#include "mabstractdatasource.h"
 
 
-class MHumanDataSource : public MDataSource
+class MHumanDataSource : public MAbstractDataSource
 {
     Q_OBJECT
 

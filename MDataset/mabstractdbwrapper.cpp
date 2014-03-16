@@ -1,6 +1,6 @@
 #include "mabstractdbwrapper.h"
 
-#include "mdatasource.h"
+#include "mabstractdatasource.h"
 
 #include <QReadWriteLock>
 #include <QSqlDatabase>
@@ -11,7 +11,7 @@
 /*
  * Begin C++ class definition: *[ MAbstractDBWrapper ]*
 */
-MAbstractDBWrapper::MAbstractDBWrapper( MDataSource *parent ) :
+MAbstractDBWrapper::MAbstractDBWrapper( MAbstractDataSource *parent ) :
   QThread(parent),
   ObjectListPrivate(),
   m__Locker(new QReadWriteLock),
@@ -48,7 +48,7 @@ MAbstractDBWrapper::~MAbstractDBWrapper()
   m__Locker->unlock();
 }
 
-void MAbstractDBWrapper::setParent( MDataSource *parent )
+void MAbstractDBWrapper::setParent( MAbstractDataSource *parent )
 {
   QThread::setParent( parent );
 }
@@ -151,6 +151,33 @@ int MAbstractDBWrapper::count( int sourceType ) const
 }
 
 int MAbstractDBWrapper::index( int sourceType, QObject *object ) const
+{
+  locker()->lockForRead();
+  int result = pIndex( sourceType, object );
+  locker()->unlock();
+
+  return result;
+}
+
+QObject * MAbstractDBWrapper::object( void *sourceType, int index ) const
+{
+  locker()->lockForRead();
+  QObject *result = pObject( sourceType, index );
+  locker()->unlock();
+
+  return result;
+}
+
+int MAbstractDBWrapper::count( void *sourceType ) const
+{
+  locker()->lockForRead();
+  int result = pCount( sourceType );
+  locker()->unlock();
+
+  return result;
+}
+
+int MAbstractDBWrapper::index( void *sourceType, QObject *object ) const
 {
   locker()->lockForRead();
   int result = pIndex( sourceType, object );

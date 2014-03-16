@@ -1,21 +1,22 @@
 #include "makcdataset_plugin.h"
 
-#include "mdatabase.h"
-#include "mhumandatasource.h"
-#include "mhumandbwrapper.h"
+#include "makcdataset.h"
 
 #include <QQmlEngine>
 #include <QQmlContext>
 
 
+using namespace MAKCDataset;
+
 void MAKCDatasetPlugin::initializeEngine( QQmlEngine *engine, const char *uri )
 {
   Q_UNUSED(uri)
+  initializeMAKC( engine );
   QQmlContext *context = engine->rootContext();
 
-  context->setContextProperty( "MDatabase", new MDatabase( engine ) );
-  context->setContextProperty( "DSClientHumans", new MHumanDataSource( engine ) );
-  context->setContextProperty( "DSOrgHumans", new MHumanDataSource( engine ) );
+  context->setContextProperty( "MAKCDatabase", MAKC_Database() );
+  context->setContextProperty( "MAKCClientHumans", MAKC_ClientDataSource() );
+  context->setContextProperty( "MAKCOrgHumans", MAKC_OrgDataSource() );
 }
 
 void MAKCDatasetPlugin::registerTypes( const char *uri )
@@ -25,6 +26,7 @@ void MAKCDatasetPlugin::registerTypes( const char *uri )
   qmlRegisterType<MDataSourceModel>( uri, 1, 0, "MDataSourceModel" );
   qmlRegisterUncreatableType<SafelyValue>( uri, 1, 0, "SafelyValue", "" );
 
+  qmlRegisterType<MDocument>( uri, 1, 0, "MDocument" );
   qmlRegisterType<MHuman>( uri, 1, 0, "MHuman" );
 }
 

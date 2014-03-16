@@ -10,6 +10,8 @@ ObjectListPrivate::~ObjectListPrivate()
 {
   while( !m__Objects.isEmpty() )
     m__Objects.take( m__Objects.keys().first() ).clear();
+  while( !m__StarObjects.isEmpty() )
+    m__StarObjects.take( m__StarObjects.keys().first() ).clear();
 }
 
 QObject * ObjectListPrivate::pObject( int sourceType, int index ) const
@@ -38,6 +40,33 @@ QObject * ObjectListPrivate::pTake( int sourceType, int index )
 {
   return m__Objects[sourceType].takeAt( index );
 }
+
+QObject * ObjectListPrivate::pObject( void *sourceType, int index ) const
+{
+  return m__StarObjects.value( sourceType, QObjectList() ).value( index, NULL );
+}
+
+int ObjectListPrivate::pCount( void *sourceType ) const
+{
+  return m__StarObjects.value( sourceType, QObjectList() ).count();
+}
+
+int ObjectListPrivate::pIndex( void *sourceType, QObject *object ) const
+{
+  return m__StarObjects.value( sourceType, QObjectList() ).indexOf( object );
+}
+
+void ObjectListPrivate::pAppend( void *sourceType, QObject *object )
+{
+  if ( !m__StarObjects.contains( sourceType ) ) m__StarObjects[sourceType] = QObjectList();
+
+  m__StarObjects[sourceType] << object;
+}
+
+QObject * ObjectListPrivate::pTake( void *sourceType, int index )
+{
+  return m__StarObjects[sourceType].takeAt( index );
+}
 /*
  * End class definition: *[ ObjectListPrivate ]*
 */
@@ -49,7 +78,7 @@ QObject * ObjectListPrivate::pTake( int sourceType, int index )
 MDataSourceModel::MDataSourceModel(QObject *parent) :
   MObjectModel(parent),
   m__Source(NULL),
-  m__SourceType(0)
+  m__SourceType(-1)
 {
 }
 
@@ -62,29 +91,68 @@ int MDataSourceModel::rowCount( const QModelIndex &index ) const
 {
   Q_UNUSED(index)
 
-  int result = ( m__Source == NULL ? 0 : m__Source->count( m__SourceType ) );
+  int result = 0;
+  if ( m__Source == NULL ) return result;
+
+  if ( m__SourceType == -1 ) result = m__Source->count( (void *)this );
+  else result = m__Source->count( m__SourceType );
+
   return result;
 }
 
 QVariant MDataSourceModel::data( const QModelIndex &index, int role ) const
 {
   Q_UNUSED(role)
-  if ( m__Source == NULL || !index.isValid() || index.row() < 0 || index.row() >= m__Source->count( m__SourceType ) ) return QVariant();
+  if ( m__Source == NULL || !index.isValid() || index.row() < 0 ) return QVariant();
 
-  QObject *object = m__Source->object( m__SourceType, index.row() );
+  QObject *object = NULL;
+
+  if ( m__SourceType == -1 )
+  {
+    if ( index.row() >= m__Source->count( (void *)this ) ) return QVariant();
+
+    object = m__Source->object( (void *)this, index.row() );
+  }
+  else
+  {
+    if ( index.row() >= m__Source->count( m__SourceType ) ) return QVariant();
+
+    object = m__Source->object( m__SourceType, index.row() );
+  }
 
   return QVariant::fromValue( object );
 }
 
 SafelyValue * MDataSourceModel::get( int index ) const
 {
-  if ( m__Source == NULL || index < 0 || index >= m__Source->count( m__SourceType ) )
+  if ( m__Source == NULL || index < 0 )
   {
     qDebug() << __func__ << index;
     return NULL;
   }
 
-  SafelyValue *result = new SafelyValue( m__Source->object( m__SourceType, index ) );
+  SafelyValue *result = NULL;
+  if ( m__SourceType == -1 )
+  {
+    if ( index >= m__Source->count( (void *)this ) )
+    {
+      qDebug() << __func__ << index;
+      return NULL;
+    }
+
+    result = new SafelyValue( m__Source->object( (void *)this, index ) );
+  }
+  else
+  {
+    if ( index >= m__Source->count( m__SourceType ) )
+    {
+      qDebug() << __func__ << index;
+      return NULL;
+    }
+
+    result = new SafelyValue( m__Source->object( m__SourceType, index ) );
+  }
+
   result->deleteLater();
   return result;
 }
@@ -113,7 +181,12 @@ void MDataSourceModel::replace( int index, QObject *object )
 
 int MDataSourceModel::count() const
 {
-  int result = ( m__Source == NULL ? 0 : m__Source->count( m__SourceType ) );
+  int result = 0;
+  if ( m__Source == NULL ) return result;
+
+  if ( m__SourceType == -1 ) result = m__Source->count( (void *)this );
+  else result = m__Source->count( m__SourceType );
+
   return result;
 }
 
@@ -121,12 +194,14 @@ int MDataSourceModel::index( QObject *object ) const
 {
   if ( m__Source == NULL ) return -1;
 
-  return m__Source->index( m__SourceType, object );
+  if ( m__SourceType == -1 ) return m__Source->index( (void *)this, object );
+  else return m__Source->index( m__SourceType, object );
 }
 
 void MDataSourceModel::setSource( ObjectListPrivate *source )
 {
   m__Source = source;
+  resetModel();
 }
 
 int MDataSourceModel::sourceType() const

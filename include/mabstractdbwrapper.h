@@ -8,7 +8,7 @@
 
 
 class QReadWriteLock;
-class MDataSource;
+class MAbstractDataSource;
 
 
 class EXPORT_MDATASET MAbstractDBWrapper : public QThread, public ObjectListPrivate
@@ -29,10 +29,10 @@ class EXPORT_MDATASET MAbstractDBWrapper : public QThread, public ObjectListPriv
       Saving
     };
 
-    explicit MAbstractDBWrapper( MDataSource *parent = NULL );
+    explicit MAbstractDBWrapper( MAbstractDataSource *parent = NULL );
     ~MAbstractDBWrapper();
 
-    void setParent( MDataSource *parent );
+    void setParent( MAbstractDataSource *parent );
 
     QString connectionName() const;
     bool setConnectionName( const QString &connectionName );
@@ -45,6 +45,10 @@ class EXPORT_MDATASET MAbstractDBWrapper : public QThread, public ObjectListPriv
     QObject * object( int sourceType, int index ) const;
     int count( int sourceType ) const;
     int index( int sourceType, QObject *object ) const;
+
+    QObject * object( void *sourceType, int index ) const;
+    int count( void *sourceType ) const;
+    int index( void *sourceType, QObject *object ) const;
 
 
   signals:

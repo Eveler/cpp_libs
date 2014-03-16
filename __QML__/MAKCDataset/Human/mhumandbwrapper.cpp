@@ -12,13 +12,16 @@
  * Begin C++ - QML class definition: *[ MHuman ]*
 */
 MHuman::MHuman( QQuickItem *parent ) :
-  QQuickItem(parent)
+  QQuickItem(parent),
+  m__Documents(new MDataSourceModel)
 {
 }
 
 MHuman::~MHuman()
 {
 //  qDebug() << __func__ << this;
+  delete m__Documents;
+  m__Documents = NULL;
 }
 
 QVariant MHuman::identifier() const
@@ -108,6 +111,11 @@ void MHuman::setBirthday( const QVariant &birthday )
   m__Birthday = birthday;
   emit birthdayChanged();
 }
+
+MDataSourceModel * MHuman::documents() const
+{
+  return m__Documents;
+}
 /*
  * End class definition: *[ MHuman ]*
 */
@@ -116,7 +124,7 @@ void MHuman::setBirthday( const QVariant &birthday )
 /*
  * Begin C++ class definition: *[ MHumanDBWrapper ]*
 */
-MHumanDBWrapper::MHumanDBWrapper( MDataSource * parent ) :
+MHumanDBWrapper::MHumanDBWrapper( MAbstractDataSource * parent ) :
   MAbstractDBWrapper( parent )
 {
 }
