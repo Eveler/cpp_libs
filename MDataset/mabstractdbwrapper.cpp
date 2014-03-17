@@ -159,7 +159,7 @@ int MAbstractDBWrapper::index( int sourceType, QObject *object ) const
   return result;
 }
 
-QObject * MAbstractDBWrapper::object( void *sourceType, int index ) const
+QObject * MAbstractDBWrapper::object( QObject *sourceType, int index ) const
 {
   locker()->lockForRead();
   QObject *result = pObject( sourceType, index );
@@ -168,7 +168,7 @@ QObject * MAbstractDBWrapper::object( void *sourceType, int index ) const
   return result;
 }
 
-int MAbstractDBWrapper::count( void *sourceType ) const
+int MAbstractDBWrapper::count( QObject * sourceType ) const
 {
   locker()->lockForRead();
   int result = pCount( sourceType );
@@ -177,7 +177,7 @@ int MAbstractDBWrapper::count( void *sourceType ) const
   return result;
 }
 
-int MAbstractDBWrapper::index( void *sourceType, QObject *object ) const
+int MAbstractDBWrapper::index( QObject *sourceType, QObject *object ) const
 {
   locker()->lockForRead();
   int result = pIndex( sourceType, object );

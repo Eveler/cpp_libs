@@ -46,9 +46,9 @@ class EXPORT_MDATASET MAbstractDBWrapper : public QThread, public ObjectListPriv
     int count( int sourceType ) const;
     int index( int sourceType, QObject *object ) const;
 
-    QObject * object( void *sourceType, int index ) const;
-    int count( void *sourceType ) const;
-    int index( void *sourceType, QObject *object ) const;
+    QObject * object( QObject * sourceType, int index ) const;
+    int count( QObject *sourceType ) const;
+    int index( QObject * sourceType, QObject *object ) const;
 
 
   signals:

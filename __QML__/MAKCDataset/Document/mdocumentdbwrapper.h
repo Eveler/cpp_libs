@@ -26,13 +26,13 @@ class MDocument : public QQuickItem
     void setIdentifier( QVariant identifier );
 
     const QString & name() const;
-    void setName( QString &name );
+    void setName( const QString & name );
 
     const QString & series() const;
-    void setSeries( QString &series );
+    void setSeries( const QString &series );
 
     const QString & number() const;
-    void setNumber( QString &number );
+    void setNumber( const QString & number );
 
     QDate created() const;
     void setCreated( QDate created );
@@ -42,6 +42,10 @@ class MDocument : public QQuickItem
 
     QUrl source() const;
     void setSource( QUrl source );
+
+    const QObjectList & externalLinks() const;
+    void addExternalLink( QObject *externalLink );
+    void removeExternalLink( QObject *externalLink );
 
 
   signals:
@@ -62,6 +66,7 @@ class MDocument : public QQuickItem
     QDate m__Created;
     QDate m__Expires;
     QUrl m__Source;
+    QObjectList m__ExternalLinks;
 };
 
 QML_DECLARE_TYPE( MDocument )

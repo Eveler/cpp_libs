@@ -18,28 +18,30 @@ class EXPORT_MDATASET ObjectListPrivate
     virtual int count( int sourceType ) const = 0;
     virtual int index( int sourceType, QObject *object ) const = 0;
 
-    virtual QObject * object( void *sourceType, int index ) const = 0;
-    virtual int count( void *sourceType ) const = 0;
-    virtual int index( void *sourceType, QObject *object ) const = 0;
+    virtual QObject * object( QObject *sourceType, int index ) const = 0;
+    virtual int count( QObject *sourceType ) const = 0;
+    virtual int index( QObject *sourceType, QObject *object ) const = 0;
 
 
   protected:
+    QVariantList sourceTypes() const;
+
     QObject * pObject( int sourceType, int index ) const;
     int pCount( int sourceType ) const;
     int pIndex( int sourceType, QObject *object ) const;
     void pAppend( int sourceType, QObject *object );
     QObject * pTake( int sourceType, int index );
 
-    QObject * pObject( void *sourceType, int index ) const;
-    int pCount( void *sourceType ) const;
-    int pIndex( void *sourceType, QObject *object ) const;
-    void pAppend( void *sourceType, QObject *object );
-    QObject * pTake( void *sourceType, int index );
+    QObject * pObject( QObject *sourceType, int index ) const;
+    int pCount( QObject * sourceType ) const;
+    int pIndex( QObject *sourceType, QObject *object ) const;
+    void pAppend( QObject *sourceType, QObject *object );
+    QObject * pTake( QObject *sourceType, int index );
 
 
   private:
     QHash<int, QObjectList> m__Objects;
-    QHash<void *, QObjectList> m__StarObjects;
+    QHash<QObject *, QObjectList> m__StarObjects;
 };
 
 
