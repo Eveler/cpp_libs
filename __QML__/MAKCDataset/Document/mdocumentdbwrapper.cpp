@@ -1,5 +1,7 @@
 #include "mdocumentdbwrapper.h"
 
+#include "mhumandbwrapper.h"
+
 
 /*
  * Begin C++ - QML class definition: *[ MDocument ]*
@@ -104,19 +106,31 @@ MDocumentDBWrapper::MDocumentDBWrapper( MAbstractDataSource * parent ) :
 {
 }
 
+void MDocumentDBWrapper::job( int objectiveType, const QVariant &objectiveValue )
+{
+  if ( objectiveType == (int)HumanDocuments ) searching( objectiveValue.value<MHuman *>() );
+  else MAbstractDBWrapper::job( objectiveType, objectiveValue );
+}
+
 bool MDocumentDBWrapper::searching( const QString &queryText )
 {
+  Q_UNUSED(queryText)
+  return true;
+}
 
+bool MDocumentDBWrapper::searching( MHuman *human )
+{
+  return true;
 }
 
 bool MDocumentDBWrapper::initiating()
 {
-
+  return true;
 }
 
 bool MDocumentDBWrapper::saving( QObject *object )
 {
-
+  return true;
 }
 /*
  * End class definition: *[ MDocumentDBWrapper ]*

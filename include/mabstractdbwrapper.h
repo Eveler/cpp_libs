@@ -59,8 +59,8 @@ class EXPORT_MDATASET MAbstractDBWrapper : public QThread, public ObjectListPriv
   protected:
     QReadWriteLock * locker() const;
     void run();
-    void job( int objectiveType, const QVariant &objectiveValue );
     QPair<int, QVariant> objective();
+    void job( int objectiveType, const QVariant &objectiveValue );
     virtual bool searching( const QString &queryText ) = 0;
     virtual bool initiating() = 0;
     virtual bool saving( QObject *object ) = 0;

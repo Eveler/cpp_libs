@@ -197,13 +197,6 @@ void MAbstractDBWrapper::run()
   job( objective.first, objective.second );
 }
 
-void MAbstractDBWrapper::job( int objectiveType, const QVariant &objectiveValue )
-{
-  if ( objectiveType == (int)Searching ) searching( objectiveValue.toString() );
-  if ( objectiveType == (int)Initiating ) initiating();
-  if ( objectiveType == (int)Saving ) saving( objectiveValue.value<QObject *>() );
-}
-
 QPair<int, QVariant> MAbstractDBWrapper::objective()
 {
   locker()->lockForRead();
@@ -213,6 +206,13 @@ QPair<int, QVariant> MAbstractDBWrapper::objective()
   locker()->unlock();
 
   return result;
+}
+
+void MAbstractDBWrapper::job( int objectiveType, const QVariant &objectiveValue )
+{
+  if ( objectiveType == (int)Searching ) searching( objectiveValue.toString() );
+  if ( objectiveType == (int)Initiating ) initiating();
+  if ( objectiveType == (int)Saving ) saving( objectiveValue.value<QObject *>() );
 }
 /*
  * End class definition: *[ MAbstractDBWrapper ]*

@@ -26,8 +26,8 @@ void MAKCDatasetPlugin::registerTypes( const char *uri )
   qmlRegisterType<MDataSourceModel>( uri, 1, 0, "MDataSourceModel" );
   qmlRegisterUncreatableType<SafelyValue>( uri, 1, 0, "SafelyValue", "" );
 
-  qmlRegisterType<MDocument>( uri, 1, 0, "MDocument" );
-  qmlRegisterType<MHuman>( uri, 1, 0, "MHuman" );
+  qmlRegisterUncreatableType<MDocument>( uri, 1, 0, "MDocument", "" );
+  qmlRegisterUncreatableType<MHuman>( uri, 1, 0, "MHuman", "" );
 }
 
 

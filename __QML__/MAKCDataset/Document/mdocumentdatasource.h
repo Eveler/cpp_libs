@@ -9,6 +9,7 @@ class MDocumentDataSource : public MAbstractDataSource
     Q_OBJECT
   public:
     explicit MDocumentDataSource(QObject *parent = 0);
+    ~MDocumentDataSource();
 
 
   protected slots:

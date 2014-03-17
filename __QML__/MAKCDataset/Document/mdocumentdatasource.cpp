@@ -6,6 +6,17 @@ MDocumentDataSource::MDocumentDataSource(QObject *parent) :
 {
 }
 
+MDocumentDataSource::~MDocumentDataSource()
+{
+  //  qDebug() << __func__ << __LINE__;
+    MAbstractDBWrapper *wrapper = dbWrapper();
+    setDBWrapper( NULL );
+
+  //  qDebug() << __func__ << __LINE__ << wrapper;
+    delete wrapper;
+    wrapper = NULL;
+}
+
 void MDocumentDataSource::findObjectFinished()
 {
 

@@ -88,6 +88,9 @@ class MHumanDBWrapper : public MAbstractDBWrapper
     bool searching( const QString &queryText );
     bool initiating();
     bool saving( QObject *object );
+
+
+  private:
 };
 
 #endif // MHUMANDBWRAPPER_H

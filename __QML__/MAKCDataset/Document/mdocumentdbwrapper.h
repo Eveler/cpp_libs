@@ -67,17 +67,28 @@ class MDocument : public QQuickItem
 QML_DECLARE_TYPE( MDocument )
 
 
+class MHuman;
+
 class MDocumentDBWrapper : public MAbstractDBWrapper
 {
     Q_OBJECT
   public:
+    enum DocumentWrapperJobType {
+      HumanDocuments = Saving+1
+    };
+
     explicit MDocumentDBWrapper( MAbstractDataSource *parent = NULL );
 
 
   protected:
+    void job( int objectiveType, const QVariant &objectiveValue );
     bool searching( const QString &queryText );
+    bool searching( MHuman *human );
     bool initiating();
     bool saving( QObject *object );
+
+
+  private:
 };
 
 #endif // MDOCUMENTDBWRAPPER_H
