@@ -37,10 +37,10 @@ class EXPORT_MDATASET MAbstractDBWrapper : public QThread, public ObjectListPriv
     QString connectionName() const;
     bool setConnectionName( const QString &connectionName );
 
-    bool find( const QString &filter );
-    bool initiate();
-    bool select( int indexInFounded );
-    bool save( int indexInInitiated );
+    virtual bool find( const QString &filter );
+    virtual bool initiate();
+    virtual bool select( int indexInFounded );
+    virtual bool save( int indexInInitiated );
 
     QObject * object( int sourceType, int index ) const;
     int count( int sourceType ) const;
@@ -58,9 +58,10 @@ class EXPORT_MDATASET MAbstractDBWrapper : public QThread, public ObjectListPriv
 
   protected:
     QReadWriteLock * locker() const;
+    void setObjective( int objectiveType, QVariant objectiveValue );
     void run();
     QPair<int, QVariant> objective();
-    void job( int objectiveType, const QVariant &objectiveValue );
+    virtual void job( int objectiveType, const QVariant &objectiveValue );
     virtual bool searching( const QString &queryText ) = 0;
     virtual bool initiating() = 0;
     virtual bool saving( QObject *object ) = 0;

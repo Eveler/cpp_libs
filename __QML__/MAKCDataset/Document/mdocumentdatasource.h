@@ -4,12 +4,18 @@
 #include "mabstractdatasource.h"
 
 
+class MHuman;
+
 class MDocumentDataSource : public MAbstractDataSource
 {
     Q_OBJECT
+
+
   public:
     explicit MDocumentDataSource(QObject *parent = 0);
     ~MDocumentDataSource();
+
+    Q_INVOKABLE void findObject( MHuman *human );
 
 
   protected slots:
@@ -17,5 +23,7 @@ class MDocumentDataSource : public MAbstractDataSource
     void initiateObjectFinished();
     void saveObjectFinished();
 };
+
+QML_DECLARE_TYPE( MDocumentDataSource )
 
 #endif // MDOCUMENTDATASOURCE_H

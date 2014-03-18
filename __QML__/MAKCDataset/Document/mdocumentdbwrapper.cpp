@@ -21,7 +21,7 @@ MDocument::MDocument( QQuickItem *parent ) :
 
 MDocument::~MDocument()
 {
-
+//  qDebug() << __func__ << this;
 }
 
 QVariant MDocument::identifier() const
@@ -128,8 +128,37 @@ MDocumentDBWrapper::MDocumentDBWrapper( MAbstractDataSource * parent ) :
 {
 }
 
+bool MDocumentDBWrapper::find( const QString &filter )
+{
+  Q_UNUSED(filter)
+  return true;
+}
+
+bool MDocumentDBWrapper::find( MHuman *human )
+{
+//  qDebug() << metaObject()->className() << __func__ << __LINE__;
+  if ( isRunning() ) return false;
+
+  setObjective( (int)HumanDocuments, QVariant::fromValue( human ) );
+
+  start();
+  return true;
+}
+
+QObject * MDocumentDBWrapper::searched()
+{
+  QObject *result = NULL;
+
+  locker()->lockForRead();
+  if ( !m__Searched.isEmpty() ) result = m__Searched.takeFirst();
+  locker()->unlock();
+
+  return result;
+}
+
 void MDocumentDBWrapper::job( int objectiveType, const QVariant &objectiveValue )
 {
+//  qDebug() << metaObject()->className() << __func__ << __LINE__;
   if ( objectiveType == (int)HumanDocuments ) searching( objectiveValue.value<MHuman *>() );
   else MAbstractDBWrapper::job( objectiveType, objectiveValue );
 }
@@ -142,6 +171,8 @@ bool MDocumentDBWrapper::searching( const QString &queryText )
 
 bool MDocumentDBWrapper::searching( MHuman *human )
 {
+  human->documents()->setSource( (ObjectListPrivate *)this );
+
   QSqlDatabase database = QSqlDatabase::database( connectionName(), false );
   if ( !database.open() )
   {
@@ -158,8 +189,11 @@ bool MDocumentDBWrapper::searching( MHuman *human )
   }
   if ( !qry.next() ) return true;
 
-  currentQuery = tr( "SELECT docs.* FROM client_documents cdocs, documents docs WHERE cdocs.documents_id=docs.id AND cdocs.clients_id=%1"
+  currentQuery = tr( "SELECT docs.id, docs.doctype_id, docs.docname, docs.docseries, docs.docdate, docs.expires, docs.docagency_id, docs.url"
+                     " FROM client_documents cdocs, documents docs WHERE cdocs.documents_id=docs.id AND cdocs.clients_id=%1"
+                     " GROUP BY docs.id, docs.doctype_id, docs.docname, docs.docseries, docs.docdate, docs.expires, docs.docagency_id, docs.url"
                      " ORDER BY docs.id" ).arg( qry.record().value( 0 ).toInt() );
+  qry.clear();
   if ( !qry.exec( currentQuery ) )
   {
     qDebug() << __func__ << __LINE__ << qry.lastError().text();
@@ -168,39 +202,47 @@ bool MDocumentDBWrapper::searching( MHuman *human )
 
   locker()->lockForWrite();
   int lastFounded = -1;
+  int counted = 0;
   while ( qry.next() )
   {
+    counted++;
     int identifier = qry.record().value( "id" ).toInt();
-    MDocument *document = NULL;
+    MDocument *document = m__ExistDocuments.value( identifier, NULL );
 
-    int docsCount = pCount( human );
+    int docsCount = pCount( human->documents() );
     int index = lastFounded+1;
     for ( ; index < docsCount; index++ )
     {
-      MDocument *oldDocument = qobject_cast<MDocument *>( pObject( human, index ) );
-      if ( identifier == oldDocument->identifier().toInt() )
+      MDocument *oldDocument = qobject_cast<MDocument *>( pObject( human->documents(), index ) );
+
+      if ( identifier > oldDocument->identifier().toInt() )
       {
-        lastFounded = index;
-        document = oldDocument;
-      }
-      else if ( identifier > oldDocument->identifier().toInt() )
-      {
-        pTake( human, index );
-        oldDocument->removeExternalLink( human );
+        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tудалить объект с ID" << identifier;
+        pTake( human->documents(), index );
+        oldDocument->removeExternalLink( human->documents() );
         index--;
         docsCount--;
 
         if ( oldDocument->externalLinks().isEmpty() )
           connect( this, SIGNAL(finished()), oldDocument, SLOT(deleteLater()) );
       }
-
-      if ( document != NULL || identifier > oldDocument->identifier().toInt() ) break;
+      else if ( identifier == oldDocument->identifier().toInt() )
+      {
+        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tзапомнить объект с ID" << identifier;
+        lastFounded = index;
+        break;
+      }
     }
 
     if ( document == NULL )
     {
+//      qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tобъект с ID" << identifier;
       document = new MDocument;
       document->moveToThread( parent()->thread() );
+      m__ExistDocuments[identifier] = document;
+      lastFounded++;
+      pInsert( human->documents(), document, lastFounded );
+      document->addExternalLink( human->documents() );
     }
     document->setIdentifier( identifier );
     document->setName( qry.record().value( "docname" ).toString() );
@@ -209,8 +251,10 @@ bool MDocumentDBWrapper::searching( MHuman *human )
     document->setCreated( qry.record().value( "docdate" ).toDate() );
     document->setExpires( qry.record().value( "expires" ).toDate() );
     document->setSource( QUrl( qry.record().value( "url" ).toString() ) );
-    document->addExternalLink( human );
   }
+  qry.clear();
+//  qDebug() << metaObject()->className() << __func__ << __LINE__ << pCount( human->documents() ) << counted;
+  m__Searched << human->documents();
   locker()->unlock();
 
   return true;
