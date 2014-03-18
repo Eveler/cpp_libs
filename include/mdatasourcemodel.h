@@ -29,13 +29,13 @@ class EXPORT_MDATASET ObjectListPrivate
     QObject * pObject( int sourceType, int index ) const;
     int pCount( int sourceType ) const;
     int pIndex( int sourceType, QObject *object ) const;
-    void pAppend( int sourceType, QObject *object );
+    void pInsert( int sourceType, QObject *object, int index = -1 );
     QObject * pTake( int sourceType, int index );
 
     QObject * pObject( QObject *sourceType, int index ) const;
     int pCount( QObject * sourceType ) const;
     int pIndex( QObject *sourceType, QObject *object ) const;
-    void pAppend( QObject *sourceType, QObject *object );
+    void pInsert( QObject *sourceType, QObject *object, int index = -1 );
     QObject * pTake( QObject *sourceType, int index );
 
 

@@ -15,6 +15,7 @@ void MAKCDatasetPlugin::initializeEngine( QQmlEngine *engine, const char *uri )
   QQmlContext *context = engine->rootContext();
 
   context->setContextProperty( "MAKCDatabase", MAKC_Database() );
+  context->setContextProperty( "MAKCDocuments", MAKC_DocumentDataSource() );
   context->setContextProperty( "MAKCClientHumans", MAKC_ClientDataSource() );
   context->setContextProperty( "MAKCOrgHumans", MAKC_OrgDataSource() );
 }

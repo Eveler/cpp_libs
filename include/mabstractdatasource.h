@@ -29,10 +29,10 @@ class EXPORT_MDATASET MAbstractDataSource : public QObject
     explicit MAbstractDataSource( MAbstractDBWrapper *wrapper, QObject *parent = NULL );
     ~MAbstractDataSource();
 
-    Q_INVOKABLE void findObject( const QString &filter = QString() );
-    Q_INVOKABLE void initiateObject();
-    Q_INVOKABLE void selectObject( int indexInFounded );
-    Q_INVOKABLE void saveObject( int indexInInitiated );
+    Q_INVOKABLE virtual void findObject( const QString &filter = QString() );
+    Q_INVOKABLE virtual void initiateObject();
+    Q_INVOKABLE virtual void selectObject( int indexInFounded );
+    Q_INVOKABLE virtual void saveObject( int indexInInitiated );
 
     QString connectionName() const;
     void setConnectionName( const QString & connectionName );

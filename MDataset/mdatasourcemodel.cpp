@@ -41,16 +41,19 @@ int ObjectListPrivate::pIndex( int sourceType, QObject *object ) const
   return m__Objects.value( sourceType, QObjectList() ).indexOf( object );
 }
 
-void ObjectListPrivate::pAppend( int sourceType, QObject *object )
+void ObjectListPrivate::pInsert( int sourceType, QObject *object, int index )
 {
   if ( !m__Objects.contains( sourceType ) ) m__Objects[sourceType] = QObjectList();
 
-  m__Objects[sourceType] << object;
+  if ( index < 0 || index >= m__Objects[sourceType].count() ) m__Objects[sourceType] << object;
+  else m__Objects[sourceType].insert( index, object );
 }
 
 QObject * ObjectListPrivate::pTake( int sourceType, int index )
 {
-  return m__Objects[sourceType].takeAt( index );
+  QObject *result = m__Objects[sourceType].takeAt( index );
+  if ( m__Objects[sourceType].isEmpty() ) m__Objects.remove( sourceType );
+  return result;
 }
 
 QObject * ObjectListPrivate::pObject( QObject * sourceType, int index ) const
@@ -68,16 +71,19 @@ int ObjectListPrivate::pIndex( QObject *sourceType, QObject *object ) const
   return m__StarObjects.value( sourceType, QObjectList() ).indexOf( object );
 }
 
-void ObjectListPrivate::pAppend( QObject *sourceType, QObject *object )
+void ObjectListPrivate::pInsert( QObject *sourceType, QObject *object, int index )
 {
   if ( !m__StarObjects.contains( sourceType ) ) m__StarObjects[sourceType] = QObjectList();
 
-  m__StarObjects[sourceType] << object;
+  if ( index < 0 || index >= m__StarObjects[sourceType].count() ) m__StarObjects[sourceType] << object;
+  else m__StarObjects[sourceType].insert( index, object );
 }
 
 QObject * ObjectListPrivate::pTake( QObject *sourceType, int index )
 {
-  return m__StarObjects[sourceType].takeAt( index );
+  QObject *result = m__StarObjects[sourceType].takeAt( index );
+  if ( m__StarObjects[sourceType].isEmpty() ) m__StarObjects.remove( sourceType );
+  return result;
 }
 /*
  * End class definition: *[ ObjectListPrivate ]*
@@ -212,6 +218,8 @@ int MDataSourceModel::index( QObject *object ) const
 
 void MDataSourceModel::setSource( ObjectListPrivate *source )
 {
+  if ( m__Source == source ) return;
+
   m__Source = source;
   resetModel();
 }

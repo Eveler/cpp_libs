@@ -13,6 +13,7 @@
 namespace MAKCDataset {
   void initializeMAKC( QObject * parent = NULL );
   MDatabase * MAKC_Database();
+  MDocumentDataSource * MAKC_DocumentDataSource();
   MHumanDataSource * MAKC_ClientDataSource();
   MHumanDataSource * MAKC_OrgDataSource();
 }

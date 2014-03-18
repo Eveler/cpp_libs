@@ -77,12 +77,19 @@ class MHuman;
 class MDocumentDBWrapper : public MAbstractDBWrapper
 {
     Q_OBJECT
+
+
   public:
     enum DocumentWrapperJobType {
       HumanDocuments = Saving+1
     };
 
     explicit MDocumentDBWrapper( MAbstractDataSource *parent = NULL );
+
+    bool find( const QString &filter );
+    bool find( MHuman *human );
+
+    QObject * searched();
 
 
   protected:
@@ -94,6 +101,8 @@ class MDocumentDBWrapper : public MAbstractDBWrapper
 
 
   private:
+    QList<QObject *> m__Searched;
+    QHash<int, MDocument *> m__ExistDocuments;
 };
 
 #endif // MDOCUMENTDBWRAPPER_H

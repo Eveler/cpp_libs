@@ -25,6 +25,7 @@ MAbstractDBWrapper::~MAbstractDBWrapper()
     m__Locker->unlock();
     m__Locker->lockForWrite();
   }
+
   while ( pCount( (int)Founded ) > 0 )
   {
     QObject *object = pTake( (int)Founded, 0 );
@@ -44,6 +45,29 @@ MAbstractDBWrapper::~MAbstractDBWrapper()
     QObject *object = pTake( (int)Selected, 0 );
     delete object;
     object = NULL;
+  }
+  QVariantList sourceTypes = this->sourceTypes();
+  foreach ( QVariant sourceType, sourceTypes )
+  {
+    if ( sourceType.type() == QVariant::Int )
+    {
+      while ( pCount( sourceType.toInt() ) > 0 )
+      {
+        QObject *object = pTake( sourceType.toInt(), 0 );
+        delete object;
+        object = NULL;
+      }
+    }
+    else
+    {
+      QObject *objSource = sourceType.value<QObject *>();
+      while ( pCount( objSource ) > 0 )
+      {
+        QObject *object = pTake( objSource, 0 );
+        delete object;
+        object = NULL;
+      }
+    }
   }
   m__Locker->unlock();
 }
@@ -77,10 +101,7 @@ bool MAbstractDBWrapper::find( const QString &filter )
 {
   if ( isRunning() ) return false;
 
-  locker()->lockForWrite();
-  m__ObjectiveType = (int)Searching;
-  m__ObjectiveValue.setValue( filter );
-  locker()->unlock();
+  setObjective( (int)Searching, filter );
 
   start();
   return true;
@@ -90,9 +111,7 @@ bool MAbstractDBWrapper::initiate()
 {
   if ( isRunning() ) return false;
 
-  locker()->lockForWrite();
-  m__ObjectiveType = (int)Initiating;
-  locker()->unlock();
+  setObjective( (int)Initiating, QVariant() );
 
   start();
   return true;
@@ -108,7 +127,7 @@ bool MAbstractDBWrapper::select( int indexInFounded )
   if ( object == NULL ) return false;
 
   locker()->lockForWrite();
-  pAppend( (int)Selected, object );
+  pInsert( (int)Selected, object );
   locker()->unlock();
 
   return true;
@@ -123,10 +142,7 @@ bool MAbstractDBWrapper::save( int indexInInitiated )
   locker()->unlock();
   if ( object == NULL ) return false;
 
-  locker()->lockForWrite();
-  m__ObjectiveType = (int)Saving;
-  m__ObjectiveValue = QVariant::fromValue( object );
-  locker()->unlock();
+  setObjective( (int)Saving, QVariant::fromValue( object ) );
 
   start();
   return true;
@@ -189,6 +205,14 @@ int MAbstractDBWrapper::index( QObject *sourceType, QObject *object ) const
 QReadWriteLock * MAbstractDBWrapper::locker() const
 {
   return m__Locker;
+}
+
+void MAbstractDBWrapper::setObjective( int objectiveType, QVariant objectiveValue )
+{
+  locker()->lockForWrite();
+  m__ObjectiveType = objectiveType;
+  m__ObjectiveValue = objectiveValue;
+  locker()->unlock();
 }
 
 void MAbstractDBWrapper::run()

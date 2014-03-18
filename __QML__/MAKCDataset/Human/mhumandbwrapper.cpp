@@ -169,7 +169,7 @@ bool MHumanDBWrapper::searching( const QString &queryText )
     mhuman->setAddress( qry.record().value( "addr" ) );
     mhuman->setEmail( qry.record().value( "e-mail" ) );
     mhuman->setBirthday( qry.record().value( "birthday" ) );
-    pAppend( (int)Founded, mhuman );
+    pInsert( (int)Founded, mhuman );
     mhuman->moveToThread( parent()->thread() );
   }
   locker()->unlock();
@@ -197,7 +197,7 @@ bool MHumanDBWrapper::initiating()
   MHuman *mhuman = new MHuman;
   mhuman->setIdentifier( qry.record().value( 0 ) );
   locker()->lockForWrite();
-  pAppend( (int)Initiated, mhuman );
+  pInsert( (int)Initiated, mhuman );
   locker()->unlock();
   mhuman->moveToThread( parent()->thread() );
   qry.clear();
@@ -253,7 +253,7 @@ bool MHumanDBWrapper::saving( QObject *object )
 
   int index = pIndex( (int)Initiated, human );
   pTake( (int)Initiated, index );
-  pAppend( (int)Selected, human );
+  pInsert( (int)Selected, human );
 
   return true;
 }
