@@ -3,7 +3,8 @@
 #include "amslogger.h"
 
 DocumentsModel::DocumentsModel(QObject *parent):QAbstractItemModel(parent),
-  isNewVisible(true)
+  isNewVisible(true),
+  beginRow(-1)
 {
 }
 
@@ -235,7 +236,7 @@ bool DocumentsModel::addDocument(MFCDocumentInfo *doc, const QVariant id,
 
   int rCount=docs.count();
   int correction=isNewVisible?0:newDocs.count();
-  if(isNewVisible || !isNew)
+  if(isNewVisible || !isNew) if(beginRow<0)
     beginInsertRows(QModelIndex(),rCount-correction,rCount-correction);
 
   /*QMap< int,MFCDocumentInfo* >::iterator i=*/docs.insert(rCount,doc);
@@ -277,8 +278,9 @@ bool DocumentsModel::addDocument(MFCDocumentInfo *doc, const QVariant id,
       }
   }
 
-  if(isNewVisible || !isNew) endInsertRows();
-  emit documentAdded(doc);
+  if(isNewVisible || !isNew) if(beginRow<0) endInsertRows();
+  if(beginRow<0) emit documentAdded(doc);
+  else addedDocs<<doc;
   return true;
 }
 
@@ -311,6 +313,23 @@ bool DocumentsModel::removeDocument(MFCDocumentInfo *doc){
   if(res) emit documentRemoved(doc);
 //  LogDebug()<<"removeDocument("<<doc<<") END";
   return res;
+}
+
+void DocumentsModel::beginAddDocuments()
+{
+  addedDocs.clear();
+  beginRow = rowCount();
+}
+
+void DocumentsModel::endAddDocuments()
+{
+  if(beginRow>0 && rowCount()>beginRow)
+    beginInsertRows(QModelIndex(), beginRow, rowCount()-1);
+  foreach(MFCDocumentInfo *doc, addedDocs){
+    emit documentAdded(doc);
+  }
+  addedDocs.clear();
+  beginRow = -1;
 }
 
 bool DocumentsModel::removeDocument(const int row){

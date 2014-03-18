@@ -58,15 +58,21 @@ DocumentsModel *DocpathsDocsLoader::load(QVariant foreignID){
   }
   QStringList skipNames;
   skipNames<<"id"<<"documents_id"<<"doctype_id";
+  QStringList docIDs;
+  beginAddDocuments();
   while(qry.next()){
     MFCDocumentInfo *doc=NULL;
-    foreach(MFCDocumentInfo *d,docListModel->documents()){
-      if(docListModel->documentID(d).toString()==
-         qry.record().value("documents_id").toString()){
-        doc=d;
-        break;
-      }
-    }
+    QVariant docId = qry.record().value("documents_id");
+    if(docIDs.contains(docId.toString()))
+      doc = docListModel->document(docId);
+    else docIDs<<docId.toString();
+//    foreach(MFCDocumentInfo *d,docListModel->documents()){
+//      if(docListModel->documentID(d).toString()==
+//         qry.record().value("documents_id").toString()){
+//        doc=d;
+//        break;
+//      }
+//    }
     if(!doc){
       doc=MFCDocumentInfo::instance(
             qry.record().field("type").value().toString(),
@@ -77,7 +83,6 @@ DocumentsModel *DocpathsDocsLoader::load(QVariant foreignID){
             qry.record().field("expires").value().toDate(),
             qry.record().field("agency").value().toString(),
             qry.record().field("created").value().toDateTime() );
-//      doc->setProperty("created_in",tr("%1 (%2)").arg(__FILE__).arg(__LINE__));
       doc->setUrl( qry.record().field("url").value().toString() );
 
       for(int f=0;f<qry.record().count();f++){
@@ -85,9 +90,10 @@ DocumentsModel *DocpathsDocsLoader::load(QVariant foreignID){
         doc->setProperty(qry.record().fieldName(f).toLocal8Bit(),qry.value(f));
       }
 
-      docListModel->addDocument(doc,qry.record().value("documents_id"),false);
+      docListModel->addDocument(doc,docId,false);
     }
   }
+  endAddDocuments();
 
   return docListModel;
 }

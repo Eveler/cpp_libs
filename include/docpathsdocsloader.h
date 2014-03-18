@@ -6,6 +6,7 @@
 class DocpathsDocsLoader : public AbstractDocListLoader
 {
   Q_OBJECT
+
 public:
   explicit DocpathsDocsLoader(QSqlDatabase db,QObject *parent = 0);
   ~DocpathsDocsLoader();
@@ -16,7 +17,6 @@ signals:
 public slots:
 
 private:
-
 };
 
 #endif // DOCPATHSDOCSLOADER_H

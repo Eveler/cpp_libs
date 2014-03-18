@@ -4,10 +4,15 @@
 #include <QAbstractItemModel>
 #include "mfcdocumentinfo.h"
 #include "export/docmanager_export.h"
+//#include "abstractdoclistloader.h"
 
 class DOCMANAGER_EXPORT DocumentsModel : public QAbstractItemModel
 {
   Q_OBJECT
+
+  friend class AbstractDocListLoader;
+  friend class Docmanager;
+
 public:
   DocumentsModel(QObject *parent=0);
   ~DocumentsModel();
@@ -53,6 +58,12 @@ public slots:
                    const QVariant id=QVariant(),const bool isNew=true);
   bool removeDocument(MFCDocumentInfo *doc);
 
+protected:
+  void beginAddDocuments();
+  void endAddDocuments();
+  void beginRemoveDocument();
+  void endRemoveDocument();
+
 private slots:
   bool removeDocument(const int row);
   void documentDestroyed(QObject *obj);
@@ -67,6 +78,8 @@ private:
   QVariantList removedIDs;
 
   bool isNewVisible;
+  int beginRow;
+  QList<MFCDocumentInfo*> addedDocs;
 
   bool removeDocument_p(MFCDocumentInfo *doc);
   QByteArray propertyName(QObject *obj,int idx) const;
