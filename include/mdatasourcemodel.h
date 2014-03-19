@@ -63,8 +63,9 @@ class EXPORT_MDATASET MDataSourceModel : public MObjectModel
     void insert( int index, QObject *object );
     void remove( int index );
     void replace( int index, QObject *object );
-    int count() const;
     int index( QObject *object ) const;
+    int count() const;
+    void clear();
 
     void setSource( ObjectListPrivate *source );
 

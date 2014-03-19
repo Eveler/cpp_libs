@@ -6,7 +6,10 @@
 /*
  * Begin C++ - QML class definition: *[ SafelyValue ]*
 */
-SafelyValue::SafelyValue( QObject *value ) : QObject(value) {}
+SafelyValue::SafelyValue( const QVariant &value ) :
+  QObject(NULL),
+  m__Value(value)
+{}
 
 SafelyValue::~SafelyValue()
 {
@@ -15,8 +18,7 @@ SafelyValue::~SafelyValue()
 
 QVariant SafelyValue::value() const
 {
-  QObject *object = parent();
-  return QVariant::fromValue( object );
+  return m__Value;
 }
 /*
  * End class definition: *[ SafelyValue ]*
@@ -62,7 +64,7 @@ SafelyValue * MObjectModel::get( int index ) const
 {
   if ( index < 0 || index >= m__Objects.count() ) return NULL;
 
-  SafelyValue *result = new SafelyValue( m__Objects[index] );
+  SafelyValue *result = new SafelyValue( QVariant::fromValue( m__Objects[index] ) );
   result->deleteLater();
   return result;
 }
@@ -75,8 +77,6 @@ void MObjectModel::append( QObject *object )
   beginInsertRows( QModelIndex(), index, index );
   m__Objects << object;
   endInsertRows();
-
-//  emit countChanged();
 }
 
 void MObjectModel::insert( int index, QObject *object )
@@ -86,8 +86,6 @@ void MObjectModel::insert( int index, QObject *object )
   beginInsertRows( QModelIndex(), index, index );
   m__Objects.insert( index, object );
   endInsertRows();
-
-//  emit countChanged();
 }
 
 void MObjectModel::remove( int index )
@@ -97,8 +95,6 @@ void MObjectModel::remove( int index )
   beginRemoveRows( QModelIndex(), index, index );
   m__Objects.removeAt( index );
   endRemoveRows();
-
-//  emit countChanged();
 }
 
 void MObjectModel::replace( int index, QObject *object )
@@ -120,6 +116,13 @@ int MObjectModel::index( QObject *object ) const
 int MObjectModel::count() const
 {
   return m__Objects.count();
+}
+
+void MObjectModel::clear()
+{
+  beginResetModel();
+  m__Objects.clear();
+  endResetModel();
 }
 
 QHash<int, QByteArray> MObjectModel::roleNames() const

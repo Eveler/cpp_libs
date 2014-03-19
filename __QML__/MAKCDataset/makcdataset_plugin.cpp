@@ -1,6 +1,7 @@
 #include "makcdataset_plugin.h"
 
 #include "makcdataset.h"
+#include "msortmodel.h"
 
 #include <QQmlEngine>
 #include <QQmlContext>
@@ -24,6 +25,9 @@ void MAKCDatasetPlugin::registerTypes( const char *uri )
 {
   // @uri extensions.mihail.makcdataset
   qmlRegisterType<MObjectModel>( uri, 1, 0, "MObjectModel" );
+  qmlRegisterType<MSortModel>( uri, 1, 0, "MSortModel" );
+  qmlRegisterUncreatableType<MSortProperties>( uri, 1, 0, "MSortProperties", "" );
+
   qmlRegisterType<MDataSourceModel>( uri, 1, 0, "MDataSourceModel" );
   qmlRegisterUncreatableType<SafelyValue>( uri, 1, 0, "SafelyValue", "" );
 
