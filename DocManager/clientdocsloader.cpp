@@ -61,14 +61,14 @@ DocumentsModel *ClientDocsLoader::load(QVariant foreignID){
   }
   QStringList skipNames;
   skipNames<<"id"<<"documents_id"<<"doctype_id";
-  QStringList docIDs;
+  QList<int> docIDs;
   beginAddDocuments();
   while(qry.next()){
     MFCDocumentInfo *doc=NULL;
     QVariant docId = qry.record().value("documents_id");
-    if(docIDs.contains(docId.toString()))
+    if(docIDs.contains(docId.toInt()))
       doc = docListModel->document(docId);
-    else docIDs<<docId.toString();
+    else docIDs<<docId.toInt();
 //    foreach(MFCDocumentInfo *d,docListModel->documents()){
 //      if(docListModel->documentID(d).toString()==docID){
 //        doc=d;
@@ -92,7 +92,7 @@ DocumentsModel *ClientDocsLoader::load(QVariant foreignID){
         doc->setProperty(qry.record().fieldName(f).toLocal8Bit(),qry.value(f));
       }
 
-      docListModel->addDocument(doc,qry.record().value("documents_id"),false);
+      docListModel->addDocument(doc,docId,false);
     }
   }
   endAddDocuments();

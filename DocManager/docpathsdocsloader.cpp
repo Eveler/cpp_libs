@@ -58,14 +58,14 @@ DocumentsModel *DocpathsDocsLoader::load(QVariant foreignID){
   }
   QStringList skipNames;
   skipNames<<"id"<<"documents_id"<<"doctype_id";
-  QStringList docIDs;
+  QList<int> docIDs;
   beginAddDocuments();
   while(qry.next()){
     MFCDocumentInfo *doc=NULL;
     QVariant docId = qry.record().value("documents_id");
-    if(docIDs.contains(docId.toString()))
+    if(docIDs.contains(docId.toInt()))
       doc = docListModel->document(docId);
-    else docIDs<<docId.toString();
+    else docIDs<<docId.toInt();
 //    foreach(MFCDocumentInfo *d,docListModel->documents()){
 //      if(docListModel->documentID(d).toString()==
 //         qry.record().value("documents_id").toString()){
