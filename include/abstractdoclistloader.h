@@ -9,6 +9,7 @@
 class AbstractDocListLoader : public QObject
 {
   Q_OBJECT
+
 public:
   explicit AbstractDocListLoader(QSqlDatabase db,
                                  QObject *parent = 0);
@@ -42,7 +43,8 @@ protected:
   bool ownStorage;
 
   void setError(QString str);
-
+  void beginAddDocuments();
+  void endAddDocuments();
 };
 
 #endif // ABSTRACTDOCLISTLOADER_H

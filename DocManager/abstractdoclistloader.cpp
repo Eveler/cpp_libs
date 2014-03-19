@@ -72,3 +72,13 @@ void AbstractDocListLoader::setError(QString str){
   errStr=str;
   emit error(errStr);
 }
+
+void AbstractDocListLoader::beginAddDocuments()
+{
+  docListModel->beginAddDocuments();
+}
+
+void AbstractDocListLoader::endAddDocuments()
+{
+  docListModel->endAddDocuments();
+}

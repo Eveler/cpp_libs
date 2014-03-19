@@ -61,15 +61,20 @@ DocumentsModel *ClientDocsLoader::load(QVariant foreignID){
   }
   QStringList skipNames;
   skipNames<<"id"<<"documents_id"<<"doctype_id";
+  QList<int> docIDs;
+  beginAddDocuments();
   while(qry.next()){
     MFCDocumentInfo *doc=NULL;
-    foreach(MFCDocumentInfo *d,docListModel->documents()){
-      if(docListModel->documentID(d).toString()==
-         qry.record().value("documents_id").toString()){
-        doc=d;
-        break;
-      }
-    }
+    QVariant docId = qry.record().value("documents_id");
+    if(docIDs.contains(docId.toInt()))
+      doc = docListModel->document(docId);
+    else docIDs<<docId.toInt();
+//    foreach(MFCDocumentInfo *d,docListModel->documents()){
+//      if(docListModel->documentID(d).toString()==docID){
+//        doc=d;
+//        break;
+//      }
+//    }
     if(!doc){
       doc=MFCDocumentInfo::instance(
             qry.record().field("type").value().toString(),
@@ -80,7 +85,6 @@ DocumentsModel *ClientDocsLoader::load(QVariant foreignID){
             qry.record().field("expires").value().toDate(),
             qry.record().field("agency").value().toString(),
             qry.record().field("created").value().toDateTime() );
-//      doc->setProperty("created_in",tr("%1 (%2)").arg(__FILE__).arg(__LINE__));
       doc->setUrl( qry.record().field("url").value().toString() );
 
       for(int f=0;f<qry.record().count();f++){
@@ -88,21 +92,10 @@ DocumentsModel *ClientDocsLoader::load(QVariant foreignID){
         doc->setProperty(qry.record().fieldName(f).toLocal8Bit(),qry.value(f));
       }
 
-      docListModel->addDocument(doc,qry.record().value("documents_id"),false);
+      docListModel->addDocument(doc,docId,false);
     }
-//    connect(doc,SIGNAL(needBody(QString,MFCDocument*)),
-//            docStorage,SLOT(load(QString,MFCDocument*)));
-
-//    doc->setAgency(qry.record().value("agency").toString());
-//    doc->setCreateDate(qry.record().value("created").toDateTime());
-//    doc->setDate(qry.record().value("docdate").toDate());
-//    doc->setExpiresDate(qry.record().value("expires").toDate());
-//    doc->setName(qry.record().value("docname").toString());
-//    doc->setNumber(qry.record().value("docnum").toString());
-//    doc->setSeries(qry.record().value("docseries").toString());
-//    doc->setType(qry.record().value("aname").toString());
-//    doc->setUrl(qry.record().value("url").toString());
   }
+  endAddDocuments();
 
   return docListModel;
 }
