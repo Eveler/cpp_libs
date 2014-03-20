@@ -60,7 +60,7 @@ DocumentsModel *DeclarDocsLoader::load(QVariant foreignID){
   QStringList skipNames;
   skipNames<<"id"<<"documents_id"<<"doctype_id";
   QList<int> docIDs;
-  beginAddDocuments();
+//  beginAddDocuments();
   while(qry.next()){
     MFCDocumentInfo *doc=NULL;
     QVariant docId = qry.record().value("documents_id");
@@ -106,7 +106,7 @@ DocumentsModel *DeclarDocsLoader::load(QVariant foreignID){
       docListModel->addDocument( doc, docId, false );
     }
   }
-  endAddDocuments();
+//  endAddDocuments();
 
 //  LogDebug()<<Q_FUNC_INFO<<"END";
   return docListModel;

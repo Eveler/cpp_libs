@@ -596,6 +596,7 @@ void ElectroDoc_v2::execTwainProc(const QString &param)
   connect(ext_proc,SIGNAL(finished(int)),SLOT(processFinished(int)));
   connect(ext_proc,SIGNAL(error(QProcess::ProcessError)),
           SLOT(processError(QProcess::ProcessError)));
+//  LogDebug()<<tr("TwainGui.exe %1").arg(param);
   ext_proc->start(tr("TwainGui.exe %1").arg(param));
 
   if(ext_proc && !ext_proc->waitForStarted()){
@@ -603,6 +604,7 @@ void ElectroDoc_v2::execTwainProc(const QString &param)
                          tr("Истекло время ожидания запуска процесса: %1")
                          .arg(ext_proc?ext_proc->errorString():""));
     if(ext_proc){
+      ext_proc->disconnect();
       delete ext_proc;
       ext_proc=NULL;
     }
@@ -625,10 +627,13 @@ void ElectroDoc_v2::processFinished(int exitCode)
   int processed = 0;
   foreach(QString file, entryList){
     QString fName = "temp/"+file;
+//    LogDebug()<<"loading"<<fName;
     loadImage(fName);
     QFile::remove(fName);
+//    LogDebug()<<fName<<"DONE";
     ui->pBar_Scan->setValue(processed++);
     qApp->processEvents();
+//    LogDebug()<<"END foreach iteration";
   }
   ui->pBar_Scan->hide();
   //******************************************* загрузим все файлы temp/*.png //
@@ -650,6 +655,7 @@ void ElectroDoc_v2::processFinished(int exitCode)
 
   if(errStr.length()>0) QMessageBox::warning(this, tr("Внимание"), errStr);
 
+  ext_proc->disconnect();
   delete ext_proc;
   ext_proc=NULL;
 
@@ -662,9 +668,11 @@ void ElectroDoc_v2::processError(QProcess::ProcessError err)
 {
   if(err==QProcess::FailedToStart || err==QProcess::Crashed ||
      err==QProcess::Timedout || err==QProcess::UnknownError){
+//    LogDebug()<<"Error while TwainGui works:"<<err;
     if(ext_proc){
 //      LogDebug()<<ext_proc->errorString();
       QMessageBox::warning(this, tr("Ошибка"), ext_proc->errorString());
+      ext_proc->disconnect();
       delete ext_proc;
       ext_proc=NULL;
     }

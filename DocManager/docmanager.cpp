@@ -210,12 +210,12 @@ bool Docmanager::addClient(QVariant id){
   cd->load(DB);
   DocumentsModel *dm=cd->documents();
   if(!dm) return false;
-  allDocs->beginAddDocuments();
+//  allDocs->beginAddDocuments();
   foreach(MFCDocumentInfo *doc,dm->documents()){
     if(toAdd2All(doc))
       allDocs->addDocument(doc,dm->documentID(doc),dm->isNew(doc));
   }
-  allDocs->endAddDocuments();
+//  allDocs->endAddDocuments();
   connect(dm,SIGNAL(documentAdded(MFCDocumentInfo*)),
           SLOT(allDocsAdd(MFCDocumentInfo*)),Qt::UniqueConnection);
   connect(dm,SIGNAL(documentRemoved(MFCDocumentInfo*)),
@@ -292,12 +292,12 @@ bool Docmanager::setDeclar(const QVariant id){
   declarDocs->load(DB);
   DocumentsModel *dm=declarDocs->documents();
   if(!dm) return false;
-  allDocs->beginAddDocuments();
+//  allDocs->beginAddDocuments();
   foreach(MFCDocumentInfo *doc,dm->documents()){
     if(toAdd2All(doc))
       allDocs->addDocument(doc,dm->documentID(doc),dm->isNew(doc));
   }
-  allDocs->endAddDocuments();
+//  allDocs->endAddDocuments();
   connect(dm,SIGNAL(documentAdded(MFCDocumentInfo*)),
           SLOT(allDocsAdd(MFCDocumentInfo*)),Qt::UniqueConnection);
   connect(dm,SIGNAL(documentRemoved(MFCDocumentInfo*)),
@@ -355,12 +355,12 @@ bool Docmanager::addDocpaths(QVariant id){
   dd->load(DB);
   DocumentsModel *dm=dd->documents();
   if(!dm) return false;
-  allDocs->beginAddDocuments();
+//  allDocs->beginAddDocuments();
   foreach(MFCDocumentInfo *doc,dm->documents()){
     if(toAdd2All(doc))
       allDocs->addDocument(doc,dm->documentID(doc),dm->isNew(doc));
   }
-  allDocs->endAddDocuments();
+//  allDocs->endAddDocuments();
   connect(dm,SIGNAL(documentAdded(MFCDocumentInfo*)),
           SLOT(allDocsAdd(MFCDocumentInfo*)),Qt::UniqueConnection);
   connect(dm,SIGNAL(documentRemoved(MFCDocumentInfo*)),
