@@ -1,6 +1,6 @@
 #include "mdocumentdbwrapper.h"
 
-#include "mhumandbwrapper.h"
+#include "makcdataset.h"
 
 #include <QReadWriteLock>
 #include <QSqlDatabase>
@@ -202,10 +202,8 @@ bool MDocumentDBWrapper::searching( MHuman *human )
 
   locker()->lockForWrite();
   int lastFounded = -1;
-  int counted = 0;
   while ( qry.next() )
   {
-    counted++;
     int identifier = qry.record().value( "id" ).toInt();
     MDocument *document = m__ExistDocuments.value( identifier, NULL );
 
@@ -234,6 +232,7 @@ bool MDocumentDBWrapper::searching( MHuman *human )
       }
     }
 
+    MDoctypeDBWrapper *doctypeDBWrapper =qobject_cast<MDoctypeDBWrapper *>( MAKCDataset::MAKC_DoctypeDataSource()->dbWrapper() );
     if ( document == NULL )
     {
 //      qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tобъект с ID" << identifier;

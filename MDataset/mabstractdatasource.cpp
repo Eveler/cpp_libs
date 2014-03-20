@@ -57,6 +57,11 @@ MAbstractDataSource::~MAbstractDataSource()
   m__Selected = NULL;
 }
 
+MAbstractDBWrapper * MAbstractDataSource::dbWrapper() const
+{
+  return m__Wrapper;
+}
+
 void MAbstractDataSource::findObject( const QString &filter )
 {
   if ( m__Wrapper == NULL ) return;
@@ -140,11 +145,6 @@ void MAbstractDataSource::setDBWrapper( MAbstractDBWrapper *wrapper )
   m__Founded->setSource( m__Wrapper );
   m__Initiated->setSource( m__Wrapper );
   m__Selected->setSource( m__Wrapper );
-}
-
-MAbstractDBWrapper * MAbstractDataSource::dbWrapper() const
-{
-  return m__Wrapper;
 }
 
 int MAbstractDataSource::savedObjectIndex() const

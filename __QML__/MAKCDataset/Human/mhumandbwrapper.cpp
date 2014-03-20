@@ -134,10 +134,10 @@ bool MHumanDBWrapper::searching( const QString &queryText )
   QString currentQuery = queryText;
   if ( currentQuery.isEmpty() )
 //    currentQuery = tr( "SELECT * FROM humans ORDER BY surname, firstname, lastname, addr" );
-    currentQuery = tr( "SELECT * FROM humans" );
+    currentQuery = tr( "SELECT * FROM humans ORDER BY id" );
   else
 //    currentQuery = tr( "SELECT * FROM humans WHERE %1 ORDER BY surname, firstname, lastname, addr" ).arg( currentQuery );
-    currentQuery = tr( "SELECT * FROM humans WHERE %1" ).arg( currentQuery );
+    currentQuery = tr( "SELECT * FROM humans WHERE %1 ORDER BY id" ).arg( currentQuery );
 
   QSqlDatabase database = QSqlDatabase::database( connectionName(), false );
   if ( !database.open() )
