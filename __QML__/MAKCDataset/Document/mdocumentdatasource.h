@@ -12,7 +12,7 @@ class MDocumentDataSource : public MAbstractDataSource
 
 
   public:
-    explicit MDocumentDataSource(QObject *parent = 0);
+    explicit MDocumentDataSource( QObject *parent = NULL );
     ~MDocumentDataSource();
 
     Q_INVOKABLE void findObject( MHuman *human );

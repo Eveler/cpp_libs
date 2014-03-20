@@ -158,7 +158,7 @@ SafelyValue * MDataSourceModel::get( int index ) const
       return NULL;
     }
 
-    result = new SafelyValue( m__Source->object( (MDataSourceModel *)this, index ) );
+    result = new SafelyValue( QVariant::fromValue( m__Source->object( (MDataSourceModel *)this, index ) ) );
   }
   else
   {
@@ -168,7 +168,7 @@ SafelyValue * MDataSourceModel::get( int index ) const
       return NULL;
     }
 
-    result = new SafelyValue( m__Source->object( m__SourceType, index ) );
+    result = new SafelyValue( QVariant::fromValue(  m__Source->object( m__SourceType, index ) ) );
   }
 
   result->deleteLater();
@@ -197,6 +197,14 @@ void MDataSourceModel::replace( int index, QObject *object )
   Q_UNUSED(object)
 }
 
+int MDataSourceModel::index( QObject *object ) const
+{
+  if ( m__Source == NULL ) return -1;
+
+  if ( m__SourceType == -1 ) return m__Source->index( (MDataSourceModel *)this, object );
+  else return m__Source->index( m__SourceType, object );
+}
+
 int MDataSourceModel::count() const
 {
   int result = 0;
@@ -208,13 +216,7 @@ int MDataSourceModel::count() const
   return result;
 }
 
-int MDataSourceModel::index( QObject *object ) const
-{
-  if ( m__Source == NULL ) return -1;
-
-  if ( m__SourceType == -1 ) return m__Source->index( (MDataSourceModel *)this, object );
-  else return m__Source->index( m__SourceType, object );
-}
+void MDataSourceModel::clear() {}
 
 void MDataSourceModel::setSource( ObjectListPrivate *source )
 {

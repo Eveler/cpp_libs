@@ -79,10 +79,14 @@ CONFIG(debug, debug|release){
 
 HEADERS += \
     ../include/export/mmodels_export_lib.h \
-    ../include/mobjectmodel.h
+    ../include/mobjectmodel.h \
+    ../include/msortmodel.h \
+    ../include/msortproperties.h
 
 SOURCES += \
-    MObjectModel/mobjectmodel.cpp
+    MObjectModel/mobjectmodel.cpp \
+    MObjectModel/msortmodel.cpp \
+    MObjectModel/msortproperties.cpp
 
 
 

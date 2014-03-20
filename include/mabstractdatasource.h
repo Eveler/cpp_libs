@@ -29,6 +29,8 @@ class EXPORT_MDATASET MAbstractDataSource : public QObject
     explicit MAbstractDataSource( MAbstractDBWrapper *wrapper, QObject *parent = NULL );
     ~MAbstractDataSource();
 
+    MAbstractDBWrapper *dbWrapper() const;
+
     Q_INVOKABLE virtual void findObject( const QString &filter = QString() );
     Q_INVOKABLE virtual void initiateObject();
     Q_INVOKABLE virtual void selectObject( int indexInFounded );
@@ -56,7 +58,6 @@ class EXPORT_MDATASET MAbstractDataSource : public QObject
 
   protected:
     void setDBWrapper( MAbstractDBWrapper *wrapper );
-    MAbstractDBWrapper *dbWrapper() const;
 
     int savedObjectIndex() const;
     void setSavedObjectIndex( int savedObjectIndex );

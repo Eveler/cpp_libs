@@ -12,6 +12,7 @@ LIB_LIST = \
 
 INCLUDEPATH += ./ \
     ../../include/ \
+    ./Doctype/ \
     ./Document/ \
     ./Human/
 
@@ -23,7 +24,9 @@ SOURCES += \
     Human/mhumandbwrapper.cpp \
     Document/mdocumentdatasource.cpp \
     Document/mdocumentdbwrapper.cpp \
-    makcdataset.cpp
+    makcdataset.cpp \
+    Doctype/mdoctypedbwrapper.cpp \
+    Doctype/mdoctypedatasource.cpp
 
 HEADERS += \
     makcdataset_plugin.h \
@@ -31,7 +34,9 @@ HEADERS += \
     Human/mhumandbwrapper.h \
     Document/mdocumentdatasource.h \
     Document/mdocumentdbwrapper.h \
-    makcdataset.h
+    makcdataset.h \
+    Doctype/mdoctypedbwrapper.h \
+    Doctype/mdoctypedatasource.h
 
 OTHER_FILES = qmldir
 

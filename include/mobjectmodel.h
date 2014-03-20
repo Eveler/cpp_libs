@@ -1,10 +1,10 @@
 #ifndef MOBJECTMODEL_H
 #define MOBJECTMODEL_H
 
-#include <QQuickItem>
 #include <QAbstractListModel>
-
 #include "export/mmodels_export_lib.h"
+
+#include <QQuickItem>
 
 
 class EXPORT_MMODELS SafelyValue : public QObject
@@ -14,7 +14,7 @@ class EXPORT_MMODELS SafelyValue : public QObject
 
 
   public:
-    explicit SafelyValue( QObject *value = NULL );
+    explicit SafelyValue( const QVariant &value );
     ~SafelyValue();
 
     QVariant value() const;
@@ -22,6 +22,10 @@ class EXPORT_MMODELS SafelyValue : public QObject
 
   signals:
     void valueChanged();
+
+
+  private:
+    QVariant m__Value;
 };
 
 
@@ -50,6 +54,7 @@ class EXPORT_MMODELS MObjectModel : public QAbstractListModel
     Q_INVOKABLE virtual int index( QObject *object ) const;
 
     virtual int count() const;
+    Q_INVOKABLE virtual void clear();
 
 
   signals:
