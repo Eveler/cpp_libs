@@ -6,10 +6,14 @@
 #include <QDate>
 
 
+class MDoctype;
+
 class MDocument : public QQuickItem
 {
     Q_OBJECT
+    friend class MDocumentDBWrapper;
     Q_PROPERTY(QVariant identifier READ identifier NOTIFY identifierChanged)
+    Q_PROPERTY(MDoctype * doctype READ doctype WRITE setDoctype NOTIFY doctypeChanged)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(QString series READ series WRITE setSeries NOTIFY seriesChanged)
     Q_PROPERTY(QString number READ number WRITE setNumber NOTIFY numberChanged)
@@ -24,6 +28,9 @@ class MDocument : public QQuickItem
 
     QVariant identifier() const;
     void setIdentifier( QVariant identifier );
+
+    MDoctype * doctype() const;
+    void setDoctype( MDoctype *doctype );
 
     const QString & name() const;
     void setName( const QString & name );
@@ -43,13 +50,12 @@ class MDocument : public QQuickItem
     QUrl source() const;
     void setSource( QUrl source );
 
-    const QObjectList & externalLinks() const;
-    void addExternalLink( QObject *externalLink );
-    void removeExternalLink( QObject *externalLink );
+    int externalLinksCount() const;
 
 
   signals:
     void identifierChanged();
+    void doctypeChanged();
     void nameChanged();
     void seriesChanged();
     void numberChanged();
@@ -60,13 +66,17 @@ class MDocument : public QQuickItem
 
   private:
     QVariant m__Identifier;
+    MDoctype *m__Doctype;
     QString m__Name;
     QString m__Series;
     QString m__Number;
     QDate m__Created;
     QDate m__Expires;
     QUrl m__Source;
-    QObjectList m__ExternalLinks;
+    int m__ExternalLinksCount;
+
+    int incrementExternalLinks();
+    int decrementExternalLinks();
 };
 
 QML_DECLARE_TYPE( MDocument )

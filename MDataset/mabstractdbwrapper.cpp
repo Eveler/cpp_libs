@@ -202,6 +202,11 @@ int MAbstractDBWrapper::index( QObject *sourceType, QObject *object ) const
   return result;
 }
 
+void MAbstractDBWrapper::releaseOldResources()
+{
+  emit aboutToReleaseOldResources();
+}
+
 QReadWriteLock * MAbstractDBWrapper::locker() const
 {
   return m__Locker;

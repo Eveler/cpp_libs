@@ -26,6 +26,7 @@ class MDoctype : public QQuickItem
   signals:
     void identifierChanged();
     void nameChanged();
+    void externalLinksCountChanged();
 
 
   private:

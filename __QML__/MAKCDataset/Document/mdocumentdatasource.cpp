@@ -46,17 +46,25 @@ void MDocumentDataSource::findObjectFinished()
     model->resetModel();
   }
 
+  dbWrapper()->releaseOldResources();
+
   emit statusChanged();
 }
 
 void MDocumentDataSource::initiateObjectFinished()
 {
 
+  dbWrapper()->releaseOldResources();
+
+  emit statusChanged();
 }
 
 void MDocumentDataSource::saveObjectFinished()
 {
 
+  dbWrapper()->releaseOldResources();
+
+  emit statusChanged();
 }
 /*
  * End class definition: *[ MDocumentDataSource ]*

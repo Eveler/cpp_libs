@@ -50,8 +50,11 @@ class EXPORT_MDATASET MAbstractDBWrapper : public QThread, public ObjectListPriv
     int count( QObject *sourceType ) const;
     int index( QObject * sourceType, QObject *object ) const;
 
+    void releaseOldResources();
+
 
   signals:
+    void aboutToReleaseOldResources();
 
   public slots:
 

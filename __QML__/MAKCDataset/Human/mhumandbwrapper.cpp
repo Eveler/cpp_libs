@@ -156,23 +156,23 @@ bool MHumanDBWrapper::searching( const QString &queryText )
   locker()->lockForWrite();
   while ( pCount( (int)Founded ) > 0 )
   {
-    QObject *mhuman = pTake( (int)Founded, 0 );
-    if ( pIndex( (int)Selected, mhuman ) == -1 )
-      connect( this, SIGNAL(finished()), mhuman, SLOT(deleteLater()) );
+    QObject *human = pTake( (int)Founded, 0 );
+    if ( pIndex( (int)Selected, human ) == -1 )
+      connect( this, SIGNAL(aboutToReleaseOldResources()), human, SLOT(deleteLater()) );
   }
   while ( qry.next() )
   {
-    MHuman *mhuman = new MHuman;
-    mhuman->setIdentifier( qry.record().value( "id" ) );
-    mhuman->setSurname( qry.record().value( "surname" ) );
-    mhuman->setFirstname( qry.record().value( "firstname" ) );
-    mhuman->setLastname( qry.record().value( "lastname" ) );
-    mhuman->setPhone( qry.record().value( "phone" ) );
-    mhuman->setAddress( qry.record().value( "addr" ) );
-    mhuman->setEmail( qry.record().value( "e-mail" ) );
-    mhuman->setBirthday( qry.record().value( "birthday" ) );
-    pInsert( (int)Founded, mhuman );
-    mhuman->moveToThread( parent()->thread() );
+    MHuman *human = new MHuman;
+    human->setIdentifier( qry.record().value( "id" ) );
+    human->setSurname( qry.record().value( "surname" ) );
+    human->setFirstname( qry.record().value( "firstname" ) );
+    human->setLastname( qry.record().value( "lastname" ) );
+    human->setPhone( qry.record().value( "phone" ) );
+    human->setAddress( qry.record().value( "addr" ) );
+    human->setEmail( qry.record().value( "e-mail" ) );
+    human->setBirthday( qry.record().value( "birthday" ) );
+    pInsert( (int)Founded, human );
+    human->moveToThread( parent()->thread() );
   }
   locker()->unlock();
   qry.clear();
@@ -196,12 +196,12 @@ bool MHumanDBWrapper::initiating()
     qDebug() << __func__ << __LINE__ << qry.lastError().text();
     return false;
   }
-  MHuman *mhuman = new MHuman;
-  mhuman->setIdentifier( qry.record().value( 0 ) );
+  MHuman *human = new MHuman;
+  human->setIdentifier( qry.record().value( 0 ) );
   locker()->lockForWrite();
-  pInsert( (int)Initiated, mhuman );
+  pInsert( (int)Initiated, human );
   locker()->unlock();
-  mhuman->moveToThread( parent()->thread() );
+  human->moveToThread( parent()->thread() );
   qry.clear();
 
   return true;

@@ -30,6 +30,8 @@ void MHumanDataSource::findObjectFinished()
 
   founded()->resetModel();
 
+  dbWrapper()->releaseOldResources();
+
   emit statusChanged();
 }
 
@@ -39,6 +41,8 @@ void MHumanDataSource::initiateObjectFinished()
 
   int index = dbWrapper()->count( (int)MAbstractDBWrapper::Initiated )-1;
   initiated()->insertObjects( index, index );
+
+  dbWrapper()->releaseOldResources();
 
   emit statusChanged();
 }
@@ -53,6 +57,8 @@ void MHumanDataSource::saveObjectFinished()
   index = savedObjectIndex();
   setSavedObjectIndex( -1 );
   initiated()->removeObjects( index, index );
+
+  dbWrapper()->releaseOldResources();
 
   emit saved();
   emit statusChanged();

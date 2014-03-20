@@ -12,7 +12,8 @@
  * Begin C++ - QML class definition: *[ MDoctype ]*
 */
 MDoctype::MDoctype( QQuickItem *parent ) :
-  QQuickItem(parent)
+  QQuickItem(parent),
+  m__ExternalLinksCount(0)
 {}
 
 MDoctype::~MDoctype() {}
@@ -112,6 +113,7 @@ bool MDoctypeDBWrapper::searching( const QString &queryText )
 
     int doctypesCount = pCount( (int)Founded );
     int index = lastFounded+1;
+    bool insertIntoFounded = true;
     for ( ; index < doctypesCount; index++ )
     {
       MDoctype *oldDoctype = qobject_cast<MDoctype *>( pObject( (int)Founded, index ) );
@@ -124,11 +126,12 @@ bool MDoctypeDBWrapper::searching( const QString &queryText )
         doctypesCount--;
 
         if ( oldDoctype->externalLinksCount() == 0 )
-          connect( this, SIGNAL(finished()), oldDoctype, SLOT(deleteLater()) );
+          connect( this, SIGNAL(aboutToReleaseOldResources()), oldDoctype, SLOT(deleteLater()) );
       }
       else if ( identifier == oldDoctype->identifier().toInt() )
       {
         qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tзапомнить объект с ID" << identifier;
+        insertIntoFounded = false;
         lastFounded = index;
         break;
       }
@@ -140,10 +143,13 @@ bool MDoctypeDBWrapper::searching( const QString &queryText )
       doctype = new MDoctype;
       doctype->moveToThread( parent()->thread() );
       m__ExistDoctypes[identifier] = doctype;
+      doctype->setIdentifier( identifier );
+    }
+    if ( insertIntoFounded )
+    {
       lastFounded++;
       pInsert( (int)Founded, doctype, lastFounded );
     }
-    doctype->setIdentifier( identifier );
     doctype->setName( qry.record().value( "docname" ).toString() );
   }
   qry.clear();

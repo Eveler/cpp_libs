@@ -14,7 +14,8 @@
  * Begin C++ - QML class definition: *[ MDocument ]*
 */
 MDocument::MDocument( QQuickItem *parent ) :
-  QQuickItem( parent )
+  QQuickItem( parent ),
+  m__ExternalLinksCount(0)
 {
 
 }
@@ -33,6 +34,21 @@ void MDocument::setIdentifier( QVariant identifier )
 {
   m__Identifier = identifier;
   emit identifierChanged();
+}
+
+MDoctype * MDocument::doctype() const
+{
+  return m__Doctype;
+}
+
+void MDocument::setDoctype( MDoctype *doctype )
+{
+  if ( m__Doctype != NULL )
+    m__Doctype->decrementExternalLinks();
+  m__Doctype = doctype;
+  if ( m__Doctype != NULL )
+    m__Doctype->incrementExternalLinks();
+  emit doctypeChanged();
 }
 
 const QString & MDocument::name() const
@@ -101,19 +117,21 @@ void MDocument::setSource( QUrl source )
   emit sourceChanged();
 }
 
-const QObjectList & MDocument::externalLinks() const
+int MDocument::externalLinksCount() const
 {
-  return m__ExternalLinks;
+  return m__ExternalLinksCount;
 }
 
-void MDocument::addExternalLink( QObject *externalLink )
+int MDocument::incrementExternalLinks()
 {
-  if ( !m__ExternalLinks.contains( externalLink ) ) m__ExternalLinks << externalLink;
+  return m__ExternalLinksCount++;
 }
 
-void MDocument::removeExternalLink( QObject *externalLink )
+int MDocument::decrementExternalLinks()
 {
-  m__ExternalLinks.removeOne( externalLink );
+  if ( m__ExternalLinksCount > 0 ) m__ExternalLinksCount--;
+
+  return m__ExternalLinksCount;
 }
 /*
  * End class definition: *[ MDocument ]*
@@ -217,12 +235,12 @@ bool MDocumentDBWrapper::searching( MHuman *human )
       {
         qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tудалить объект с ID" << identifier;
         pTake( human->documents(), index );
-        oldDocument->removeExternalLink( human->documents() );
+        oldDocument->decrementExternalLinks();
         index--;
         docsCount--;
 
-        if ( oldDocument->externalLinks().isEmpty() )
-          connect( this, SIGNAL(finished()), oldDocument, SLOT(deleteLater()) );
+        if ( oldDocument->externalLinksCount() == 0 )
+          connect( this, SIGNAL(aboutToReleaseOldResources()), oldDocument, SLOT(deleteLater()) );
       }
       else if ( identifier == oldDocument->identifier().toInt() )
       {
@@ -241,7 +259,7 @@ bool MDocumentDBWrapper::searching( MHuman *human )
       m__ExistDocuments[identifier] = document;
       lastFounded++;
       pInsert( human->documents(), document, lastFounded );
-      document->addExternalLink( human->documents() );
+      document->incrementExternalLinks();
     }
     document->setIdentifier( identifier );
     document->setName( qry.record().value( "docname" ).toString() );
