@@ -15,6 +15,7 @@
 */
 MDocument::MDocument( QQuickItem *parent ) :
   QQuickItem( parent ),
+  m__Type(NULL),
   m__ExternalLinksCount(0)
 {
 
@@ -36,19 +37,19 @@ void MDocument::setIdentifier( QVariant identifier )
   emit identifierChanged();
 }
 
-MDoctype * MDocument::doctype() const
+MDoctype * MDocument::type() const
 {
-  return m__Doctype;
+  return m__Type;
 }
 
-void MDocument::setDoctype( MDoctype *doctype )
+void MDocument::setType( MDoctype *doctype )
 {
-  if ( m__Doctype != NULL )
-    m__Doctype->decrementExternalLinks();
-  m__Doctype = doctype;
-  if ( m__Doctype != NULL )
-    m__Doctype->incrementExternalLinks();
-  emit doctypeChanged();
+  if ( m__Type != NULL )
+    m__Type->decrementExternalLinks();
+  m__Type = doctype;
+  if ( m__Type != NULL )
+    m__Type->incrementExternalLinks();
+  emit typeChanged();
 }
 
 const QString & MDocument::name() const
@@ -174,6 +175,26 @@ QObject * MDocumentDBWrapper::searched()
   return result;
 }
 
+void MDocumentDBWrapper::releaseHumanDocuments( MHuman *human )
+{
+  locker()->lockForWrite();
+  int docsCount = pCount( human->documents() );
+  while ( docsCount > 0 )
+  {
+    MDocument *document = qobject_cast<MDocument *>( pTake( human->documents(), 0 ) );
+    document->decrementExternalLinks();
+
+    if ( document->externalLinksCount() == 0 )
+    {
+      m__ExistDocuments.remove( document->identifier().toInt() );
+      connect( human, SIGNAL(destroyed()), document, SLOT(deleteLater()) );
+    }
+
+    docsCount--;
+  }
+  locker()->unlock();
+}
+
 void MDocumentDBWrapper::job( int objectiveType, const QVariant &objectiveValue )
 {
 //  qDebug() << metaObject()->className() << __func__ << __LINE__;
@@ -220,8 +241,11 @@ bool MDocumentDBWrapper::searching( MHuman *human )
 
   locker()->lockForWrite();
   int lastFounded = -1;
+  int counted = 0;
   while ( qry.next() )
   {
+    counted++;
+
     int identifier = qry.record().value( "id" ).toInt();
     MDocument *document = m__ExistDocuments.value( identifier, NULL );
 
@@ -233,24 +257,27 @@ bool MDocumentDBWrapper::searching( MHuman *human )
 
       if ( identifier > oldDocument->identifier().toInt() )
       {
-        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tудалить объект с ID" << identifier;
+//        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tудалить объект с ID" << identifier;
         pTake( human->documents(), index );
         oldDocument->decrementExternalLinks();
         index--;
         docsCount--;
 
         if ( oldDocument->externalLinksCount() == 0 )
+        {
+          m__ExistDocuments.remove( oldDocument->identifier().toInt() );
           connect( this, SIGNAL(aboutToReleaseOldResources()), oldDocument, SLOT(deleteLater()) );
+        }
       }
       else if ( identifier == oldDocument->identifier().toInt() )
       {
-        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tзапомнить объект с ID" << identifier;
+//        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tзапомнить объект с ID" << identifier;
         lastFounded = index;
         break;
       }
     }
 
-    MDoctypeDBWrapper *doctypeDBWrapper =qobject_cast<MDoctypeDBWrapper *>( MAKCDataset::MAKC_DoctypeDataSource()->dbWrapper() );
+    MDoctypeDBWrapper *doctypeDBWrapper = qobject_cast<MDoctypeDBWrapper *>( MAKCDataset::MAKC_DoctypeDataSource()->dbWrapper() );
     if ( document == NULL )
     {
 //      qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tобъект с ID" << identifier;
@@ -262,6 +289,7 @@ bool MDocumentDBWrapper::searching( MHuman *human )
       document->incrementExternalLinks();
     }
     document->setIdentifier( identifier );
+    document->setType( doctypeDBWrapper->doctype( qry.record().value( "doctype_id" ) ) );
     document->setName( qry.record().value( "docname" ).toString() );
     document->setSeries( qry.record().value( "docseries" ).toString() );
     document->setNumber( qry.record().value( "docnum" ).toString() );

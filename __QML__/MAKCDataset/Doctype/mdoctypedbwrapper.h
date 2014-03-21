@@ -8,6 +8,8 @@ class MDoctype : public QQuickItem
 {
     Q_OBJECT
     friend class MDocument;
+    Q_PROPERTY(QVariant identifier READ identifier NOTIFY identifierChanged)
+    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
 
 
   public:
@@ -49,7 +51,7 @@ class MDoctypeDBWrapper : public MAbstractDBWrapper
   public:
     explicit MDoctypeDBWrapper( MAbstractDataSource *parent = NULL );
 
-    MDoctype *doctype( QVariant identifier ) const;
+    MDoctype *doctype( QVariant identifier );
 
 
   protected:

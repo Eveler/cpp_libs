@@ -7,23 +7,24 @@
 
 class SafelyValue;
 
-class EXPORT_MMODELS MSortProperties : public QQuickItem
+class EXPORT_MMODELS MSortProperties : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(int count READ count NOTIFY countChanged)
 
 
   public:
-    explicit MSortProperties(QQuickItem *parent = 0);
+    explicit MSortProperties( QObject *parent = NULL );
     ~MSortProperties();
 
     Q_INVOKABLE void addSort( QString propertyName, Qt::SortOrder sort );
     Q_INVOKABLE void replaceSort( int index, QString propertyName, Qt::SortOrder sort );
-    Q_INVOKABLE MSortProperties * addSort( QString propertyName );
-    Q_INVOKABLE MSortProperties * replaceSort( int index, QString propertyName );
+    Q_INVOKABLE SafelyValue * addSort( QString propertyName );
+    Q_INVOKABLE SafelyValue * replaceSort( int index, QString propertyName );
     Q_INVOKABLE void removeSort( int index );
     Q_INVOKABLE QString sortProperty( int index ) const;
     Q_INVOKABLE SafelyValue * sortOrder( int index ) const;
+    Q_INVOKABLE void clear();
 
     int count() const;
 

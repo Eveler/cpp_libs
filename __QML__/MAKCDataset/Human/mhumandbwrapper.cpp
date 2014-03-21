@@ -1,5 +1,7 @@
 #include "mhumandbwrapper.h"
 
+#include "makcdataset.h"
+
 #include <QReadWriteLock>
 #include <QSqlDatabase>
 #include <QSqlError>
@@ -13,7 +15,7 @@
 */
 MHuman::MHuman( QQuickItem *parent ) :
   QQuickItem(parent),
-  m__Documents(new MDataSourceModel)
+  m__Documents(new MDataSourceModel( this ))
 {
 }
 
@@ -131,13 +133,11 @@ MHumanDBWrapper::MHumanDBWrapper( MAbstractDataSource * parent ) :
 
 bool MHumanDBWrapper::searching( const QString &queryText )
 {
+  MDocumentDBWrapper *documentDBWrapper = qobject_cast<MDocumentDBWrapper *>( MAKCDataset::MAKC_DocumentDataSource()->dbWrapper() );
+
   QString currentQuery = queryText;
-  if ( currentQuery.isEmpty() )
-//    currentQuery = tr( "SELECT * FROM humans ORDER BY surname, firstname, lastname, addr" );
-    currentQuery = tr( "SELECT * FROM humans ORDER BY id" );
-  else
-//    currentQuery = tr( "SELECT * FROM humans WHERE %1 ORDER BY surname, firstname, lastname, addr" ).arg( currentQuery );
-    currentQuery = tr( "SELECT * FROM humans WHERE %1 ORDER BY id" ).arg( currentQuery );
+  if ( currentQuery.isEmpty() ) currentQuery = tr( "SELECT * FROM humans ORDER BY id" );
+  else currentQuery = tr( "SELECT * FROM humans WHERE %1 ORDER BY id" ).arg( currentQuery );
 
   QSqlDatabase database = QSqlDatabase::database( connectionName(), false );
   if ( !database.open() )
@@ -158,7 +158,10 @@ bool MHumanDBWrapper::searching( const QString &queryText )
   {
     QObject *human = pTake( (int)Founded, 0 );
     if ( pIndex( (int)Selected, human ) == -1 )
+    {
+      documentDBWrapper->releaseHumanDocuments( qobject_cast<MHuman *>( human ) );
       connect( this, SIGNAL(aboutToReleaseOldResources()), human, SLOT(deleteLater()) );
+    }
   }
   while ( qry.next() )
   {

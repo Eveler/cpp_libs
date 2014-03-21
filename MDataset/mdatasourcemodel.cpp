@@ -239,8 +239,11 @@ void MDataSourceModel::setSourceType( int sourceType )
 
 void MDataSourceModel::resetModel()
 {
+//  qDebug() << metaObject()->className() << __func__ << __LINE__;
   beginResetModel();
+//  qDebug() << metaObject()->className() << __func__ << __LINE__;
   endResetModel();
+//  qDebug() << metaObject()->className() << __func__ << __LINE__;
 }
 
 void MDataSourceModel::insertObjects( int first, int last )

@@ -71,13 +71,40 @@ MDoctypeDBWrapper::MDoctypeDBWrapper( MAbstractDataSource *parent ) :
 {
 }
 
-MDoctype * MDoctypeDBWrapper::doctype( QVariant identifier ) const
+MDoctype * MDoctypeDBWrapper::doctype( QVariant identifier )
 {
   MDoctype *result = NULL;
 
   locker()->lockForRead();
   result = m__ExistDoctypes.value( identifier.toInt(), result );
   locker()->unlock();
+
+  if ( result == NULL )
+  {
+    QString currentQuery = tr( "SELECT * FROM doctypes WHERE id=%1" ).arg( identifier.toInt() );
+
+    QSqlDatabase database = QSqlDatabase::database( connectionName(), false );
+    if ( !database.open() )
+    {
+      qDebug() << __func__ << __LINE__ << database.lastError().text();
+      return result;
+    }
+
+    QSqlQuery qry( currentQuery, database );
+    if ( qry.lastError().isValid() || !qry.next() )
+    {
+      qDebug() << __func__ << __LINE__ << qry.lastError().text();
+      return result;
+    }
+    int identifier = qry.record().value( "id" ).toInt();
+    result = new MDoctype;
+    result->moveToThread( parent()->thread() );
+    m__ExistDoctypes[identifier] = result;
+    result->setIdentifier( identifier );
+    result->setName( qry.record().value( "aname" ).toString() );
+    locker()->unlock();
+    qry.clear();
+  }
 
   return result;
 }
@@ -120,7 +147,7 @@ bool MDoctypeDBWrapper::searching( const QString &queryText )
 
       if ( identifier > oldDoctype->identifier().toInt() )
       {
-        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tудалить объект с ID" << identifier;
+//        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tудалить объект с ID" << identifier;
         pTake( (int)Founded, index );
         index--;
         doctypesCount--;
@@ -130,7 +157,7 @@ bool MDoctypeDBWrapper::searching( const QString &queryText )
       }
       else if ( identifier == oldDoctype->identifier().toInt() )
       {
-        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tзапомнить объект с ID" << identifier;
+//        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tзапомнить объект с ID" << identifier;
         insertIntoFounded = false;
         lastFounded = index;
         break;
@@ -150,7 +177,7 @@ bool MDoctypeDBWrapper::searching( const QString &queryText )
       lastFounded++;
       pInsert( (int)Founded, doctype, lastFounded );
     }
-    doctype->setName( qry.record().value( "docname" ).toString() );
+    doctype->setName( qry.record().value( "aname" ).toString() );
   }
   qry.clear();
 //  qDebug() << metaObject()->className() << __func__ << __LINE__ << pCount( human->documents() ) << counted;
