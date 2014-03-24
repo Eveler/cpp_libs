@@ -256,9 +256,30 @@ bool MHumanDBWrapper::saving( QObject *object )
   }
   qry.clear();
 
+  currentQuery = tr( "SELECT NOT EXISTS ((SELECT id FROM clients WHERE clid=%1 AND isorg=0))" ).arg( identifier );
+  if ( !qry.exec( currentQuery ) || !qry.next() )
+  {
+    qDebug() << __func__ << __LINE__ << qry.lastError().text() << "\n" << currentQuery;
+    return false;
+  }
+  bool insert = qry.value( 0 ).toBool();
+  qry.clear();
+  if ( insert )
+  {
+    currentQuery = tr( "INSERT INTO clients (clid, isorg) VALUES (%1, %2)" ).arg( identifier, "0" );
+    if ( !qry.exec( currentQuery ) )
+    {
+      qDebug() << __func__ << __LINE__ << qry.lastError().text() << "\n" << currentQuery;
+      return false;
+    }
+    qry.clear();
+  }
+
+  locker()->lockForWrite();
   int index = pIndex( (int)Initiated, human );
   pTake( (int)Initiated, index );
   pInsert( (int)Selected, human );
+  locker()->unlock();
 
   return true;
 }
