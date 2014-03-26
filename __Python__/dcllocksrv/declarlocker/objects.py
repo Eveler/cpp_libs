@@ -23,13 +23,20 @@ class DeclarLock(Base):
     priority = Column(Integer, server_default="999")
     placed = Column(TIMESTAMP, server_default="now()")
 
+    def __init__(self, table_id, table_name="declars", priority="999"):
+        super(DeclarLock, self).__init__()
+        self.table_name = table_name
+        self.table_id = table_id
+        self.priority = priority
+
     def __repr__(self):
-        return "<Lock # %s on %s(%s) placed by %s at %s>" % \
-               (self.id, self.table_name, self.table_id, self.user_name, self.placed)
+        return "<DeclarLock #%s on %s(%s) placed by %s at %s, priority = %s>" % \
+               (self.id, self.table_name, self.table_id, self.user_name, self.placed, self.priority)
+
 
 metadata = MetaData()
 engine = create_engine('sqlite:///:memory:', echo=True)
 Base.metadata.create_all(engine)
-locker = DeclarLock()
 from sqlalchemy.orm import sessionmaker
+
 Session = sessionmaker(bind=engine)
