@@ -45,7 +45,7 @@ class EXPORT_MMODELS MSortModel : public QSortFilterProxyModel
   private:
     MSortProperties *m__SortProperties;
 
-    bool lessThan( QObject *left, QObject *right, MSortProperties *sortProperties ) const;
+    int compare( QObject *left, QObject *right, MSortProperties *sortProperties ) const;
     int compare( const QVariant &left, const QVariant &right ) const;
 };
 

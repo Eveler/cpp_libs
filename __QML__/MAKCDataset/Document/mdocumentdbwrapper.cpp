@@ -14,7 +14,9 @@
  * Begin C++ - QML class definition: *[ MDocument ]*
 */
 MDocument::MDocument( QQuickItem *parent ) :
-  QQuickItem( parent )
+  QQuickItem( parent ),
+  m__Type(NULL),
+  m__ExternalLinksCount(0)
 {
 
 }
@@ -33,6 +35,21 @@ void MDocument::setIdentifier( QVariant identifier )
 {
   m__Identifier = identifier;
   emit identifierChanged();
+}
+
+MDoctype * MDocument::type() const
+{
+  return m__Type;
+}
+
+void MDocument::setType( MDoctype *doctype )
+{
+  if ( m__Type != NULL )
+    m__Type->decrementExternalLinks();
+  m__Type = doctype;
+  if ( m__Type != NULL )
+    m__Type->incrementExternalLinks();
+  emit typeChanged();
 }
 
 const QString & MDocument::name() const
@@ -101,19 +118,21 @@ void MDocument::setSource( QUrl source )
   emit sourceChanged();
 }
 
-const QObjectList & MDocument::externalLinks() const
+int MDocument::externalLinksCount() const
 {
-  return m__ExternalLinks;
+  return m__ExternalLinksCount;
 }
 
-void MDocument::addExternalLink( QObject *externalLink )
+int MDocument::incrementExternalLinks()
 {
-  if ( !m__ExternalLinks.contains( externalLink ) ) m__ExternalLinks << externalLink;
+  return m__ExternalLinksCount++;
 }
 
-void MDocument::removeExternalLink( QObject *externalLink )
+int MDocument::decrementExternalLinks()
 {
-  m__ExternalLinks.removeOne( externalLink );
+  if ( m__ExternalLinksCount > 0 ) m__ExternalLinksCount--;
+
+  return m__ExternalLinksCount;
 }
 /*
  * End class definition: *[ MDocument ]*
@@ -154,6 +173,26 @@ QObject * MDocumentDBWrapper::searched()
   locker()->unlock();
 
   return result;
+}
+
+void MDocumentDBWrapper::releaseHumanDocuments( MHuman *human )
+{
+  locker()->lockForWrite();
+  int docsCount = pCount( human->documents() );
+  while ( docsCount > 0 )
+  {
+    MDocument *document = qobject_cast<MDocument *>( pTake( human->documents(), 0 ) );
+    document->decrementExternalLinks();
+
+    if ( document->externalLinksCount() == 0 )
+    {
+      m__ExistDocuments.remove( document->identifier().toInt() );
+      connect( human, SIGNAL(destroyed()), document, SLOT(deleteLater()) );
+    }
+
+    docsCount--;
+  }
+  locker()->unlock();
 }
 
 void MDocumentDBWrapper::job( int objectiveType, const QVariant &objectiveValue )
@@ -202,8 +241,11 @@ bool MDocumentDBWrapper::searching( MHuman *human )
 
   locker()->lockForWrite();
   int lastFounded = -1;
+  int counted = 0;
   while ( qry.next() )
   {
+    counted++;
+
     int identifier = qry.record().value( "id" ).toInt();
     MDocument *document = m__ExistDocuments.value( identifier, NULL );
 
@@ -215,24 +257,27 @@ bool MDocumentDBWrapper::searching( MHuman *human )
 
       if ( identifier > oldDocument->identifier().toInt() )
       {
-        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tудалить объект с ID" << identifier;
+//        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tудалить объект с ID" << identifier;
         pTake( human->documents(), index );
-        oldDocument->removeExternalLink( human->documents() );
+        oldDocument->decrementExternalLinks();
         index--;
         docsCount--;
 
-        if ( oldDocument->externalLinks().isEmpty() )
-          connect( this, SIGNAL(finished()), oldDocument, SLOT(deleteLater()) );
+        if ( oldDocument->externalLinksCount() == 0 )
+        {
+          m__ExistDocuments.remove( oldDocument->identifier().toInt() );
+          connect( this, SIGNAL(aboutToReleaseOldResources()), oldDocument, SLOT(deleteLater()) );
+        }
       }
       else if ( identifier == oldDocument->identifier().toInt() )
       {
-        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tзапомнить объект с ID" << identifier;
+//        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tзапомнить объект с ID" << identifier;
         lastFounded = index;
         break;
       }
     }
 
-    MDoctypeDBWrapper *doctypeDBWrapper =qobject_cast<MDoctypeDBWrapper *>( MAKCDataset::MAKC_DoctypeDataSource()->dbWrapper() );
+    MDoctypeDBWrapper *doctypeDBWrapper = qobject_cast<MDoctypeDBWrapper *>( MAKCDataset::MAKC_DoctypeDataSource()->dbWrapper() );
     if ( document == NULL )
     {
 //      qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tобъект с ID" << identifier;
@@ -241,9 +286,10 @@ bool MDocumentDBWrapper::searching( MHuman *human )
       m__ExistDocuments[identifier] = document;
       lastFounded++;
       pInsert( human->documents(), document, lastFounded );
-      document->addExternalLink( human->documents() );
+      document->incrementExternalLinks();
     }
     document->setIdentifier( identifier );
+    document->setType( doctypeDBWrapper->doctype( qry.record().value( "doctype_id" ) ) );
     document->setName( qry.record().value( "docname" ).toString() );
     document->setSeries( qry.record().value( "docseries" ).toString() );
     document->setNumber( qry.record().value( "docnum" ).toString() );

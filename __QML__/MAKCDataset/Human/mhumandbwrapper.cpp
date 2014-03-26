@@ -1,5 +1,7 @@
 #include "mhumandbwrapper.h"
 
+#include "makcdataset.h"
+
 #include <QReadWriteLock>
 #include <QSqlDatabase>
 #include <QSqlError>
@@ -13,7 +15,7 @@
 */
 MHuman::MHuman( QQuickItem *parent ) :
   QQuickItem(parent),
-  m__Documents(new MDataSourceModel)
+  m__Documents(new MDataSourceModel( this ))
 {
 }
 
@@ -131,13 +133,11 @@ MHumanDBWrapper::MHumanDBWrapper( MAbstractDataSource * parent ) :
 
 bool MHumanDBWrapper::searching( const QString &queryText )
 {
+  MDocumentDBWrapper *documentDBWrapper = qobject_cast<MDocumentDBWrapper *>( MAKCDataset::MAKC_DocumentDataSource()->dbWrapper() );
+
   QString currentQuery = queryText;
-  if ( currentQuery.isEmpty() )
-//    currentQuery = tr( "SELECT * FROM humans ORDER BY surname, firstname, lastname, addr" );
-    currentQuery = tr( "SELECT * FROM humans ORDER BY id" );
-  else
-//    currentQuery = tr( "SELECT * FROM humans WHERE %1 ORDER BY surname, firstname, lastname, addr" ).arg( currentQuery );
-    currentQuery = tr( "SELECT * FROM humans WHERE %1 ORDER BY id" ).arg( currentQuery );
+  if ( currentQuery.isEmpty() ) currentQuery = tr( "SELECT * FROM humans ORDER BY id" );
+  else currentQuery = tr( "SELECT * FROM humans WHERE %1 ORDER BY id" ).arg( currentQuery );
 
   QSqlDatabase database = QSqlDatabase::database( connectionName(), false );
   if ( !database.open() )
@@ -156,23 +156,26 @@ bool MHumanDBWrapper::searching( const QString &queryText )
   locker()->lockForWrite();
   while ( pCount( (int)Founded ) > 0 )
   {
-    QObject *mhuman = pTake( (int)Founded, 0 );
-    if ( pIndex( (int)Selected, mhuman ) == -1 )
-      connect( this, SIGNAL(finished()), mhuman, SLOT(deleteLater()) );
+    QObject *human = pTake( (int)Founded, 0 );
+    if ( pIndex( (int)Selected, human ) == -1 )
+    {
+      documentDBWrapper->releaseHumanDocuments( qobject_cast<MHuman *>( human ) );
+      connect( this, SIGNAL(aboutToReleaseOldResources()), human, SLOT(deleteLater()) );
+    }
   }
   while ( qry.next() )
   {
-    MHuman *mhuman = new MHuman;
-    mhuman->setIdentifier( qry.record().value( "id" ) );
-    mhuman->setSurname( qry.record().value( "surname" ) );
-    mhuman->setFirstname( qry.record().value( "firstname" ) );
-    mhuman->setLastname( qry.record().value( "lastname" ) );
-    mhuman->setPhone( qry.record().value( "phone" ) );
-    mhuman->setAddress( qry.record().value( "addr" ) );
-    mhuman->setEmail( qry.record().value( "e-mail" ) );
-    mhuman->setBirthday( qry.record().value( "birthday" ) );
-    pInsert( (int)Founded, mhuman );
-    mhuman->moveToThread( parent()->thread() );
+    MHuman *human = new MHuman;
+    human->setIdentifier( qry.record().value( "id" ) );
+    human->setSurname( qry.record().value( "surname" ) );
+    human->setFirstname( qry.record().value( "firstname" ) );
+    human->setLastname( qry.record().value( "lastname" ) );
+    human->setPhone( qry.record().value( "phone" ) );
+    human->setAddress( qry.record().value( "addr" ) );
+    human->setEmail( qry.record().value( "e-mail" ) );
+    human->setBirthday( qry.record().value( "birthday" ) );
+    pInsert( (int)Founded, human );
+    human->moveToThread( parent()->thread() );
   }
   locker()->unlock();
   qry.clear();
@@ -196,12 +199,12 @@ bool MHumanDBWrapper::initiating()
     qDebug() << __func__ << __LINE__ << qry.lastError().text();
     return false;
   }
-  MHuman *mhuman = new MHuman;
-  mhuman->setIdentifier( qry.record().value( 0 ) );
+  MHuman *human = new MHuman;
+  human->setIdentifier( qry.record().value( 0 ) );
   locker()->lockForWrite();
-  pInsert( (int)Initiated, mhuman );
+  pInsert( (int)Initiated, human );
   locker()->unlock();
-  mhuman->moveToThread( parent()->thread() );
+  human->moveToThread( parent()->thread() );
   qry.clear();
 
   return true;
@@ -253,9 +256,30 @@ bool MHumanDBWrapper::saving( QObject *object )
   }
   qry.clear();
 
+  currentQuery = tr( "SELECT NOT EXISTS ((SELECT id FROM clients WHERE clid=%1 AND isorg=0))" ).arg( identifier );
+  if ( !qry.exec( currentQuery ) || !qry.next() )
+  {
+    qDebug() << __func__ << __LINE__ << qry.lastError().text() << "\n" << currentQuery;
+    return false;
+  }
+  bool insert = qry.value( 0 ).toBool();
+  qry.clear();
+  if ( insert )
+  {
+    currentQuery = tr( "INSERT INTO clients (clid, isorg) VALUES (%1, %2)" ).arg( identifier, "0" );
+    if ( !qry.exec( currentQuery ) )
+    {
+      qDebug() << __func__ << __LINE__ << qry.lastError().text() << "\n" << currentQuery;
+      return false;
+    }
+    qry.clear();
+  }
+
+  locker()->lockForWrite();
   int index = pIndex( (int)Initiated, human );
   pTake( (int)Initiated, index );
   pInsert( (int)Selected, human );
+  locker()->unlock();
 
   return true;
 }

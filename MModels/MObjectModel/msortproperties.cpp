@@ -3,8 +3,8 @@
 #include "mobjectmodel.h"
 
 
-MSortProperties::MSortProperties(QQuickItem *parent) :
-  QQuickItem(parent)
+MSortProperties::MSortProperties( QObject *parent ) :
+  QObject(parent)
 {
 }
 
@@ -44,30 +44,40 @@ void MSortProperties::replaceSort( int index, QString propertyName, Qt::SortOrde
   emit countChanged();
 }
 
-MSortProperties * MSortProperties::addSort( QString propertyName )
+SafelyValue * MSortProperties::addSort( QString propertyName )
 {
-  MSortProperties *result = NULL;
-  if ( m__SortProperties.contains( propertyName ) || propertyName.isEmpty() ) return result;
+  if ( m__SortProperties.contains( propertyName ) || propertyName.isEmpty() ) return NULL;
 
-  result = new MSortProperties;
+  MSortProperties *result = new MSortProperties;
   m__SortProperties << propertyName;
   m__SortOrder << QVariant::fromValue( result );
 
   emit countChanged();
-  return result;
+  SafelyValue *safelyValue = new SafelyValue( QVariant::fromValue( result ) );
+  safelyValue->deleteLater();
+  return safelyValue;
 }
 
-MSortProperties * MSortProperties::replaceSort( int index, QString propertyName )
+SafelyValue * MSortProperties::replaceSort( int index, QString propertyName )
 {
-  MSortProperties *result = NULL;
-  if ( index < 0 || index >= m__SortProperties.count() || propertyName.isEmpty() ) return result;
+  if ( index < 0 || index >= m__SortProperties.count() || propertyName.isEmpty() ) return NULL;
 
-  result = new MSortProperties;
+  MSortProperties *result = new MSortProperties;
   m__SortProperties.replace( index, propertyName );
+  QVariant sortOrder = m__SortOrder.at( index );
   m__SortOrder.replace( index, QVariant::fromValue( result ) );
+  if ( sortOrder.canConvert<MSortProperties *>() )
+  {
+    MSortProperties *sort = sortOrder.value<MSortProperties *>();
+    sortOrder.clear();
+    delete sort;
+    sort = NULL;
+  }
 
   emit countChanged();
-  return result;
+  SafelyValue *safelyValue = new SafelyValue( QVariant::fromValue( result ) );
+  safelyValue->deleteLater();
+  return safelyValue;
 }
 
 void MSortProperties::removeSort( int index )
@@ -75,7 +85,14 @@ void MSortProperties::removeSort( int index )
   if ( index < 0 || index >= m__SortProperties.count() ) return;
 
   m__SortProperties.removeAt( index );
-  m__SortOrder.removeAt( index );
+  QVariant sortOrder = m__SortOrder.takeAt( index );
+  if ( sortOrder.canConvert<MSortProperties *>() )
+  {
+    MSortProperties *sort = sortOrder.value<MSortProperties *>();
+    sortOrder.clear();
+    delete sort;
+    sort = NULL;
+  }
 
   emit countChanged();
 }
@@ -92,6 +109,24 @@ SafelyValue * MSortProperties::sortOrder( int index ) const
   SafelyValue *result = new SafelyValue( m__SortOrder[index] );
   result->deleteLater();
   return result;
+}
+
+void MSortProperties::clear()
+{
+  while ( !m__SortProperties.isEmpty() )
+  {
+    m__SortProperties.removeFirst();
+    QVariant sortOrder = m__SortOrder.takeFirst();
+    if ( sortOrder.canConvert<MSortProperties *>() )
+    {
+      MSortProperties *sort = sortOrder.value<MSortProperties *>();
+      sortOrder.clear();
+      delete sort;
+      sort = NULL;
+    }
+  }
+
+  emit countChanged();
 }
 
 int MSortProperties::count() const

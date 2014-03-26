@@ -64,7 +64,7 @@ MAbstractDBWrapper * MAbstractDataSource::dbWrapper() const
 
 void MAbstractDataSource::findObject( const QString &filter )
 {
-  if ( m__Wrapper == NULL ) return;
+  if ( m__Wrapper == NULL || m__Wrapper->isRunning() ) return;
 
   connect( m__Wrapper, SIGNAL(finished()), this, SLOT(findObjectFinished()) );
   if ( m__Wrapper->find( filter ) ) emit statusChanged();
@@ -73,7 +73,7 @@ void MAbstractDataSource::findObject( const QString &filter )
 
 void MAbstractDataSource::initiateObject()
 {
-  if ( m__Wrapper == NULL ) return;
+  if ( m__Wrapper == NULL || m__Wrapper->isRunning() ) return;
 
   connect( m__Wrapper, SIGNAL(finished()), this, SLOT(initiateObjectFinished()) );
   if ( m__Wrapper->initiate() ) emit statusChanged();
@@ -90,7 +90,7 @@ void MAbstractDataSource::selectObject( int indexInFounded )
 
 void MAbstractDataSource::saveObject( int indexInInitiated )
 {
-  if ( m__Wrapper == NULL ) return;
+  if ( m__Wrapper == NULL || m__Wrapper->isRunning() ) return;
 
   connect( m__Wrapper, SIGNAL(finished()), this, SLOT(saveObjectFinished()) );
   m__SavedObjectIndex = indexInInitiated;

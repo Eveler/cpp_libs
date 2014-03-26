@@ -50,50 +50,46 @@ bool MSortModel::lessThan( const QModelIndex &left, const QModelIndex &right ) c
   int leftRoleIndex = left.model()->roleNames().keys().first();
   int rightRoleIndex = right.model()->roleNames().keys().first();
 
-//  qDebug() << __func__;
+//  qDebug() << __func__ << __LINE__;
   if ( !left.data( leftRoleIndex ).canConvert<QObject *>() || !right.data( rightRoleIndex ).canConvert<QObject *>() ) return false;
   QObject *leftObject = left.data( leftRoleIndex ).value<QObject *>();
   QObject *rightObject = right.data( rightRoleIndex ).value<QObject *>();
-
-  bool result = lessThan( leftObject, rightObject, m__SortProperties );
+  bool result = ( compare( leftObject, rightObject, m__SortProperties ) == -1 );
   if ( right.row() % 1000 == 0 ) qApp->processEvents();
 //  qDebug() << __func__ << result;
   return result;
 }
 
-bool MSortModel::lessThan( QObject *left, QObject *right, MSortProperties *sortProperties ) const
+int MSortModel::compare( QObject *left, QObject *right, MSortProperties *sortProperties ) const
 {
-  bool result = false;
+  int result = 0;
 
   for ( int index = 0; index < sortProperties->count(); index++ )
   {
-    int res = 0;
-
     QString sortProperty = sortProperties->sortProperty( index );
     QVariant sortOrder = sortProperties->sortOrder( index )->value();
-    if ( sortOrder.type() == (int)QMetaType::QObjectStar )
+//    qDebug() << __func__ << __LINE__ << sortOrder;
+//    qDebug() << __func__ << __LINE__ << sortOrder.canConvert<MSortProperties *>();
+    if ( sortOrder.canConvert<MSortProperties *>() )
     {
       MSortProperties *sort = sortOrder.value<MSortProperties *>();
       QObject *leftObject = left->property( sortProperty.toLocal8Bit() ).value<QObject *>();
       QObject *rightObject = right->property( sortProperty.toLocal8Bit() ).value<QObject *>();
-      result = lessThan( leftObject, rightObject, sort );
+      result = compare( leftObject, rightObject, sort );
     }
     else
     {
-//      qDebug() << sortOrder.toInt();
       if ( sortOrder.toInt() == (int)Qt::AscendingOrder )
 //        result = ( left->property( sortProperty.toLocal8Bit() ) < right->property( sortProperty.toLocal8Bit() ) );
-        res = compare( left->property( sortProperty.toLocal8Bit() ), right->property( sortProperty.toLocal8Bit() ) );
+        result = compare( left->property( sortProperty.toLocal8Bit() ), right->property( sortProperty.toLocal8Bit() ) );
       else
 //        result = ( left->property( sortProperty.toLocal8Bit() ) > right->property( sortProperty.toLocal8Bit() ) );
-        res = compare( right->property( sortProperty.toLocal8Bit() ), left->property( sortProperty.toLocal8Bit() ) );
+        result = compare( right->property( sortProperty.toLocal8Bit() ), left->property( sortProperty.toLocal8Bit() ) );
 
-//      qDebug() << res << left->property( sortProperty.toLocal8Bit() ) << right->property( sortProperty.toLocal8Bit() );
+//      qDebug() << __func__ << __LINE__ << res << left->property( sortProperty.toLocal8Bit() ) << right->property( sortProperty.toLocal8Bit() );
     }
 
-    result = ( res < 0 );
-
-    if ( result || res > 0 ) break;
+    if ( result != 0 ) break;
   }
 
   return result;
