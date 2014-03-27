@@ -50,6 +50,7 @@ class MDoctypeDBWrapper : public MAbstractDBWrapper
 
   public:
     explicit MDoctypeDBWrapper( MAbstractDataSource *parent = NULL );
+    ~MDoctypeDBWrapper();
 
     MDoctype *doctype( QVariant identifier );
 

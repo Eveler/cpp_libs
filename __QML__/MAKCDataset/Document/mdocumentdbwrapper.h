@@ -95,6 +95,7 @@ class MDocumentDBWrapper : public MAbstractDBWrapper
     };
 
     explicit MDocumentDBWrapper( MAbstractDataSource *parent = NULL );
+    ~MDocumentDBWrapper();
 
     bool find( const QString &filter );
     bool find( MHuman *human );

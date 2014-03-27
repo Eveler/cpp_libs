@@ -71,6 +71,11 @@ MDoctypeDBWrapper::MDoctypeDBWrapper( MAbstractDataSource *parent ) :
 {
 }
 
+MDoctypeDBWrapper::~MDoctypeDBWrapper()
+{
+  m__ExistDoctypes.clear();
+}
+
 MDoctype * MDoctypeDBWrapper::doctype( QVariant identifier )
 {
   MDoctype *result = NULL;
@@ -112,10 +117,11 @@ MDoctype * MDoctypeDBWrapper::doctype( QVariant identifier )
 bool MDoctypeDBWrapper::searching( const QString &queryText )
 {
   QString currentQuery = queryText;
-  if ( currentQuery.isEmpty() )
-    currentQuery = tr( "SELECT * FROM doctypes ORDER BY id" );
-  else
-    currentQuery = tr( "SELECT * FROM doctypes WHERE %1 ORDER BY id" ).arg( currentQuery );
+  if ( currentQuery.isEmpty() ) currentQuery = tr( "SELECT * FROM doctypes ORDER BY id" );
+  else currentQuery = tr( "SELECT * FROM doctypes WHERE %1 ORDER BY id" ).arg( currentQuery );
+  QString maxIdQuery = queryText;
+  if ( maxIdQuery.isEmpty() ) maxIdQuery = tr( "SELECT max(id) FROM doctypes" );
+  else maxIdQuery = tr( "SELECT max(id) FROM doctypes WHERE %1" ).arg( maxIdQuery );
 
   QSqlDatabase database = QSqlDatabase::database( connectionName(), false );
   if ( !database.open() )
@@ -124,8 +130,16 @@ bool MDoctypeDBWrapper::searching( const QString &queryText )
     return false;
   }
 
-  QSqlQuery qry( currentQuery, database );
-  if ( qry.lastError().isValid() )
+  QSqlQuery qry( maxIdQuery, database );
+  if ( qry.lastError().isValid() || !qry.next() )
+  {
+    qDebug() << __func__ << __LINE__ << qry.lastError().text();
+    return false;
+  }
+  int maxId = qry.record().value( 0 ).toInt();
+  qry.clear();
+
+  if ( !qry.exec( currentQuery ) || qry.lastError().isValid() )
   {
     qDebug() << __func__ << __LINE__ << qry.lastError().text();
     return false;
@@ -145,15 +159,18 @@ bool MDoctypeDBWrapper::searching( const QString &queryText )
     {
       MDoctype *oldDoctype = qobject_cast<MDoctype *>( pObject( (int)Founded, index ) );
 
-      if ( identifier > oldDoctype->identifier().toInt() )
+      if ( identifier > oldDoctype->identifier().toInt() || maxId < oldDoctype->identifier().toInt() )
       {
 //        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tудалить объект с ID" << identifier;
         pTake( (int)Founded, index );
         index--;
         doctypesCount--;
 
-        if ( oldDoctype->externalLinksCount() == 0 )
+        if ( oldDoctype->externalLinksCount() == 0 && pIndex( (int)Initiated, oldDoctype ) == -1 )
+        {
+          m__ExistDoctypes.remove( oldDoctype->identifier().toInt() );
           connect( this, SIGNAL(aboutToReleaseOldResources()), oldDoctype, SLOT(deleteLater()) );
+        }
       }
       else if ( identifier == oldDoctype->identifier().toInt() )
       {
