@@ -4,9 +4,10 @@
 #include "mabstractdbwrapper.h"
 
 
-class MHuman: public QQuickItem
+class MHuman : public QQuickItem
 {
     Q_OBJECT
+    friend class MOrganization;
     Q_PROPERTY(QVariant identifier READ identifier NOTIFY identifierChanged)
     Q_PROPERTY(QVariant surname READ surname WRITE setSurname NOTIFY surnameChanged)
     Q_PROPERTY(QVariant firstname READ firstname WRITE setFirstname NOTIFY firstnameChanged)
@@ -48,6 +49,8 @@ class MHuman: public QQuickItem
 
     MDataSourceModel * documents() const;
 
+    int externalLinksCount() const;
+
 
   signals:
     void identifierChanged();
@@ -58,6 +61,7 @@ class MHuman: public QQuickItem
     void addressChanged();
     void emailChanged();
     void birthdayChanged();
+    void externalLinksCountChanged();
 
 
   private:
@@ -70,6 +74,10 @@ class MHuman: public QQuickItem
     QVariant m__Email;
     QVariant m__Birthday;
     MDataSourceModel *m__Documents;
+    int m__ExternalLinksCount;
+
+    int incrementExternalLinks();
+    int decrementExternalLinks();
 };
 
 QML_DECLARE_TYPE( MHuman )
@@ -82,6 +90,9 @@ class MHumanDBWrapper : public MAbstractDBWrapper
 
   public:
     explicit MHumanDBWrapper( MAbstractDataSource *parent = NULL );
+    ~MHumanDBWrapper();
+
+    MHuman * human( QVariant identifier );
 
 
   protected:
@@ -91,6 +102,7 @@ class MHumanDBWrapper : public MAbstractDBWrapper
 
 
   private:
+    QHash<int, MHuman *> m__ExistHumans;
 };
 
 #endif // MHUMANDBWRAPPER_H

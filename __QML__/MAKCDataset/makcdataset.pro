@@ -26,7 +26,8 @@ SOURCES += \
     Document/mdocumentdbwrapper.cpp \
     makcdataset.cpp \
     Doctype/mdoctypedbwrapper.cpp \
-    Doctype/mdoctypedatasource.cpp
+    Doctype/mdoctypedatasource.cpp \
+    Organization/morganizationdbwrapper.cpp
 
 HEADERS += \
     makcdataset_plugin.h \
@@ -36,7 +37,8 @@ HEADERS += \
     Document/mdocumentdbwrapper.h \
     makcdataset.h \
     Doctype/mdoctypedbwrapper.h \
-    Doctype/mdoctypedatasource.h
+    Doctype/mdoctypedatasource.h \
+    Organization/morganizationdbwrapper.h
 
 OTHER_FILES = qmldir
 

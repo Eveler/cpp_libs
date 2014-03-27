@@ -147,6 +147,12 @@ MDocumentDBWrapper::MDocumentDBWrapper( MAbstractDataSource * parent ) :
 {
 }
 
+MDocumentDBWrapper::~MDocumentDBWrapper()
+{
+  m__Searched.clear();
+  m__ExistDocuments.clear();
+}
+
 bool MDocumentDBWrapper::find( const QString &filter )
 {
   Q_UNUSED(filter)
