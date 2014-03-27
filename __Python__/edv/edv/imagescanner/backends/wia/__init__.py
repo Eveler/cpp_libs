@@ -11,7 +11,7 @@ from ....imagescanner.backends import base
 
 class ScannerManager(base.ScannerManager):
     def __init__(self):
-        super().__init__()
+        super(ScannerManager, self).__init__()
 
     def _refresh(self):
         self._devices = []
