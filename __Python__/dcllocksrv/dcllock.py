@@ -1,7 +1,9 @@
 #!/bin/env python -O
 # -*- coding: utf-8 -*-
 from optparse import OptionParser
-from declarlocker.objects import DeclarLock
+
+from declarlocker.objects import DeclarLock, session
+
 
 __author__ = 'mike'
 
@@ -17,7 +19,7 @@ config = options.config
 #     config = "/etc/dcllocksev.ini"
 print("config = %s" % config)
 
-lock = DeclarLock(1, "declars")
+lock = DeclarLock(1, "declars", "mike")
+session.add(lock)
+session.commit()
 print(lock)
-print(lock.__table__)
-print(lock.metadata)

@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
+import datetime
+
 from sqlalchemy.engine import create_engine
 from sqlalchemy.ext.declarative.api import declarative_base
 from sqlalchemy.schema import MetaData, Column
+from sqlalchemy.sql.expression import text
 from sqlalchemy.types import Integer, String, TIMESTAMP
+
 
 __author__ = 'mike'
 
@@ -19,15 +23,20 @@ class DeclarLock(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     table_name = Column(String, nullable=False)
     table_id = Column(Integer, nullable=False)
-    user_name = Column(String, nullable=False, server_default="current_user()")
-    priority = Column(Integer, server_default="999")
-    placed = Column(TIMESTAMP, server_default="now()")
+    # user_name = Column(String, nullable=False, server_default=text("current_user()"))
+    user_name = Column(String, nullable=False)
+    priority = Column(Integer, server_default=text("999"))
+    # placed = Column(TIMESTAMP, server_default=text("now()"))
+    placed = Column(TIMESTAMP)
 
-    def __init__(self, table_id, table_name="declars", priority="999"):
+    def __init__(self, table_id, table_name="declars", user="current_user", priority="999",
+                 placed=datetime.datetime.now()):
         super(DeclarLock, self).__init__()
         self.table_name = table_name
         self.table_id = table_id
+        self.user_name = user
         self.priority = priority
+        self.placed = placed
 
     def __repr__(self):
         return "<DeclarLock #%s on %s(%s) placed by %s at %s, priority = %s>" % \
@@ -40,3 +49,4 @@ Base.metadata.create_all(engine)
 from sqlalchemy.orm import sessionmaker
 
 Session = sessionmaker(bind=engine)
+session = Session()
