@@ -14,7 +14,8 @@ INCLUDEPATH += ./ \
     ../../include/ \
     ./Doctype/ \
     ./Document/ \
-    ./Human/
+    ./Human/ \
+    ./Organization/
 
 
 # Input

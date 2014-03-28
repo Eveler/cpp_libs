@@ -201,6 +201,26 @@ void MDocumentDBWrapper::releaseHumanDocuments( MHuman *human )
   locker()->unlock();
 }
 
+void MDocumentDBWrapper::releaseOrganizationDocuments( MOrganization *organization )
+{
+  locker()->lockForWrite();
+  int docsCount = pCount( organization->documents() );
+  while ( docsCount > 0 )
+  {
+    MDocument *document = qobject_cast<MDocument *>( pTake( organization->documents(), 0 ) );
+    document->decrementExternalLinks();
+
+    if ( document->externalLinksCount() == 0 )
+    {
+      m__ExistDocuments.remove( document->identifier().toInt() );
+      connect( organization, SIGNAL(destroyed()), document, SLOT(deleteLater()) );
+    }
+
+    docsCount--;
+  }
+  locker()->unlock();
+}
+
 void MDocumentDBWrapper::job( int objectiveType, const QVariant &objectiveValue )
 {
 //  qDebug() << metaObject()->className() << __func__ << __LINE__;
@@ -304,6 +324,22 @@ bool MDocumentDBWrapper::searching( MHuman *human )
     document->setSource( QUrl( qry.record().value( "url" ).toString() ) );
   }
   qry.clear();
+
+  if ( counted == 0 )
+  {
+    while ( pCount( human->documents() ) > 0 )
+    {
+      MDocument *oldDocument = qobject_cast<MDocument *>( pTake( human->documents(), 0 ) );
+
+      oldDocument->decrementExternalLinks();
+
+      if ( oldDocument->externalLinksCount() == 0 )
+      {
+        m__ExistDocuments.remove( oldDocument->identifier().toInt() );
+        connect( this, SIGNAL(aboutToReleaseOldResources()), oldDocument, SLOT(deleteLater()) );
+      }
+    }
+  }
 //  qDebug() << metaObject()->className() << __func__ << __LINE__ << pCount( human->documents() ) << counted;
   m__Searched << human->documents();
   locker()->unlock();

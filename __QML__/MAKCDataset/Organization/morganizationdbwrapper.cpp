@@ -14,7 +14,8 @@
  * Begin C++ - QML class definition: *[ MOrganization ]*
 */
 MOrganization::MOrganization( QQuickItem *parent ) :
-  QQuickItem(parent)
+  QQuickItem(parent),
+  m__Documents(new MDataSourceModel( this ))
 {
 }
 
@@ -89,6 +90,11 @@ void MOrganization::setDelegate( MHuman *delegate )
   emit delegateChanged();
 }
 
+MDataSourceModel * MOrganization::documents() const
+{
+  return m__Documents;
+}
+
 int MOrganization::externalLinksCount() const
 {
   return m__ExternalLinksCount;
@@ -131,6 +137,115 @@ MOrganization * MOrganizationDBWrapper::organization( QVariant identifier )
 
 bool MOrganizationDBWrapper::searching( const QString &queryText )
 {
+  MDocumentDBWrapper *documentDBWrapper = qobject_cast<MDocumentDBWrapper *>( MAKCDataset::MAKC_DocumentDataSource()->dbWrapper() );
+  MHumanDBWrapper *humanDBWrapper = qobject_cast<MHumanDBWrapper *>( MAKCDataset::MAKC_HumanDataSource()->dbWrapper() );
+
+  QString currentQuery = queryText;
+  if ( currentQuery.isEmpty() ) currentQuery = tr( "SELECT * FROM orgs ORDER BY id" );
+  else currentQuery = tr( "SELECT * FROM orgs WHERE %1 ORDER BY id" ).arg( currentQuery );
+  QString maxIdQuery = queryText;
+  if ( maxIdQuery.isEmpty() ) maxIdQuery = tr( "SELECT max(id) FROM orgs" );
+  else maxIdQuery = tr( "SELECT max(id) FROM orgs WHERE %1" ).arg( maxIdQuery );
+
+  QSqlDatabase database = QSqlDatabase::database( connectionName(), false );
+  if ( !database.open() )
+  {
+    qDebug() << __func__ << __LINE__ << database.lastError().text();
+    return false;
+  }
+
+  QSqlQuery qry( maxIdQuery, database );
+  if ( qry.lastError().isValid() || !qry.next() )
+  {
+    qDebug() << __func__ << __LINE__ << qry.lastError().text();
+    return false;
+  }
+  int maxId = qry.record().value( 0 ).toInt();
+  qry.clear();
+
+  if ( !qry.exec( currentQuery ) || qry.lastError().isValid() )
+  {
+    qDebug() << __func__ << __LINE__ << qry.lastError().text();
+    return false;
+  }
+
+  locker()->lockForWrite();
+
+  if ( maxId == 0 )
+  {
+    while ( pCount( (int)Founded ) > 0 )
+    {
+      MOrganization *oldOrganization = qobject_cast<MOrganization *>( pTake( (int)Founded, 0 ) );
+
+      if ( oldOrganization->externalLinksCount() == 0 && pIndex( (int)Initiated, oldOrganization ) == -1 )
+      {
+        documentDBWrapper->releaseOrganizationDocuments( oldOrganization );
+        m__ExistOrganizations.remove( oldOrganization->identifier().toInt() );
+        connect( this, SIGNAL(aboutToReleaseOldResources()), oldOrganization, SLOT(deleteLater()) );
+      }
+    }
+  }
+  else
+  {
+    int lastFounded = -1;
+    while ( qry.next() )
+    {
+      int identifier = qry.record().value( "id" ).toInt();
+      MOrganization *organization = m__ExistOrganizations.value( identifier, NULL );
+
+      int organizationsCount = pCount( (int)Founded );
+      int index = lastFounded+1;
+      bool insertIntoFounded = true;
+      for ( ; index < organizationsCount; index++ )
+      {
+        MOrganization *oldOrganization = qobject_cast<MOrganization *>( pObject( (int)Founded, index ) );
+
+        if ( identifier > oldOrganization->identifier().toInt() || maxId < oldOrganization->identifier().toInt() )
+        {
+          //        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tудалить объект с ID" << identifier;
+          pTake( (int)Founded, index );
+          index--;
+          organizationsCount--;
+
+          if ( oldOrganization->externalLinksCount() == 0 && pIndex( (int)Initiated, oldOrganization ) == -1 )
+          {
+            documentDBWrapper->releaseOrganizationDocuments( oldOrganization );
+            m__ExistOrganizations.remove( oldOrganization->identifier().toInt() );
+            connect( this, SIGNAL(aboutToReleaseOldResources()), oldOrganization, SLOT(deleteLater()) );
+          }
+        }
+        else if ( identifier == oldOrganization->identifier().toInt() )
+        {
+          //        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tзапомнить объект с ID" << identifier;
+          insertIntoFounded = false;
+          lastFounded = index;
+          break;
+        }
+      }
+
+      if ( organization == NULL )
+      {
+        //      qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tобъект с ID" << identifier;
+        organization = new MOrganization;
+        organization->moveToThread( parent()->thread() );
+        m__ExistOrganizations[identifier] = organization;
+        organization->setIdentifier( identifier );
+      }
+      if ( insertIntoFounded )
+      {
+        lastFounded++;
+        pInsert( (int)Founded, organization, lastFounded );
+      }
+      organization->setName( qry.record().value( "fullname" ) );
+      organization->setPhone( qry.record().value( "phone" ) );
+      organization->setAddress( qry.record().value( "addr" ) );
+      organization->setEmail( qry.record().value( "e-mail" ) );
+      organization->setDelegate( humanDBWrapper->human( qry.record().value( "human_id" ) ) );
+    }
+  }
+  locker()->unlock();
+  qry.clear();
+
   return true;
 }
 
@@ -145,5 +260,5 @@ bool MOrganizationDBWrapper::saving( QObject *object )
   return true;
 }
 /*
- * End class definition: *[ MHumanDBWrapper ]*
+ * End class definition: *[ MOrganizationDBWrapper ]*
 */

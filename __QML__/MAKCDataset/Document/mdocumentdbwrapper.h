@@ -83,6 +83,7 @@ QML_DECLARE_TYPE( MDocument )
 
 
 class MHuman;
+class MOrganization;
 
 class MDocumentDBWrapper : public MAbstractDBWrapper
 {
@@ -103,6 +104,7 @@ class MDocumentDBWrapper : public MAbstractDBWrapper
     QObject * searched();
 
     void releaseHumanDocuments( MHuman *human );
+    void releaseOrganizationDocuments( MOrganization *organization );
 
 
   protected:

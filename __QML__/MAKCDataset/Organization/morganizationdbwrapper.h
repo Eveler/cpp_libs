@@ -15,6 +15,7 @@ class MOrganization : public QQuickItem
     Q_PROPERTY(QVariant address READ address WRITE setAddress NOTIFY addressChanged)
     Q_PROPERTY(QVariant email READ email WRITE setEmail NOTIFY emailChanged)
     Q_PROPERTY(MHuman * delegate READ delegate WRITE setDelegate NOTIFY delegateChanged)
+    Q_PROPERTY(MDataSourceModel * documents READ documents)
 
 
   public:
@@ -39,6 +40,8 @@ class MOrganization : public QQuickItem
     MHuman * delegate() const;
     void setDelegate( MHuman *delegate );
 
+    MDataSourceModel * documents() const;
+
     int externalLinksCount() const;
 
 
@@ -59,6 +62,7 @@ class MOrganization : public QQuickItem
     QVariant m__Address;
     QVariant m__Email;
     MHuman *m__Delegate;
+    MDataSourceModel *m__Documents;
     int m__ExternalLinksCount;
 
     int incrementExternalLinks();
