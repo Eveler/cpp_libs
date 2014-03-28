@@ -44,7 +44,8 @@ class DeclarLock(Base):
 
 
 metadata = MetaData()
-engine = create_engine('sqlite:///:memory:', echo=True)
+# engine = create_engine('sqlite:///:memory:', echo=True)
+engine = create_engine('sqlite:///:memory:')
 Base.metadata.create_all(engine)
 from sqlalchemy.orm import sessionmaker
 
