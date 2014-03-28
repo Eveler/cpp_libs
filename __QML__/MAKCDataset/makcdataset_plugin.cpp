@@ -18,7 +18,7 @@ void MAKCDatasetPlugin::initializeEngine( QQmlEngine *engine, const char *uri )
   context->setContextProperty( "MAKCDatabase", MAKC_Database() );
   context->setContextProperty( "MAKCDoctypes", MAKC_DoctypeDataSource() );
   context->setContextProperty( "MAKCDocuments", MAKC_DocumentDataSource() );
-  context->setContextProperty( "MAKCClientHumans", MAKC_ClientDataSource() );
+  context->setContextProperty( "MAKCClientHumans", MAKC_HumanDataSource() );
   context->setContextProperty( "MAKCOrgHumans", MAKC_OrgDataSource() );
 }
 
@@ -35,6 +35,7 @@ void MAKCDatasetPlugin::registerTypes( const char *uri )
   qmlRegisterUncreatableType<MDoctype>( uri, 1, 0, "MDoctype", "" );
   qmlRegisterUncreatableType<MDocument>( uri, 1, 0, "MDocument", "" );
   qmlRegisterUncreatableType<MHuman>( uri, 1, 0, "MHuman", "" );
+  qmlRegisterUncreatableType<MOrganization>( uri, 1, 0, "MOrganization", "" );
 }
 
 

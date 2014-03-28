@@ -156,6 +156,7 @@ MHumanDBWrapper::~MHumanDBWrapper()
 MHuman * MHumanDBWrapper::human( QVariant identifier )
 {
   MHuman *result = NULL;
+  if ( !identifier.isValid() || identifier.toInt() == 0 ) return result;
 
   locker()->lockForRead();
   result = m__ExistHumans.value( identifier.toInt(), result );
@@ -232,62 +233,79 @@ bool MHumanDBWrapper::searching( const QString &queryText )
 
   locker()->lockForWrite();
 
-  int lastFounded = -1;
-  while ( qry.next() )
+  if ( maxId == 0 )
   {
-    int identifier = qry.record().value( "id" ).toInt();
-    MHuman *human = m__ExistHumans.value( identifier, NULL );
-
-    int humansCount = pCount( (int)Founded );
-    int index = lastFounded+1;
-    bool insertIntoFounded = true;
-    for ( ; index < humansCount; index++ )
+    while ( pCount( (int)Founded ) > 0 )
     {
-      MHuman *oldHuman = qobject_cast<MHuman *>( pObject( (int)Founded, index ) );
+      MHuman *oldHuman = qobject_cast<MHuman *>( pTake( (int)Founded, 0 ) );
 
-      if ( identifier > oldHuman->identifier().toInt() || maxId < oldHuman->identifier().toInt() )
+      if ( oldHuman->externalLinksCount() == 0 && pIndex( (int)Initiated, oldHuman ) == -1 )
       {
-//        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tудалить объект с ID" << identifier;
-        pTake( (int)Founded, index );
-        index--;
-        humansCount--;
+        documentDBWrapper->releaseHumanDocuments( oldHuman );
+        m__ExistHumans.remove( oldHuman->identifier().toInt() );
+        connect( this, SIGNAL(aboutToReleaseOldResources()), oldHuman, SLOT(deleteLater()) );
+      }
+    }
+  }
+  else
+  {
+    int lastFounded = -1;
+    while ( qry.next() )
+    {
+      int identifier = qry.record().value( "id" ).toInt();
+      MHuman *human = m__ExistHumans.value( identifier, NULL );
 
-        if ( oldHuman->externalLinksCount() == 0 && pIndex( (int)Initiated, oldHuman ) == -1 )
+      int humansCount = pCount( (int)Founded );
+      int index = lastFounded+1;
+      bool insertIntoFounded = true;
+      for ( ; index < humansCount; index++ )
+      {
+        MHuman *oldHuman = qobject_cast<MHuman *>( pObject( (int)Founded, index ) );
+
+        if ( identifier > oldHuman->identifier().toInt() || maxId < oldHuman->identifier().toInt() )
         {
-          documentDBWrapper->releaseHumanDocuments( oldHuman );
-          m__ExistHumans.remove( oldHuman->identifier().toInt() );
-          connect( this, SIGNAL(aboutToReleaseOldResources()), oldHuman, SLOT(deleteLater()) );
+          //        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tудалить объект с ID" << identifier;
+          pTake( (int)Founded, index );
+          index--;
+          humansCount--;
+
+          if ( oldHuman->externalLinksCount() == 0 && pIndex( (int)Initiated, oldHuman ) == -1 )
+          {
+            documentDBWrapper->releaseHumanDocuments( oldHuman );
+            m__ExistHumans.remove( oldHuman->identifier().toInt() );
+            connect( this, SIGNAL(aboutToReleaseOldResources()), oldHuman, SLOT(deleteLater()) );
+          }
+        }
+        else if ( identifier == oldHuman->identifier().toInt() )
+        {
+          //        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tзапомнить объект с ID" << identifier;
+          insertIntoFounded = false;
+          lastFounded = index;
+          break;
         }
       }
-      else if ( identifier == oldHuman->identifier().toInt() )
-      {
-//        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tзапомнить объект с ID" << identifier;
-        insertIntoFounded = false;
-        lastFounded = index;
-        break;
-      }
-    }
 
-    if ( human == NULL )
-    {
-//      qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tобъект с ID" << identifier;
-      human = new MHuman;
-      human->moveToThread( parent()->thread() );
-      m__ExistHumans[identifier] = human;
-      human->setIdentifier( identifier );
+      if ( human == NULL )
+      {
+        //      qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tобъект с ID" << identifier;
+        human = new MHuman;
+        human->moveToThread( parent()->thread() );
+        m__ExistHumans[identifier] = human;
+        human->setIdentifier( identifier );
+      }
+      if ( insertIntoFounded )
+      {
+        lastFounded++;
+        pInsert( (int)Founded, human, lastFounded );
+      }
+      human->setSurname( qry.record().value( "surname" ) );
+      human->setFirstname( qry.record().value( "firstname" ) );
+      human->setLastname( qry.record().value( "lastname" ) );
+      human->setPhone( qry.record().value( "phone" ) );
+      human->setAddress( qry.record().value( "addr" ) );
+      human->setEmail( qry.record().value( "e-mail" ) );
+      human->setBirthday( qry.record().value( "birthday" ) );
     }
-    if ( insertIntoFounded )
-    {
-      lastFounded++;
-      pInsert( (int)Founded, human, lastFounded );
-    }
-    human->setSurname( qry.record().value( "surname" ) );
-    human->setFirstname( qry.record().value( "firstname" ) );
-    human->setLastname( qry.record().value( "lastname" ) );
-    human->setPhone( qry.record().value( "phone" ) );
-    human->setAddress( qry.record().value( "addr" ) );
-    human->setEmail( qry.record().value( "e-mail" ) );
-    human->setBirthday( qry.record().value( "birthday" ) );
   }
   locker()->unlock();
   qry.clear();
