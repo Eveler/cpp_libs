@@ -2,7 +2,10 @@
 import datetime
 
 from sqlalchemy.engine import create_engine
-from sqlalchemy.ext.declarative.api import declarative_base
+try:
+    from sqlalchemy.ext.declarative.api import declarative_base
+except ImportError:
+    from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.schema import MetaData, Column
 from sqlalchemy.sql.expression import text
 from sqlalchemy.types import Integer, String, TIMESTAMP
