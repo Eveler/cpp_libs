@@ -1,5 +1,10 @@
 #!/bin/env python -O
 # -*- coding: utf-8 -*-
+from calendar import calendar
+from twisted.internet import protocol, reactor
+from twisted.web.resource import Resource, NoResource
+from twisted.web.server import Site
+
 try:
     from ConfigParser import SafeConfigParser
 except ImportError:
@@ -37,6 +42,23 @@ def set_config(config):
         logging.root.setLevel(cfg.get("main", "loglevel"))
 
 
+class YearPage(Resource):
+    def __init__(self, year):
+        Resource.__init__(self)
+        self.year = year
+
+    def render_GET(self, request):
+        return "<html><body><pre>%s</pre></body></html>" % (calendar(self.year),)
+
+
+class Calendar(Resource):
+    def getChild(self, name, request):
+        try:
+            return YearPage(int(name))
+        except ValueError:
+            return NoResource(message=u"Бананьев нема")
+
+
 if __name__ == "__main__":
     logging.basicConfig(level=INFO, format='%(asctime)s %(levelname)s: %(module)s(%(lineno)d): %(message)s')
     logging.root.name = "dcllocksrv"
@@ -51,7 +73,13 @@ if __name__ == "__main__":
 
     # tests here
     from declarlocker.objects import DeclarLock, session
+
     lock = DeclarLock(1, "declars", "mike")
     session.add(lock)
     session.commit()
     print(lock)
+
+    root = Calendar()
+    factory = Site(root)
+    reactor.listenTCP(9166, factory)
+    reactor.run()
