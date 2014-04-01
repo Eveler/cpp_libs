@@ -212,6 +212,11 @@ QReadWriteLock * MAbstractDBWrapper::locker() const
   return m__Locker;
 }
 
+const QString & MAbstractDBWrapper::pConnectionName() const
+{
+  return m__ConnectionName;
+}
+
 void MAbstractDBWrapper::setObjective( int objectiveType, QVariant objectiveValue )
 {
   locker()->lockForWrite();

@@ -61,6 +61,7 @@ class EXPORT_MDATASET MAbstractDBWrapper : public QThread, public ObjectListPriv
 
   protected:
     QReadWriteLock * locker() const;
+    const QString & pConnectionName() const;
     void setObjective( int objectiveType, QVariant objectiveValue );
     void run();
     QPair<int, QVariant> objective();

@@ -5,7 +5,7 @@ MDatabase *m__Database = NULL;
 MDoctypeDataSource *m__DoctypeDataSource = NULL;
 MDocumentDataSource *m__DocumentDataSource = NULL;
 MHumanDataSource *m__HumanDataSource = NULL;
-MHumanDataSource *m__OrgDataSource = NULL;
+MOrganizationDataSource *m__OrgDataSource = NULL;
 
 void MAKCDataset::initializeMAKC( QObject *parent )
 {
@@ -13,7 +13,7 @@ void MAKCDataset::initializeMAKC( QObject *parent )
   m__DoctypeDataSource = new MDoctypeDataSource( parent );
   m__DocumentDataSource = new MDocumentDataSource( parent );
   m__HumanDataSource = new MHumanDataSource( parent );
-  m__OrgDataSource = new MHumanDataSource( parent );
+  m__OrgDataSource = new MOrganizationDataSource( parent );
 }
 
 MDatabase * MAKCDataset::MAKC_Database()
@@ -36,7 +36,7 @@ MHumanDataSource * MAKCDataset::MAKC_HumanDataSource()
   return m__HumanDataSource;
 }
 
-MHumanDataSource * MAKCDataset::MAKC_OrgDataSource()
+MOrganizationDataSource * MAKCDataset::MAKC_OrgDataSource()
 {
   return m__OrgDataSource;
 }

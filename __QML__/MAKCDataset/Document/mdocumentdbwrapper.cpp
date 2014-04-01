@@ -170,6 +170,17 @@ bool MDocumentDBWrapper::find( MHuman *human )
   return true;
 }
 
+bool MDocumentDBWrapper::find( MOrganization *organization )
+{
+//  qDebug() << metaObject()->className() << __func__ << __LINE__;
+  if ( isRunning() ) return false;
+
+  setObjective( (int)OrganizationDocuments, QVariant::fromValue( organization ) );
+
+  start();
+  return true;
+}
+
 QObject * MDocumentDBWrapper::searched()
 {
   QObject *result = NULL;
@@ -225,6 +236,7 @@ void MDocumentDBWrapper::job( int objectiveType, const QVariant &objectiveValue 
 {
 //  qDebug() << metaObject()->className() << __func__ << __LINE__;
   if ( objectiveType == (int)HumanDocuments ) searching( objectiveValue.value<MHuman *>() );
+  if ( objectiveType == (int)OrganizationDocuments ) searching( objectiveValue.value<MOrganization *>() );
   else MAbstractDBWrapper::job( objectiveType, objectiveValue );
 }
 

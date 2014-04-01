@@ -19,7 +19,7 @@ void MAKCDatasetPlugin::initializeEngine( QQmlEngine *engine, const char *uri )
   context->setContextProperty( "MAKCDoctypes", MAKC_DoctypeDataSource() );
   context->setContextProperty( "MAKCDocuments", MAKC_DocumentDataSource() );
   context->setContextProperty( "MAKCClientHumans", MAKC_HumanDataSource() );
-  context->setContextProperty( "MAKCOrgHumans", MAKC_OrgDataSource() );
+  context->setContextProperty( "MAKCClientOrgs", MAKC_OrgDataSource() );
 }
 
 void MAKCDatasetPlugin::registerTypes( const char *uri )

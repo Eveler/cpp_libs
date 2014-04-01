@@ -10,6 +10,7 @@
 #include "mdocumentdbwrapper.h"
 #include "mhumandatasource.h"
 #include "mhumandbwrapper.h"
+#include "morganizationdatasource.h"
 #include "morganizationdbwrapper.h"
 
 
@@ -19,7 +20,7 @@ namespace MAKCDataset {
   MDoctypeDataSource * MAKC_DoctypeDataSource();
   MDocumentDataSource * MAKC_DocumentDataSource();
   MHumanDataSource * MAKC_HumanDataSource();
-  MHumanDataSource * MAKC_OrgDataSource();
+  MOrganizationDataSource * MAKC_OrgDataSource();
 }
 
 #endif // MAKCDATASET_H
