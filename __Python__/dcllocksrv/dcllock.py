@@ -1,4 +1,4 @@
-#!/bin/env python -O
+#!/bin/env python
 # -*- coding: utf-8 -*-
 from calendar import calendar
 from twisted.internet import protocol, reactor
@@ -6,7 +6,7 @@ from twisted.web.resource import Resource, NoResource
 from twisted.web.server import Site
 
 try:
-    from ConfigParser import SafeConfigParser
+    from ConfigParser import SafeConfigParser, NoSectionError
 except ImportError:
     from configparser import SafeConfigParser
 import logging
@@ -30,16 +30,20 @@ def parse_args():
 
 def set_config(config):
     cfg = SafeConfigParser()
-    lst = cfg.read(config)
-    # logging.debug("successfuly read: %s", lst)
-    # logging.debug("sections: %s", cfg.sections())
-    # [logging.debug("section [%s] options: %s", section, cfg.options(section)) for section in cfg.sections()]
-    # for section in cfg.sections():
-    #     for option in cfg.options(section):
-    #         logging.debug("%s.%s = %s", section, option, cfg.get(section, option))
-    if "loglevel" in cfg.options("main"):
-        logging.info("Set loggin level to '%s'", cfg.get("main", "loglevel"))
-        logging.root.setLevel(cfg.get("main", "loglevel"))
+    try:
+        lst = cfg.read(config)
+        # logging.debug("successfuly read: %s", lst)
+        # logging.debug("sections: %s", cfg.sections())
+        # [logging.debug("section [%s] options: %s", section, cfg.options(section)) for section in cfg.sections()]
+        # for section in cfg.sections():
+        #     for option in cfg.options(section):
+        #         logging.debug("%s.%s = %s", section, option, cfg.get(section, option))
+        if "loglevel" in cfg.options("main"):
+            logging.info("Set loggin level to '%s'", cfg.get("main", "loglevel"))
+            logging.root.setLevel(cfg.get("main", "loglevel"))
+    except NoSectionError:
+        logging.critical("Wrong config file")
+        quit()
 
 
 class YearPage(Resource):
