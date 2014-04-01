@@ -1,14 +1,12 @@
 #!/bin/env python
 # -*- coding: utf-8 -*-
-from calendar import calendar
-from twisted.internet import protocol, reactor
-from twisted.web.resource import Resource, NoResource
-from twisted.web.server import Site
+from declarlocker.base import session
+
 
 try:
     from ConfigParser import SafeConfigParser, NoSectionError
 except ImportError:
-    from configparser import SafeConfigParser
+    from configparser import SafeConfigParser, NoSectionError
 import logging
 from logging import DEBUG, INFO, WARNING, CRITICAL, ERROR
 from optparse import OptionParser
@@ -46,23 +44,6 @@ def set_config(config):
         quit()
 
 
-class YearPage(Resource):
-    def __init__(self, year):
-        Resource.__init__(self)
-        self.year = year
-
-    def render_GET(self, request):
-        return "<html><body><pre>%s</pre></body></html>" % (calendar(self.year),)
-
-
-class Calendar(Resource):
-    def getChild(self, name, request):
-        try:
-            return YearPage(int(name))
-        except ValueError:
-            return NoResource(message=u"Бананьев нема")
-
-
 if __name__ == "__main__":
     logging.basicConfig(level=INFO, format='%(asctime)s %(levelname)s: %(module)s(%(lineno)d): %(message)s')
     logging.root.name = "dcllocksrv"
@@ -76,14 +57,11 @@ if __name__ == "__main__":
     set_config(parse_args())
 
     # tests here
-    from declarlocker.objects import DeclarLock, session
+    from declarlocker.objects import DeclarLock
 
     lock = DeclarLock(1, "declars", "mike")
     session.add(lock)
     session.commit()
     print(lock)
 
-    root = Calendar()
-    factory = Site(root)
-    reactor.listenTCP(9166, factory)
-    reactor.run()
+    from declarlocker import net
