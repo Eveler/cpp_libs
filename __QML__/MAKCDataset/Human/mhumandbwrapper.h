@@ -93,6 +93,7 @@ class MHumanDBWrapper : public MAbstractDBWrapper
     ~MHumanDBWrapper();
 
     MHuman * human( QVariant identifier );
+    QList<MHuman *> humans( QVariantList identifiers );
 
 
   protected:

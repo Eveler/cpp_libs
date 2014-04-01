@@ -35,6 +35,17 @@ void MDocumentDataSource::findObject( MHuman *human )
 //  qDebug() << metaObject()->className() << __func__ << __LINE__;
 }
 
+void MDocumentDataSource::findObject( MOrganization *organization )
+{
+//  qDebug() << metaObject()->className() << __func__ << __LINE__;
+  MDocumentDBWrapper *wrapper = qobject_cast<MDocumentDBWrapper *>( dbWrapper() );
+  if ( wrapper->isRunning() ) return;
+  connect( dbWrapper(), SIGNAL(finished()), this, SLOT(findObjectFinished()) );
+  if ( wrapper->find( organization ) ) emit statusChanged();
+  else disconnect( wrapper, SIGNAL(finished()), this, SLOT(findObjectFinished()) );
+//  qDebug() << metaObject()->className() << __func__ << __LINE__;
+}
+
 void MDocumentDataSource::findObjectFinished()
 {
   disconnect( dbWrapper(), SIGNAL(finished()), this, SLOT(findObjectFinished()) );

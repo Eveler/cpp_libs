@@ -92,7 +92,8 @@ class MDocumentDBWrapper : public MAbstractDBWrapper
 
   public:
     enum DocumentWrapperJobType {
-      HumanDocuments = Saving+1
+      HumanDocuments = Saving+1,
+      OrganizationDocuments
     };
 
     explicit MDocumentDBWrapper( MAbstractDataSource *parent = NULL );
@@ -100,6 +101,7 @@ class MDocumentDBWrapper : public MAbstractDBWrapper
 
     bool find( const QString &filter );
     bool find( MHuman *human );
+    bool find( MOrganization *organization );
 
     QObject * searched();
 

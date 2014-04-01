@@ -159,7 +159,7 @@ MHuman * MHumanDBWrapper::human( QVariant identifier )
   if ( !identifier.isValid() || identifier.toInt() == 0 ) return result;
 
   locker()->lockForRead();
-  result = m__ExistHumans.value( identifier.toInt(), result );
+  result = m__ExistHumans.value( identifier.toInt(), NULL );
   locker()->unlock();
 
   if ( result == NULL )
@@ -182,6 +182,7 @@ MHuman * MHumanDBWrapper::human( QVariant identifier )
     int identifier = qry.record().value( "id" ).toInt();
     result = new MHuman;
     result->moveToThread( parent()->thread() );
+    locker()->lockForWrite();
     m__ExistHumans[identifier] = result;
     result->setIdentifier( identifier );
     result->setSurname( qry.record().value( "surname" ) );
@@ -194,6 +195,63 @@ MHuman * MHumanDBWrapper::human( QVariant identifier )
     locker()->unlock();
     qry.clear();
   }
+
+  return result;
+}
+
+QList<MHuman *> MHumanDBWrapper::humans( QVariantList identifiers )
+{
+  QList<MHuman *> result;
+
+  locker()->lockForWrite();
+  QString ids;
+  foreach ( QVariant identifier, identifiers )
+  {
+    if ( !identifier.isValid() || identifier.toInt() == 0 ) continue;
+    MHuman *human = m__ExistHumans.value( identifier.toInt(), NULL );
+
+    if ( human == NULL )
+      ids += ( !ids.isEmpty() ? ", " : "" )+identifier.toString();
+    else result << human;
+  }
+
+  if ( !ids.isEmpty() )
+  {
+    QString currentQuery = tr( "SELECT * FROM humans WHERE id in (%1)" ).arg( ids );
+    QSqlDatabase database = QSqlDatabase::database( pConnectionName(), false );
+    if ( !database.open() )
+    {
+      qDebug() << __func__ << __LINE__ << database.lastError().text();
+      locker()->unlock();
+      return result;
+    }
+
+    QSqlQuery qry( currentQuery, database );
+    if ( qry.lastError().isValid() )
+    {
+      qDebug() << __func__ << __LINE__ << qry.lastError().text();
+      locker()->unlock();
+      return result;
+    }
+    while ( qry.next() )
+    {
+      int identifier = qry.record().value( "id" ).toInt();
+      MHuman *human = new MHuman;
+      human->moveToThread( parent()->thread() );
+      m__ExistHumans[identifier] = human;
+      human->setIdentifier( identifier );
+      human->setSurname( qry.record().value( "surname" ) );
+      human->setFirstname( qry.record().value( "firstname" ) );
+      human->setLastname( qry.record().value( "lastname" ) );
+      human->setPhone( qry.record().value( "phone" ) );
+      human->setAddress( qry.record().value( "addr" ) );
+      human->setEmail( qry.record().value( "e-mail" ) );
+      human->setBirthday( qry.record().value( "birthday" ) );
+      result << human;
+    }
+    qry.clear();
+  }
+  locker()->unlock();
 
   return result;
 }

@@ -5,6 +5,7 @@
 
 
 class MHuman;
+class MOrganization;
 
 class MDocumentDataSource : public MAbstractDataSource
 {
@@ -16,6 +17,7 @@ class MDocumentDataSource : public MAbstractDataSource
     ~MDocumentDataSource();
 
     Q_INVOKABLE void findObject( MHuman *human );
+    Q_INVOKABLE void findObject( MOrganization *organization );
 
 
   protected slots:

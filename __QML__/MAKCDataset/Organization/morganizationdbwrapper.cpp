@@ -15,6 +15,7 @@
 */
 MOrganization::MOrganization( QQuickItem *parent ) :
   QQuickItem(parent),
+  m__Delegate(NULL),
   m__Documents(new MDataSourceModel( this ))
 {
 }
@@ -187,6 +188,12 @@ bool MOrganizationDBWrapper::searching( const QString &queryText )
   }
   else
   {
+    QVariantList humanIds;
+    while ( qry.next() )
+      humanIds << qry.record().value( "human_id" );
+    humanDBWrapper->humans( humanIds );
+
+    qry.seek( -1 );
     int lastFounded = -1;
     while ( qry.next() )
     {
