@@ -1,14 +1,12 @@
-#!/bin/env python -O
+#!/bin/env python
 # -*- coding: utf-8 -*-
-from calendar import calendar
-from twisted.internet import protocol, reactor
-from twisted.web.resource import Resource, NoResource
-from twisted.web.server import Site
+from declarlocker.base import session
+
 
 try:
-    from ConfigParser import SafeConfigParser
+    from ConfigParser import SafeConfigParser, NoSectionError
 except ImportError:
-    from configparser import SafeConfigParser
+    from configparser import SafeConfigParser, NoSectionError
 import logging
 from logging import DEBUG, INFO, WARNING, CRITICAL, ERROR
 from optparse import OptionParser
@@ -30,33 +28,20 @@ def parse_args():
 
 def set_config(config):
     cfg = SafeConfigParser()
-    lst = cfg.read(config)
-    # logging.debug("successfuly read: %s", lst)
-    # logging.debug("sections: %s", cfg.sections())
-    # [logging.debug("section [%s] options: %s", section, cfg.options(section)) for section in cfg.sections()]
-    # for section in cfg.sections():
-    #     for option in cfg.options(section):
-    #         logging.debug("%s.%s = %s", section, option, cfg.get(section, option))
-    if "loglevel" in cfg.options("main"):
-        logging.info("Set loggin level to '%s'", cfg.get("main", "loglevel"))
-        logging.root.setLevel(cfg.get("main", "loglevel"))
-
-
-class YearPage(Resource):
-    def __init__(self, year):
-        Resource.__init__(self)
-        self.year = year
-
-    def render_GET(self, request):
-        return "<html><body><pre>%s</pre></body></html>" % (calendar(self.year),)
-
-
-class Calendar(Resource):
-    def getChild(self, name, request):
-        try:
-            return YearPage(int(name))
-        except ValueError:
-            return NoResource(message=u"Бананьев нема")
+    try:
+        lst = cfg.read(config)
+        # logging.debug("successfuly read: %s", lst)
+        # logging.debug("sections: %s", cfg.sections())
+        # [logging.debug("section [%s] options: %s", section, cfg.options(section)) for section in cfg.sections()]
+        # for section in cfg.sections():
+        #     for option in cfg.options(section):
+        #         logging.debug("%s.%s = %s", section, option, cfg.get(section, option))
+        if "loglevel" in cfg.options("main"):
+            logging.info("Set loggin level to '%s'", cfg.get("main", "loglevel"))
+            logging.root.setLevel(cfg.get("main", "loglevel"))
+    except NoSectionError:
+        logging.critical("Wrong config file")
+        quit()
 
 
 if __name__ == "__main__":
@@ -72,14 +57,11 @@ if __name__ == "__main__":
     set_config(parse_args())
 
     # tests here
-    from declarlocker.objects import DeclarLock, session
+    from declarlocker.objects import DeclarLock
 
     lock = DeclarLock(1, "declars", "mike")
     session.add(lock)
     session.commit()
     print(lock)
 
-    root = Calendar()
-    factory = Site(root)
-    reactor.listenTCP(9166, factory)
-    reactor.run()
+    from declarlocker import net

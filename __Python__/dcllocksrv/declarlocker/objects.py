@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 import datetime
 
-from sqlalchemy.engine import create_engine
 try:
     from sqlalchemy.ext.declarative.api import declarative_base
 except ImportError:
     from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.schema import MetaData, Column
+from sqlalchemy.schema import Column
 from sqlalchemy.sql.expression import text
 from sqlalchemy.types import Integer, String, TIMESTAMP
 
@@ -44,13 +43,3 @@ class DeclarLock(Base):
     def __repr__(self):
         return "<DeclarLock #%s on %s(%s) placed by %s at %s, priority = %s>" % \
                (self.id, self.table_name, self.table_id, self.user_name, self.placed, self.priority)
-
-
-metadata = MetaData()
-# engine = create_engine('sqlite:///:memory:', echo=True)
-engine = create_engine('sqlite:///:memory:')
-Base.metadata.create_all(engine)
-from sqlalchemy.orm import sessionmaker
-
-Session = sessionmaker(bind=engine)
-session = Session()

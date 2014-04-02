@@ -440,7 +440,7 @@ bool Docmanager::removeDocpathsDocument(MFCDocumentInfo *doc){
 bool Docmanager::newDocument(MFCDocumentInfo *doc) {
   if( doc == NULL )
   {
-//    LogDebug() << __func__ << "doc == NULL";
+    LogDebug() << __func__ << "doc == NULL";
     return false;
   }
   if ( declarDocs == NULL &&
