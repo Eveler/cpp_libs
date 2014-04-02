@@ -359,6 +359,119 @@ bool MDocumentDBWrapper::searching( MHuman *human )
   return true;
 }
 
+bool MDocumentDBWrapper::searching( MOrganization *organization )
+{
+  organization->documents()->setSource( (ObjectListPrivate *)this );
+
+  QSqlDatabase database = QSqlDatabase::database( connectionName(), false );
+  if ( !database.open() )
+  {
+    qDebug() << __func__ << __LINE__ << database.lastError().text();
+    return false;
+  }
+
+  QString currentQuery = tr( "SELECT id FROM clients WHERE isorg=1 AND clid=%1" ).arg( organization->identifier().toInt() );
+  QSqlQuery qry( database );
+  if ( !qry.exec( currentQuery ) )
+  {
+    qDebug() << __func__ << __LINE__ << qry.lastError().text();
+    return false;
+  }
+  if ( !qry.next() ) return true;
+
+  currentQuery = tr( "SELECT docs.id, docs.doctype_id, docs.docname, docs.docseries, docs.docdate, docs.expires, docs.docagency_id, docs.url"
+                     " FROM client_documents cdocs, documents docs WHERE cdocs.documents_id=docs.id AND cdocs.clients_id=%1"
+                     " GROUP BY docs.id, docs.doctype_id, docs.docname, docs.docseries, docs.docdate, docs.expires, docs.docagency_id, docs.url"
+                     " ORDER BY docs.id" ).arg( qry.record().value( 0 ).toInt() );
+  qry.clear();
+  if ( !qry.exec( currentQuery ) )
+  {
+    qDebug() << __func__ << __LINE__ << qry.lastError().text();
+    return false;
+  }
+
+  locker()->lockForWrite();
+  int lastFounded = -1;
+  int counted = 0;
+  while ( qry.next() )
+  {
+    counted++;
+
+    int identifier = qry.record().value( "id" ).toInt();
+    MDocument *document = m__ExistDocuments.value( identifier, NULL );
+
+    int docsCount = pCount( organization->documents() );
+    int index = lastFounded+1;
+    for ( ; index < docsCount; index++ )
+    {
+      MDocument *oldDocument = qobject_cast<MDocument *>( pObject( organization->documents(), index ) );
+
+      if ( identifier > oldDocument->identifier().toInt() )
+      {
+//        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tудалить объект с ID" << identifier;
+        pTake( organization->documents(), index );
+        oldDocument->decrementExternalLinks();
+        index--;
+        docsCount--;
+
+        if ( oldDocument->externalLinksCount() == 0 )
+        {
+          m__ExistDocuments.remove( oldDocument->identifier().toInt() );
+          connect( this, SIGNAL(aboutToReleaseOldResources()), oldDocument, SLOT(deleteLater()) );
+        }
+      }
+      else if ( identifier == oldDocument->identifier().toInt() )
+      {
+//        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tзапомнить объект с ID" << identifier;
+        lastFounded = index;
+        break;
+      }
+    }
+
+    MDoctypeDBWrapper *doctypeDBWrapper = qobject_cast<MDoctypeDBWrapper *>( MAKCDataset::MAKC_DoctypeDataSource()->dbWrapper() );
+    if ( document == NULL )
+    {
+//      qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tобъект с ID" << identifier;
+      document = new MDocument;
+      document->moveToThread( parent()->thread() );
+      m__ExistDocuments[identifier] = document;
+      lastFounded++;
+      pInsert( organization->documents(), document, lastFounded );
+      document->incrementExternalLinks();
+    }
+    document->setIdentifier( identifier );
+    document->setType( doctypeDBWrapper->doctype( qry.record().value( "doctype_id" ) ) );
+    document->setName( qry.record().value( "docname" ).toString() );
+    document->setSeries( qry.record().value( "docseries" ).toString() );
+    document->setNumber( qry.record().value( "docnum" ).toString() );
+    document->setCreated( qry.record().value( "docdate" ).toDate() );
+    document->setExpires( qry.record().value( "expires" ).toDate() );
+    document->setSource( QUrl( qry.record().value( "url" ).toString() ) );
+  }
+  qry.clear();
+
+  if ( counted == 0 )
+  {
+    while ( pCount( organization->documents() ) > 0 )
+    {
+      MDocument *oldDocument = qobject_cast<MDocument *>( pTake( organization->documents(), 0 ) );
+
+      oldDocument->decrementExternalLinks();
+
+      if ( oldDocument->externalLinksCount() == 0 )
+      {
+        m__ExistDocuments.remove( oldDocument->identifier().toInt() );
+        connect( this, SIGNAL(aboutToReleaseOldResources()), oldDocument, SLOT(deleteLater()) );
+      }
+    }
+  }
+//  qDebug() << metaObject()->className() << __func__ << __LINE__ << pCount( human->documents() ) << counted;
+  m__Searched << organization->documents();
+  locker()->unlock();
+
+  return true;
+}
+
 bool MDocumentDBWrapper::initiating()
 {
   return true;

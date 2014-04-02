@@ -1,10 +1,10 @@
-#ifndef MDOCTYPEDBWRAPPER_H
-#define MDOCTYPEDBWRAPPER_H
+#ifndef MPROCEDUREDBWRAPPER_H
+#define MPROCEDUREDBWRAPPER_H
 
 #include "mabstractdbwrapper.h"
 
 
-class MDoctype : public QQuickItem
+class MProcedure : public QQuickItem
 {
     Q_OBJECT
     friend class MDocument;
@@ -13,8 +13,8 @@ class MDoctype : public QQuickItem
 
 
   public:
-    explicit MDoctype( QQuickItem *parent = NULL );
-    ~MDoctype();
+    explicit MProcedure( QQuickItem *parent = NULL );
+    ~MProcedure();
 
     QVariant identifier() const;
     void setIdentifier( QVariant identifier );
@@ -40,20 +40,18 @@ class MDoctype : public QQuickItem
     int decrementExternalLinks();
 };
 
-QML_DECLARE_TYPE( MDoctype )
+QML_DECLARE_TYPE( MProcedure )
 
 
-class MDoctypeDBWrapper : public MAbstractDBWrapper
+class MProcedureDBWrapper : public MAbstractDBWrapper
 {
     Q_OBJECT
-
-
   public:
-    explicit MDoctypeDBWrapper( MAbstractDataSource *parent = NULL );
-    ~MDoctypeDBWrapper();
+    explicit MProcedureDBWrapper( MAbstractDataSource *parent = NULL );
+    ~MProcedureDBWrapper();
 
-    MDoctype *doctype( QVariant identifier );
-    QList<MDoctype *> doctypes( QVariantList identifiers );
+    MProcedure *procedure( QVariant identifier );
+    QList<MProcedure *> procedures( QVariantList identifiers );
 
 
   protected:
@@ -63,7 +61,7 @@ class MDoctypeDBWrapper : public MAbstractDBWrapper
 
 
   private:
-    QHash<int, MDoctype *> m__ExistDoctypes;
+    QHash<int, MProcedure *> m__ExistProcedures;
 };
 
-#endif // MDOCTYPEDBWRAPPER_H
+#endif // MPROCEDUREDBWRAPPER_H

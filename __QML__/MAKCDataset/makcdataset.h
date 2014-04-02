@@ -4,14 +4,21 @@
 #include <QObject>
 
 #include "mdatabase.h"
+
 #include "mdoctypedatasource.h"
 #include "mdoctypedbwrapper.h"
+
 #include "mdocumentdatasource.h"
 #include "mdocumentdbwrapper.h"
+
 #include "mhumandatasource.h"
 #include "mhumandbwrapper.h"
+
 #include "morganizationdatasource.h"
 #include "morganizationdbwrapper.h"
+
+#include "mproceduredatasource.h"
+#include "mproceduredbwrapper.h"
 
 
 namespace MAKCDataset {
@@ -21,6 +28,7 @@ namespace MAKCDataset {
   MDocumentDataSource * MAKC_DocumentDataSource();
   MHumanDataSource * MAKC_HumanDataSource();
   MOrganizationDataSource * MAKC_OrgDataSource();
+  MProcedureDataSource * MAKC_ProcedureDataSource();
 }
 
 #endif // MAKCDATASET_H

@@ -1,4 +1,4 @@
-#include "mdoctypedbwrapper.h"
+#include "mproceduredbwrapper.h"
 
 #include <QReadWriteLock>
 #include <QSqlDatabase>
@@ -9,84 +9,80 @@
 
 
 /*
- * Begin C++ - QML class definition: *[ MDoctype ]*
+ * Begin C++ - QML class definition: *[ MProcedure ]*
 */
-MDoctype::MDoctype( QQuickItem *parent ) :
+MProcedure::MProcedure( QQuickItem *parent ) :
   QQuickItem(parent),
   m__ExternalLinksCount(0)
 {}
 
-MDoctype::~MDoctype() {}
+MProcedure::~MProcedure() {}
 
-QVariant MDoctype::identifier() const
+QVariant MProcedure::identifier() const
 {
   return m__Identifier;
 }
 
-void MDoctype::setIdentifier( QVariant identifier )
+void MProcedure::setIdentifier( QVariant identifier )
 {
   m__Identifier = identifier;
 
   emit identifierChanged();
 }
 
-const QString & MDoctype::name() const
+const QString & MProcedure::name() const
 {
   return m__Name;
 }
 
-void MDoctype::setName( const QString & name )
+void MProcedure::setName( const QString & name )
 {
   m__Name = name;
 
   emit nameChanged();
 }
 
-int MDoctype::externalLinksCount() const
+int MProcedure::externalLinksCount() const
 {
   return m__ExternalLinksCount;
 }
 
-int MDoctype::incrementExternalLinks()
+int MProcedure::incrementExternalLinks()
 {
   return m__ExternalLinksCount++;
 }
 
-int MDoctype::decrementExternalLinks()
+int MProcedure::decrementExternalLinks()
 {
   if ( m__ExternalLinksCount > 0 ) m__ExternalLinksCount--;
 
   return m__ExternalLinksCount;
 }
 /*
- * End class definition: *[ MDoctype ]*
+ * End class definition: *[ MProcedure ]*
 */
 
-
-/*
- * Begin C++ - class definition: *[ MDoctypeDBWrapper ]*
-*/
-MDoctypeDBWrapper::MDoctypeDBWrapper( MAbstractDataSource *parent ) :
+MProcedureDBWrapper::MProcedureDBWrapper(MAbstractDataSource *parent) :
   MAbstractDBWrapper(parent)
 {
 }
 
-MDoctypeDBWrapper::~MDoctypeDBWrapper()
+MProcedureDBWrapper::~MProcedureDBWrapper()
 {
-  m__ExistDoctypes.clear();
+  m__ExistProcedures.clear();
 }
 
-MDoctype * MDoctypeDBWrapper::doctype( QVariant identifier )
+MProcedure * MProcedureDBWrapper::procedure( QVariant identifier )
 {
-  MDoctype *result = NULL;
+  MProcedure *result = NULL;
 
   locker()->lockForRead();
-  result = m__ExistDoctypes.value( identifier.toInt(), result );
+  result = m__ExistProcedures.value( identifier.toInt(), result );
   locker()->unlock();
 
   if ( result == NULL )
   {
-    QString currentQuery = tr( "SELECT * FROM doctypes WHERE id=%1" ).arg( identifier.toInt() );
+    QString currentQuery = tr( "SELECT * FROM proc_tbl WHERE proc_id=%1" ).arg( identifier.toInt() );
 
     QSqlDatabase database = QSqlDatabase::database( connectionName(), false );
     if ( !database.open() )
@@ -101,10 +97,10 @@ MDoctype * MDoctypeDBWrapper::doctype( QVariant identifier )
       qDebug() << metaObject()->className() << __func__ << __LINE__ << qry.lastError().text();
       return result;
     }
-    int identifier = qry.record().value( "id" ).toInt();
-    result = new MDoctype;
+    int identifier = qry.record().value( "proc_id" ).toInt();
+    result = new MProcedure;
     result->moveToThread( parent()->thread() );
-    m__ExistDoctypes[identifier] = result;
+    m__ExistProcedures[identifier] = result;
     result->setIdentifier( identifier );
     result->setName( qry.record().value( "aname" ).toString() );
     locker()->unlock();
@@ -114,25 +110,25 @@ MDoctype * MDoctypeDBWrapper::doctype( QVariant identifier )
   return result;
 }
 
-QList<MDoctype *> MDoctypeDBWrapper::doctypes( QVariantList identifiers )
+QList<MProcedure *> MProcedureDBWrapper::procedures( QVariantList identifiers )
 {
-  QList<MDoctype *> result;
+  QList<MProcedure *> result;
 
   locker()->lockForWrite();
   QString ids;
   foreach ( QVariant identifier, identifiers )
   {
     if ( !identifier.isValid() || identifier.toInt() == 0 ) continue;
-    MDoctype *doctype = m__ExistDoctypes.value( identifier.toInt(), NULL );
+    MProcedure *procedure = m__ExistProcedures.value( identifier.toInt(), NULL );
 
-    if ( doctype == NULL )
+    if ( procedure == NULL )
       ids += ( !ids.isEmpty() ? ", " : "" )+identifier.toString();
-    else result << doctype;
+    else result << procedure;
   }
 
   if ( !ids.isEmpty() )
   {
-    QString currentQuery = tr( "SELECT * FROM doctypes WHERE id in (%1)" ).arg( ids );
+    QString currentQuery = tr( "SELECT * FROM proc_tbl WHERE proc_id in (%1)" ).arg( ids );
     QSqlDatabase database = QSqlDatabase::database( pConnectionName(), false );
     if ( !database.open() )
     {
@@ -150,13 +146,13 @@ QList<MDoctype *> MDoctypeDBWrapper::doctypes( QVariantList identifiers )
     }
     while ( qry.next() )
     {
-      int identifier = qry.record().value( "id" ).toInt();
-      MDoctype *doctype = new MDoctype;
-      doctype->moveToThread( parent()->thread() );
-      m__ExistDoctypes[identifier] = doctype;
-      doctype->setIdentifier( identifier );
-      doctype->setName( qry.record().value( "aname" ).toString() );
-      result << doctype;
+      int identifier = qry.record().value( "proc_id" ).toInt();
+      MProcedure *procedure = new MProcedure;
+      procedure->moveToThread( parent()->thread() );
+      m__ExistProcedures[identifier] = procedure;
+      procedure->setIdentifier( identifier );
+      procedure->setName( qry.record().value( "aname" ).toString() );
+      result << procedure;
     }
     qry.clear();
   }
@@ -165,14 +161,14 @@ QList<MDoctype *> MDoctypeDBWrapper::doctypes( QVariantList identifiers )
   return result;
 }
 
-bool MDoctypeDBWrapper::searching( const QString &queryText )
+bool MProcedureDBWrapper::searching( const QString &queryText )
 {
   QString currentQuery = queryText;
-  if ( currentQuery.isEmpty() ) currentQuery = tr( "SELECT * FROM doctypes ORDER BY id" );
-  else currentQuery = tr( "SELECT * FROM doctypes WHERE %1 ORDER BY id" ).arg( currentQuery );
+  if ( currentQuery.isEmpty() ) currentQuery = tr( "SELECT * FROM proc_tbl ORDER BY proc_id" );
+  else currentQuery = tr( "SELECT * FROM proc_tbl WHERE %1 ORDER BY proc_id" ).arg( currentQuery );
   QString maxIdQuery = queryText;
-  if ( maxIdQuery.isEmpty() ) maxIdQuery = tr( "SELECT max(id) FROM doctypes" );
-  else maxIdQuery = tr( "SELECT max(id) FROM doctypes WHERE %1" ).arg( maxIdQuery );
+  if ( maxIdQuery.isEmpty() ) maxIdQuery = tr( "SELECT max(proc_id) FROM proc_tbl" );
+  else maxIdQuery = tr( "SELECT max(proc_id) FROM proc_tbl WHERE %1" ).arg( maxIdQuery );
 
   QSqlDatabase database = QSqlDatabase::database( connectionName(), false );
   if ( !database.open() )
@@ -197,16 +193,17 @@ bool MDoctypeDBWrapper::searching( const QString &queryText )
   }
 
   locker()->lockForWrite();
+
   if ( maxId == 0 )
   {
     while ( pCount( (int)Founded ) > 0 )
     {
-      MDoctype *oldDoctype = qobject_cast<MDoctype *>( pTake( (int)Founded, 0 ) );
+      MProcedure *oldProcedure = qobject_cast<MProcedure *>( pTake( (int)Founded, 0 ) );
 
-      if ( oldDoctype->externalLinksCount() == 0 && pIndex( (int)Initiated, oldDoctype ) == -1 )
+      if ( oldProcedure->externalLinksCount() == 0 && pIndex( (int)Initiated, oldProcedure ) == -1 )
       {
-        m__ExistDoctypes.remove( oldDoctype->identifier().toInt() );
-        connect( this, SIGNAL(aboutToReleaseOldResources()), oldDoctype, SLOT(deleteLater()) );
+        m__ExistProcedures.remove( oldProcedure->identifier().toInt() );
+        connect( this, SIGNAL(aboutToReleaseOldResources()), oldProcedure, SLOT(deleteLater()) );
       }
     }
   }
@@ -215,30 +212,30 @@ bool MDoctypeDBWrapper::searching( const QString &queryText )
     int lastFounded = -1;
     while ( qry.next() )
     {
-      int identifier = qry.record().value( "id" ).toInt();
-      MDoctype *doctype = m__ExistDoctypes.value( identifier, NULL );
+      int identifier = qry.record().value( "proc_id" ).toInt();
+      MProcedure *procedure = m__ExistProcedures.value( identifier, NULL );
 
-      int doctypesCount = pCount( (int)Founded );
+      int proceduresCount = pCount( (int)Founded );
       int index = lastFounded+1;
       bool insertIntoFounded = true;
-      for ( ; index < doctypesCount; index++ )
+      for ( ; index < proceduresCount; index++ )
       {
-        MDoctype *oldDoctype = qobject_cast<MDoctype *>( pObject( (int)Founded, index ) );
+        MProcedure *oldProcedure = qobject_cast<MProcedure *>( pObject( (int)Founded, index ) );
 
-        if ( identifier > oldDoctype->identifier().toInt() || maxId < oldDoctype->identifier().toInt() )
+        if ( identifier > oldProcedure->identifier().toInt() || maxId < oldProcedure->identifier().toInt() )
         {
           //        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tудалить объект с ID" << identifier;
           pTake( (int)Founded, index );
           index--;
-          doctypesCount--;
+          proceduresCount--;
 
-          if ( oldDoctype->externalLinksCount() == 0 && pIndex( (int)Initiated, oldDoctype ) == -1 )
+          if ( oldProcedure->externalLinksCount() == 0 && pIndex( (int)Initiated, oldProcedure ) == -1 )
           {
-            m__ExistDoctypes.remove( oldDoctype->identifier().toInt() );
-            connect( this, SIGNAL(aboutToReleaseOldResources()), oldDoctype, SLOT(deleteLater()) );
+            m__ExistProcedures.remove( oldProcedure->identifier().toInt() );
+            connect( this, SIGNAL(aboutToReleaseOldResources()), oldProcedure, SLOT(deleteLater()) );
           }
         }
-        else if ( identifier == oldDoctype->identifier().toInt() )
+        else if ( identifier == oldProcedure->identifier().toInt() )
         {
           //        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tзапомнить объект с ID" << identifier;
           insertIntoFounded = false;
@@ -247,20 +244,20 @@ bool MDoctypeDBWrapper::searching( const QString &queryText )
         }
       }
 
-      if ( doctype == NULL )
+      if ( procedure == NULL )
       {
         //      qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tобъект с ID" << identifier;
-        doctype = new MDoctype;
-        doctype->moveToThread( parent()->thread() );
-        m__ExistDoctypes[identifier] = doctype;
-        doctype->setIdentifier( identifier );
+        procedure = new MProcedure;
+        procedure->moveToThread( parent()->thread() );
+        m__ExistProcedures[identifier] = procedure;
+        procedure->setIdentifier( identifier );
       }
       if ( insertIntoFounded )
       {
         lastFounded++;
-        pInsert( (int)Founded, doctype, lastFounded );
+        pInsert( (int)Founded, procedure, lastFounded );
       }
-      doctype->setName( qry.record().value( "aname" ).toString() );
+      procedure->setName( qry.record().value( "aname" ).toString() );
     }
     //  qDebug() << metaObject()->className() << __func__ << __LINE__ << pCount( human->documents() ) << counted;
   }
@@ -270,16 +267,16 @@ bool MDoctypeDBWrapper::searching( const QString &queryText )
   return true;
 }
 
-bool MDoctypeDBWrapper::initiating()
+bool MProcedureDBWrapper::initiating()
 {
   return true;
 }
 
-bool MDoctypeDBWrapper::saving( QObject *object )
+bool MProcedureDBWrapper::saving( QObject *object )
 {
   Q_UNUSED(object)
   return true;
 }
 /*
- * End class definition: *[ MDoctypeDBWrapper ]*
+ * End class definition: *[ MProcedureDBWrapper ]*
 */

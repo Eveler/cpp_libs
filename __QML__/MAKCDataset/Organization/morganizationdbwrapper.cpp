@@ -171,7 +171,6 @@ bool MOrganizationDBWrapper::searching( const QString &queryText )
   }
 
   locker()->lockForWrite();
-
   if ( maxId == 0 )
   {
     while ( pCount( (int)Founded ) > 0 )

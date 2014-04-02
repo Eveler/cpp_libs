@@ -7,6 +7,8 @@
 class MDoctypeDataSource : public MAbstractDataSource
 {
     Q_OBJECT
+
+
   public:
     explicit MDoctypeDataSource( QObject *parent = NULL );
     ~MDoctypeDataSource();

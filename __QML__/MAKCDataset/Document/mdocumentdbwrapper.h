@@ -113,6 +113,7 @@ class MDocumentDBWrapper : public MAbstractDBWrapper
     void job( int objectiveType, const QVariant &objectiveValue );
     bool searching( const QString &queryText );
     bool searching( MHuman *human );
+    bool searching( MOrganization *organization );
     bool initiating();
     bool saving( QObject *object );
 

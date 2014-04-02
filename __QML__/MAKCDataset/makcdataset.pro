@@ -15,7 +15,8 @@ INCLUDEPATH += ./ \
     ./Doctype/ \
     ./Document/ \
     ./Human/ \
-    ./Organization/
+    ./Organization/ \
+    ./Procedure/
 
 
 # Input
@@ -29,7 +30,9 @@ SOURCES += \
     Doctype/mdoctypedbwrapper.cpp \
     Doctype/mdoctypedatasource.cpp \
     Organization/morganizationdbwrapper.cpp \
-    Organization/morganizationdatasource.cpp
+    Organization/morganizationdatasource.cpp \
+    Procedure/mproceduredbwrapper.cpp \
+    Procedure/mproceduredatasource.cpp
 
 HEADERS += \
     makcdataset_plugin.h \
@@ -41,7 +44,9 @@ HEADERS += \
     Doctype/mdoctypedbwrapper.h \
     Doctype/mdoctypedatasource.h \
     Organization/morganizationdbwrapper.h \
-    Organization/morganizationdatasource.h
+    Organization/morganizationdatasource.h \
+    Procedure/mproceduredbwrapper.h \
+    Procedure/mproceduredatasource.h
 
 OTHER_FILES = qmldir
 
