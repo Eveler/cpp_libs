@@ -16,7 +16,10 @@ INCLUDEPATH += ./ \
     ./Document/ \
     ./Human/ \
     ./Organization/ \
-    ./Procedure/
+    ./Procedure/ \
+    ./Recipient/ \
+    ./Department/ \
+    ./Direction/
 
 
 # Input
@@ -32,7 +35,13 @@ SOURCES += \
     Organization/morganizationdbwrapper.cpp \
     Organization/morganizationdatasource.cpp \
     Procedure/mproceduredbwrapper.cpp \
-    Procedure/mproceduredatasource.cpp
+    Procedure/mproceduredatasource.cpp \
+    Recipient/mrecipientdbwrapper.cpp \
+    Recipient/mrecipientdatasource.cpp \
+    Department/mdepartmentdbwrapper.cpp \
+    Department/mdepartmentdatasource.cpp \
+    Direction/mdirectiondbwrapper.cpp \
+    Direction/mdirectiondatasource.cpp
 
 HEADERS += \
     makcdataset_plugin.h \
@@ -46,7 +55,13 @@ HEADERS += \
     Organization/morganizationdbwrapper.h \
     Organization/morganizationdatasource.h \
     Procedure/mproceduredbwrapper.h \
-    Procedure/mproceduredatasource.h
+    Procedure/mproceduredatasource.h \
+    Recipient/mrecipientdbwrapper.h \
+    Recipient/mrecipientdatasource.h \
+    Department/mdepartmentdbwrapper.h \
+    Department/mdepartmentdatasource.h \
+    Direction/mdirectiondbwrapper.h \
+    Direction/mdirectiondatasource.h
 
 OTHER_FILES = qmldir
 

@@ -20,15 +20,26 @@
 #include "mproceduredatasource.h"
 #include "mproceduredbwrapper.h"
 
+#include "mrecipientdatasource.h"
+#include "mrecipientdbwrapper.h"
+
+#include "mdepartmentdatasource.h"
+#include "mdepartmentdbwrapper.h"
+
+#include "mdirectiondatasource.h"
+#include "mdirectiondbwrapper.h"
+
 
 namespace MAKCDataset {
   void initializeMAKC( QObject * parent = NULL );
-  MDatabase * MAKC_Database();
   MDoctypeDataSource * MAKC_DoctypeDataSource();
   MDocumentDataSource * MAKC_DocumentDataSource();
   MHumanDataSource * MAKC_HumanDataSource();
   MOrganizationDataSource * MAKC_OrgDataSource();
   MProcedureDataSource * MAKC_ProcedureDataSource();
+  MRecipientDataSource * MAKC_RecipientDataSource();
+  MDepartmentDataSource * MAKC_DepartmentDataSource();
+  MDirectionDataSource * MAKC_DirectionDataSource();
 }
 
 #endif // MAKCDATASET_H

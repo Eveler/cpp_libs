@@ -258,33 +258,37 @@ bool MDocumentDBWrapper::searching( MHuman *human )
   }
 
   QString currentQuery = tr( "SELECT id FROM clients WHERE isorg=0 AND clid=%1" ).arg( human->identifier().toInt() );
-  QSqlQuery qry( database );
-  if ( !qry.exec( currentQuery ) )
+  QSqlQuery *qry = MDatabase::instance()->getQuery( currentQuery, connectionName() );
+  if ( qry->lastError().isValid() )
   {
-    qDebug() << __func__ << __LINE__ << qry.lastError().text();
+    qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
     return false;
   }
-  if ( !qry.next() ) return true;
+  if ( !qry->next() ) return true;
 
   currentQuery = tr( "SELECT docs.id, docs.doctype_id, docs.docname, docs.docseries, docs.docdate, docs.expires, docs.docagency_id, docs.url"
                      " FROM client_documents cdocs, documents docs WHERE cdocs.documents_id=docs.id AND cdocs.clients_id=%1"
                      " GROUP BY docs.id, docs.doctype_id, docs.docname, docs.docseries, docs.docdate, docs.expires, docs.docagency_id, docs.url"
-                     " ORDER BY docs.id" ).arg( qry.record().value( 0 ).toInt() );
-  qry.clear();
-  if ( !qry.exec( currentQuery ) )
+                     " ORDER BY docs.id" ).arg( qry->record().value( 0 ).toInt() );
+  qry->clear();
+  delete qry;
+  qry = NULL;
+
+  qry = MDatabase::instance()->getQuery( currentQuery, connectionName() );
+  if ( qry->lastError().isValid() )
   {
-    qDebug() << __func__ << __LINE__ << qry.lastError().text();
+    qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
     return false;
   }
 
   locker()->lockForWrite();
   int lastFounded = -1;
   int counted = 0;
-  while ( qry.next() )
+  while ( qry->next() )
   {
     counted++;
 
-    int identifier = qry.record().value( "id" ).toInt();
+    int identifier = qry->record().value( "id" ).toInt();
     MDocument *document = m__ExistDocuments.value( identifier, NULL );
 
     int docsCount = pCount( human->documents() );
@@ -327,15 +331,17 @@ bool MDocumentDBWrapper::searching( MHuman *human )
       document->incrementExternalLinks();
     }
     document->setIdentifier( identifier );
-    document->setType( doctypeDBWrapper->doctype( qry.record().value( "doctype_id" ) ) );
-    document->setName( qry.record().value( "docname" ).toString() );
-    document->setSeries( qry.record().value( "docseries" ).toString() );
-    document->setNumber( qry.record().value( "docnum" ).toString() );
-    document->setCreated( qry.record().value( "docdate" ).toDate() );
-    document->setExpires( qry.record().value( "expires" ).toDate() );
-    document->setSource( QUrl( qry.record().value( "url" ).toString() ) );
+    document->setType( doctypeDBWrapper->doctype( qry->record().value( "doctype_id" ) ) );
+    document->setName( qry->record().value( "docname" ).toString() );
+    document->setSeries( qry->record().value( "docseries" ).toString() );
+    document->setNumber( qry->record().value( "docnum" ).toString() );
+    document->setCreated( qry->record().value( "docdate" ).toDate() );
+    document->setExpires( qry->record().value( "expires" ).toDate() );
+    document->setSource( QUrl( qry->record().value( "url" ).toString() ) );
   }
-  qry.clear();
+  qry->clear();
+  delete qry;
+  qry = NULL;
 
   if ( counted == 0 )
   {
@@ -371,33 +377,37 @@ bool MDocumentDBWrapper::searching( MOrganization *organization )
   }
 
   QString currentQuery = tr( "SELECT id FROM clients WHERE isorg=1 AND clid=%1" ).arg( organization->identifier().toInt() );
-  QSqlQuery qry( database );
-  if ( !qry.exec( currentQuery ) )
+  QSqlQuery *qry = MDatabase::instance()->getQuery( currentQuery, connectionName() );
+  if ( qry->lastError().isValid() )
   {
-    qDebug() << __func__ << __LINE__ << qry.lastError().text();
+    qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
     return false;
   }
-  if ( !qry.next() ) return true;
+  if ( !qry->next() ) return true;
 
   currentQuery = tr( "SELECT docs.id, docs.doctype_id, docs.docname, docs.docseries, docs.docdate, docs.expires, docs.docagency_id, docs.url"
                      " FROM client_documents cdocs, documents docs WHERE cdocs.documents_id=docs.id AND cdocs.clients_id=%1"
                      " GROUP BY docs.id, docs.doctype_id, docs.docname, docs.docseries, docs.docdate, docs.expires, docs.docagency_id, docs.url"
-                     " ORDER BY docs.id" ).arg( qry.record().value( 0 ).toInt() );
-  qry.clear();
-  if ( !qry.exec( currentQuery ) )
+                     " ORDER BY docs.id" ).arg( qry->record().value( 0 ).toInt() );
+  qry->clear();
+  delete qry;
+  qry = NULL;
+
+  qry = MDatabase::instance()->getQuery( currentQuery, connectionName() );
+  if ( qry->lastError().isValid() )
   {
-    qDebug() << __func__ << __LINE__ << qry.lastError().text();
+    qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
     return false;
   }
 
   locker()->lockForWrite();
   int lastFounded = -1;
   int counted = 0;
-  while ( qry.next() )
+  while ( qry->next() )
   {
     counted++;
 
-    int identifier = qry.record().value( "id" ).toInt();
+    int identifier = qry->record().value( "id" ).toInt();
     MDocument *document = m__ExistDocuments.value( identifier, NULL );
 
     int docsCount = pCount( organization->documents() );
@@ -440,15 +450,17 @@ bool MDocumentDBWrapper::searching( MOrganization *organization )
       document->incrementExternalLinks();
     }
     document->setIdentifier( identifier );
-    document->setType( doctypeDBWrapper->doctype( qry.record().value( "doctype_id" ) ) );
-    document->setName( qry.record().value( "docname" ).toString() );
-    document->setSeries( qry.record().value( "docseries" ).toString() );
-    document->setNumber( qry.record().value( "docnum" ).toString() );
-    document->setCreated( qry.record().value( "docdate" ).toDate() );
-    document->setExpires( qry.record().value( "expires" ).toDate() );
-    document->setSource( QUrl( qry.record().value( "url" ).toString() ) );
+    document->setType( doctypeDBWrapper->doctype( qry->record().value( "doctype_id" ) ) );
+    document->setName( qry->record().value( "docname" ).toString() );
+    document->setSeries( qry->record().value( "docseries" ).toString() );
+    document->setNumber( qry->record().value( "docnum" ).toString() );
+    document->setCreated( qry->record().value( "docdate" ).toDate() );
+    document->setExpires( qry->record().value( "expires" ).toDate() );
+    document->setSource( QUrl( qry->record().value( "url" ).toString() ) );
   }
-  qry.clear();
+  qry->clear();
+  delete qry;
+  qry = NULL;
 
   if ( counted == 0 )
   {

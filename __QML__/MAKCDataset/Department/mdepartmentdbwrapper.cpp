@@ -1,4 +1,4 @@
-#include "mdoctypedbwrapper.h"
+#include "mdepartmentdbwrapper.h"
 
 #include "mdatabase.h"
 
@@ -11,84 +11,84 @@
 
 
 /*
- * Begin C++ - QML class definition: *[ MDoctype ]*
+ * Begin C++ - QML class definition: *[ MDepartment ]*
 */
-MDoctype::MDoctype( QQuickItem *parent ) :
+MDepartment::MDepartment( QQuickItem *parent ) :
   QQuickItem(parent),
   m__ExternalLinksCount(0)
 {}
 
-MDoctype::~MDoctype() {}
+MDepartment::~MDepartment() {}
 
-QVariant MDoctype::identifier() const
+QVariant MDepartment::identifier() const
 {
   return m__Identifier;
 }
 
-void MDoctype::setIdentifier( QVariant identifier )
+void MDepartment::setIdentifier( QVariant identifier )
 {
   m__Identifier = identifier;
 
   emit identifierChanged();
 }
 
-const QString & MDoctype::name() const
+const QString & MDepartment::name() const
 {
   return m__Name;
 }
 
-void MDoctype::setName( const QString & name )
+void MDepartment::setName( const QString & name )
 {
   m__Name = name;
 
   emit nameChanged();
 }
 
-int MDoctype::externalLinksCount() const
+int MDepartment::externalLinksCount() const
 {
   return m__ExternalLinksCount;
 }
 
-int MDoctype::incrementExternalLinks()
+int MDepartment::incrementExternalLinks()
 {
   return m__ExternalLinksCount++;
 }
 
-int MDoctype::decrementExternalLinks()
+int MDepartment::decrementExternalLinks()
 {
   if ( m__ExternalLinksCount > 0 ) m__ExternalLinksCount--;
 
   return m__ExternalLinksCount;
 }
 /*
- * End class definition: *[ MDoctype ]*
+ * End class definition: *[ MDepartment ]*
 */
 
 
 /*
- * Begin C++ - class definition: *[ MDoctypeDBWrapper ]*
+ * Begin C++ class definition: *[ MDepartmentDBWrapper ]*
 */
-MDoctypeDBWrapper::MDoctypeDBWrapper( MAbstractDataSource *parent ) :
+MDepartmentDBWrapper::MDepartmentDBWrapper( MAbstractDataSource *parent ) :
   MAbstractDBWrapper(parent)
 {
 }
 
-MDoctypeDBWrapper::~MDoctypeDBWrapper()
+MDepartmentDBWrapper::~MDepartmentDBWrapper()
 {
-  m__ExistDoctypes.clear();
+  m__ExistDepartments.clear();
 }
 
-MDoctype * MDoctypeDBWrapper::doctype( QVariant identifier )
+MDepartment * MDepartmentDBWrapper::department( QVariant identifier )
 {
-  MDoctype *result = NULL;
+  MDepartment *result = NULL;
 
   locker()->lockForRead();
-  result = m__ExistDoctypes.value( identifier.toInt(), result );
+  result = m__ExistDepartments.value( identifier.toInt(), result );
   locker()->unlock();
 
   if ( result == NULL )
   {
-    QString currentQuery = tr( "SELECT * FROM doctypes WHERE id=%1" ).arg( identifier.toInt() );
+    QString currentQuery = tr( "SELECT * FROM departments WHERE id=%1" ).arg( identifier.toInt() );
 
     QSqlQuery *qry = MDatabase::instance()->getQuery( currentQuery, connectionName() );
     if ( qry->lastError().isValid() || !qry->next() )
@@ -99,9 +99,9 @@ MDoctype * MDoctypeDBWrapper::doctype( QVariant identifier )
     }
     int identifier = qry->record().value( "id" ).toInt();
     locker()->lockForWrite();
-    result = new MDoctype;
+    result = new MDepartment;
     result->moveToThread( parent()->thread() );
-    m__ExistDoctypes[identifier] = result;
+    m__ExistDepartments[identifier] = result;
     result->setIdentifier( identifier );
     result->setName( qry->record().value( "aname" ).toString() );
     locker()->unlock();
@@ -113,25 +113,25 @@ MDoctype * MDoctypeDBWrapper::doctype( QVariant identifier )
   return result;
 }
 
-QList<MDoctype *> MDoctypeDBWrapper::doctypes( QVariantList identifiers )
+QList<MDepartment *> MDepartmentDBWrapper::departments( QVariantList identifiers )
 {
-  QList<MDoctype *> result;
+  QList<MDepartment *> result;
 
   locker()->lockForWrite();
   QString ids;
   foreach ( QVariant identifier, identifiers )
   {
     if ( !identifier.isValid() || identifier.toInt() == 0 ) continue;
-    MDoctype *doctype = m__ExistDoctypes.value( identifier.toInt(), NULL );
+    MDepartment *department = m__ExistDepartments.value( identifier.toInt(), NULL );
 
-    if ( doctype == NULL )
+    if ( department == NULL )
       ids += ( !ids.isEmpty() ? ", " : "" )+identifier.toString();
-    else result << doctype;
+    else result << department;
   }
 
   if ( !ids.isEmpty() )
   {
-    QString currentQuery = tr( "SELECT * FROM doctypes WHERE id in (%1)" ).arg( ids );
+    QString currentQuery = tr( "SELECT * FROM departments WHERE id in (%1)" ).arg( ids );
 
     QSqlQuery *qry = MDatabase::instance()->getQuery( currentQuery, connectionName() );
     if ( qry->lastError().isValid() )
@@ -143,12 +143,12 @@ QList<MDoctype *> MDoctypeDBWrapper::doctypes( QVariantList identifiers )
     while ( qry->next() )
     {
       int identifier = qry->record().value( "id" ).toInt();
-      MDoctype *doctype = new MDoctype;
-      doctype->moveToThread( parent()->thread() );
-      m__ExistDoctypes[identifier] = doctype;
-      doctype->setIdentifier( identifier );
-      doctype->setName( qry->record().value( "aname" ).toString() );
-      result << doctype;
+      MDepartment *department = new MDepartment;
+      department->moveToThread( parent()->thread() );
+      m__ExistDepartments[identifier] = department;
+      department->setIdentifier( identifier );
+      department->setName( qry->record().value( "aname" ).toString() );
+      result << department;
     }
     qry->clear();
     delete qry;
@@ -159,14 +159,14 @@ QList<MDoctype *> MDoctypeDBWrapper::doctypes( QVariantList identifiers )
   return result;
 }
 
-bool MDoctypeDBWrapper::searching( const QString &queryText )
+bool MDepartmentDBWrapper::searching( const QString &queryText )
 {
   QString currentQuery = queryText;
-  if ( currentQuery.isEmpty() ) currentQuery = tr( "SELECT * FROM doctypes ORDER BY id" );
-  else currentQuery = tr( "SELECT * FROM doctypes WHERE %1 ORDER BY id" ).arg( currentQuery );
+  if ( currentQuery.isEmpty() ) currentQuery = tr( "SELECT * FROM departments ORDER BY id" );
+  else currentQuery = tr( "SELECT * FROM departments WHERE %1 ORDER BY id" ).arg( currentQuery );
   QString maxIdQuery = queryText;
-  if ( maxIdQuery.isEmpty() ) maxIdQuery = tr( "SELECT max(id) FROM doctypes" );
-  else maxIdQuery = tr( "SELECT max(id) FROM doctypes WHERE %1" ).arg( maxIdQuery );
+  if ( maxIdQuery.isEmpty() ) maxIdQuery = tr( "SELECT max(id) FROM departments" );
+  else maxIdQuery = tr( "SELECT max(id) FROM departments WHERE %1" ).arg( maxIdQuery );
 
   QSqlQuery *qry = MDatabase::instance()->getQuery( maxIdQuery, connectionName() );
   if ( qry->lastError().isValid() || !qry->next() )
@@ -187,16 +187,17 @@ bool MDoctypeDBWrapper::searching( const QString &queryText )
   }
 
   locker()->lockForWrite();
+
   if ( maxId == 0 )
   {
     while ( pCount( (int)Founded ) > 0 )
     {
-      MDoctype *oldDoctype = qobject_cast<MDoctype *>( pTake( (int)Founded, 0 ) );
+      MDepartment *oldDepartment = qobject_cast<MDepartment *>( pTake( (int)Founded, 0 ) );
 
-      if ( oldDoctype->externalLinksCount() == 0 && pIndex( (int)Initiated, oldDoctype ) == -1 )
+      if ( oldDepartment->externalLinksCount() == 0 && pIndex( (int)Initiated, oldDepartment ) == -1 )
       {
-        m__ExistDoctypes.remove( oldDoctype->identifier().toInt() );
-        connect( this, SIGNAL(aboutToReleaseOldResources()), oldDoctype, SLOT(deleteLater()) );
+        m__ExistDepartments.remove( oldDepartment->identifier().toInt() );
+        connect( this, SIGNAL(aboutToReleaseOldResources()), oldDepartment, SLOT(deleteLater()) );
       }
     }
   }
@@ -206,29 +207,29 @@ bool MDoctypeDBWrapper::searching( const QString &queryText )
     while ( qry->next() )
     {
       int identifier = qry->record().value( "id" ).toInt();
-      MDoctype *doctype = m__ExistDoctypes.value( identifier, NULL );
+      MDepartment *department = m__ExistDepartments.value( identifier, NULL );
 
-      int doctypesCount = pCount( (int)Founded );
+      int departmentsCount = pCount( (int)Founded );
       int index = lastFounded+1;
       bool insertIntoFounded = true;
-      for ( ; index < doctypesCount; index++ )
+      for ( ; index < departmentsCount; index++ )
       {
-        MDoctype *oldDoctype = qobject_cast<MDoctype *>( pObject( (int)Founded, index ) );
+        MDepartment *oldDepartment = qobject_cast<MDepartment *>( pObject( (int)Founded, index ) );
 
-        if ( identifier > oldDoctype->identifier().toInt() || maxId < oldDoctype->identifier().toInt() )
+        if ( identifier > oldDepartment->identifier().toInt() || maxId < oldDepartment->identifier().toInt() )
         {
           //        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tудалить объект с ID" << identifier;
           pTake( (int)Founded, index );
           index--;
-          doctypesCount--;
+          departmentsCount--;
 
-          if ( oldDoctype->externalLinksCount() == 0 && pIndex( (int)Initiated, oldDoctype ) == -1 )
+          if ( oldDepartment->externalLinksCount() == 0 && pIndex( (int)Initiated, oldDepartment ) == -1 )
           {
-            m__ExistDoctypes.remove( oldDoctype->identifier().toInt() );
-            connect( this, SIGNAL(aboutToReleaseOldResources()), oldDoctype, SLOT(deleteLater()) );
+            m__ExistDepartments.remove( oldDepartment->identifier().toInt() );
+            connect( this, SIGNAL(aboutToReleaseOldResources()), oldDepartment, SLOT(deleteLater()) );
           }
         }
-        else if ( identifier == oldDoctype->identifier().toInt() )
+        else if ( identifier == oldDepartment->identifier().toInt() )
         {
           //        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tзапомнить объект с ID" << identifier;
           insertIntoFounded = false;
@@ -237,20 +238,20 @@ bool MDoctypeDBWrapper::searching( const QString &queryText )
         }
       }
 
-      if ( doctype == NULL )
+      if ( department == NULL )
       {
         //      qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tобъект с ID" << identifier;
-        doctype = new MDoctype;
-        doctype->moveToThread( parent()->thread() );
-        m__ExistDoctypes[identifier] = doctype;
-        doctype->setIdentifier( identifier );
+        department = new MDepartment;
+        department->moveToThread( parent()->thread() );
+        m__ExistDepartments[identifier] = department;
+        department->setIdentifier( identifier );
       }
       if ( insertIntoFounded )
       {
         lastFounded++;
-        pInsert( (int)Founded, doctype, lastFounded );
+        pInsert( (int)Founded, department, lastFounded );
       }
-      doctype->setName( qry->record().value( "aname" ).toString() );
+      department->setName( qry->record().value( "aname" ).toString() );
     }
     //  qDebug() << metaObject()->className() << __func__ << __LINE__ << pCount( human->documents() ) << counted;
   }
@@ -262,16 +263,16 @@ bool MDoctypeDBWrapper::searching( const QString &queryText )
   return true;
 }
 
-bool MDoctypeDBWrapper::initiating()
+bool MDepartmentDBWrapper::initiating()
 {
   return true;
 }
 
-bool MDoctypeDBWrapper::saving( QObject *object )
+bool MDepartmentDBWrapper::saving( QObject *object )
 {
   Q_UNUSED(object)
   return true;
 }
 /*
- * End class definition: *[ MDoctypeDBWrapper ]*
+ * End class definition: *[ MDepartmentDBWrapper ]*
 */

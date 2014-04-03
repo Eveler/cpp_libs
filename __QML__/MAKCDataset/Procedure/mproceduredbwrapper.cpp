@@ -1,5 +1,7 @@
 #include "mproceduredbwrapper.h"
 
+#include "mdatabase.h"
+
 #include <QReadWriteLock>
 #include <QSqlDatabase>
 #include <QSqlError>
@@ -62,6 +64,10 @@ int MProcedure::decrementExternalLinks()
  * End class definition: *[ MProcedure ]*
 */
 
+
+/*
+ * Begin C++ class definition: *[ MProcedureDBWrapper ]*
+*/
 MProcedureDBWrapper::MProcedureDBWrapper(MAbstractDataSource *parent) :
   MAbstractDBWrapper(parent)
 {
@@ -84,27 +90,24 @@ MProcedure * MProcedureDBWrapper::procedure( QVariant identifier )
   {
     QString currentQuery = tr( "SELECT * FROM proc_tbl WHERE proc_id=%1" ).arg( identifier.toInt() );
 
-    QSqlDatabase database = QSqlDatabase::database( connectionName(), false );
-    if ( !database.open() )
+    QSqlQuery *qry = MDatabase::instance()->getQuery( currentQuery, connectionName() );
+    if ( qry->lastError().isValid() || !qry->next() )
     {
-      qDebug() << metaObject()->className() << __func__ << __LINE__ << database.lastError().text();
+      qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
+      locker()->unlock();
       return result;
     }
-
-    QSqlQuery qry( currentQuery, database );
-    if ( qry.lastError().isValid() || !qry.next() )
-    {
-      qDebug() << metaObject()->className() << __func__ << __LINE__ << qry.lastError().text();
-      return result;
-    }
-    int identifier = qry.record().value( "proc_id" ).toInt();
+    int identifier = qry->record().value( "proc_id" ).toInt();
+    locker()->lockForWrite();
     result = new MProcedure;
     result->moveToThread( parent()->thread() );
     m__ExistProcedures[identifier] = result;
     result->setIdentifier( identifier );
-    result->setName( qry.record().value( "aname" ).toString() );
+    result->setName( qry->record().value( "aname" ).toString() );
     locker()->unlock();
-    qry.clear();
+    qry->clear();
+    delete qry;
+    qry = NULL;
   }
 
   return result;
@@ -129,32 +132,27 @@ QList<MProcedure *> MProcedureDBWrapper::procedures( QVariantList identifiers )
   if ( !ids.isEmpty() )
   {
     QString currentQuery = tr( "SELECT * FROM proc_tbl WHERE proc_id in (%1)" ).arg( ids );
-    QSqlDatabase database = QSqlDatabase::database( pConnectionName(), false );
-    if ( !database.open() )
-    {
-      qDebug() << metaObject()->className() << __func__ << __LINE__ << database.lastError().text();
-      locker()->unlock();
-      return result;
-    }
 
-    QSqlQuery qry( currentQuery, database );
-    if ( qry.lastError().isValid() )
+    QSqlQuery *qry = MDatabase::instance()->getQuery( currentQuery, connectionName() );
+    if ( qry->lastError().isValid() )
     {
-      qDebug() << metaObject()->className() << __func__ << __LINE__ << qry.lastError().text();
+      qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
       locker()->unlock();
       return result;
     }
-    while ( qry.next() )
+    while ( qry->next() )
     {
-      int identifier = qry.record().value( "proc_id" ).toInt();
+      int identifier = qry->record().value( "proc_id" ).toInt();
       MProcedure *procedure = new MProcedure;
       procedure->moveToThread( parent()->thread() );
       m__ExistProcedures[identifier] = procedure;
       procedure->setIdentifier( identifier );
-      procedure->setName( qry.record().value( "aname" ).toString() );
+      procedure->setName( qry->record().value( "aname" ).toString() );
       result << procedure;
     }
-    qry.clear();
+    qry->clear();
+    delete qry;
+    qry = NULL;
   }
   locker()->unlock();
 
@@ -170,25 +168,21 @@ bool MProcedureDBWrapper::searching( const QString &queryText )
   if ( maxIdQuery.isEmpty() ) maxIdQuery = tr( "SELECT max(proc_id) FROM proc_tbl" );
   else maxIdQuery = tr( "SELECT max(proc_id) FROM proc_tbl WHERE %1" ).arg( maxIdQuery );
 
-  QSqlDatabase database = QSqlDatabase::database( connectionName(), false );
-  if ( !database.open() )
+  QSqlQuery *qry = MDatabase::instance()->getQuery( maxIdQuery, connectionName() );
+  if ( qry->lastError().isValid() || !qry->next() )
   {
-    qDebug() << metaObject()->className() << __func__ << __LINE__ << database.lastError().text();
+    qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
     return false;
   }
+  int maxId = qry->record().value( 0 ).toInt();
+  qry->clear();
+  delete qry;
+  qry = NULL;
 
-  QSqlQuery qry( maxIdQuery, database );
-  if ( qry.lastError().isValid() || !qry.next() )
+  qry = MDatabase::instance()->getQuery( currentQuery, connectionName() );
+  if ( qry->lastError().isValid() )
   {
-    qDebug() << metaObject()->className() << __func__ << __LINE__ << qry.lastError().text();
-    return false;
-  }
-  int maxId = qry.record().value( 0 ).toInt();
-  qry.clear();
-
-  if ( !qry.exec( currentQuery ) || qry.lastError().isValid() )
-  {
-    qDebug() << metaObject()->className() << __func__ << __LINE__ << qry.lastError().text();
+    qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
     return false;
   }
 
@@ -210,9 +204,9 @@ bool MProcedureDBWrapper::searching( const QString &queryText )
   else
   {
     int lastFounded = -1;
-    while ( qry.next() )
+    while ( qry->next() )
     {
-      int identifier = qry.record().value( "proc_id" ).toInt();
+      int identifier = qry->record().value( "proc_id" ).toInt();
       MProcedure *procedure = m__ExistProcedures.value( identifier, NULL );
 
       int proceduresCount = pCount( (int)Founded );
@@ -257,12 +251,14 @@ bool MProcedureDBWrapper::searching( const QString &queryText )
         lastFounded++;
         pInsert( (int)Founded, procedure, lastFounded );
       }
-      procedure->setName( qry.record().value( "aname" ).toString() );
+      procedure->setName( qry->record().value( "aname" ).toString() );
     }
     //  qDebug() << metaObject()->className() << __func__ << __LINE__ << pCount( human->documents() ) << counted;
   }
   locker()->unlock();
-  qry.clear();
+  qry->clear();
+  delete qry;
+  qry = NULL;
 
   return true;
 }

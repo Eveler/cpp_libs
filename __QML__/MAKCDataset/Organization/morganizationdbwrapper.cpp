@@ -148,25 +148,21 @@ bool MOrganizationDBWrapper::searching( const QString &queryText )
   if ( maxIdQuery.isEmpty() ) maxIdQuery = tr( "SELECT max(id) FROM orgs" );
   else maxIdQuery = tr( "SELECT max(id) FROM orgs WHERE %1" ).arg( maxIdQuery );
 
-  QSqlDatabase database = QSqlDatabase::database( connectionName(), false );
-  if ( !database.open() )
+  QSqlQuery *qry = MDatabase::instance()->getQuery( maxIdQuery, connectionName() );
+  if ( qry->lastError().isValid() || !qry->next() )
   {
-    qDebug() << __func__ << __LINE__ << database.lastError().text();
+    qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
     return false;
   }
+  int maxId = qry->record().value( 0 ).toInt();
+  qry->clear();
+  delete qry;
+  qry = NULL;
 
-  QSqlQuery qry( maxIdQuery, database );
-  if ( qry.lastError().isValid() || !qry.next() )
+  qry = MDatabase::instance()->getQuery( currentQuery, connectionName() );
+  if ( qry->lastError().isValid() )
   {
-    qDebug() << __func__ << __LINE__ << qry.lastError().text();
-    return false;
-  }
-  int maxId = qry.record().value( 0 ).toInt();
-  qry.clear();
-
-  if ( !qry.exec( currentQuery ) || qry.lastError().isValid() )
-  {
-    qDebug() << __func__ << __LINE__ << qry.lastError().text();
+    qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
     return false;
   }
 
@@ -188,15 +184,15 @@ bool MOrganizationDBWrapper::searching( const QString &queryText )
   else
   {
     QVariantList humanIds;
-    while ( qry.next() )
-      humanIds << qry.record().value( "human_id" );
+    while ( qry->next() )
+      humanIds << qry->record().value( "human_id" );
     humanDBWrapper->humans( humanIds );
 
-    qry.seek( -1 );
+    qry->seek( -1 );
     int lastFounded = -1;
-    while ( qry.next() )
+    while ( qry->next() )
     {
-      int identifier = qry.record().value( "id" ).toInt();
+      int identifier = qry->record().value( "id" ).toInt();
       MOrganization *organization = m__ExistOrganizations.value( identifier, NULL );
 
       int organizationsCount = pCount( (int)Founded );
@@ -242,15 +238,17 @@ bool MOrganizationDBWrapper::searching( const QString &queryText )
         lastFounded++;
         pInsert( (int)Founded, organization, lastFounded );
       }
-      organization->setName( qry.record().value( "fullname" ) );
-      organization->setPhone( qry.record().value( "phone" ) );
-      organization->setAddress( qry.record().value( "addr" ) );
-      organization->setEmail( qry.record().value( "e-mail" ) );
-      organization->setDelegate( humanDBWrapper->human( qry.record().value( "human_id" ) ) );
+      organization->setName( qry->record().value( "fullname" ) );
+      organization->setPhone( qry->record().value( "phone" ) );
+      organization->setAddress( qry->record().value( "addr" ) );
+      organization->setEmail( qry->record().value( "e-mail" ) );
+      organization->setDelegate( humanDBWrapper->human( qry->record().value( "human_id" ) ) );
     }
   }
   locker()->unlock();
-  qry.clear();
+  qry->clear();
+  delete qry;
+  qry = NULL;
 
   return true;
 }

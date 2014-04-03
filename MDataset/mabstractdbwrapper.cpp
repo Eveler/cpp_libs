@@ -32,7 +32,7 @@ MAbstractDBWrapper::~MAbstractDBWrapper()
     int index = pIndex( (int)Selected, object );
     if ( index != -1 ) pTake( (int)Selected, index );
     delete object;
-    object = NULL;
+//    object = NULL;
   }
   while ( pCount( (int)Initiated ) > 0 )
   {

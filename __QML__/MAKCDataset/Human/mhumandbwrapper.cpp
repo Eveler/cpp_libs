@@ -166,34 +166,30 @@ MHuman * MHumanDBWrapper::human( QVariant identifier )
   {
     QString currentQuery = tr( "SELECT * FROM humans WHERE id=%1" ).arg( identifier.toInt() );
 
-    QSqlDatabase database = QSqlDatabase::database( connectionName(), false );
-    if ( !database.open() )
+    QSqlQuery *qry = MDatabase::instance()->getQuery( currentQuery, pConnectionName() );
+    if ( qry->lastError().isValid() )
     {
-      qDebug() << __func__ << __LINE__ << database.lastError().text();
+      qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
+      locker()->unlock();
       return result;
     }
-
-    QSqlQuery qry( currentQuery, database );
-    if ( qry.lastError().isValid() || !qry.next() )
-    {
-      qDebug() << __func__ << __LINE__ << qry.lastError().text();
-      return result;
-    }
-    int identifier = qry.record().value( "id" ).toInt();
+    int identifier = qry->record().value( "id" ).toInt();
+    locker()->lockForWrite();
     result = new MHuman;
     result->moveToThread( parent()->thread() );
-    locker()->lockForWrite();
     m__ExistHumans[identifier] = result;
     result->setIdentifier( identifier );
-    result->setSurname( qry.record().value( "surname" ) );
-    result->setFirstname( qry.record().value( "firstname" ) );
-    result->setLastname( qry.record().value( "lastname" ) );
-    result->setPhone( qry.record().value( "phone" ) );
-    result->setAddress( qry.record().value( "addr" ) );
-    result->setEmail( qry.record().value( "e-mail" ) );
-    result->setBirthday( qry.record().value( "birthday" ) );
+    result->setSurname( qry->record().value( "surname" ) );
+    result->setFirstname( qry->record().value( "firstname" ) );
+    result->setLastname( qry->record().value( "lastname" ) );
+    result->setPhone( qry->record().value( "phone" ) );
+    result->setAddress( qry->record().value( "addr" ) );
+    result->setEmail( qry->record().value( "e-mail" ) );
+    result->setBirthday( qry->record().value( "birthday" ) );
     locker()->unlock();
-    qry.clear();
+    qry->clear();
+    delete qry;
+    qry = NULL;
   }
 
   return result;
@@ -218,38 +214,33 @@ QList<MHuman *> MHumanDBWrapper::humans( QVariantList identifiers )
   if ( !ids.isEmpty() )
   {
     QString currentQuery = tr( "SELECT * FROM humans WHERE id in (%1)" ).arg( ids );
-    QSqlDatabase database = QSqlDatabase::database( pConnectionName(), false );
-    if ( !database.open() )
-    {
-      qDebug() << __func__ << __LINE__ << database.lastError().text();
-      locker()->unlock();
-      return result;
-    }
 
-    QSqlQuery qry( currentQuery, database );
-    if ( qry.lastError().isValid() )
+    QSqlQuery *qry = MDatabase::instance()->getQuery( currentQuery, pConnectionName() );
+    if ( qry->lastError().isValid() )
     {
-      qDebug() << __func__ << __LINE__ << qry.lastError().text();
+      qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
       locker()->unlock();
       return result;
     }
-    while ( qry.next() )
+    while ( qry->next() )
     {
-      int identifier = qry.record().value( "id" ).toInt();
+      int identifier = qry->record().value( "id" ).toInt();
       MHuman *human = new MHuman;
       human->moveToThread( parent()->thread() );
       m__ExistHumans[identifier] = human;
       human->setIdentifier( identifier );
-      human->setSurname( qry.record().value( "surname" ) );
-      human->setFirstname( qry.record().value( "firstname" ) );
-      human->setLastname( qry.record().value( "lastname" ) );
-      human->setPhone( qry.record().value( "phone" ) );
-      human->setAddress( qry.record().value( "addr" ) );
-      human->setEmail( qry.record().value( "e-mail" ) );
-      human->setBirthday( qry.record().value( "birthday" ) );
+      human->setSurname( qry->record().value( "surname" ) );
+      human->setFirstname( qry->record().value( "firstname" ) );
+      human->setLastname( qry->record().value( "lastname" ) );
+      human->setPhone( qry->record().value( "phone" ) );
+      human->setAddress( qry->record().value( "addr" ) );
+      human->setEmail( qry->record().value( "e-mail" ) );
+      human->setBirthday( qry->record().value( "birthday" ) );
       result << human;
     }
-    qry.clear();
+    qry->clear();
+    delete qry;
+    qry = NULL;
   }
   locker()->unlock();
 
@@ -267,25 +258,21 @@ bool MHumanDBWrapper::searching( const QString &queryText )
   if ( maxIdQuery.isEmpty() ) maxIdQuery = tr( "SELECT max(id) FROM humans" );
   else maxIdQuery = tr( "SELECT max(id) FROM humans WHERE %1" ).arg( maxIdQuery );
 
-  QSqlDatabase database = QSqlDatabase::database( connectionName(), false );
-  if ( !database.open() )
+  QSqlQuery *qry = MDatabase::instance()->getQuery( maxIdQuery, connectionName() );
+  if ( qry->lastError().isValid() || !qry->next() )
   {
-    qDebug() << __func__ << __LINE__ << database.lastError().text();
+    qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
     return false;
   }
+  int maxId = qry->record().value( 0 ).toInt();
+  qry->clear();
+  delete qry;
+  qry = NULL;
 
-  QSqlQuery qry( maxIdQuery, database );
-  if ( qry.lastError().isValid() || !qry.next() )
+  qry = MDatabase::instance()->getQuery( currentQuery, connectionName() );
+  if ( qry->lastError().isValid() )
   {
-    qDebug() << __func__ << __LINE__ << qry.lastError().text();
-    return false;
-  }
-  int maxId = qry.record().value( 0 ).toInt();
-  qry.clear();
-
-  if ( !qry.exec( currentQuery ) || qry.lastError().isValid() )
-  {
-    qDebug() << __func__ << __LINE__ << qry.lastError().text();
+    qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
     return false;
   }
 
@@ -307,9 +294,9 @@ bool MHumanDBWrapper::searching( const QString &queryText )
   else
   {
     int lastFounded = -1;
-    while ( qry.next() )
+    while ( qry->next() )
     {
-      int identifier = qry.record().value( "id" ).toInt();
+      int identifier = qry->record().value( "id" ).toInt();
       MHuman *human = m__ExistHumans.value( identifier, NULL );
 
       int humansCount = pCount( (int)Founded );
@@ -355,17 +342,19 @@ bool MHumanDBWrapper::searching( const QString &queryText )
         lastFounded++;
         pInsert( (int)Founded, human, lastFounded );
       }
-      human->setSurname( qry.record().value( "surname" ) );
-      human->setFirstname( qry.record().value( "firstname" ) );
-      human->setLastname( qry.record().value( "lastname" ) );
-      human->setPhone( qry.record().value( "phone" ) );
-      human->setAddress( qry.record().value( "addr" ) );
-      human->setEmail( qry.record().value( "e-mail" ) );
-      human->setBirthday( qry.record().value( "birthday" ) );
+      human->setSurname( qry->record().value( "surname" ) );
+      human->setFirstname( qry->record().value( "firstname" ) );
+      human->setLastname( qry->record().value( "lastname" ) );
+      human->setPhone( qry->record().value( "phone" ) );
+      human->setAddress( qry->record().value( "addr" ) );
+      human->setEmail( qry->record().value( "e-mail" ) );
+      human->setBirthday( qry->record().value( "birthday" ) );
     }
   }
   locker()->unlock();
-  qry.clear();
+  qry->clear();
+  delete qry;
+  qry = NULL;
 
   return true;
 }
