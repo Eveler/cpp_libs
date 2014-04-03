@@ -4,3 +4,6 @@
 [submodule "icons"]
 	path = icons
 	url = git://192.168.91.60/icons.git
+[submodule "3dparty/KDSoap"]
+	path = 3dparty/KDSoap
+	url = https://github.com/KDAB/KDSoap
