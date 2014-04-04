@@ -22,9 +22,9 @@ class DeclarLock(Base):
     """
 
     __tablename__ = "declarlocks"
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    table_name = Column(String, nullable=False)
-    table_id = Column(Integer, nullable=False)
+    id = Column(Integer, primary_key=True, autoincrement=True, index=True)
+    table_name = Column(String, nullable=False, index=True)
+    table_id = Column(Integer, nullable=False, index=True)
     # user_name = Column(String, nullable=False, server_default=text("current_user()"))
     user_name = Column(String, nullable=False)
     priority = Column(Integer, server_default=text("999"))
