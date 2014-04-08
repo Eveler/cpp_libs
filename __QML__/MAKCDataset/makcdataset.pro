@@ -41,7 +41,8 @@ SOURCES += \
     Department/mdepartmentdbwrapper.cpp \
     Department/mdepartmentdatasource.cpp \
     Direction/mdirectiondbwrapper.cpp \
-    Direction/mdirectiondatasource.cpp
+    Direction/mdirectiondatasource.cpp \
+    Service/mservicedbwrapper.cpp
 
 HEADERS += \
     makcdataset_plugin.h \
@@ -61,7 +62,8 @@ HEADERS += \
     Department/mdepartmentdbwrapper.h \
     Department/mdepartmentdatasource.h \
     Direction/mdirectiondbwrapper.h \
-    Direction/mdirectiondatasource.h
+    Direction/mdirectiondatasource.h \
+    Service/mservicedbwrapper.h
 
 OTHER_FILES = qmldir
 

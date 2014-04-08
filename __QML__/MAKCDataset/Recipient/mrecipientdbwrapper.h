@@ -7,7 +7,6 @@
 class MRecipient : public QQuickItem
 {
     Q_OBJECT
-    friend class MDocument;
     Q_PROPERTY(QVariant identifier READ identifier NOTIFY identifierChanged)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
 
