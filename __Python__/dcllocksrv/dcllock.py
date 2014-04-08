@@ -59,7 +59,7 @@ if __name__ == "__main__":
     # tests here
     from declarlocker.objects import DeclarLock
 
-    lock = DeclarLock(1, "declars", "mike")
+    lock = DeclarLock(18646, "declars", "mike")
     session.add(lock)
     session.commit()
     print(lock)
