@@ -7,3 +7,6 @@
 [submodule "3dparty/KDSoap"]
 	path = 3dparty/KDSoap
 	url = https://github.com/KDAB/KDSoap
+[submodule "3dparty/qjsonrpc"]
+	path = 3dparty/qjsonrpc
+	url = https://bitbucket.org/devonit/qjsonrpc.git
