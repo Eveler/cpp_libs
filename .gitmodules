@@ -13,3 +13,6 @@
 [submodule "__Python__/dcllocksrv/jsonrpc"]
 	path = __Python__/dcllocksrv/jsonrpc
 	url = https://github.com/NCMI/jsonrpc.git
+[submodule "__Python__/dcllocksrv/txjson-rpc"]
+	path = __Python__/dcllocksrv/txjson-rpc
+	url = https://github.com/oubiwann/txjsonrpc.git

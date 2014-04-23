@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 import random
+from sys import path
 
-from twisted.web import resource, server, wsgi
+from twisted.web import resource, server
+
+# path.insert(0, path[0]+"/jsonrpc")
+# from jsonrpc.server import ServerEvents, JSON_RPC
 
 
 try:
@@ -14,6 +18,8 @@ from twisted.internet import reactor, task
 
 
 __author__ = 'mike'
+
+PORT = 9166
 
 
 def page(arg1, arg2):
@@ -76,10 +82,66 @@ class SSEResource(resource.Resource):
 #
 # factory = pb.PBServerFactory(Echoer())
 
-root = resource.Resource()
-root.putChild('', wsgi.WSGIResource(reactor, reactor.getThreadPool(), page))
-# root.putChild('/', static.File("./static"))
-root.putChild('my_event_source', SSEResource())
-factory = server.Site(root)
-reactor.listenTCP(9166, factory)
+# root = resource.Resource()
+# root.putChild('', wsgi.WSGIResource(reactor, reactor.getThreadPool(), page))
+# # root.putChild('/', static.File("./static"))
+# root.putChild('my_event_source', SSEResource())
+# factory = server.Site(root)
+
+# class ExampleServer(ServerEvents):
+#     # inherited hooks
+#     def log(self, responses, txrequest, error):
+#         print(txrequest.code)
+#         if isinstance(responses, list):
+#             for response in responses:
+#                 msg = self._get_msg(response)
+#                 print(txrequest, msg)
+#         else:
+#             msg = self._get_msg(responses)
+#             print(txrequest, msg)
+#
+#     def findmethod(self, method, args=None, kwargs=None):
+#         if method in self.methods:
+#             return getattr(self, method)
+#         else:
+#             return None
+#
+#     # helper methods
+#     methods = set(['add', 'subtract'])
+#
+#     def _get_msg(self, response):
+#         print('response', repr(response))
+#         return ' '.join(str(x) for x in [response.id, response.result or response.error])
+#
+#     def subtract(self, a, b):
+#         return a - b
+#
+#     def add(self, a, b):
+#         return a + b
+
+
+# root = JSON_RPC().customize(ExampleServer)
+# site = server.Site(root)
+
+path.insert(0, path[0] + "/txjson-rpc")
+from txjsonrpc.web import jsonrpc
+
+
+class Example(jsonrpc.JSONRPC):
+    """An example object to be published."""
+
+    def jsonrpc_echo(self, x):
+        """Return all passed args."""
+        return x
+
+    def jsonrpc_add(self, a, b):
+        """Return sum of arguments."""
+        return a + b
+
+
+root = Example()
+site = server.Site(root)
+
+print('Listening on port %d...' % PORT)
+reactor.listenTCP(PORT, site)
 reactor.run()
