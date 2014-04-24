@@ -9,7 +9,7 @@ MainWindow::MainWindow(QWidget *parent) :
   ui->setupUi(this);
 
   client =
-      new QJsonRpcHttpClient("http://127.0.0.1:9166", this);
+      new HttpClient("http://127.0.0.1:9166", this);
 }
 
 MainWindow::~MainWindow()
@@ -20,8 +20,13 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_tBt_Echo_clicked()
 {
+  QJsonArray params;
+  params.append(546265);
+  params.append(tr("declars"));
+  params.append(tr("Савенко Михаил Юрьевич"));
+  params.append(555);
   QJsonRpcMessage response = client->sendMessageBlocking(
-        QJsonRpcMessage::createRequest("echo", tr("Hello")));
+        QJsonRpcMessage::createRequest("lock", params));
 
   if(response.type() == QJsonRpcMessage::Error){
     ui->textEdit->setText(response.errorData().toString());

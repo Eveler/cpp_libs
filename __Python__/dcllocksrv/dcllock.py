@@ -1,6 +1,9 @@
 #!/bin/env python
 # -*- coding: utf-8 -*-
+from twisted.internet import reactor
+
 from declarlocker.base import session
+from declarlocker.net import site
 
 
 try:
@@ -12,7 +15,7 @@ from logging import DEBUG, INFO, WARNING, CRITICAL, ERROR
 from optparse import OptionParser
 
 
-__author__ = 'mike'
+__author__ = 'Mike'
 
 
 def parse_args():
@@ -37,7 +40,7 @@ def set_config(config):
         #     for option in cfg.options(section):
         #         logging.debug("%s.%s = %s", section, option, cfg.get(section, option))
         if "loglevel" in cfg.options("main"):
-            logging.info("Set loggin level to '%s'", cfg.get("main", "loglevel"))
+            logging.info("Set logging level to '%s'", cfg.get("main", "loglevel"))
             logging.root.setLevel(cfg.get("main", "loglevel"))
     except NoSectionError:
         logging.critical("Wrong config file")
@@ -64,4 +67,8 @@ if __name__ == "__main__":
     session.commit()
     print(lock)
 
-    from declarlocker import net
+    PORT = 9166
+
+    print('Listening on port %d...' % PORT)
+    reactor.listenTCP(PORT, site)
+    reactor.run()

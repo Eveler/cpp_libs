@@ -10,7 +10,7 @@ from sqlalchemy.sql.expression import text
 from sqlalchemy.types import Integer, String, TIMESTAMP
 
 
-__author__ = 'mike'
+__author__ = 'Mike'
 
 Base = declarative_base()
 

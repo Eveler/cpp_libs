@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
-import random
 from sys import path
 
-from twisted.web import resource, server
+from twisted.cred.checkers import InMemoryUsernamePasswordDatabaseDontUse
+from twisted.web import server
+
 
 # path.insert(0, path[0]+"/jsonrpc")
 # from jsonrpc.server import ServerEvents, JSON_RPC
+from declarlocker.base import lockmanager
 
 
 try:
@@ -14,64 +15,88 @@ try:
 except ImportError:
     import simplejson as json
 
-from twisted.internet import reactor, task
+__author__ = 'Mike'
+
+path.insert(0, path[0] + "/txjson-rpc")
+from txjsonrpc.web import jsonrpc
 
 
-__author__ = 'mike'
+class LockJsonRPC(jsonrpc.JSONRPC):
+    """Json RPC to LockManager implementation."""
 
-PORT = 9166
+    def jsonrpc_lock(self, table_id, table_name, user_name, priority):
+        """Try to set lock. If successful, returns true"""
+        return lockmanager.set_lock(self, table_id, table_name, user_name, priority)
 
+    def jsonrpc_unlock(self):
+        """Remove lock."""
+        raise NotImplementedError(u"Не реализовано")
 
-def page(arg1, arg2):
-    return '''
-<!doctype html>
-<title>Using server-sent events</title>
-<ol id="eventlist">nothing sent yet.</ol>
-<script>
-if (!!window.EventSource) {
-  var eventList = document.getElementById("eventlist");
-  var source = new EventSource('/my_event_source');
-  source.onmessage = function(e) {
-    var newElement = document.createElement("li");
-
-    newElement.innerHTML = "message: " + e.data;
-    eventList.appendChild(newElement);
-  }
-  source.addEventListener("ping", function(e) {
-    var newElement = document.createElement("li");
-
-    var obj = JSON.parse(e.data);
-    newElement.innerHTML = "ping at " + obj.time;
-    eventList.appendChild(newElement);
-  }, false);
-  source.onerror = function(e) {
-    alert("EventSource failed.");
-    source.close();
-  };
-}
-</script>
-'''
+    def notify(self, data):
+        """Send event message to peer"""
+        raise NotImplementedError(u"Не реализовано")
 
 
-def cycle(echo):
-    # Every second, sent a "ping" event.
-    timestr = datetime.utcnow().isoformat() + "Z"
-    echo("event: ping\n")
-    echo('data: ' + json.dumps(dict(time=timestr)))
-    echo("\n\n")
+checker = InMemoryUsernamePasswordDatabaseDontUse()
+checker.addUser("user", "pass")
 
-    # Send a simple message at random intervals.
-    if random.random() < 0.1:
-        echo("data: This is a message at time {}\n\n".format(timestr))
+from txjsonrpc.auth import wrapResource
+
+# root = Example()
+root = wrapResource(LockJsonRPC(), [checker], realmName="Declar Locker")
+site = server.Site(root)
 
 
-class SSEResource(resource.Resource):
-    def render_GET(self, request):
-        request.setHeader("Content-Type", "text/event-stream")
-        lc = task.LoopingCall(cycle, request.write)
-        lc.start(1)  # repeat every second
-        request.notifyFinish().addBoth(lambda _: lc.stop())
-        return server.NOT_DONE_YET
+# def page(arg1, arg2):
+#     return '''
+# <!doctype html>
+# <title>Using server-sent events</title>
+# <ol id="eventlist">nothing sent yet.</ol>
+# <script>
+# if (!!window.EventSource) {
+#   var eventList = document.getElementById("eventlist");
+#   var source = new EventSource('/my_event_source');
+#   source.onmessage = function(e) {
+#     var newElement = document.createElement("li");
+#
+#     newElement.innerHTML = "message: " + e.data;
+#     eventList.appendChild(newElement);
+#   }
+#   source.addEventListener("ping", function(e) {
+#     var newElement = document.createElement("li");
+#
+#     var obj = JSON.parse(e.data);
+#     newElement.innerHTML = "ping at " + obj.time;
+#     eventList.appendChild(newElement);
+#   }, false);
+#   source.onerror = function(e) {
+#     alert("EventSource failed.");
+#     source.close();
+#   };
+# }
+# </script>
+# '''
+
+
+# def cycle(echo):
+#     # Every second, sent a "ping" event.
+#     timestr = datetime.utcnow().isoformat() + "Z"
+#     echo("event: ping\n")
+#     echo('data: ' + json.dumps(dict(time=timestr)))
+#     echo("\n\n")
+#
+#     # Send a simple message at random intervals.
+#     if random.random() < 0.1:
+#         echo("data: This is a message at time {}\n\n".format(timestr))
+
+
+# class SSEResource(resource.Resource):
+#     def render_GET(self, request):
+#         request.setHeader("Content-Type", "text/event-stream")
+#         lc = task.LoopingCall(cycle, request.write)
+#         lc.start(1)  # repeat every second
+#         request.notifyFinish().addBoth(lambda _: lc.stop())
+#         return server.NOT_DONE_YET
 
 
 # class Echoer(pb.Root):
@@ -122,26 +147,3 @@ class SSEResource(resource.Resource):
 
 # root = JSON_RPC().customize(ExampleServer)
 # site = server.Site(root)
-
-path.insert(0, path[0] + "/txjson-rpc")
-from txjsonrpc.web import jsonrpc
-
-
-class Example(jsonrpc.JSONRPC):
-    """An example object to be published."""
-
-    def jsonrpc_echo(self, x):
-        """Return all passed args."""
-        return x
-
-    def jsonrpc_add(self, a, b):
-        """Return sum of arguments."""
-        return a + b
-
-
-root = Example()
-site = server.Site(root)
-
-print('Listening on port %d...' % PORT)
-reactor.listenTCP(PORT, site)
-reactor.run()
