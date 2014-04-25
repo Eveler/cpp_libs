@@ -1,6 +1,8 @@
 #!/bin/env python
 # -*- coding: utf-8 -*-
 from twisted.internet import reactor
+from twisted.python import log
+from twisted.python.logfile import DailyLogFile
 
 from declarlocker.base import session
 from declarlocker.net import site
@@ -24,8 +26,6 @@ def parse_args():
     parser = OptionParser(usage)
     parser.add_option("--config", help="configuration file", default="/etc/dcllocksev.ini")
     options, args = parser.parse_args()
-    logging.debug("options = %s, args = %s", options, args)
-    logging.info("config = %s" % options.config)
     return options.config
 
 
@@ -39,6 +39,9 @@ def set_config(config):
         # for section in cfg.sections():
         #     for option in cfg.options(section):
         #         logging.debug("%s.%s = %s", section, option, cfg.get(section, option))
+        if "logfile" in cfg.options("main"):
+            log.startLogging(DailyLogFile.fromFullPath(cfg.get("main", "logfile")))
+        logging.info("config = %s" % config)
         if "loglevel" in cfg.options("main"):
             logging.info("Set logging level to '%s'", cfg.get("main", "loglevel"))
             logging.root.setLevel(cfg.get("main", "loglevel"))
@@ -69,6 +72,5 @@ if __name__ == "__main__":
 
     PORT = 9166
 
-    print('Listening on port %d...' % PORT)
     reactor.listenTCP(PORT, site)
     reactor.run()

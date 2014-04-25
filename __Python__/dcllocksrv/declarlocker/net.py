@@ -2,6 +2,7 @@
 from sys import path
 
 from twisted.cred.checkers import InMemoryUsernamePasswordDatabaseDontUse
+from twisted.python import log
 from twisted.web import server
 
 
@@ -23,9 +24,11 @@ from txjsonrpc.web import jsonrpc
 
 class LockJsonRPC(jsonrpc.JSONRPC):
     """Json RPC to LockManager implementation."""
+    user_name = None
 
     def jsonrpc_lock(self, table_id, table_name, user_name, priority):
         """Try to set lock. If successful, returns true"""
+        self.user_name = user_name
         return lockmanager.set_lock(self, table_id, table_name, user_name, priority)
 
     def jsonrpc_unlock(self):
@@ -46,6 +49,8 @@ from txjsonrpc.auth import wrapResource
 root = wrapResource(LockJsonRPC(), [checker], realmName="Declar Locker")
 site = server.Site(root)
 
+# observer = log.PythonLoggingObserver()
+# observer.start()
 
 # def page(arg1, arg2):
 #     return '''
