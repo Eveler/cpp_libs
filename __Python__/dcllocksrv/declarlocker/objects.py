@@ -27,7 +27,7 @@ class DeclarLock(Base):
     table_id = Column(Integer, nullable=False, index=True)
     # user_name = Column(String, nullable=False, server_default=text("current_user()"))
     user_name = Column(String, nullable=False)
-    priority = Column(Integer, server_default=text("999"))
+    priority = Column(Integer, server_default=text("999"), index=True)
     # placed = Column(TIMESTAMP, server_default=text("now()"))
     placed = Column(TIMESTAMP)
 

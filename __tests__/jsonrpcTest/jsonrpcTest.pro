@@ -18,9 +18,9 @@ HEADERS  += mainwindow.h
 
 FORMS    += mainwindow.ui
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../3dparty/lib/ -lqjsonrpc1
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../3dparty/lib/ -lqjsonrpc1d
-else:unix: LIBS += -L$$PWD/../../3dparty/lib/ -lqjsonrpc1
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../bin_qt5/ -lMDclLock
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../bin_qt5/ -lMDclLockd
+else:unix: LIBS += -L$$PWD/../../bin_qt5/ -lMDclLock
 
-INCLUDEPATH += $$PWD/../../3dparty/qjsonrpc/src
-DEPENDPATH += $$PWD/../../3dparty/qjsonrpc/src
+INCLUDEPATH += $$PWD/../../include
+DEPENDPATH += $$PWD/../../include

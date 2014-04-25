@@ -3,6 +3,7 @@ import logging
 
 from sqlalchemy.engine import create_engine
 from sqlalchemy.schema import MetaData
+from twisted.python import log
 
 from declarlocker.objects import Base, DeclarLock
 
@@ -26,34 +27,46 @@ class LockManager:
         :rtype : bool
         """
         locks = session.query(DeclarLock).filter(DeclarLock.table_id == table_id) \
-            .filter(DeclarLock.priority <= priority).all()
+            .filter(DeclarLock.table_name == table_name).filter(DeclarLock.priority <= priority).all()
 
         for instance in locks:
-            logging.debug("Found %s" % instance)
+            logging.debug("Found %s", instance)
 
         if len(locks) > 0:
             return False
 
         for instance in session.query(DeclarLock).filter(DeclarLock.table_id == table_id) \
-                .filter(DeclarLock.priority > priority).all():
-            for l, o in self.clients[instance.user_name]:
+                .filter(DeclarLock.table_name == table_name).filter(DeclarLock.priority > priority).all():
+            for l, o in self.clients:
                 if l == instance:
-                    logging.debug("Notifying client %s to unlock %s. Deleting that lock" % (o, instance))
+                    logging.info("Notifying client %s to unlock %s.", o, instance)
                     o.notify(instance.table_id)
-                    session.delete(instance)
-                    del instance
 
         lock = DeclarLock(table_id, table_name, user, priority)
         session.add(lock)
         session.commit()
         self.clients.append([lock, obj])
-        logging.info("Added %s" % lock)
+        logging.info("Added %s", lock)
         return True
+
+    def unlock(self, table_id, table_name):
+        """
+        Delete lock
+        """
+        for instance in session.query(DeclarLock).filter(DeclarLock.table_id == table_id) \
+                .filter(DeclarLock.table_name == table_name).all():
+            for l, o in self.clients:
+                if l == instance:
+                    self.clients.remove([l, o])
+                    logging.info("Deleting lock %s.", instance)
+                    session.delete(instance)
+                    session.commit()
+                    del instance
 
 
 metadata = MetaData()
 # engine = create_engine('sqlite:///:memory:', echo=True)
-engine = create_engine('sqlite:///:memory:')
+engine = create_engine('sqlite:///:memory:', echo=(logging.root.level == logging.DEBUG))
 Base.metadata.create_all(engine)
 from sqlalchemy.orm import sessionmaker
 

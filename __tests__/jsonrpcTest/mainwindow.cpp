@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QJsonDocument>
+#include "mdcllock.h"
 
 MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent),
@@ -20,31 +20,16 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_tBt_Echo_clicked()
 {
-  QJsonArray params;
-  params.append(546265);
-  params.append(tr("declars"));
-  params.append(tr("Савенко Михаил Юрьевич"));
-  params.append(555);
-  QJsonRpcMessage response = client->sendMessageBlocking(
-        QJsonRpcMessage::createRequest("lock", params));
-
-  if(response.type() == QJsonRpcMessage::Error){
-    ui->textEdit->setText(response.errorData().toString());
-  }else{
-    QJsonDocument doc(response.toObject());
-    ui->textEdit->setText(doc.toJson());
-    ui->textEdit->append("\n======================================\n");
-    ui->textEdit->append(response.result().toString());
-  }
+  MDclLock::lock(546265, "declars", tr("Савенко Михаил Юрьевич"), "mike", 999);
 }
 
 void MainWindow::on_tBt_Add_clicked()
 {
   QJsonArray params;
-  params.append(1);
-  params.append(tr("2"));
+  params.append(546265);
+  params.append(tr("declars"));
   QJsonRpcMessage response = client->sendMessageBlocking(
-        QJsonRpcMessage::createRequest("add", params));
+        QJsonRpcMessage::createRequest("unlock", params));
 
   if(response.type() == QJsonRpcMessage::Error){
     ui->textEdit->setText(response.errorData().toString());
@@ -58,22 +43,5 @@ void MainWindow::on_tBt_Add_clicked()
     ui->textEdit->append(response.result().toVariant().toString());
     ui->textEdit->append(tr("isArray: %1").arg(doc.isArray()));
     ui->textEdit->append(tr("isEmpty: %1").arg(doc.isEmpty()));
-  }
-
-  while(!params.isEmpty()) params.removeLast();
-  params.append(1);
-  params.append(2);
-  response = client->sendMessageBlocking(
-        QJsonRpcMessage::createRequest("add", params));
-
-  if(response.type() == QJsonRpcMessage::Error){
-    ui->textEdit->setText(response.errorData().toString());
-    ui->textEdit->append(response.errorMessage());
-    ui->textEdit->append(QJsonDocument(response.toObject()).toJson());
-  }else{
-    QJsonDocument doc(response.toObject());
-    ui->textEdit->append(doc.toJson());
-    ui->textEdit->append("\n======================================\n");
-    ui->textEdit->append(response.result().toVariant().toString());
   }
 }

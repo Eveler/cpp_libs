@@ -31,9 +31,9 @@ class LockJsonRPC(jsonrpc.JSONRPC):
         self.user_name = user_name
         return lockmanager.set_lock(self, table_id, table_name, user_name, priority)
 
-    def jsonrpc_unlock(self):
+    def jsonrpc_unlock(self, table_id, table_name):
         """Remove lock."""
-        raise NotImplementedError(u"Не реализовано")
+        lockmanager.unlock(table_id, table_name)
 
     def notify(self, data):
         """Send event message to peer"""
@@ -49,8 +49,6 @@ from txjsonrpc.auth import wrapResource
 root = wrapResource(LockJsonRPC(), [checker], realmName="Declar Locker")
 site = server.Site(root)
 
-# observer = log.PythonLoggingObserver()
-# observer.start()
 
 # def page(arg1, arg2):
 #     return '''
