@@ -15,21 +15,33 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="1" column="0">
+    <item row="0" column="0" colspan="3">
+     <widget class="QGroupBox" name="groupBox">
+      <property name="title">
+       <string>Ответы сервера</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QTextEdit" name="tEdit_Resposes"/>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="2" column="0">
      <widget class="QToolButton" name="tBt_Echo">
       <property name="text">
        <string>echo</string>
       </property>
      </widget>
     </item>
-    <item row="1" column="1">
+    <item row="2" column="1">
      <widget class="QToolButton" name="tBt_Add">
       <property name="text">
        <string>1 + 2 =</string>
       </property>
      </widget>
     </item>
-    <item row="1" column="2">
+    <item row="2" column="2" rowspan="2">
      <spacer name="horizontalSpacer">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
@@ -42,8 +54,17 @@
       </property>
      </spacer>
     </item>
-    <item row="0" column="0" colspan="3">
-     <widget class="QTextEdit" name="textEdit"/>
+    <item row="1" column="0" colspan="3">
+     <widget class="QGroupBox" name="groupBox_2">
+      <property name="title">
+       <string>Ошибки</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QTextEdit" name="tEdit_Errors"/>
+       </item>
+      </layout>
+     </widget>
     </item>
    </layout>
   </widget>

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import logging
 from sys import path
 
 from twisted.cred.checkers import InMemoryUsernamePasswordDatabaseDontUse
@@ -30,6 +31,12 @@ class LockJsonRPC(jsonrpc.JSONRPC):
         """Try to set lock. If successful, returns true"""
         self.user_name = user_name
         return lockmanager.set_lock(self, table_id, table_name, user_name, priority)
+
+    def jsonrpc_locked_by(self, table_id, table_name):
+        return lockmanager.locked_by(table_id, table_name)
+
+    def jsonrpc_is_unlock_need(self, table_id, table_name):
+        raise NotImplementedError(u"Не реализовано")
 
     def jsonrpc_unlock(self, table_id, table_name):
         """Remove lock."""

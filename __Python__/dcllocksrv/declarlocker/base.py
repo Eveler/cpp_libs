@@ -49,6 +49,12 @@ class LockManager:
         logging.info("Added %s", lock)
         return True
 
+    def locked_by(self, table_id, table_name):
+        user_name = session.query(DeclarLock).filter(DeclarLock.table_id == table_id) \
+            .filter(DeclarLock.table_name == table_name).first().user_name
+        logging.debug("locked_by = %s", user_name)
+        return user_name
+
     def unlock(self, table_id, table_name):
         """
         Delete lock

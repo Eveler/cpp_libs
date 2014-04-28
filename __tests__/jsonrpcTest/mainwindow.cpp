@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "mdcllock.h"
+#include <QUrl>
 
 MainWindow::MainWindow(QWidget *parent) :
   QMainWindow(parent),
@@ -8,40 +9,29 @@ MainWindow::MainWindow(QWidget *parent) :
 {
   ui->setupUi(this);
 
-  client =
-      new HttpClient("http://127.0.0.1:9166", this);
+  lock = MDclLock::instance();
+  connect(lock, SIGNAL(error(QString)), SLOT(showError(QString)));
+  MDclLock::setLogin(QUrl("http://127.0.0.1:9166"), tr("user"), tr("pass"));
 }
 
 MainWindow::~MainWindow()
 {
-  delete client;
   delete ui;
 }
 
 void MainWindow::on_tBt_Echo_clicked()
 {
-  MDclLock::lock(546265, "declars", tr("Савенко Михаил Юрьевич"), "mike", 999);
+  bool res = MDclLock::lock(546265, tr("declars"),
+                            tr("Савенко Михаил Юрьевич"), 999);
+  ui->tEdit_Resposes->append(tr("%1").arg(res?"true":"false"));
 }
 
 void MainWindow::on_tBt_Add_clicked()
 {
-  QJsonArray params;
-  params.append(546265);
-  params.append(tr("declars"));
-  QJsonRpcMessage response = client->sendMessageBlocking(
-        QJsonRpcMessage::createRequest("unlock", params));
+  MDclLock::unlock(546265, "declars");
+}
 
-  if(response.type() == QJsonRpcMessage::Error){
-    ui->textEdit->setText(response.errorData().toString());
-    ui->textEdit->append(response.errorMessage());
-    ui->textEdit->append(QJsonDocument(response.toObject()).toJson());
-    ui->textEdit->append("\n**************************************\n");
-  }else{
-    QJsonDocument doc(response.toObject());
-    ui->textEdit->setText(doc.toJson());
-    ui->textEdit->append("\n======================================\n");
-    ui->textEdit->append(response.result().toVariant().toString());
-    ui->textEdit->append(tr("isArray: %1").arg(doc.isArray()));
-    ui->textEdit->append(tr("isEmpty: %1").arg(doc.isEmpty()));
-  }
+void MainWindow::showError(const QString &str)
+{
+  ui->tEdit_Errors->append(str);
 }

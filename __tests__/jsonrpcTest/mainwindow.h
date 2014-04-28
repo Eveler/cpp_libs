@@ -7,6 +7,7 @@ namespace Ui {
 class MainWindow;
 }
 
+class MDclLock;
 class MainWindow : public QMainWindow
 {
   Q_OBJECT
@@ -17,12 +18,13 @@ public:
 
 private slots:
   void on_tBt_Echo_clicked();
-
   void on_tBt_Add_clicked();
+  void showError(const QString &str);
 
 private:
   Ui::MainWindow *ui;
 
+  MDclLock *lock;
 };
 
 #endif // MAINWINDOW_H
