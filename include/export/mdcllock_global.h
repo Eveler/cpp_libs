@@ -1,0 +1,12 @@
+#ifndef MDCLLOCK_GLOBAL_H
+#define MDCLLOCK_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(MDCLLOCK_LIBRARY)
+#  define MDCLLOCKSHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define MDCLLOCKSHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // MDCLLOCK_GLOBAL_H

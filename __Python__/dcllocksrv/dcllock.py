@@ -1,6 +1,9 @@
 #!/bin/env python
 # -*- coding: utf-8 -*-
-from declarlocker.base import session
+from logging.handlers import TimedRotatingFileHandler
+from twisted.internet import reactor
+from twisted.python import log
+from twisted.python.logfile import DailyLogFile
 
 
 try:
@@ -8,11 +11,11 @@ try:
 except ImportError:
     from configparser import SafeConfigParser, NoSectionError
 import logging
-from logging import DEBUG, INFO, WARNING, CRITICAL, ERROR
+from logging import DEBUG, INFO, WARNING, CRITICAL, ERROR, Formatter
 from optparse import OptionParser
 
 
-__author__ = 'mike'
+__author__ = 'Mike'
 
 
 def parse_args():
@@ -21,8 +24,6 @@ def parse_args():
     parser = OptionParser(usage)
     parser.add_option("--config", help="configuration file", default="/etc/dcllocksev.ini")
     options, args = parser.parse_args()
-    logging.debug("options = %s, args = %s", options, args)
-    logging.info("config = %s" % options.config)
     return options.config
 
 
@@ -36,8 +37,16 @@ def set_config(config):
         # for section in cfg.sections():
         #     for option in cfg.options(section):
         #         logging.debug("%s.%s = %s", section, option, cfg.get(section, option))
+        observer = log.PythonLoggingObserver()
+        observer.start()
+        if "logfile" in cfg.options("main"):
+            # log.startLogging(DailyLogFile.fromFullPath(cfg.get("main", "logfile")))
+            handler = TimedRotatingFileHandler(cfg.get("main", "logfile"), when='D', backupCount=5)
+            handler.setFormatter(Formatter('%(asctime)s %(module)s(%(lineno)d): %(levelname)s: %(message)s'))
+            logging.root.addHandler(handler)
+        logging.info("config = %s" % config)
         if "loglevel" in cfg.options("main"):
-            logging.info("Set loggin level to '%s'", cfg.get("main", "loglevel"))
+            logging.info("Set logging level to '%s'", cfg.get("main", "loglevel"))
             logging.root.setLevel(cfg.get("main", "loglevel"))
     except NoSectionError:
         logging.critical("Wrong config file")
@@ -45,7 +54,7 @@ def set_config(config):
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=INFO, format='%(asctime)s %(levelname)s: %(module)s(%(lineno)d): %(message)s')
+    logging.basicConfig(level=INFO, format='%(asctime)s %(module)s(%(lineno)d): %(levelname)s: %(message)s')
     logging.root.name = "dcllocksrv"
     logging.addLevelName(DEBUG, "debug")
     logging.addLevelName(INFO, "info")
@@ -56,6 +65,9 @@ if __name__ == "__main__":
 
     set_config(parse_args())
 
+    from declarlocker.base import session
+    from declarlocker.net import site
+
     # tests here
     from declarlocker.objects import DeclarLock
 
@@ -64,4 +76,7 @@ if __name__ == "__main__":
     session.commit()
     print(lock)
 
-    from declarlocker import net
+    PORT = 9166
+
+    reactor.listenTCP(PORT, site)
+    reactor.run()

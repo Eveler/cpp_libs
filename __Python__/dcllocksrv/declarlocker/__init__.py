@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
 
-__author__ = 'mike'
+__author__ = 'Mike'
 
 from . import *
