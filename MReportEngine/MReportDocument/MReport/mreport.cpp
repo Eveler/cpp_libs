@@ -10,7 +10,7 @@
 #include <QDomDocument>
 #include <QStringList>
 
-#include <QDebug>
+#include "amslogger.h"
 
 
 MReportDocument * MReport::load( const QString &filePath, QString *errorStr, QObject *parent )
@@ -148,6 +148,7 @@ void MReport::load( MReportDocument *reportDocument )
   reportDocument->setBody( f.readAll() );
   f.close();
 
+//  LogDebug() << "Report configuration file parsing:" << reportDocument->fileName();
   f.setFileName( reportDocument->fileName() );
   f.open( QFile::ReadOnly | QFile::Text );
   reportDocument->setLastError( parse( f.readAll(), reportDocument ) );
@@ -380,6 +381,8 @@ QString MReport::keys( const QDomNode &tag, MReportDocument *reportDocument )
     else
       addError( QObject::tr( "ключ '%1' имеет неверный тип [%2]" ).arg(
                   keyName, keySourceType ), result );
+
+//    LogDebug() << keyName << kt;
 
     if ( keyDataType == QObject::tr( "String" ) ) dt = MReportKey::DT_String;
     else if ( keyDataType == QObject::tr( "StringList" ) ) dt = MReportKey::DT_StringList;

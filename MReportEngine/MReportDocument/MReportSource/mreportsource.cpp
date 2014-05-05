@@ -169,6 +169,10 @@ QVariant MReportSource::executeQuery( const QString &query )
     if ( db.open() )
     {
       QList<QVariant> buf = QList<QVariant>();
+//      LogDebug() << p->m__Host;
+//      LogDebug() << p->m__Port;
+//      LogDebug() << p->m__DatabaseName;
+//      LogDebug() << p->m__UserName;
       LogDebug()<<query;
       QSqlQuery qry = db.exec( query );
       if ( !db.lastError().isValid() &&

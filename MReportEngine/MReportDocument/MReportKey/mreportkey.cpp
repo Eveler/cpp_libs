@@ -3,11 +3,12 @@
 #include "mreportkey_p.h"
 #include "mreportdocument.h"
 #include "mfccore.h"
+#include "mucalculator.h"
 
 #include <QDate>
 #include <QStringList>
 
-#include <QDebug>
+#include "amslogger.h"
 
 
 MReportKey::~MReportKey()
@@ -160,7 +161,7 @@ QString MReportKey::data() const
       else if ( data.type() == QVariant::UInt )
         value = QString::number( data.toUInt() );
       else if ( data.type() == QVariant::Double )
-        value = QString::number( data.toDouble() );
+        value = QString::number( muCalculator::round( data.toDouble(), 2 ) );
       else if ( data.type() == QVariant::LongLong )
         value = QString::number( data.toLongLong() );
       else if ( data.type() == QVariant::ULongLong )
@@ -222,7 +223,7 @@ QString MReportKey::data() const
   else if ( p->m__DT == DT_Integer )
     result = QString::number( data.toInt() );
   else if ( p->m__DT == DT_Double )
-    result = QString::number( data.toDouble() );
+    result = QString::number( muCalculator::round( data.toDouble(), 2 ) );
   else
   {
     if ( data.type() == QVariant::String )
@@ -236,7 +237,7 @@ QString MReportKey::data() const
     else if ( data.type() == QVariant::Int )
       result = QString::number( data.toInt() );
     else if ( data.type() == QVariant::Double )
-      result = QString::number( data.toDouble() );
+      result = QString::number( muCalculator::round( data.toDouble(), 2 ) );
   }
 
 //  qDebug() << __FILE__ << __LINE__ << name() << result;

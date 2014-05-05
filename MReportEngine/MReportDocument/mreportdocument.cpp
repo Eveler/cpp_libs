@@ -7,7 +7,7 @@
 #include <QFile>
 #include <QStringList>
 
-#include <QDebug>
+#include "amslogger.h"
 
 
 MReportDocument::~MReportDocument()
@@ -249,6 +249,9 @@ QString MReportDocument::exec()
 
   if ( firstParameter != NULL )
   {
+    if ( !firstParameter->hasNext() )
+      LogDebug() << "Repeater has an empty result!";
+
     while ( firstParameter->hasNext() )
     {
       firstParameter->next();
@@ -264,6 +267,7 @@ QString MReportDocument::exec()
       foreach ( MReportDocument *document, p->m__ChildDocuments )
       {
         MReportKey *key = p->m__DocumentKey[document];
+//        LogDebug() << "Execute attachment:" << key->name();
         html = html.replace( key->name(), document->exec() );
       }
       result << html;
@@ -283,6 +287,7 @@ QString MReportDocument::exec()
     foreach ( MReportDocument *document, p->m__ChildDocuments )
     {
       MReportKey *key = p->m__DocumentKey[document];
+//      LogDebug() << "Execute attachment:" << key->name();
       html = html.replace( key->name(), document->exec() );
     }
     result << html;

@@ -2,10 +2,11 @@
 
 #include "mreportparameter_p.h"
 #include "mreportdocument.h"
+#include "mucalculator.h"
 
 #include <QDate>
 
-#include <QDebug>
+#include "amslogger.h"
 
 
 MReportParameter::~MReportParameter()
@@ -192,7 +193,7 @@ QVariant MReportParameter::data() const
         else if ( data.type() == QVariant::UInt )
           value = QString::number( data.toUInt() );
         else if ( data.type() == QVariant::Double )
-          value = QString::number( data.toDouble() );
+          value = QString::number( muCalculator::round( data.toDouble(), 2 ) );
         else if ( data.type() == QVariant::LongLong )
           value = QString::number( data.toLongLong() );
         else if ( data.type() == QVariant::ULongLong )
@@ -219,7 +220,7 @@ QVariant MReportParameter::data() const
       else if ( data.type() == QVariant::UInt )
         value = QString::number( data.toUInt() );
       else if ( data.type() == QVariant::Double )
-        value = QString::number( data.toDouble() );
+        value = QString::number( muCalculator::round( data.toDouble(), 2 ) );
       else if ( data.type() == QVariant::LongLong )
         value = QString::number( data.toLongLong() );
       else if ( data.type() == QVariant::ULongLong )

@@ -60,7 +60,8 @@ win32 {
 LIB_LIST = \
     -lMFCCore \
     -lquazip \
-    -lAMSLogger
+    -lAMSLogger \
+    -lmuCalculator
 
 greaterThan( QT_MAJOR_VERSION, 4 ) {
   DESTDIR = ../bin_qt5

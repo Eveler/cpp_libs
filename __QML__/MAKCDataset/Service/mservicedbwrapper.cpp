@@ -173,41 +173,12 @@ QList<MService *> MServiceDBWrapper::services( QVariantList identifiers )
   QList<MService *> result;
 
   locker()->lockForWrite();
-  QString ids;
   foreach ( QVariant identifier, identifiers )
   {
     if ( !identifier.isValid() || identifier.toInt() == 0 ) continue;
     MService *service = m__ExistServices.value( identifier.toInt(), NULL );
 
-    if ( service == NULL )
-      ids += ( !ids.isEmpty() ? ", " : "" )+identifier.toString();
-    else result << service;
-  }
-
-  if ( !ids.isEmpty() )
-  {
-    QString currentQuery = tr( "SELECT srvs.*, srvn.srvname FROM ctrldatesrvs srvs, service_names srvn WHERE srvs.srv_name_id=srvn.id AND srvs.id in (%1)" ).arg( ids );
-
-    QSqlQuery *qry = MDatabase::instance()->getQuery( currentQuery, connectionName() );
-    if ( qry->lastError().isValid() )
-    {
-      qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
-      locker()->unlock();
-      return result;
-    }
-    while ( qry->next() )
-    {
-      int identifier = qry->record().value( "id" ).toInt();
-      MService *service = new MService;
-      service->moveToThread( parent()->thread() );
-      m__ExistServices[identifier] = service;
-      service->setIdentifier( identifier );
-      service->setName( qry->record().value( "aname" ).toString() );
-      result << service;
-    }
-    qry->clear();
-    delete qry;
-    qry = NULL;
+    if ( service != NULL ) result << service;
   }
   locker()->unlock();
 
@@ -216,14 +187,27 @@ QList<MService *> MServiceDBWrapper::services( QVariantList identifiers )
 
 bool MServiceDBWrapper::searching( const QString &queryText )
 {
-  QString currentQuery = queryText;
-  if ( currentQuery.isEmpty() ) currentQuery = tr( "SELECT srvs.*, srvn.srvname FROM ctrldatesrvs srvs, service_names srvn"
-                                                   " WHERE srvs.srv_name_id=srvn.id ORDER BY srvs.id" );
-  else currentQuery = tr( "SELECT srvs.*, srvn.srvname FROM ctrldatesrvs srvs, service_names srvn"
-                          " WHERE srvs.srv_name_id=srvn.id AND %1 ORDER BY srvs.id" ).arg( currentQuery );
-  QString maxIdQuery = queryText;
-  if ( maxIdQuery.isEmpty() ) maxIdQuery = tr( "SELECT max(srvs.id) FROM ctrldatesrvs srvs, service_names srvn WHERE srvs.srv_name_id=srvn.id" );
-  else maxIdQuery = tr( "SELECT max(srvs.id) FROM ctrldatesrvs srvs, service_names srvn WHERE srvs.srv_name_id=srvn.id AND %1" ).arg( maxIdQuery );
+  Q_UNUSED(queryText)
+
+  return true;
+}
+
+bool MServiceDBWrapper::searching( MService *parentService )
+{
+  QString currentQuery;
+  if ( parentService == NULL )
+    currentQuery = tr( "SELECT srvs.*, srvn.srvname FROM ctrldatesrvs srvs, service_names srvn"
+                       " WHERE srvs.srv_name_id=srvn.id AND srvs.root=%1 ORDER BY srvs.id" ).arg( parentService->identifier().toString() );
+  else
+    currentQuery = tr( "SELECT srvs.*, srvn.srvname FROM ctrldatesrvs srvs, service_names srvn"
+                       " WHERE srvs.srv_name_id=srvn.id AND (srvs.root IS NULL OR srvs.root=0 OR srvs.id=srvs.root) ORDER BY srvs.id" );
+  QString maxIdQuery;
+  if ( parentService == NULL )
+    maxIdQuery = tr( "SELECT max(srvs.id) FROM ctrldatesrvs srvs, service_names srvn WHERE srvs.srv_name_id=srvn.id"
+                     " AND srvs.root=%1" ).arg( parentService->identifier().toString() );
+  else
+    maxIdQuery = tr( "SELECT max(srvs.id) FROM ctrldatesrvs srvs, service_names srvn WHERE srvs.srv_name_id=srvn.id"
+                     " AND (srvs.root IS NULL OR srvs.root=0 OR srvs.id=srvs.root)" );
 
   QSqlQuery *qry = MDatabase::instance()->getQuery( maxIdQuery, connectionName() );
   if ( qry->lastError().isValid() || !qry->next() )
@@ -247,16 +231,28 @@ bool MServiceDBWrapper::searching( const QString &queryText )
 
   if ( maxId == 0 )
   {
-    while ( pCount( (int)Founded ) > 0 )
-    {
-      MService *oldService = qobject_cast<MService *>( pTake( (int)Founded, 0 ) );
-
-      if ( oldService->externalLinksCount() == 0 && pIndex( (int)Initiated, oldService ) == -1 )
+    if ( parentService == NULL )
+      while ( pCount( (int)Founded ) > 0 )
       {
-        m__ExistServices.remove( oldService->identifier().toInt() );
-        connect( this, SIGNAL(aboutToReleaseOldResources()), oldService, SLOT(deleteLater()) );
+        MService *oldService = qobject_cast<MService *>( pTake( (int)Founded, 0 ) );
+
+        if ( oldService->externalLinksCount() == 0 && pIndex( (int)Initiated, oldService ) == -1 )
+        {
+          m__ExistServices.remove( oldService->identifier().toInt() );
+          connect( this, SIGNAL(aboutToReleaseOldResources()), oldService, SLOT(deleteLater()) );
+        }
       }
-    }
+    else
+      while ( pCount( parentService->subservices() ) )
+      {
+        MService *oldService = qobject_cast<MService *>( pTake( parentService->subservices(), 0 ) );
+
+        if ( oldService->externalLinksCount() == 0 && pIndex( (int)Initiated, oldService ) == -1 )
+        {
+          m__ExistServices.remove( oldService->identifier().toInt() );
+          connect( this, SIGNAL(aboutToReleaseOldResources()), oldService, SLOT(deleteLater()) );
+        }
+      }
   }
   else
   {
@@ -316,8 +312,6 @@ bool MServiceDBWrapper::searching( const QString &queryText )
   qry->clear();
   delete qry;
   qry = NULL;
-
-  return true;
 }
 
 bool MServiceDBWrapper::initiating()
@@ -329,11 +323,6 @@ bool MServiceDBWrapper::saving( QObject *object )
 {
   Q_UNUSED(object)
   return true;
-}
-
-void MServiceDBWrapper::pSearching( QString queryText )
-{
-
 }
 /*
  * End class definition: *[ MServiceDBWrapper ]*

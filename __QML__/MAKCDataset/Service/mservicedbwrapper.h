@@ -82,15 +82,15 @@ class MServiceDBWrapper : public MAbstractDBWrapper
 
 
   protected:
+    void job( int objectiveType, const QVariant &objectiveValue );
     bool searching( const QString &queryText );
+    bool searching( MService *parentService );
     bool initiating();
     bool saving( QObject *object );
 
 
   private:
     QHash<int, MService *> m__ExistServices;
-
-    void pSearching( QString queryText );
 };
 
 #endif // MSERVICEDBWRAPPER_H
