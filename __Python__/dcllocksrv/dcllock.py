@@ -66,7 +66,7 @@ if __name__ == "__main__":
     set_config(parse_args())
 
     from declarlocker.base import session
-    from declarlocker.net import site
+    from declarlocker.net import site, CheckConnectionFactory
 
     # tests here
     from declarlocker.objects import DeclarLock
@@ -79,4 +79,5 @@ if __name__ == "__main__":
     PORT = 9166
 
     reactor.listenTCP(PORT, site)
+    reactor.listenTCP(PORT+1, CheckConnectionFactory())
     reactor.run()

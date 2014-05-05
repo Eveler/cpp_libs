@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
+from uuid import UUID, uuid4
 
 from sqlalchemy.engine import create_engine
 from sqlalchemy.schema import MetaData
@@ -16,9 +17,34 @@ class LockManager:
     Manage DeclarLock instances
     """
     clients = []
+    registered = []
 
     def __init__(self):
         pass
+
+    def register(self, obj):
+        uid = uuid4()
+        obj.set_uid(uid.__str__())
+        self.registered.append(uid.__str__())
+        logging.debug("Registered client uid = %s", uid)
+        return uid.__str__()
+
+    def is_registered(self, uid):
+        return uid in self.registered
+
+    def unregister(self, uid):
+        c = []
+        for l, o in self.clients:
+            if o.uid == uid:
+                logging.info("Deleting lock %s.", l)
+                c.append(o)
+                session.delete(l)
+                session.commit()
+                self.clients.remove([l, o])
+        for o in c:
+            o.set_uid(None)
+        self.registered.remove(uid)
+
 
     def set_lock(self, obj, table_id, table_name, user, priority):
         """
@@ -63,11 +89,10 @@ class LockManager:
                 .filter(DeclarLock.table_name == table_name).all():
             for l, o in self.clients:
                 if l == instance:
-                    self.clients.remove([l, o])
                     logging.info("Deleting lock %s.", instance)
                     session.delete(instance)
                     session.commit()
-                    del instance
+                    self.clients.remove([l, o])
 
 
 metadata = MetaData()

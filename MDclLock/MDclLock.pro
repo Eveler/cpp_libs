@@ -18,10 +18,12 @@ INCLUDEPATH += ./ \
     ../include/export
 
 SOURCES += mdcllock.cpp \
-    httpclient.cpp
+    httpclient.cpp \
+    checkconnection.cpp
 
 HEADERS += ../include/mdcllock.h \
-    httpclient.h
+    httpclient.h \
+    checkconnection.h
 
 unix {
     target.path = /usr/lib

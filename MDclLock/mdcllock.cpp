@@ -1,7 +1,9 @@
 #include "mdcllock.h"
 #include "httpclient.h"
 #include "amslogger.h"
+#include "checkconnection.h"
 #include <QJsonDocument>
+#include <QUuid>
 
 #define setError(str) set_error(str, __FILE__, __LINE__)
 
@@ -124,6 +126,8 @@ void MDclLock::setLogin(const QUrl &url, const QString &login,
 
   if(!self->client){
     self->client = new HttpClient(url.toString(), self);
+    // register on server now
+    self->registerOnServer();
     connect(qApp, SIGNAL(aboutToQuit()), self, SLOT(releaseClient()));
   }
 
@@ -143,6 +147,10 @@ MDclLock::~MDclLock()
     QPair<int, QString> l = locks.first();
     LogWarning()<<"Unlock"<<l.second<<"("<<l.first<<")";
     unlock(l.first, l.second);
+  }
+
+  if(cc){
+    delete cc;
   }
 
   if(client){
@@ -186,20 +194,48 @@ void MDclLock::unlockRequested()
   reply->deleteLater();
 }
 
-MDclLock::MDclLock(QObject *parent): QObject(parent)
+void MDclLock::errorRecieved(QString errStr)
+{
+  setError(errStr);
+}
+
+MDclLock::MDclLock(QObject *parent): QObject(parent),cc(NULL)
 {
   connect(qApp, SIGNAL(aboutToQuit()), SLOT(release()));
 }
 
 MDclLock::MDclLock(const QUrl &url, QObject *parent):
-  QObject(parent)
+  QObject(parent),cc(NULL)
 {
   if(client) client->setEndPoint(url);
   else{
     client = new HttpClient(url.toString(), this);
+    // register on server now
+    registerOnServer();
     connect(qApp, SIGNAL(aboutToQuit()), SLOT(releaseClient()));
   }
   connect(qApp, SIGNAL(aboutToQuit()), SLOT(release()));
+}
+
+void MDclLock::registerOnServer()
+{
+  QJsonRpcMessage response = client->sendMessageBlocking(
+        QJsonRpcMessage::createRequest("register"));
+  if(response.type() == QJsonRpcMessage::Error){
+    setError(tr("errorMessage = %1; errorData = %2; code = %3")
+             .arg(response.errorMessage())
+             .arg(response.errorData().toString())
+             .arg(response.errorCode()));
+  }else{
+    QString res = response.result().toString();
+
+    if(!QUuid(res).isNull()){
+      if(cc) delete cc;
+      QUrl url = client->endPoint();
+      cc = new CheckConnection(res, url.host(), url.port(9166)+1, this);
+      connect(cc,SIGNAL(error(QString)),SLOT(errorRecieved(QString)));
+    }
+  }
 }
 
 bool MDclLock::checkSelf()

@@ -6,6 +6,7 @@
 #include <QJsonDocument>
 
 class HttpClient;
+class CheckConnection;
 class MDCLLOCKSHARED_EXPORT MDclLock: public QObject
 {
   Q_OBJECT
@@ -38,16 +39,19 @@ public slots:
 private slots:
   void releaseClient();
   void unlockRequested();
+  void errorRecieved(QString errStr);
 
 private:
   MDclLock(QObject *parent=0);
   MDclLock(const QUrl &url, QObject *parent=0);
 
+  void registerOnServer();
   static bool checkSelf();
   static void set_error(const QString &str, const QString file, const int line);
 
   static MDclLock *self;
   static HttpClient *client;
+  CheckConnection *cc;
   static QString errStr;
   static QString msg;
 

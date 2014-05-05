@@ -3,6 +3,8 @@ import logging
 from sys import path
 
 from twisted.cred.checkers import InMemoryUsernamePasswordDatabaseDontUse
+from twisted.internet.protocol import Protocol, Factory, connectionDone
+from twisted.protocols.basic import LineReceiver
 from twisted.python import log
 from twisted.web import server
 
@@ -26,9 +28,15 @@ from txjsonrpc.web import jsonrpc
 class LockJsonRPC(jsonrpc.JSONRPC):
     """Json RPC to LockManager implementation."""
     user_name = None
+    uid = None
+
+    def jsonrpc_register(self):
+        return lockmanager.register(self)
 
     def jsonrpc_lock(self, table_id, table_name, user_name, priority):
         """Try to set lock. If successful, returns true"""
+        if self.uid is None:
+            return jsonrpc.Fault(8002, "Must register first")
         self.user_name = user_name
         return lockmanager.set_lock(self, table_id, table_name, user_name, priority)
 
@@ -46,6 +54,9 @@ class LockJsonRPC(jsonrpc.JSONRPC):
         """Send event message to peer"""
         raise NotImplementedError(u"Не реализовано")
 
+    def set_uid(self, uid):
+        self.uid = uid
+
 
 checker = InMemoryUsernamePasswordDatabaseDontUse()
 checker.addUser("user", "pass")
@@ -55,6 +66,29 @@ from txjsonrpc.auth import wrapResource
 # root = Example()
 root = wrapResource(LockJsonRPC(), [checker], realmName="Declar Locker")
 site = server.Site(root)
+
+
+class CheckConnection(LineReceiver):
+    def __init__(self):
+        self.uid = None
+
+    def connectionLost(self, reason=connectionDone):
+        if not self.uid is None:
+            lockmanager.unregister(self.uid)
+            logging.debug("uid = %s unregistered", self.uid)
+
+    def lineReceived(self, line):
+        logging.debug("Checking uid = %s", line)
+        if lockmanager.is_registered(line):
+            logging.debug("uid = %s is reported as registered", line)
+            self.uid = line
+        else:
+            logging.debug("uid = %s is reported as unregistered", line)
+            self.connectionLost(connectionDone)
+
+
+class CheckConnectionFactory(Factory):
+    protocol = CheckConnection
 
 
 # def page(arg1, arg2):
