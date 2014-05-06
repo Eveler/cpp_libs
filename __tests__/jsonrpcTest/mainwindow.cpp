@@ -23,7 +23,17 @@ void MainWindow::on_tBt_Echo_clicked()
 {
   bool res = MDclLock::lock(546265, tr("declars"),
                             tr("Савенко Михаил Юрьевич"), 999);
+  MDclLock::is_unlock_need(546265, tr("declars"));
   ui->tEdit_Resposes->append(tr("%1").arg(res?"true":"false"));
+  if(!res)
+    ui->tEdit_Resposes->append(tr("Заблокировано. Пользователь: %1")
+                               .arg(MDclLock::message()));
+  res = MDclLock::lock(546265, tr("declars"),
+                            tr("Савенко Михаил Юрьевич"), 555);
+  ui->tEdit_Resposes->append(tr("%1").arg(res?"true":"false"));
+  if(!res)
+    ui->tEdit_Resposes->append(tr("Заблокировано. Пользователь: %1")
+                               .arg(MDclLock::message()));
 }
 
 void MainWindow::on_tBt_Add_clicked()

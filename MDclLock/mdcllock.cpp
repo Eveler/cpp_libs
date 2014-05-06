@@ -189,7 +189,8 @@ void MDclLock::unlockRequested()
   QJsonDocument doc(reply->response().toObject());
   emit notification(doc);
   LogDebug()<<doc.toJson();
-  LogDebug()<<reply->response().result().toBool();
+  QJsonObject obj = reply->response().result().toObject();
+  LogDebug()<<obj.keys().join("; ");
   if(reply->response().result().toBool()) emit unlockRequired();
   reply->deleteLater();
 }
@@ -234,6 +235,7 @@ void MDclLock::registerOnServer()
       QUrl url = client->endPoint();
       cc = new CheckConnection(res, url.host(), url.port(9166)+1, this);
       connect(cc,SIGNAL(error(QString)),SLOT(errorRecieved(QString)));
+      connect(cc,SIGNAL(disconnected()),SIGNAL(unlockRequired()));
     }
   }
 }

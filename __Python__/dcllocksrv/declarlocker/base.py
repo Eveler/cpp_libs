@@ -66,7 +66,7 @@ class LockManager:
             for l, o in self.clients:
                 if l == instance:
                     logging.info("Notifying client %s to unlock %s.", o, instance)
-                    o.notify(instance.table_id)
+                    o.notify({"table_name": table_name, "table_id": table_id, "user": user})
 
         lock = DeclarLock(table_id, table_name, user, priority)
         session.add(lock)

@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 import logging
+from os import getcwd
 from sys import path
 
 from twisted.cred.checkers import InMemoryUsernamePasswordDatabaseDontUse
+from twisted.internet.defer import Deferred
 from twisted.internet.protocol import Protocol, Factory, connectionDone
 from twisted.protocols.basic import LineReceiver
 from twisted.python import log
@@ -21,7 +23,9 @@ except ImportError:
 
 __author__ = 'Mike'
 
-path.insert(0, path[0] + "/txjson-rpc")
+# path.insert(0, path[0] + "/txjson-rpc")
+print(getcwd() + "/txjson-rpc")
+path.insert(0, getcwd() + "/txjson-rpc")
 from txjsonrpc.web import jsonrpc
 
 
@@ -29,6 +33,7 @@ class LockJsonRPC(jsonrpc.JSONRPC):
     """Json RPC to LockManager implementation."""
     user_name = None
     uid = None
+    d = None
 
     def jsonrpc_register(self):
         return lockmanager.register(self)
@@ -44,7 +49,8 @@ class LockJsonRPC(jsonrpc.JSONRPC):
         return lockmanager.locked_by(table_id, table_name)
 
     def jsonrpc_is_unlock_need(self, table_id, table_name):
-        raise NotImplementedError(u"Не реализовано")
+        self.d = Deferred()
+        return self.d
 
     def jsonrpc_unlock(self, table_id, table_name):
         """Remove lock."""
@@ -52,9 +58,17 @@ class LockJsonRPC(jsonrpc.JSONRPC):
 
     def notify(self, data):
         """Send event message to peer"""
-        raise NotImplementedError(u"Не реализовано")
+        if self.d is None:
+            return
+
+        d = self.d
+        self.d = None
+        d.callback(data)
 
     def set_uid(self, uid):
+        if uid is None and not self.d is None:
+            logging.debug("Cancel Deferred")
+            self.d.cancel()
         self.uid = uid
 
 
