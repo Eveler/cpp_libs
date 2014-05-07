@@ -46,12 +46,24 @@ class LockManager:
         self.registered.remove(uid)
 
 
+    def is_locked_with_high_priority(self, table_id, table_name, priority):
+        locks = session.query(DeclarLock).filter(DeclarLock.table_id == table_id) \
+            .filter(DeclarLock.table_name == table_name).filter(DeclarLock.priority < priority).all()
+
+        for instance in locks:
+            logging.debug("Found %s", instance)
+
+        return len(locks) > 0
+
+
     def set_lock(self, obj, table_id, table_name, user, priority):
         """
         Try to set lock up.
         If there is lock with lower priority, notify that clients, they need to unlock
         :rtype : bool
         """
+        logging.debug("Try to set lock on %s(%s), prority = %s", table_name, table_id, priority)
+
         locks = session.query(DeclarLock).filter(DeclarLock.table_id == table_id) \
             .filter(DeclarLock.table_name == table_name).filter(DeclarLock.priority <= priority).all()
 
@@ -93,6 +105,7 @@ class LockManager:
                     session.delete(instance)
                     session.commit()
                     self.clients.remove([l, o])
+                    o.notify(False)
 
 
 metadata = MetaData()

@@ -18,7 +18,8 @@ public:
   static void unlock(const int table_id, const QString &table_name);
   static QString locked_by(const int table_id, const QString &table_name);
   static MDclLock *is_unlock_need(const int table_id,
-                                  const QString &table_name);
+                                  const QString &table_name,
+                                  const int priority=999);
 
   static void setLogin(const QUrl &url, const QString &login,
                        const QString &pass);
@@ -31,6 +32,8 @@ public:
 signals:
   void notification(QJsonDocument msg);
   void unlockRequired();
+  void unlockRequired(int table_id, QString table_name, QString user_name);
+  void unlockRequired(QString user_name);
   void error(QString str);
 
 public slots:

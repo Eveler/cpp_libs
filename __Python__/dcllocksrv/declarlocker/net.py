@@ -31,7 +31,6 @@ from txjsonrpc.web import jsonrpc
 
 class LockJsonRPC(jsonrpc.JSONRPC):
     """Json RPC to LockManager implementation."""
-    user_name = None
     uid = None
     d = None
 
@@ -42,14 +41,17 @@ class LockJsonRPC(jsonrpc.JSONRPC):
         """Try to set lock. If successful, returns true"""
         if self.uid is None:
             return jsonrpc.Fault(8002, "Must register first")
-        self.user_name = user_name
         return lockmanager.set_lock(self, table_id, table_name, user_name, priority)
 
     def jsonrpc_locked_by(self, table_id, table_name):
         return lockmanager.locked_by(table_id, table_name)
 
-    def jsonrpc_is_unlock_need(self, table_id, table_name):
+    def jsonrpc_is_unlock_need(self, table_id, table_name, priority):
+        if lockmanager.is_locked_with_high_priority(table_id, table_name, priority):
+            return True
+
         self.d = Deferred()
+        # self.d.addErrback(False)
         return self.d
 
     def jsonrpc_unlock(self, table_id, table_name):
@@ -61,14 +63,15 @@ class LockJsonRPC(jsonrpc.JSONRPC):
         if self.d is None:
             return
 
-        d = self.d
-        self.d = None
+        d, self.d = self.d, None
         d.callback(data)
 
     def set_uid(self, uid):
         if uid is None and not self.d is None:
             logging.debug("Cancel Deferred")
-            self.d.cancel()
+            d, self.d = self.d, None
+            d.callback(False)
+
         self.uid = uid
 
 

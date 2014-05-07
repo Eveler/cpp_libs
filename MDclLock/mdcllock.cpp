@@ -101,7 +101,7 @@ QString MDclLock::locked_by(const int table_id, const QString &table_name)
 }
 
 MDclLock *MDclLock::is_unlock_need(const int table_id,
-                              const QString &table_name)
+                              const QString &table_name, const int priority)
 {
   /// воспользуемся long poling для получения сообщения о необходимости
   /// разблокировать запись
@@ -112,6 +112,7 @@ MDclLock *MDclLock::is_unlock_need(const int table_id,
   QJsonArray params;
   params.append(table_id);
   params.append(table_name);
+  params.append(priority);
   QJsonRpcServiceReply *reply = self->client->sendMessage(
         QJsonRpcMessage::createRequest("is_unlock_need", params));
   connect(reply, SIGNAL(finished()), self, SLOT(unlockRequested()));
@@ -188,10 +189,23 @@ void MDclLock::unlockRequested()
 
   QJsonDocument doc(reply->response().toObject());
   emit notification(doc);
-  LogDebug()<<doc.toJson();
-  QJsonObject obj = reply->response().result().toObject();
-  LogDebug()<<obj.keys().join("; ");
-  if(reply->response().result().toBool()) emit unlockRequired();
+//  LogDebug()<<doc.toJson();
+  if(reply->response().result().isObject()){
+    QJsonObject obj = reply->response().result().toObject();
+//    LogDebug()<<"keys:"<<obj.keys().join("; ");
+//    LogDebug()<<"table_name ="<<obj.value("table_name").toString()<<
+//                "table_id ="<<obj.value("table_id").toInt()<<
+//                "user ="<<obj.value("user").toString();
+    emit unlockRequired();
+    emit unlockRequired(obj.value("table_id").toInt(),
+                        obj.value("table_name").toString(),
+                        obj.value("user").toString());
+    emit unlockRequired(obj.value("user").toString());
+  }else if(reply->response().result().toBool()){
+//    LogDebug()<<"emit unlockRequired()";
+    emit unlockRequired();
+    emit unlockRequired(tr("не определён"));
+  }
   reply->deleteLater();
 }
 
