@@ -5,9 +5,8 @@ from sys import path
 
 from twisted.cred.checkers import InMemoryUsernamePasswordDatabaseDontUse
 from twisted.internet.defer import Deferred
-from twisted.internet.protocol import Protocol, Factory, connectionDone
+from twisted.internet.protocol import Factory, connectionDone
 from twisted.protocols.basic import LineReceiver
-from twisted.python import log
 from twisted.web import server
 
 
@@ -24,7 +23,6 @@ except ImportError:
 __author__ = 'Mike'
 
 # path.insert(0, path[0] + "/txjson-rpc")
-print(getcwd() + "/txjson-rpc")
 path.insert(0, getcwd() + "/txjson-rpc")
 from txjsonrpc.web import jsonrpc
 

@@ -1,6 +1,7 @@
 #!/bin/env python
 # -*- coding: utf-8 -*-
 from logging.handlers import TimedRotatingFileHandler
+from twisted.application.service import Application
 
 from twisted.internet import reactor
 from twisted.python import log
@@ -76,16 +77,15 @@ def set_config(config):
         quit()
 
 
-if __name__ == "__main__":
-    logging.basicConfig(level=INFO, format='%(asctime)s %(module)s(%(lineno)d): %(levelname)s: %(message)s')
-    logging.root.name = "dcllocksrv"
-    logging.addLevelName(DEBUG, "debug")
-    logging.addLevelName(INFO, "info")
-    logging.addLevelName(WARNING, "warn")
-    logging.addLevelName(WARNING, "warning")
-    logging.addLevelName(ERROR, "error")
-    logging.addLevelName(CRITICAL, "critical")
+logging.basicConfig(level=INFO, format='%(asctime)s %(module)s(%(lineno)d): %(levelname)s: %(message)s')
+logging.root.name = "dcllocksrv"
+logging.addLevelName(DEBUG, "debug")
+logging.addLevelName(INFO, "info")
+logging.addLevelName(WARNING, "warn")
+logging.addLevelName(WARNING, "warning")
+logging.addLevelName(ERROR, "error")
+logging.addLevelName(CRITICAL, "critical")
 
-    set_config(parse_args())
+set_config(parse_args())
 
-    reactor.run()
+application = Application("DeclarLock JSON-RPC Server")

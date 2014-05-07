@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 import logging
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 from sqlalchemy.engine import create_engine
 from sqlalchemy.schema import MetaData
-from twisted.python import log
 
 from declarlocker.objects import Base, DeclarLock
 
 
 __author__ = 'Mike'
+# session = None
 
 
 class LockManager:
@@ -110,11 +110,17 @@ class LockManager:
 
 metadata = MetaData()
 # engine = create_engine('sqlite:///:memory:', echo=True)
-engine = create_engine('sqlite:///:memory:', echo=(logging.root.level == logging.DEBUG))
-Base.metadata.create_all(engine)
-from sqlalchemy.orm import sessionmaker
+# engine = create_engine('sqlite:///:memory:', echo=(logging.root.level == logging.DEBUG))
 
-Session = sessionmaker(bind=engine)
-session = Session()
+
+def connect_db(dbstr):
+    engine = create_engine(dbstr, echo=(logging.root.level == logging.DEBUG))
+    Base.metadata.create_all(engine)
+
+    from sqlalchemy.orm import sessionmaker
+
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
 
 lockmanager = LockManager()
