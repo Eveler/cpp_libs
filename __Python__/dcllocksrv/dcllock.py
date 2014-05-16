@@ -5,7 +5,7 @@ from logging.handlers import TimedRotatingFileHandler
 from twisted.internet import reactor
 from twisted.python import log
 
-from declarlocker.base import connect_db
+from declarlocker.base import lockmanager
 
 
 try:
@@ -53,9 +53,27 @@ def set_config(config):
             logging.info("config = %s" % config)
 
         dbstr = cfg.get("db", "type") + "://"
-        if "table" in cfg.options("db"):
-            dbstr += cfg.get("db", "table")
-        connect_db(dbstr)
+        if dbstr == "://":
+            raise Exception("Wrong or not set db.type in config file")
+        if "db" in cfg.options("db"):
+            dbstr += cfg.get("db", "db")
+        lockmanager.connect_db(dbstr)
+        
+        if "auth" in cfg.sections():
+            if "db_type" in cfg.options("auth"):
+                is_db = cfg.get("auth", "db_type")+"://"
+                if dbstr == "://":
+                    raise Exception("Wrong or not set auth.db_type in config file")
+                if "db_user" in cfg.options("auth"):
+                    is_db += cfg.get("auth", "db_user")
+                if "db_pass" in cfg.options("auth"):
+                    is_db += ":"+cfg.get("auth", "db_pass")
+                if "db_host" in cfg.options("auth"):
+                    if "db_user" in cfg.options("auth"):
+                        is_db += "@"
+                    is_db += cfg.get("auth", "db_host")
+                if "db_db" in cfg.options("auth"):
+                    is_db += "/"+cfg.get("auth", "db_db")
 
         addr = ''
         port = 9166
@@ -66,7 +84,7 @@ def set_config(config):
                 port = int(cfg.get("net", "port"))
         from declarlocker.net import site, CheckConnectionFactory
 
-        reactor.listenTCP(port, site, interface=addr)
+        reactor.listenTCP(port, site(is_db), interface=addr)
         reactor.listenTCP(port + 1, CheckConnectionFactory(), interface=addr)
     except NoSectionError as e:
         logging.critical("Wrong config file: %s", e.message)

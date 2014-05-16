@@ -38,8 +38,8 @@ class LockManager:
             if o.uid == uid:
                 logging.info("Deleting lock %s.", l)
                 c.append(o)
-                session.delete(l)
-                session.commit()
+                self.session.delete(l)
+                self.session.commit()
                 self.clients.remove([l, o])
         for o in c:
             o.set_uid(None)
@@ -47,8 +47,8 @@ class LockManager:
 
 
     def is_locked_with_high_priority(self, table_id, table_name, priority):
-        locks = session.query(DeclarLock).filter(DeclarLock.table_id == table_id) \
-            .filter(DeclarLock.table_name == table_name).filter(DeclarLock.priority < priority).all()
+        locks = self.session.query(DeclarLock).filter(DeclarLock.table_id == table_id) \
+            .filter(DeclarLock.table_name == table_name).filter(DeclarLock.priority > priority).all()
 
         for instance in locks:
             logging.debug("Found %s", instance)
@@ -64,8 +64,8 @@ class LockManager:
         """
         logging.debug("Try to set lock on %s(%s), prority = %s", table_name, table_id, priority)
 
-        locks = session.query(DeclarLock).filter(DeclarLock.table_id == table_id) \
-            .filter(DeclarLock.table_name == table_name).filter(DeclarLock.priority <= priority).all()
+        locks = self.session.query(DeclarLock).filter(DeclarLock.table_id == table_id) \
+            .filter(DeclarLock.table_name == table_name).filter(DeclarLock.priority >= priority).all()
 
         for instance in locks:
             logging.debug("Found %s", instance)
@@ -73,22 +73,22 @@ class LockManager:
         if len(locks) > 0:
             return False
 
-        for instance in session.query(DeclarLock).filter(DeclarLock.table_id == table_id) \
-                .filter(DeclarLock.table_name == table_name).filter(DeclarLock.priority > priority).all():
+        for instance in self.session.query(DeclarLock).filter(DeclarLock.table_id == table_id) \
+                .filter(DeclarLock.table_name == table_name).filter(DeclarLock.priority < priority).all():
             for l, o in self.clients:
                 if l == instance:
                     logging.info("Notifying client %s to unlock %s.", o, instance)
                     o.notify({"table_name": table_name, "table_id": table_id, "user": user})
 
         lock = DeclarLock(table_id, table_name, user, priority)
-        session.add(lock)
-        session.commit()
+        self.session.add(lock)
+        self.session.commit()
         self.clients.append([lock, obj])
         logging.info("Added %s", lock)
         return True
 
     def locked_by(self, table_id, table_name):
-        user_name = session.query(DeclarLock).filter(DeclarLock.table_id == table_id) \
+        user_name = self.session.query(DeclarLock).filter(DeclarLock.table_id == table_id) \
             .filter(DeclarLock.table_name == table_name).first().user_name
         logging.debug("locked_by = %s", user_name)
         return user_name
@@ -97,30 +97,28 @@ class LockManager:
         """
         Delete lock
         """
-        for instance in session.query(DeclarLock).filter(DeclarLock.table_id == table_id) \
+        for instance in self.session.query(DeclarLock).filter(DeclarLock.table_id == table_id) \
                 .filter(DeclarLock.table_name == table_name).all():
             for l, o in self.clients:
                 if l == instance:
                     logging.info("Deleting lock %s.", instance)
-                    session.delete(instance)
-                    session.commit()
+                    self.session.delete(instance)
+                    self.session.commit()
                     self.clients.remove([l, o])
                     o.notify(False)
 
-
-metadata = MetaData()
+# metadata = MetaData()
 # engine = create_engine('sqlite:///:memory:', echo=True)
 # engine = create_engine('sqlite:///:memory:', echo=(logging.root.level == logging.DEBUG))
 
+    def connect_db(self, dbstr):
+        engine = create_engine(dbstr, echo=(logging.root.level == logging.DEBUG))
+        Base.metadata.create_all(engine)
 
-def connect_db(dbstr):
-    engine = create_engine(dbstr, echo=(logging.root.level == logging.DEBUG))
-    Base.metadata.create_all(engine)
+        from sqlalchemy.orm import sessionmaker
 
-    from sqlalchemy.orm import sessionmaker
-
-    Session = sessionmaker(bind=engine)
-    session = Session()
+        Session = sessionmaker(bind=engine)
+        self.session = Session()
 
 
 lockmanager = LockManager()

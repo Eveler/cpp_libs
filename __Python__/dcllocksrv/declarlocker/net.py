@@ -13,6 +13,7 @@ from twisted.web import server
 # path.insert(0, path[0]+"/jsonrpc")
 # from jsonrpc.server import ServerEvents, JSON_RPC
 from declarlocker.base import lockmanager
+from declarlocker.pgdbauth import PgPasswordDB
 
 
 try:
@@ -73,16 +74,6 @@ class LockJsonRPC(jsonrpc.JSONRPC):
         self.uid = uid
 
 
-checker = InMemoryUsernamePasswordDatabaseDontUse()
-checker.addUser("user", "pass")
-
-from txjsonrpc.auth import wrapResource
-
-# root = Example()
-root = wrapResource(LockJsonRPC(), [checker], realmName="Declar Locker")
-site = server.Site(root)
-
-
 class CheckConnection(LineReceiver):
     def __init__(self):
         self.uid = None
@@ -104,6 +95,25 @@ class CheckConnection(LineReceiver):
 
 class CheckConnectionFactory(Factory):
     protocol = CheckConnection
+
+
+def site(is_db=None):
+    def get_checker():
+        if is_db is None:
+            checker = InMemoryUsernamePasswordDatabaseDontUse()
+            checker.addUser("user", "pass")
+            return checker
+        else:
+            return PgPasswordDB(is_db)
+
+    checker = get_checker()
+
+    from txjsonrpc.auth import wrapResource
+
+# root = Example()
+    root = wrapResource(LockJsonRPC(), [checker], realmName="Declar Locker")
+    s = server.Site(root)
+    return s
 
 
 # def page(arg1, arg2):
