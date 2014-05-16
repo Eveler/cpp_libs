@@ -126,7 +126,7 @@ void MDclLock::setLogin(const QUrl &url, const QString &login,
   if(!self) instance();
 
   if(!self->client){
-    self->client = new HttpClient(url.toString(), self);
+    self->client = new HttpClient(url.toString(), login, pass, self);
     // register on server now
     self->registerOnServer();
     connect(qApp, SIGNAL(aboutToQuit()), self, SLOT(releaseClient()));

@@ -14,12 +14,12 @@ public:
   static MDclLock *instance() {if(!self) self = new MDclLock();return self;}
   static MDclLock *instance(const QUrl &url);
   static bool lock(const int table_id, const QString &table_name,
-                   const QString &user_name, const int priority=999);
+                   const QString &user_name, const int priority=0);
   static void unlock(const int table_id, const QString &table_name);
   static QString locked_by(const int table_id, const QString &table_name);
   static MDclLock *is_unlock_need(const int table_id,
                                   const QString &table_name,
-                                  const int priority=999);
+                                  const int priority=0);
 
   static void setLogin(const QUrl &url, const QString &login,
                        const QString &pass);

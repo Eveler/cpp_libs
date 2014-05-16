@@ -11,7 +11,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
   lock = MDclLock::instance();
   connect(lock, SIGNAL(error(QString)), SLOT(showError(QString)));
-  MDclLock::setLogin(QUrl("http://127.0.0.1:9166"), tr("user"), tr("pass"));
+//  MDclLock::setLogin(QUrl("http://127.0.0.1:9166"), tr("user"), tr("pass"));
+  MDclLock::setLogin(QUrl("http://127.0.0.1:9166"), tr("mike"), tr("me2db4con"));
 }
 
 MainWindow::~MainWindow()

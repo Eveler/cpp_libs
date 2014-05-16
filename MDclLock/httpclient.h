@@ -10,6 +10,8 @@ class HttpClient: public QJsonRpcHttpClient
 
 public:
   HttpClient(const QString &endpoint, QObject *parent = 0);
+  HttpClient(const QString &endpoint, const QString &username,
+             const QString &password, QObject *parent = 0);
 
   void setUsername(const QString &username){m_username = username;}
 
