@@ -12,7 +12,7 @@ refman.ps: refman.dvi
 	dvips -o refman.ps refman.dvi
 
 refman.pdf: refman.ps
-	ps2pdf refman.ps refman.pdf
+	gswin32c -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=refman.pdf -c save pop -f refman.ps
 
 refman.dvi: clean refman.tex doxygen.sty
 	echo "Running latex..."
@@ -33,7 +33,7 @@ refman_2on1.ps: refman.ps
 	psnup -2 refman.ps >refman_2on1.ps
 
 refman_2on1.pdf: refman_2on1.ps
-	ps2pdf refman_2on1.ps refman_2on1.pdf
+	gswin32c -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=refman_2on1.pdf -c save pop -f refman_2on1.ps
 
 clean:
-	rm -f *.ps *.dvi *.aux *.toc *.idx *.ind *.ilg *.log *.out refman.pdf
+	del /s/y *.ps *.dvi *.aux *.toc *.idx *.ind *.ilg *.log *.out refman.pdf

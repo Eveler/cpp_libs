@@ -2,7 +2,10 @@
 import logging
 
 from sqlalchemy.engine import create_engine
-from sqlalchemy.ext.declarative.api import declarative_base
+try:
+    from sqlalchemy.ext.declarative.api import declarative_base
+except ImportError:
+    from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm.session import sessionmaker
 from twisted.cred import credentials, error
 from twisted.cred.checkers import ICredentialsChecker

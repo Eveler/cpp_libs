@@ -53,9 +53,9 @@ class LockJsonRPC(jsonrpc.JSONRPC):
         # self.d.addErrback(False)
         return self.d
 
-    def jsonrpc_unlock(self, table_id, table_name):
+    def jsonrpc_unlock(self, table_id, table_name, user_name):
         """Remove lock."""
-        lockmanager.unlock(table_id, table_name)
+        lockmanager.unlock(table_id, table_name, user_name)
 
     def notify(self, data):
         """Send event message to peer"""
@@ -86,10 +86,10 @@ class CheckConnection(LineReceiver):
     def lineReceived(self, line):
         logging.debug("Checking uid = %s", line)
         if lockmanager.is_registered(line):
-            logging.debug("uid = %s is reported as registered", line)
+            logging.info("uid = %s is reported as registered", line)
             self.uid = line
         else:
-            logging.debug("uid = %s is reported as unregistered", line)
+            logging.info("uid = %s is reported as unregistered", line)
             self.connectionLost(connectionDone)
 
 

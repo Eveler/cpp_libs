@@ -1,9 +1,10 @@
 #!/bin/env python
 # -*- coding: utf-8 -*-
 from logging.handlers import TimedRotatingFileHandler
+import sys
 
 from twisted.internet import reactor
-from twisted.python import log
+from twisted.python import log, usage
 
 from declarlocker.base import lockmanager
 
@@ -20,13 +21,26 @@ from optparse import OptionParser
 __author__ = 'Mike'
 
 
+class Options(usage.Options):
+
+    optParameters = [["config", "c", "/etc/dcllocksrv.ini", "configuration file"]]
+
+
 def parse_args():
     """Parsing command line arguments"""
-    usage = """usage: %prog [options]"""
-    parser = OptionParser(usage)
-    parser.add_option("--config", help="configuration file", default="/etc/dcllocksrv.ini")
-    options, args = parser.parse_args()
-    return options.config
+    # usage = """usage: %prog [options]"""
+    # parser = OptionParser(usage)
+    # parser.add_option("--config", help="configuration file", default="/etc/dcllocksrv.ini")
+    # options, args = parser.parse_args()
+    # return options.config
+    config = Options()
+    try:
+        config.parseOptions() # When given no argument, parses sys.argv[1:]
+    except usage.UsageError, errortext:
+        print '%s: %s' % (sys.argv[0], errortext)
+        print '%s: Try --help for usage details.' % (sys.argv[0])
+        sys.exit(1)
+    return config['config']
 
 
 def set_config(config):

@@ -1,8 +1,6 @@
 TEMPLATE = lib
 CONFIG += qt warn_on
 QT -= gui
-DEPENDPATH += .
-INCLUDEPATH += .
 !win32:VERSION = 1.0.0
 
 DEFINES += QUAZIP_BUILD
@@ -13,62 +11,32 @@ exists( ../../../install_path.pri ){
 }
 
 # Input
-HEADERS += \
-crypt.h \
-ioapi.h \
-JlCompress.h \
-quaadler32.h \
-quachecksum32.h \
-quacrc32.h \
-quagzipfile.h \
-quaziodevice.h \
-quazipdir.h \
-quazipfile.h \
-quazipfileinfo.h \
-quazip_global.h \
-quazip.h \
-quazipnewinfo.h \
-unzip.h \
-zip.h
-
-SOURCES += *.c *.cpp
-
-#unix:!symbian {
-#    headers.path=$$PREFIX/include/quazip
-#    headers.files=$$HEADERS
-#    target.path=$$PREFIX/lib
-#    INSTALLS += headers target
-
-#  OBJECTS_DIR=.obj
-#  MOC_DIR=.moc
-
-#}
-
-win32 {
-##     DEFINES+=ZLIB_WINAPI
-#    headers.path=$$PREFIX/include/quazip
-#    headers.files=$$HEADERS
-#    target.path=$$PREFIX/lib
-#    INSTALLS += headers target
-#    # workaround for qdatetime.h macro bug
-    DEFINES += NOMINMAX
-}
+include(quazip.pri)
 
 unix:!symbian {
+    headers.path=$$PREFIX/include/quazip
+    headers.files=$$HEADERS
+    target.path=$$PREFIX/lib
+    INSTALLS += headers target
 
-    maemo5 {
-        target.path = /opt/usr/lib
-    } else {
-        target.path = /usr/lib
-    }
-    INSTALLS += target
+	OBJECTS_DIR=.obj
+	MOC_DIR=.moc
+	
+}
+
+win32 {
+#    headers.path=$$PREFIX/include/quazip
+#    headers.files=$$HEADERS
+#    target.path=$$PREFIX/lib
+#    INSTALLS += headers target
+    # workaround for qdatetime.h macro bug
+    DEFINES += NOMINMAX
 }
 
 win32 {
     target.path = $$INSTALL_WIN_LIB
     INSTALLS += target
 }
-
 
 symbian {
 
@@ -96,13 +64,13 @@ symbian {
     }
 }
 
-#INCLUDEPATH += $$[QT_INSTALL_HEADERS/get]/QtZlib
 contains(QT_CONFIG, system-zlib) {
     if(unix|win32-g++*): LIBS_PRIVATE += -lz
     else:                LIBS += zdll.lib
 } else {
     INCLUDEPATH += $$[QT_INSTALL_HEADERS/get]/QtZlib
 }
+
 
 greaterThan(QT_MAJOR_VERSION, 4) {
   INCLUDEPATH += \
