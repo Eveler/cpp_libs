@@ -185,6 +185,11 @@ QList<MService *> MServiceDBWrapper::services( QVariantList identifiers )
   return result;
 }
 
+void MServiceDBWrapper::job( int objectiveType, const QVariant &objectiveValue )
+{
+  MAbstractDBWrapper::job( objectiveType, objectiveValue );
+}
+
 bool MServiceDBWrapper::searching( const QString &queryText )
 {
   Q_UNUSED(queryText)
