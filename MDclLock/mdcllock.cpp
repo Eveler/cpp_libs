@@ -45,7 +45,7 @@ bool MDclLock::lock(const int table_id, const QString &table_name,
       LockInfo l;
       l.table_id = table_id;
       l.table_name = table_name;
-      l.user = user_name;
+      l.priority = priority;
       self->locks << l;
       if(check_is_unlock_need) is_unlock_need(table_id, table_name, priority);
     }else{
@@ -57,14 +57,14 @@ bool MDclLock::lock(const int table_id, const QString &table_name,
 }
 
 void MDclLock::unlock(const int table_id, const QString &table_name,
-                      const QString &user)
+                      const int priority)
 {
   if(!checkSelf()) return;
 
   QJsonArray params;
   params.append(table_id);
   params.append(table_name);
-  params.append(user);
+  params.append(priority);
   QJsonRpcMessage response = self->client->sendMessageBlocking(
         QJsonRpcMessage::createRequest("unlock", params));
 
@@ -78,7 +78,7 @@ void MDclLock::unlock(const int table_id, const QString &table_name,
     LockInfo l;
     l.table_id = table_id;
     l.table_name = table_name;
-    l.user = user;
+    l.priority = priority;
     int i = self->locks.indexOf(l);
     if(i>-1) self->locks.removeAt(i);
     return;
@@ -162,7 +162,7 @@ MDclLock::~MDclLock()
   while(!locks.isEmpty()){
     LockInfo l = locks.first();
     LogWarning()<<"Unlock"<<l.table_name<<"("<<l.table_id<<")";
-    unlock(l.table_id, l.table_name, l.user);
+    unlock(l.table_id, l.table_name, l.priority);
   }
 
   if(cc){

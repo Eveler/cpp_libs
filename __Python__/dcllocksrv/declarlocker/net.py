@@ -53,9 +53,9 @@ class LockJsonRPC(jsonrpc.JSONRPC):
         # self.d.addErrback(False)
         return self.d
 
-    def jsonrpc_unlock(self, table_id, table_name, user_name):
+    def jsonrpc_unlock(self, table_id, table_name, priority):
         """Remove lock."""
-        lockmanager.unlock(table_id, table_name, user_name)
+        lockmanager.unlock(table_id, table_name, priority)
 
     def notify(self, data):
         """Send event message to peer"""

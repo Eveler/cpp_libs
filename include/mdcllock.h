@@ -10,10 +10,10 @@ class LockInfo{
 public:
   int table_id;
   QString table_name;
-  QString user;
+  int priority;
   bool operator ==(const LockInfo& l){
     return table_id == l.table_id && table_name == l.table_name
-        && user == l.user;
+        && priority == l.priority;
   }
 };
 
@@ -27,7 +27,8 @@ public:
   static bool lock(const int table_id, const QString &table_name,
                    const QString &user_name, const int priority=0,
                    const bool check_is_unlock_need=false);
-  static void unlock(const int table_id, const QString &table_name, const QString &user);
+  static void unlock(const int table_id, const QString &table_name,
+                     const int priority=0);
   static QString locked_by(const int table_id, const QString &table_name);
   static MDclLock *is_unlock_need(const int table_id,
                                   const QString &table_name,
