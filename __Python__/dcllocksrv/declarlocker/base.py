@@ -93,12 +93,13 @@ class LockManager:
         logging.debug("locked_by = %s", user_name)
         return user_name
 
-    def unlock(self, table_id, table_name):
+    def unlock(self, table_id, table_name, priority):
         """
         Delete lock
         """
         for instance in self.session.query(DeclarLock).filter(DeclarLock.table_id == table_id) \
-                .filter(DeclarLock.table_name == table_name).all():
+                .filter(DeclarLock.table_name == table_name)\
+                .filter(DeclarLock.priority == priority).all():
             for l, o in self.clients:
                 if l == instance:
                     logging.info("Deleting lock %s.", instance)
