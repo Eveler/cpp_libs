@@ -81,7 +81,7 @@ class CheckConnection(LineReceiver):
     def connectionLost(self, reason=connectionDone):
         if not self.uid is None:
             lockmanager.unregister(self.uid)
-            logging.debug("uid = %s unregistered", self.uid)
+            logging.info("uid = %s unregistered", self.uid)
 
     def lineReceived(self, line):
         logging.debug("Checking uid = %s", line)
