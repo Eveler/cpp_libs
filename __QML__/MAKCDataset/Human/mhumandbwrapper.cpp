@@ -294,8 +294,10 @@ bool MHumanDBWrapper::searching( const QString &queryText )
   else
   {
     int lastFounded = -1;
+    int counted = 0;
     while ( qry->next() )
     {
+      counted++;
       int identifier = qry->record().value( "id" ).toInt();
       MHuman *human = m__ExistHumans.value( identifier, NULL );
 
@@ -349,6 +351,22 @@ bool MHumanDBWrapper::searching( const QString &queryText )
       human->setAddress( qry->record().value( "addr" ) );
       human->setEmail( qry->record().value( "e-mail" ) );
       human->setBirthday( qry->record().value( "birthday" ) );
+    }
+    int humansCount = pCount( (int)Founded );
+    for ( int index = lastFounded+1; index < humansCount; index++ )
+    {
+      MHuman *oldHuman = qobject_cast<MHuman *>( pObject( (int)Founded, index ) );
+
+      pTake( (int)Founded, index );
+      index--;
+      humansCount--;
+
+      if ( oldHuman->externalLinksCount() == 0 && pIndex( (int)Initiated, oldHuman ) == -1 )
+      {
+        documentDBWrapper->releaseHumanDocuments( oldHuman );
+        m__ExistHumans.remove( oldHuman->identifier().toInt() );
+        connect( this, SIGNAL(aboutToReleaseOldResources()), oldHuman, SLOT(deleteLater()) );
+      }
     }
   }
   locker()->unlock();

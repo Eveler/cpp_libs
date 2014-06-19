@@ -1,6 +1,8 @@
 #include "mdocumentdatasource.h"
 
 #include "mdocumentdbwrapper.h"
+#include "mhumandbwrapper.h"
+#include "morganizationdbwrapper.h"
 
 #include <QDebug>
 
@@ -24,25 +26,26 @@ MDocumentDataSource::~MDocumentDataSource()
     wrapper = NULL;
 }
 
-void MDocumentDataSource::findObject( MHuman *human )
+void MDocumentDataSource::findObject( QObject *documentOwner )
 {
 //  qDebug() << metaObject()->className() << __func__ << __LINE__;
   MDocumentDBWrapper *wrapper = qobject_cast<MDocumentDBWrapper *>( dbWrapper() );
   if ( wrapper->isRunning() ) return;
-  connect( dbWrapper(), SIGNAL(finished()), this, SLOT(findObjectFinished()) );
-  if ( wrapper->find( human ) ) emit statusChanged();
-  else disconnect( wrapper, SIGNAL(finished()), this, SLOT(findObjectFinished()) );
-//  qDebug() << metaObject()->className() << __func__ << __LINE__;
-}
-
-void MDocumentDataSource::findObject( MOrganization *organization )
-{
-//  qDebug() << metaObject()->className() << __func__ << __LINE__;
-  MDocumentDBWrapper *wrapper = qobject_cast<MDocumentDBWrapper *>( dbWrapper() );
-  if ( wrapper->isRunning() ) return;
-  connect( dbWrapper(), SIGNAL(finished()), this, SLOT(findObjectFinished()) );
-  if ( wrapper->find( organization ) ) emit statusChanged();
-  else disconnect( wrapper, SIGNAL(finished()), this, SLOT(findObjectFinished()) );
+  if ( documentOwner == NULL ) return;
+  if ( tr( documentOwner->metaObject()->className() ) == tr( "MHuman" ) )
+  {
+    MHuman *human = qobject_cast<MHuman *>( documentOwner );
+    connect( dbWrapper(), SIGNAL(finished()), this, SLOT(findObjectFinished()) );
+    if ( wrapper->find( human ) ) emit statusChanged();
+    else disconnect( wrapper, SIGNAL(finished()), this, SLOT(findObjectFinished()) );
+  }
+  else if ( tr( documentOwner->metaObject()->className() ) == tr( "MOrganization" ) )
+  {
+    MOrganization *organization = qobject_cast<MOrganization *>( documentOwner );
+    connect( dbWrapper(), SIGNAL(finished()), this, SLOT(findObjectFinished()) );
+    if ( wrapper->find( organization ) ) emit statusChanged();
+    else disconnect( wrapper, SIGNAL(finished()), this, SLOT(findObjectFinished()) );
+  }
 //  qDebug() << metaObject()->className() << __func__ << __LINE__;
 }
 

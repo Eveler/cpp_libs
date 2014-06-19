@@ -4,9 +4,6 @@
 #include "mabstractdatasource.h"
 
 
-class MHuman;
-class MOrganization;
-
 class MDocumentDataSource : public MAbstractDataSource
 {
     Q_OBJECT
@@ -16,8 +13,7 @@ class MDocumentDataSource : public MAbstractDataSource
     explicit MDocumentDataSource( QObject *parent = NULL );
     ~MDocumentDataSource();
 
-    Q_INVOKABLE void findObject( MHuman *human );
-    Q_INVOKABLE void findObject( MOrganization *organization );
+    Q_INVOKABLE void findObject( QObject *documentOwner );
 
 
   protected slots:
