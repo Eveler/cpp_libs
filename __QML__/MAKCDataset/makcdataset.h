@@ -29,6 +29,9 @@
 #include "mdirectiondatasource.h"
 #include "mdirectiondbwrapper.h"
 
+#include "muserdatasource.h"
+#include "muserdbwrapper.h"
+
 
 namespace MAKCDataset {
   void initializeMAKC( QObject * parent = NULL );
@@ -40,6 +43,7 @@ namespace MAKCDataset {
   MRecipientDataSource * MAKC_RecipientDataSource();
   MDepartmentDataSource * MAKC_DepartmentDataSource();
   MDirectionDataSource * MAKC_DirectionDataSource();
+  MUserDataSource * MAKC_UserDataSource();
 }
 
 #endif // MAKCDATASET_H

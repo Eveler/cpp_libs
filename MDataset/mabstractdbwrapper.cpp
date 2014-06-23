@@ -133,14 +133,9 @@ bool MAbstractDBWrapper::select( int indexInFounded )
   return true;
 }
 
-bool MAbstractDBWrapper::save( int indexInInitiated )
+bool MAbstractDBWrapper::save( QObject *object )
 {
-  if ( isRunning() ) return false;
-
-  locker()->lockForRead();
-  QObject *object = pObject( (int)Initiated, indexInInitiated );
-  locker()->unlock();
-  if ( object == NULL ) return false;
+  if ( isRunning() || object == NULL ) return false;
 
   setObjective( (int)Saving, QVariant::fromValue( object ) );
 

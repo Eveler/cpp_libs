@@ -9,6 +9,7 @@ MProcedureDataSource *m__ProcedureDataSource = NULL;
 MRecipientDataSource *m__RecipientDataSource = NULL;
 MDepartmentDataSource *m__DepartmentDataSource = NULL;
 MDirectionDataSource *m__DirectionDataSource = NULL;
+MUserDataSource *m__UserDataSource = NULL;
 
 void MAKCDataset::initializeMAKC( QObject *parent )
 {
@@ -20,6 +21,7 @@ void MAKCDataset::initializeMAKC( QObject *parent )
   m__RecipientDataSource = new MRecipientDataSource( parent );
   m__DepartmentDataSource = new MDepartmentDataSource( parent );
   m__DirectionDataSource = new MDirectionDataSource( parent );
+  m__UserDataSource = new MUserDataSource( parent );
 }
 
 MDoctypeDataSource * MAKCDataset::MAKC_DoctypeDataSource()
@@ -60,4 +62,9 @@ MDepartmentDataSource * MAKCDataset::MAKC_DepartmentDataSource()
 MDirectionDataSource * MAKCDataset::MAKC_DirectionDataSource()
 {
   return m__DirectionDataSource;
+}
+
+MUserDataSource * MAKCDataset::MAKC_UserDataSource()
+{
+  return m__UserDataSource;
 }

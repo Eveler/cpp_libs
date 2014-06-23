@@ -16,7 +16,6 @@ class EXPORT_MMODELS MSortModel : public QSortFilterProxyModel
     Q_OBJECT
     Q_PROPERTY(MObjectModel * sourceModel READ sourceModel WRITE setSourceModel NOTIFY sourceModelChanged)
     Q_PROPERTY(MSortProperties * sortProperties READ sortProperties NOTIFY sortPropertiesChanged)
-    Q_PROPERTY(int count READ count NOTIFY countChanged)
 
 
   public:
@@ -30,13 +29,10 @@ class EXPORT_MMODELS MSortModel : public QSortFilterProxyModel
 
     Q_INVOKABLE void sort();
 
-    virtual int count() const;
-
 
   signals:
     void sourceModelChanged();
     void sortPropertiesChanged();
-    void countChanged();
 
 
   public slots:

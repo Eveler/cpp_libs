@@ -27,9 +27,7 @@ MObjectModel * MSortModel::sourceModel() const
 
 void MSortModel::setSourceModel( MObjectModel * sourceModel )
 {
-  this->disconnect( SIGNAL(countChanged()) );
   QSortFilterProxyModel::setSourceModel( sourceModel );
-  connect( sourceModel, SIGNAL(countChanged()), SIGNAL(countChanged()) );
 
   emit sourceModelChanged();
 }
@@ -42,12 +40,6 @@ MSortProperties * MSortModel::sortProperties() const
 void MSortModel::sort()
 {
   QSortFilterProxyModel::sort( 0 );
-}
-
-int MSortModel::count() const
-{
-  MObjectModel *sourceModel = this->sourceModel();
-  return sourceModel->count();
 }
 
 bool MSortModel::lessThan( const QModelIndex &left, const QModelIndex &right ) const

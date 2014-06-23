@@ -32,10 +32,10 @@ MDatabase * MDatabase::instance( QObject *parent )
   return m__Instance;
 }
 
-void MDatabase::createDatabase( const QString &driverName, const QString &connectionName, const QString &hostName, int port,
+bool MDatabase::createDatabase( const QString &driverName, const QString &connectionName, const QString &hostName, int port,
                                 const QString &databaseName, const QString &userName, const QString &password )
 {
-  if ( !QSqlDatabase::isDriverAvailable( driverName ) || QSqlDatabase::connectionNames().contains( connectionName ) ) return;
+  if ( !QSqlDatabase::isDriverAvailable( driverName ) || QSqlDatabase::connectionNames().contains( connectionName ) ) return false;
 
   QSqlDatabase database = QSqlDatabase::addDatabase( driverName, connectionName );
   database.setHostName( hostName );
@@ -43,6 +43,11 @@ void MDatabase::createDatabase( const QString &driverName, const QString &connec
   database.setDatabaseName( databaseName );
   database.setUserName( userName );
   database.setPassword( password );
+
+  bool result = database.open();
+  if ( !result )
+    QSqlDatabase::removeDatabase( connectionName );
+  return result;
 }
 
 QSqlQuery * MDatabase::getQuery( const QString &queryText, const QString &connectionName )

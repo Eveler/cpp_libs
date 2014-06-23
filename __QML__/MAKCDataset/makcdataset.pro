@@ -19,7 +19,9 @@ INCLUDEPATH += ./ \
     ./Procedure/ \
     ./Recipient/ \
     ./Department/ \
-    ./Direction/
+    ./Direction/ \
+    ./Service/ \
+    ./User/
 
 
 # Input
@@ -42,7 +44,9 @@ SOURCES += \
     Department/mdepartmentdatasource.cpp \
     Direction/mdirectiondbwrapper.cpp \
     Direction/mdirectiondatasource.cpp \
-    Service/mservicedbwrapper.cpp
+    Service/mservicedbwrapper.cpp \
+    User/muserdbwrapper.cpp \
+    User/muserdatasource.cpp
 
 HEADERS += \
     makcdataset_plugin.h \
@@ -63,7 +67,9 @@ HEADERS += \
     Department/mdepartmentdatasource.h \
     Direction/mdirectiondbwrapper.h \
     Direction/mdirectiondatasource.h \
-    Service/mservicedbwrapper.h
+    Service/mservicedbwrapper.h \
+    User/muserdbwrapper.h \
+    User/muserdatasource.h
 
 OTHER_FILES = qmldir
 

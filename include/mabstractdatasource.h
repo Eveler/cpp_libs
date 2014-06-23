@@ -34,7 +34,7 @@ class EXPORT_MDATASET MAbstractDataSource : public QObject
     Q_INVOKABLE virtual void findObject( const QString &filter = QString() );
     Q_INVOKABLE virtual void initiateObject();
     Q_INVOKABLE virtual void selectObject( int indexInFounded );
-    Q_INVOKABLE virtual void saveObject( int indexInInitiated );
+    Q_INVOKABLE virtual void saveObject( QObject *object );
 
     QString connectionName() const;
     void setConnectionName( const QString & connectionName );

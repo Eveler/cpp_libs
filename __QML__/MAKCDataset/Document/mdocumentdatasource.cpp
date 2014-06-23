@@ -77,7 +77,6 @@ void MDocumentDataSource::findObjectFinished()
 
 void MDocumentDataSource::initiateObjectFinished()
 {
-
   dbWrapper()->releaseOldResources();
 
   emit statusChanged();
@@ -85,9 +84,17 @@ void MDocumentDataSource::initiateObjectFinished()
 
 void MDocumentDataSource::saveObjectFinished()
 {
+  disconnect( dbWrapper(), SIGNAL(finished()), this, SLOT(saveObjectFinished()) );
 
+  int savedObjectIndex = this->savedObjectIndex();
+  if ( savedObjectIndex != -1 )
+  {
+    this->setSavedObjectIndex( -1 );
+    initiated()->removeObjects( savedObjectIndex, savedObjectIndex );
+  }
   dbWrapper()->releaseOldResources();
 
+  emit saved();
   emit statusChanged();
 }
 /*

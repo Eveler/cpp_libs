@@ -40,7 +40,7 @@ class EXPORT_MDATASET MAbstractDBWrapper : public QThread, public ObjectListPriv
     virtual bool find( const QString &filter );
     virtual bool initiate();
     virtual bool select( int indexInFounded );
-    virtual bool save( int indexInInitiated );
+    virtual bool save( QObject *object );
 
     QObject * object( int sourceType, int index ) const;
     int count( int sourceType ) const;

@@ -18,7 +18,7 @@ class EXPORT_MDATASET MDatabase : public QObject
     ~MDatabase();
 
     static MDatabase * instance( QObject *parent = NULL );
-    Q_INVOKABLE void createDatabase( const QString &driverName, const QString &connectionName, const QString &hostName, int port,
+    Q_INVOKABLE bool createDatabase( const QString &driverName, const QString &connectionName, const QString &hostName, int port,
                                      const QString &databaseName, const QString &userName, const QString &password );
     QSqlQuery * getQuery( const QString &queryText, const QString &connectionName );
 
