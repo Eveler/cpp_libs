@@ -16,6 +16,7 @@
 MDocument::MDocument( QQuickItem *parent ) :
   QQuickItem( parent ),
   m__Type(NULL),
+  m__Revoker(NULL),
   m__ExternalLinksCount(0)
 {
 
@@ -116,6 +117,32 @@ void MDocument::setSource( QUrl source )
 {
   m__Source = source;
   emit sourceChanged();
+}
+
+MUser * MDocument::revoker() const
+{
+  return m__Revoker;
+}
+
+void MDocument::setRevoker( MUser *revoker )
+{
+  if ( m__Revoker != NULL )
+    m__Revoker->decrementExternalLinks();
+  m__Revoker = revoker;
+  if ( m__Revoker != NULL )
+    m__Revoker->incrementExternalLinks();
+  emit revokerChanged();
+}
+
+QDateTime MDocument::revoked() const
+{
+  return m__Revoked;
+}
+
+void MDocument::setRevoked( QDateTime revoked )
+{
+  m__Revoked = revoked;
+  emit revokedChanged();
 }
 
 int MDocument::externalLinksCount() const
@@ -266,9 +293,11 @@ bool MDocumentDBWrapper::searching( MHuman *human )
   }
   if ( !qry->next() ) return true;
 
-  currentQuery = tr( "SELECT docs.id, docs.doctype_id, docs.docname, docs.docseries, docs.docdate, docs.expires, docs.docagency_id, docs.url"
+  currentQuery = tr( "SELECT docs.id, docs.doctype_id, docs.docname, docs.docseries, docs.docdate, docs.expires,"
+                     "   docs.docagency_id, docs.url, docs.revoke_date, docs.revoke_user_id, docs.revoke_comment"
                      " FROM client_documents cdocs, documents docs WHERE cdocs.documents_id=docs.id AND cdocs.clients_id=%1"
-                     " GROUP BY docs.id, docs.doctype_id, docs.docname, docs.docseries, docs.docdate, docs.expires, docs.docagency_id, docs.url"
+                     " GROUP BY docs.id, docs.doctype_id, docs.docname, docs.docseries, docs.docdate, docs.expires,"
+                     "   docs.docagency_id, docs.url, docs.revoke_date, docs.revoke_user_id, docs.revoke_comment"
                      " ORDER BY docs.id" ).arg( qry->record().value( 0 ).toInt() );
   qry->clear();
   delete qry;
@@ -320,6 +349,8 @@ bool MDocumentDBWrapper::searching( MHuman *human )
     }
 
     MDoctypeDBWrapper *doctypeDBWrapper = qobject_cast<MDoctypeDBWrapper *>( MAKCDataset::MAKC_DoctypeDataSource()->dbWrapper() );
+    MUserDBWrapper *userDBWrapper = qobject_cast<MUserDBWrapper *>( MAKCDataset::MAKC_UserDataSource()->dbWrapper() );
+
     if ( document == NULL )
     {
 //      qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tобъект с ID" << identifier;
@@ -338,6 +369,8 @@ bool MDocumentDBWrapper::searching( MHuman *human )
     document->setCreated( qry->record().value( "docdate" ).toDate() );
     document->setExpires( qry->record().value( "expires" ).toDate() );
     document->setSource( QUrl( qry->record().value( "url" ).toString() ) );
+    document->setRevoker( userDBWrapper->user( qry->record().value( "revoke_user_id" ) ) );
+    document->setRevoked( qry->record().value( "revoke_date" ).toDateTime() );
   }
   qry->clear();
   delete qry;
@@ -385,9 +418,11 @@ bool MDocumentDBWrapper::searching( MOrganization *organization )
   }
   if ( !qry->next() ) return true;
 
-  currentQuery = tr( "SELECT docs.id, docs.doctype_id, docs.docname, docs.docseries, docs.docdate, docs.expires, docs.docagency_id, docs.url"
+  currentQuery = tr( "SELECT docs.id, docs.doctype_id, docs.docname, docs.docseries, docs.docdate, docs.expires,"
+                     "   docs.docagency_id, docs.url, docs.revoke_date, docs.revoke_user_id, docs.revoke_comment"
                      " FROM client_documents cdocs, documents docs WHERE cdocs.documents_id=docs.id AND cdocs.clients_id=%1"
-                     " GROUP BY docs.id, docs.doctype_id, docs.docname, docs.docseries, docs.docdate, docs.expires, docs.docagency_id, docs.url"
+                     " GROUP BY docs.id, docs.doctype_id, docs.docname, docs.docseries, docs.docdate, docs.expires,"
+                     "   docs.docagency_id, docs.url, docs.revoke_date, docs.revoke_user_id, docs.revoke_comment"
                      " ORDER BY docs.id" ).arg( qry->record().value( 0 ).toInt() );
   qry->clear();
   delete qry;
@@ -439,6 +474,8 @@ bool MDocumentDBWrapper::searching( MOrganization *organization )
     }
 
     MDoctypeDBWrapper *doctypeDBWrapper = qobject_cast<MDoctypeDBWrapper *>( MAKCDataset::MAKC_DoctypeDataSource()->dbWrapper() );
+    MUserDBWrapper *userDBWrapper = qobject_cast<MUserDBWrapper *>( MAKCDataset::MAKC_UserDataSource()->dbWrapper() );
+
     if ( document == NULL )
     {
 //      qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tобъект с ID" << identifier;
@@ -457,6 +494,8 @@ bool MDocumentDBWrapper::searching( MOrganization *organization )
     document->setCreated( qry->record().value( "docdate" ).toDate() );
     document->setExpires( qry->record().value( "expires" ).toDate() );
     document->setSource( QUrl( qry->record().value( "url" ).toString() ) );
+    document->setRevoker( userDBWrapper->user( qry->record().value( "revoke_user_id" ) ) );
+    document->setRevoked( qry->record().value( "revoke_date" ).toDateTime() );
   }
   qry->clear();
   delete qry;
@@ -491,6 +530,86 @@ bool MDocumentDBWrapper::initiating()
 
 bool MDocumentDBWrapper::saving( QObject *object )
 {
+  QSqlDatabase database = QSqlDatabase::database( connectionName(), false );
+  if ( !database.open() )
+  {
+    qDebug() << __func__ << __LINE__ << database.lastError().text();
+
+    return false;
+  }
+
+  locker()->lockForWrite();
+
+  MDocument *document = qobject_cast<MDocument *>( object );
+  if ( document == NULL )
+  {
+    qDebug() << __func__ << __LINE__ << "Document object is NULL";
+    locker()->unlock();
+
+    return false;
+  }
+  else if ( document->type() == NULL )
+  {
+    qDebug() << __func__ << __LINE__ << "Document type is NULL";
+    locker()->unlock();
+
+    return false;
+  }
+  else if ( document->created().isNull() )
+  {
+    qDebug() << __func__ << __LINE__ << "Document date is NULL";
+    locker()->unlock();
+
+    return false;
+  }
+
+  QString identifier = document->identifier().toString();
+  QString doctype = document->type()->identifier().toString();
+  QString name = document->name(); /*===*/ name = ( name.isNull() ? "NULL" : "'"+name.replace( "'", "''" )+"'" );
+  QString series = document->series(); /*===*/ series = ( series.isNull() ? "''" : "'"+series.replace( "'", "''" )+"'" );
+  QString number = document->number(); /*===*/ number = ( number.isNull() ? "''" : "'"+number.replace( "'", "''" )+"'" );
+  QString created = "'"+document->created().toString( "dd.MM.yyyy" )+"'";
+  QString expires = ( document->expires().isNull() ? "NULL" : "'"+document->expires().toString( "dd.MM.yyyy" )+"'" );
+  QString source = document->source().toString(); /*===*/ source = ( source.isNull() ? "NULL" : "'"+source.replace( "'", "''" )+"'" );
+  QString revoker = ( document->revoker() == NULL ? "NULL" : document->revoker()->identifier().toString() );
+  QString revoked = ( document->revoked().isNull() ? "NULL" : "'"+document->revoked().toString( "dd.MM.yyyy hh:mm:ss" )+"'" );
+
+  QString currentQuery = tr( "SELECT EXISTS ((SELECT id FROM documents WHERE id=%1))" ).arg( identifier );
+  QSqlQuery qry( database );
+  if ( !qry.exec( currentQuery ) || !qry.next() )
+  {
+    qDebug() << __func__ << __LINE__ << qry.lastError().text() << "\n" << currentQuery;
+    return false;
+  }
+  bool updating = qry.value( 0 ).toBool();
+  qry.clear();
+  if ( updating )
+    currentQuery = tr( "UPDATE documents SET doctype_id=$doctype$, docname=$name$, docseries=$series$, docnum=$number$, docdate=$created$, expires=$expires$,"
+                       " modified=now(), url=$source$, revoke_user_id=$revoker$, revoke_date=$revoked$ WHERE id=$identifier$" );
+  else
+    currentQuery = tr( "INSERT INTO documents (doctype_id, docname, docseries, docnum, docdate, expires, url, revoke_user_id, revoke_date, id)"
+                       " VALUES ($doctype$, $name$, $series$, $number$, $created$, $expires$, $source$, $revoker$, $revoked$, $identifier$)" );
+  currentQuery = currentQuery.replace( "$doctype$", doctype );
+  currentQuery = currentQuery.replace( "$name$", name );
+  currentQuery = currentQuery.replace( "$series$", series );
+  currentQuery = currentQuery.replace( "$number$", number );
+  currentQuery = currentQuery.replace( "$created$", created );
+  currentQuery = currentQuery.replace( "$expires$", expires );
+  currentQuery = currentQuery.replace( "$source$", source );
+  currentQuery = currentQuery.replace( "$revoker$", revoker );
+  currentQuery = currentQuery.replace( "$revoked$", revoked );
+  currentQuery = currentQuery.replace( "$identifier$", identifier );
+  if ( !qry.exec( currentQuery ) )
+  {
+    qDebug() << __func__ << __LINE__ << qry.lastError().text() << "\n" << currentQuery;
+    return false;
+  }
+  qry.clear();
+
+  int index = pIndex( (int)Initiated, document );
+  if ( index != -1 ) pTake( (int)Initiated, index );
+  locker()->unlock();
+
   return true;
 }
 /*

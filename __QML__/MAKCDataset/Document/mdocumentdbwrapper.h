@@ -7,6 +7,7 @@
 
 
 class MDoctype;
+class MUser;
 
 class MDocument : public QQuickItem
 {
@@ -20,6 +21,8 @@ class MDocument : public QQuickItem
     Q_PROPERTY(QDate created READ created WRITE setCreated NOTIFY createdChanged)
     Q_PROPERTY(QDate expires READ expires WRITE setExpires NOTIFY expiresChanged)
     Q_PROPERTY(QUrl source READ source WRITE setSource NOTIFY sourceChanged)
+    Q_PROPERTY(MUser * revoker READ revoker WRITE setRevoker NOTIFY revokerChanged)
+    Q_PROPERTY(QDateTime revoked READ revoked WRITE setRevoked NOTIFY revokedChanged)
 
 
   public:
@@ -50,6 +53,12 @@ class MDocument : public QQuickItem
     QUrl source() const;
     void setSource( QUrl source );
 
+    MUser * revoker() const;
+    void setRevoker( MUser *revoker );
+
+    QDateTime revoked() const;
+    void setRevoked( QDateTime revoked );
+
     int externalLinksCount() const;
 
 
@@ -62,6 +71,8 @@ class MDocument : public QQuickItem
     void createdChanged();
     void expiresChanged();
     void sourceChanged();
+    void revokerChanged();
+    void revokedChanged();
 
 
   private:
@@ -73,6 +84,8 @@ class MDocument : public QQuickItem
     QDate m__Created;
     QDate m__Expires;
     QUrl m__Source;
+    MUser *m__Revoker;
+    QDateTime m__Revoked;
     int m__ExternalLinksCount;
 
     int incrementExternalLinks();

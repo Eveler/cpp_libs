@@ -7,7 +7,7 @@
 class MUser : public QQuickItem
 {
     Q_OBJECT
-    friend class MUserDBWrapper;
+    friend class MDocument;
     Q_PROPERTY(QVariant identifier READ identifier NOTIFY identifierChanged)
     Q_PROPERTY(QVariant surname READ surname WRITE setSurname NOTIFY surnameChanged)
     Q_PROPERTY(QVariant firstname READ firstname WRITE setFirstname NOTIFY firstnameChanged)

@@ -10,6 +10,7 @@ MSortModel::MSortModel( QObject *parent ) :
   QSortFilterProxyModel(parent),
   m__SortProperties(new MSortProperties)
 {
+  setDynamicSortFilter( false );
 }
 
 MSortModel::~MSortModel()
@@ -27,6 +28,7 @@ MObjectModel * MSortModel::sourceModel() const
 
 void MSortModel::setSourceModel( MObjectModel * sourceModel )
 {
+//  qDebug() << this->metaObject()->className() << __func__ << __LINE__;
   QSortFilterProxyModel::setSourceModel( sourceModel );
 
   emit sourceModelChanged();
@@ -39,6 +41,7 @@ MSortProperties * MSortModel::sortProperties() const
 
 void MSortModel::sort()
 {
+//  qDebug() << this->metaObject()->className() << __func__ << __LINE__;
   QSortFilterProxyModel::sort( 0 );
 }
 
@@ -55,7 +58,7 @@ bool MSortModel::lessThan( const QModelIndex &left, const QModelIndex &right ) c
   QObject *leftObject = left.data( leftRoleIndex ).value<QObject *>();
   QObject *rightObject = right.data( rightRoleIndex ).value<QObject *>();
   bool result = ( compare( leftObject, rightObject, m__SortProperties ) == -1 );
-  if ( right.row() % 1000 == 0 ) qApp->processEvents();
+//  if ( right.row() % 1000 == 0 ) qApp->processEvents();
 //  qDebug() << __func__ << result;
   return result;
 }
