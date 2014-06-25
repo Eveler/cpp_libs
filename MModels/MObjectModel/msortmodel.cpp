@@ -71,8 +71,8 @@ int MSortModel::compare( QObject *left, QObject *right, MSortProperties *sortPro
   {
     QString sortProperty = sortProperties->sortProperty( index );
     QVariant sortOrder = sortProperties->sortOrder( index )->value();
-//    qDebug() << __func__ << __LINE__ << sortOrder;
-//    qDebug() << __func__ << __LINE__ << sortOrder.canConvert<MSortProperties *>();
+//    LogDebug() << sortOrder;
+//    LogDebug() << sortOrder.canConvert<MSortProperties *>();
     if ( sortOrder.canConvert<MSortProperties *>() )
     {
       MSortProperties *sort = sortOrder.value<MSortProperties *>();
@@ -89,7 +89,7 @@ int MSortModel::compare( QObject *left, QObject *right, MSortProperties *sortPro
 //        result = ( left->property( sortProperty.toLocal8Bit() ) > right->property( sortProperty.toLocal8Bit() ) );
         result = compare( right->property( sortProperty.toLocal8Bit() ), left->property( sortProperty.toLocal8Bit() ) );
 
-//      qDebug() << __func__ << __LINE__ << res << left->property( sortProperty.toLocal8Bit() ) << right->property( sortProperty.toLocal8Bit() );
+//      LogDebug() << res << left->property( sortProperty.toLocal8Bit() ) << right->property( sortProperty.toLocal8Bit() );
     }
 
     if ( result != 0 ) break;

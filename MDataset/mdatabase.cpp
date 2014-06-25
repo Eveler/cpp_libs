@@ -3,8 +3,9 @@
 #include <QReadWriteLock>
 #include <QSqlDatabase>
 #include <QSqlQuery>
+#include <QSqlError>
 
-#include <QDebug>
+#include "amslogger.h"
 
 
 MDatabase *MDatabase::m__Instance = NULL;
@@ -35,7 +36,12 @@ MDatabase * MDatabase::instance( QObject *parent )
 bool MDatabase::createDatabase( const QString &driverName, const QString &connectionName, const QString &hostName, int port,
                                 const QString &databaseName, const QString &userName, const QString &password )
 {
-  if ( !QSqlDatabase::isDriverAvailable( driverName ) || QSqlDatabase::connectionNames().contains( connectionName ) ) return false;
+  LogDebug() << "<<= Try create database connection =>>";
+  if ( QSqlDatabase::connectionNames().contains( connectionName ) )
+  {
+    LogDebug() << "Connection" << connectionName << "already exists.";
+    return false;
+  }
 
   QSqlDatabase database = QSqlDatabase::addDatabase( driverName, connectionName );
   database.setHostName( hostName );
@@ -46,7 +52,11 @@ bool MDatabase::createDatabase( const QString &driverName, const QString &connec
 
   bool result = database.open();
   if ( !result )
+  {
     QSqlDatabase::removeDatabase( connectionName );
+    LogDebug() << QSqlDatabase::drivers();
+    LogDebug() << database.lastError().text();
+  }
   return result;
 }
 

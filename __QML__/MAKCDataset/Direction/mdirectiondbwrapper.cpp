@@ -9,6 +9,8 @@
 #include <QSqlRecord>
 #include <QTime>
 
+#include "amslogger.h"
+
 
 /*
  * Begin C++ - QML class definition: *[ MDirection ]*
@@ -93,7 +95,7 @@ MDirection * MDirectionDBWrapper::direction( QVariant identifier )
     QSqlQuery *qry = MDatabase::instance()->getQuery( currentQuery, connectionName() );
     if ( qry->lastError().isValid() || !qry->next() )
     {
-      qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
+      LogDebug() << qry->lastError().text();
       locker()->unlock();
       return result;
     }
@@ -136,7 +138,7 @@ QList<MDirection *> MDirectionDBWrapper::directions( QVariantList identifiers )
     QSqlQuery *qry = MDatabase::instance()->getQuery( currentQuery, connectionName() );
     if ( qry->lastError().isValid() )
     {
-      qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
+      LogDebug() << qry->lastError().text();
       locker()->unlock();
       return result;
     }
@@ -171,7 +173,7 @@ bool MDirectionDBWrapper::searching( const QString &queryText )
   QSqlQuery *qry = MDatabase::instance()->getQuery( maxIdQuery, connectionName() );
   if ( qry->lastError().isValid() || !qry->next() )
   {
-    qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
+    LogDebug() << qry->lastError().text();
     return false;
   }
   int maxId = qry->record().value( 0 ).toInt();
@@ -182,7 +184,7 @@ bool MDirectionDBWrapper::searching( const QString &queryText )
   qry = MDatabase::instance()->getQuery( currentQuery, connectionName() );
   if ( qry->lastError().isValid() )
   {
-    qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
+    LogDebug() << qry->lastError().text();
     return false;
   }
 
@@ -218,7 +220,7 @@ bool MDirectionDBWrapper::searching( const QString &queryText )
 
         if ( identifier > oldDirection->identifier().toInt() || maxId < oldDirection->identifier().toInt() )
         {
-          //        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tудалить объект с ID" << identifier;
+          //        LogDebug() << "\tудалить объект с ID" << identifier;
           pTake( (int)Founded, index );
           index--;
           directionsCount--;
@@ -231,7 +233,7 @@ bool MDirectionDBWrapper::searching( const QString &queryText )
         }
         else if ( identifier == oldDirection->identifier().toInt() )
         {
-          //        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tзапомнить объект с ID" << identifier;
+          //        LogDebug() << "\tзапомнить объект с ID" << identifier;
           insertIntoFounded = false;
           lastFounded = index;
           break;
@@ -240,7 +242,7 @@ bool MDirectionDBWrapper::searching( const QString &queryText )
 
       if ( direction == NULL )
       {
-        //      qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tобъект с ID" << identifier;
+        //      LogDebug() << "\tобъект с ID" << identifier;
         direction = new MDirection;
         direction->moveToThread( parent()->thread() );
         m__ExistDirections[identifier] = direction;
@@ -253,7 +255,7 @@ bool MDirectionDBWrapper::searching( const QString &queryText )
       }
       direction->setName( qry->record().value( "aname" ).toString() );
     }
-    //  qDebug() << metaObject()->className() << __func__ << __LINE__ << pCount( human->documents() ) << counted;
+    //  LogDebug() << pCount( human->documents() ) << counted;
   }
   locker()->unlock();
   qry->clear();

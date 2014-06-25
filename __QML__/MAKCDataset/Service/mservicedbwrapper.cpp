@@ -9,6 +9,8 @@
 #include <QSqlRecord>
 #include <QTime>
 
+#include "amslogger.h"
+
 
 /*
  * Begin C++ - QML class definition: *[ MService ]*
@@ -148,7 +150,7 @@ MService * MServiceDBWrapper::service( QVariant identifier )
     QSqlQuery *qry = MDatabase::instance()->getQuery( currentQuery, connectionName() );
     if ( qry->lastError().isValid() || !qry->next() )
     {
-      qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
+      LogDebug() << qry->lastError().text();
       locker()->unlock();
       return result;
     }
@@ -217,7 +219,7 @@ bool MServiceDBWrapper::searching( MService *parentService )
   QSqlQuery *qry = MDatabase::instance()->getQuery( maxIdQuery, connectionName() );
   if ( qry->lastError().isValid() || !qry->next() )
   {
-    qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
+    LogDebug() << qry->lastError().text();
     return false;
   }
   int maxId = qry->record().value( 0 ).toInt();
@@ -228,7 +230,7 @@ bool MServiceDBWrapper::searching( MService *parentService )
   qry = MDatabase::instance()->getQuery( currentQuery, connectionName() );
   if ( qry->lastError().isValid() )
   {
-    qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
+    LogDebug() << qry->lastError().text();
     return false;
   }
 
@@ -276,7 +278,7 @@ bool MServiceDBWrapper::searching( MService *parentService )
 
         if ( identifier > oldService->identifier().toInt() || maxId < oldService->identifier().toInt() )
         {
-          //        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tудалить объект с ID" << identifier;
+          //        LogDebug() << "\tудалить объект с ID" << identifier;
           pTake( (int)Founded, index );
           index--;
           servicesCount--;
@@ -289,7 +291,7 @@ bool MServiceDBWrapper::searching( MService *parentService )
         }
         else if ( identifier == oldService->identifier().toInt() )
         {
-          //        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tзапомнить объект с ID" << identifier;
+          //        LogDebug() << "\tзапомнить объект с ID" << identifier;
           insertIntoFounded = false;
           lastFounded = index;
           break;
@@ -298,7 +300,7 @@ bool MServiceDBWrapper::searching( MService *parentService )
 
       if ( service == NULL )
       {
-        //      qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tобъект с ID" << identifier;
+        //      LogDebug() << "\tобъект с ID" << identifier;
         service = new MService;
         service->moveToThread( parent()->thread() );
         m__ExistServices[identifier] = service;
@@ -311,7 +313,7 @@ bool MServiceDBWrapper::searching( MService *parentService )
       }
       service->setName( qry->record().value( "aname" ).toString() );
     }
-    //  qDebug() << metaObject()->className() << __func__ << __LINE__ << pCount( human->documents() ) << counted;
+    //  LogDebug() << pCount( human->documents() ) << counted;
   }
   locker()->unlock();
   qry->clear();

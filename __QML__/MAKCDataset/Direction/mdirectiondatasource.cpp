@@ -19,7 +19,7 @@ MDirectionDataSource::~MDirectionDataSource()
     MAbstractDBWrapper *wrapper = dbWrapper();
     setDBWrapper( NULL );
 
-  //  qDebug() << __func__ << __LINE__ << wrapper;
+  //  LogDebug() << wrapper;
     delete wrapper;
     wrapper = NULL;
 }

@@ -8,7 +8,8 @@ uri = extensions.mihail.makcdataset
 
 LIB_LIST = \
     -lMModels \
-    -lMDataset
+    -lMDataset \
+    -lAMSLogger
 
 INCLUDEPATH += ./ \
     ../../include/ \

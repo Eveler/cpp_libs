@@ -9,6 +9,8 @@
 #include <QSqlRecord>
 #include <QTime>
 
+#include "amslogger.h"
+
 
 /*
  * Begin C++ - QML class definition: *[ MHuman ]*
@@ -169,7 +171,7 @@ MHuman * MHumanDBWrapper::human( QVariant identifier )
     QSqlQuery *qry = MDatabase::instance()->getQuery( currentQuery, pConnectionName() );
     if ( qry->lastError().isValid() )
     {
-      qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
+      LogDebug() << qry->lastError().text();
       locker()->unlock();
       return result;
     }
@@ -218,7 +220,7 @@ QList<MHuman *> MHumanDBWrapper::humans( QVariantList identifiers )
     QSqlQuery *qry = MDatabase::instance()->getQuery( currentQuery, pConnectionName() );
     if ( qry->lastError().isValid() )
     {
-      qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
+      LogDebug() << qry->lastError().text();
       locker()->unlock();
       return result;
     }
@@ -261,7 +263,7 @@ bool MHumanDBWrapper::searching( const QString &queryText )
   QSqlQuery *qry = MDatabase::instance()->getQuery( maxIdQuery, connectionName() );
   if ( qry->lastError().isValid() || !qry->next() )
   {
-    qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
+    LogDebug() << qry->lastError().text();
     return false;
   }
   int maxId = qry->record().value( 0 ).toInt();
@@ -272,7 +274,7 @@ bool MHumanDBWrapper::searching( const QString &queryText )
   qry = MDatabase::instance()->getQuery( currentQuery, connectionName() );
   if ( qry->lastError().isValid() )
   {
-    qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
+    LogDebug() << qry->lastError().text();
     return false;
   }
 
@@ -310,7 +312,7 @@ bool MHumanDBWrapper::searching( const QString &queryText )
 
         if ( identifier > oldHuman->identifier().toInt() || maxId < oldHuman->identifier().toInt() )
         {
-          //        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tудалить объект с ID" << identifier;
+          //        LogDebug() << "\tудалить объект с ID" << identifier;
           pTake( (int)Founded, index );
           index--;
           humansCount--;
@@ -324,7 +326,7 @@ bool MHumanDBWrapper::searching( const QString &queryText )
         }
         else if ( identifier == oldHuman->identifier().toInt() )
         {
-          //        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tзапомнить объект с ID" << identifier;
+          //        LogDebug() << "\tзапомнить объект с ID" << identifier;
           insertIntoFounded = false;
           lastFounded = index;
           break;
@@ -333,7 +335,7 @@ bool MHumanDBWrapper::searching( const QString &queryText )
 
       if ( human == NULL )
       {
-        //      qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tобъект с ID" << identifier;
+        //      LogDebug() << "\tобъект с ID" << identifier;
         human = new MHuman;
         human->moveToThread( parent()->thread() );
         m__ExistHumans[identifier] = human;
@@ -352,6 +354,7 @@ bool MHumanDBWrapper::searching( const QString &queryText )
       human->setEmail( qry->record().value( "e-mail" ) );
       human->setBirthday( qry->record().value( "birthday" ) );
     }
+
     int humansCount = pCount( (int)Founded );
     for ( int index = lastFounded+1; index < humansCount; index++ )
     {
@@ -382,7 +385,7 @@ bool MHumanDBWrapper::initiating()
   QSqlDatabase database = QSqlDatabase::database( connectionName(), false );
   if ( !database.open() )
   {
-    qDebug() << __func__ << __LINE__ << database.lastError().text();
+    LogDebug() << database.lastError().text();
     return false;
   }
 
@@ -390,7 +393,7 @@ bool MHumanDBWrapper::initiating()
   QSqlQuery qry( currentQuery, database );
   if ( qry.lastError().isValid() || !qry.next() )
   {
-    qDebug() << __func__ << __LINE__ << qry.lastError().text();
+    LogDebug() << qry.lastError().text();
     return false;
   }
   locker()->lockForWrite();
@@ -411,7 +414,7 @@ bool MHumanDBWrapper::saving( QObject *object )
   QSqlDatabase database = QSqlDatabase::database( connectionName(), false );
   if ( !database.open() )
   {
-    qDebug() << __func__ << __LINE__ << database.lastError().text();
+    LogDebug() << database.lastError().text();
 
     return false;
   }
@@ -421,7 +424,7 @@ bool MHumanDBWrapper::saving( QObject *object )
   MHuman *human = qobject_cast<MHuman *>( object );
   if ( human == NULL )
   {
-    qDebug() << __func__ << __LINE__ << "Human object is NULL";
+    LogDebug() << "Human object is NULL";
     locker()->unlock();
 
     return false;
@@ -440,7 +443,9 @@ bool MHumanDBWrapper::saving( QObject *object )
   QSqlQuery qry( database );
   if ( !qry.exec( currentQuery ) || !qry.next() )
   {
-    qDebug() << __func__ << __LINE__ << qry.lastError().text() << "\n" << currentQuery;
+    LogDebug() << qry.lastError().text() << "\n" << currentQuery;
+    locker()->unlock();
+
     return false;
   }
   bool updating = qry.value( 0 ).toBool();
@@ -452,7 +457,9 @@ bool MHumanDBWrapper::saving( QObject *object )
   currentQuery = currentQuery.arg( surname, firstname, lastname, address, phone, email, birthday, identifier );
   if ( !qry.exec( currentQuery ) )
   {
-    qDebug() << __func__ << __LINE__ << qry.lastError().text() << "\n" << currentQuery;
+    LogDebug() << qry.lastError().text() << "\n" << currentQuery;
+    locker()->unlock();
+
     return false;
   }
   qry.clear();
@@ -460,7 +467,9 @@ bool MHumanDBWrapper::saving( QObject *object )
   currentQuery = tr( "SELECT NOT EXISTS ((SELECT id FROM clients WHERE clid=%1 AND isorg=0))" ).arg( identifier );
   if ( !qry.exec( currentQuery ) || !qry.next() )
   {
-    qDebug() << __func__ << __LINE__ << qry.lastError().text() << "\n" << currentQuery;
+    LogDebug() << qry.lastError().text() << "\n" << currentQuery;
+    locker()->unlock();
+
     return false;
   }
   bool insert = qry.value( 0 ).toBool();
@@ -470,7 +479,9 @@ bool MHumanDBWrapper::saving( QObject *object )
     currentQuery = tr( "INSERT INTO clients (clid, isorg) VALUES (%1, %2)" ).arg( identifier, "0" );
     if ( !qry.exec( currentQuery ) )
     {
-      qDebug() << __func__ << __LINE__ << qry.lastError().text() << "\n" << currentQuery;
+      LogDebug() << qry.lastError().text() << "\n" << currentQuery;
+      locker()->unlock();
+
       return false;
     }
     qry.clear();

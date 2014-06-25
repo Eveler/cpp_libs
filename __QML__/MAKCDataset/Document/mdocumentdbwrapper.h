@@ -113,8 +113,9 @@ class MDocumentDBWrapper : public MAbstractDBWrapper
     ~MDocumentDBWrapper();
 
     bool find( const QString &filter );
-    bool find( MHuman *human );
-    bool find( MOrganization *organization );
+    bool find( MHuman *human, const QString &filter );
+    bool find( MOrganization *organization, const QString &filter );
+    bool save( QObject *clientObject, MDocument *document );
 
     QObject * searched();
 
@@ -125,10 +126,11 @@ class MDocumentDBWrapper : public MAbstractDBWrapper
   protected:
     void job( int objectiveType, const QVariant &objectiveValue );
     bool searching( const QString &queryText );
-    bool searching( MHuman *human );
-    bool searching( MOrganization *organization );
+    bool searching( MHuman *human, const QString &filter );
+    bool searching( MOrganization *organization, const QString &filter );
     bool initiating();
     bool saving( QObject *object );
+    bool saving( QObject *clientObject, MDocument *document );
 
 
   private:

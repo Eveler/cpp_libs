@@ -9,6 +9,8 @@
 #include <QSqlRecord>
 #include <QTime>
 
+#include "amslogger.h"
+
 
 /*
  * Begin C++ - QML class definition: *[ MOrganization ]*
@@ -151,7 +153,7 @@ bool MOrganizationDBWrapper::searching( const QString &queryText )
   QSqlQuery *qry = MDatabase::instance()->getQuery( maxIdQuery, connectionName() );
   if ( qry->lastError().isValid() || !qry->next() )
   {
-    qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
+    LogDebug() << qry->lastError().text();
     return false;
   }
   int maxId = qry->record().value( 0 ).toInt();
@@ -162,7 +164,7 @@ bool MOrganizationDBWrapper::searching( const QString &queryText )
   qry = MDatabase::instance()->getQuery( currentQuery, connectionName() );
   if ( qry->lastError().isValid() )
   {
-    qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
+    LogDebug() << qry->lastError().text();
     return false;
   }
 
@@ -204,7 +206,7 @@ bool MOrganizationDBWrapper::searching( const QString &queryText )
 
         if ( identifier > oldOrganization->identifier().toInt() || maxId < oldOrganization->identifier().toInt() )
         {
-          //        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tудалить объект с ID" << identifier;
+          //        LogDebug() << "\tудалить объект с ID" << identifier;
           pTake( (int)Founded, index );
           index--;
           organizationsCount--;
@@ -218,7 +220,7 @@ bool MOrganizationDBWrapper::searching( const QString &queryText )
         }
         else if ( identifier == oldOrganization->identifier().toInt() )
         {
-          //        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tзапомнить объект с ID" << identifier;
+          //        LogDebug() << "\tзапомнить объект с ID" << identifier;
           insertIntoFounded = false;
           lastFounded = index;
           break;
@@ -227,7 +229,7 @@ bool MOrganizationDBWrapper::searching( const QString &queryText )
 
       if ( organization == NULL )
       {
-        //      qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tобъект с ID" << identifier;
+        //      LogDebug() << "\tобъект с ID" << identifier;
         organization = new MOrganization;
         organization->moveToThread( parent()->thread() );
         m__ExistOrganizations[identifier] = organization;
@@ -244,11 +246,29 @@ bool MOrganizationDBWrapper::searching( const QString &queryText )
       organization->setEmail( qry->record().value( "e-mail" ) );
       organization->setDelegate( humanDBWrapper->human( qry->record().value( "human_id" ) ) );
     }
+
+    int organizationsCount = pCount( (int)Founded );
+    for ( int index = lastFounded+1; index < organizationsCount; index++ )
+    {
+      MOrganization *oldOrganization = qobject_cast<MOrganization *>( pObject( (int)Founded, index ) );
+
+      pTake( (int)Founded, index );
+      index--;
+      organizationsCount--;
+
+      if ( oldOrganization->externalLinksCount() == 0 && pIndex( (int)Initiated, oldOrganization ) == -1 )
+      {
+        documentDBWrapper->releaseOrganizationDocuments( oldOrganization );
+        m__ExistOrganizations.remove( oldOrganization->identifier().toInt() );
+        connect( this, SIGNAL(aboutToReleaseOldResources()), oldOrganization, SLOT(deleteLater()) );
+      }
+    }
   }
-  locker()->unlock();
   qry->clear();
   delete qry;
   qry = NULL;
+
+  locker()->unlock();
 
   return true;
 }

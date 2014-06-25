@@ -9,6 +9,8 @@
 #include <QSqlRecord>
 #include <QTime>
 
+#include "amslogger.h"
+
 
 /*
  * Begin C++ - QML class definition: *[ MUser ]*
@@ -128,7 +130,7 @@ MUser * MUserDBWrapper::user( QVariant identifier )
     QSqlQuery *qry = MDatabase::instance()->getQuery( currentQuery, pConnectionName() );
     if ( qry->lastError().isValid() )
     {
-      qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
+      LogDebug() << qry->lastError().text();
       locker()->unlock();
       return result;
     }
@@ -174,7 +176,7 @@ QList<MUser *> MUserDBWrapper::users( QVariantList identifiers )
     QSqlQuery *qry = MDatabase::instance()->getQuery( currentQuery, pConnectionName() );
     if ( qry->lastError().isValid() )
     {
-      qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
+      LogDebug() << qry->lastError().text();
       locker()->unlock();
       return result;
     }
@@ -212,7 +214,7 @@ bool MUserDBWrapper::searching( const QString &queryText )
   QSqlQuery *qry = MDatabase::instance()->getQuery( maxIdQuery, connectionName() );
   if ( qry->lastError().isValid() || !qry->next() )
   {
-    qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
+    LogDebug() << qry->lastError().text();
     return false;
   }
   int maxId = qry->record().value( 0 ).toInt();
@@ -223,7 +225,7 @@ bool MUserDBWrapper::searching( const QString &queryText )
   qry = MDatabase::instance()->getQuery( currentQuery, connectionName() );
   if ( qry->lastError().isValid() )
   {
-    qDebug() << metaObject()->className() << __func__ << __LINE__ << qry->lastError().text();
+    LogDebug() << qry->lastError().text();
     return false;
   }
 
@@ -260,7 +262,7 @@ bool MUserDBWrapper::searching( const QString &queryText )
 
         if ( identifier > oldUser->identifier().toInt() || maxId < oldUser->identifier().toInt() )
         {
-          //        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tудалить объект с ID" << identifier;
+          //        LogDebug() << "\tудалить объект с ID" << identifier;
           pTake( (int)Founded, index );
           index--;
           usersCount--;
@@ -273,7 +275,7 @@ bool MUserDBWrapper::searching( const QString &queryText )
         }
         else if ( identifier == oldUser->identifier().toInt() )
         {
-          //        qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tзапомнить объект с ID" << identifier;
+          //        LogDebug() << "\tзапомнить объект с ID" << identifier;
           insertIntoFounded = false;
           lastFounded = index;
           break;
@@ -282,7 +284,7 @@ bool MUserDBWrapper::searching( const QString &queryText )
 
       if ( user == NULL )
       {
-        //      qDebug() << metaObject()->className() << __func__ << __LINE__ << "\tобъект с ID" << identifier;
+        //      LogDebug() << "\tобъект с ID" << identifier;
         user = new MUser;
         user->moveToThread( parent()->thread() );
         m__ExistUsers[identifier] = user;
