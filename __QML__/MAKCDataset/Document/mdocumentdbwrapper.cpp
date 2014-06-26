@@ -730,6 +730,7 @@ bool MDocumentDBWrapper::saving( QObject *clientObject, MDocument *document )
     }
     else
     {
+      m__ExistDocuments[identifier.toInt()] = document;
       pInsert( documents, document, pCount( documents ) );
       document->incrementExternalLinks();
     }

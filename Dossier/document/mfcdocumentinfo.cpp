@@ -9,9 +9,8 @@
 QList<MFCDocumentInfo *> MFCDocumentInfo::instances = QList<MFCDocumentInfo *>();
 
 MFCDocumentInfo * MFCDocumentInfo::instance(
-    QString doc_type, QString doc_name, QString doc_series,
-    QString doc_number, QDate doc_date, QDate doc_expires,
-    QString doc_agency, QDateTime doc_createdate, QObject *parent )
+    QString doc_type, QString doc_name, QString doc_series, QString doc_number, QDate doc_date, QDate doc_expires,
+    QString doc_agency, QDateTime doc_createdate, QString doc_revoker, QDateTime doc_revoked, QObject *parent)
 {
   foreach ( MFCDocumentInfo *docInfo, instances )
   {
@@ -31,6 +30,8 @@ MFCDocumentInfo * MFCDocumentInfo::instance(
   docI->setExpiresDate( doc_expires );
   docI->setAgency( doc_agency );
   docI->setCreateDate( doc_createdate );
+  docI->setRevoker( doc_revoker );
+  docI->setRevoked( doc_revoked );
   instances << docI;
   return docI;
 }
@@ -147,6 +148,18 @@ void MFCDocumentInfo::setInitial( bool doc_initial )
   emit propertyChanged( "initial", doc_initial );
 }
 
+void MFCDocumentInfo::setRevoker( const QString &doc_revoker )
+{
+  m__Revoker = doc_revoker;
+  emit propertyChanged( "revoker", doc_revoker );
+}
+
+void MFCDocumentInfo::setRevoked( QDateTime doc_revoked )
+{
+  m__Revoked = doc_revoked;
+  emit propertyChanged( "revoked", doc_revoked );
+}
+
 const QString & MFCDocumentInfo::type() const
 {
   return m__Type;
@@ -222,6 +235,16 @@ bool MFCDocumentInfo::initial() const
   return m__Initial;
 }
 
+const QString & MFCDocumentInfo::revoker() const
+{
+  return m__Revoker;
+}
+
+const QDateTime & MFCDocumentInfo::revoked() const
+{
+  return m__Revoked;
+}
+
 void MFCDocumentInfo::removeAll()
 {
   while ( !instances.isEmpty() )
@@ -260,6 +283,8 @@ MFCDocumentInfo::MFCDocumentInfo( QObject *parent ) :
   m__LocalFile = QString();
   m__CreateDate = QDateTime::currentDateTime();
   m__Initial = false;
+  m__Revoker = QString();
+  m__Revoked = QDateTime();
   connect( this, SIGNAL(destroyed()), SLOT(remove()) );
 }
 
