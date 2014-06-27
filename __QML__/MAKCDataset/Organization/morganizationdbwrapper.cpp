@@ -275,12 +275,121 @@ bool MOrganizationDBWrapper::searching( const QString &queryText )
 
 bool MOrganizationDBWrapper::initiating()
 {
+  QSqlDatabase database = QSqlDatabase::database( connectionName(), false );
+  if ( !database.open() )
+  {
+    LogDebug() << database.lastError().text();
+    return false;
+  }
+
+  QString currentQuery = tr( "SELECT nextval('orgs_id_seq')" );
+  QSqlQuery qry( currentQuery, database );
+  if ( qry.lastError().isValid() || !qry.next() )
+  {
+    LogDebug() << qry.lastError().text();
+    return false;
+  }
+  locker()->lockForWrite();
+
+  MOrganization *organization = new MOrganization;
+  organization->setIdentifier( qry.record().value( 0 ) );
+  pInsert( (int)Initiated, organization );
+  organization->moveToThread( parent()->thread() );
+  qry.clear();
+
+  locker()->unlock();
+
   return true;
 }
 
 bool MOrganizationDBWrapper::saving( QObject *object )
 {
-  Q_UNUSED(object)
+  QSqlDatabase database = QSqlDatabase::database( connectionName(), false );
+  if ( !database.open() )
+  {
+    LogDebug() << database.lastError().text();
+
+    return false;
+  }
+
+  locker()->lockForWrite();
+
+  MOrganization *organization = qobject_cast<MOrganization *>( object );
+  if ( organization == NULL )
+  {
+    LogDebug() << "Organization object is NULL";
+    locker()->unlock();
+
+    return false;
+  }
+
+  QString identifier = organization->identifier().toString();
+  QString name = ( organization->name().isNull() ? "NULL" : "'"+organization->name().toString().replace( "'", "''" )+"'" );
+  QString address = ( organization->address().isNull() ? "NULL" : "'"+organization->address().toString().replace( "'", "''" )+"'" );
+  QString phone = ( organization->phone().isNull() ? "NULL" : "'"+organization->phone().toString().replace( "'", "''" )+"'" );
+  QString email = ( organization->email().isNull() ? "NULL" : "'"+organization->email().toString().replace( "'", "''" )+"'" );
+  QString delegate = ( organization->delegate() == NULL ? "NULL" : organization->delegate()->identifier().toString() );
+
+  QString currentQuery = tr( "SELECT EXISTS ((SELECT id FROM orgs WHERE id=%1))" ).arg( identifier );
+  QSqlQuery qry( database );
+  if ( !qry.exec( currentQuery ) || !qry.next() )
+  {
+    LogDebug() << qry.lastError().text() << "\n" << currentQuery;
+    locker()->unlock();
+
+    return false;
+  }
+  bool updating = qry.value( 0 ).toBool();
+  qry.clear();
+  if ( updating )
+    currentQuery = tr( "UPDATE orgs SET fullname=$name$, addr=$address$, phone=$phone$, \"e-mail\"=$email$, human_id=$delegate$ WHERE id=$identifier$" );
+  else
+    currentQuery = tr( "INSERT INTO humans (fullname, addr, phone, \"e-mail\", human_id, id) VALUES ($name, $address$, $phone$, $email$, $delegate$, $identifier$)" );
+  currentQuery = currentQuery.replace( tr( "$name$" ), name );
+  currentQuery = currentQuery.replace( tr( "$address$" ), address );
+  currentQuery = currentQuery.replace( tr( "$phone$" ), phone );
+  currentQuery = currentQuery.replace( tr( "$email$" ), email );
+  currentQuery = currentQuery.replace( tr( "$delegate$" ), delegate );
+  currentQuery = currentQuery.replace( tr( "$identifier$" ), identifier );
+  if ( !qry.exec( currentQuery ) )
+  {
+    LogDebug() << qry.lastError().text() << "\n" << currentQuery;
+    locker()->unlock();
+
+    return false;
+  }
+  qry.clear();
+
+  currentQuery = tr( "SELECT NOT EXISTS ((SELECT id FROM clients WHERE clid=%1 AND isorg=1))" ).arg( identifier );
+  if ( !qry.exec( currentQuery ) || !qry.next() )
+  {
+    LogDebug() << qry.lastError().text() << "\n" << currentQuery;
+    locker()->unlock();
+
+    return false;
+  }
+  bool insert = qry.value( 0 ).toBool();
+  qry.clear();
+  if ( insert )
+  {
+    currentQuery = tr( "INSERT INTO clients (clid, isorg) VALUES (%1, %2)" ).arg( identifier, "1" );
+    if ( !qry.exec( currentQuery ) )
+    {
+      LogDebug() << qry.lastError().text() << "\n" << currentQuery;
+      locker()->unlock();
+
+      return false;
+    }
+    qry.clear();
+  }
+
+  m__ExistOrganizations[identifier.toInt()] = organization;
+  pInsert( (int)Founded, organization );
+  int index = pIndex( (int)Initiated, organization );
+  pTake( (int)Initiated, index );
+
+  locker()->unlock();
+
   return true;
 }
 /*

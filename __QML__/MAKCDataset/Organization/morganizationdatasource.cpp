@@ -37,28 +37,25 @@ void MOrganizationDataSource::findObjectFinished()
 
 void MOrganizationDataSource::initiateObjectFinished()
 {
-//  disconnect( dbWrapper(), SIGNAL(finished()), this, SLOT(initiateObjectFinished()) );
+  disconnect( dbWrapper(), SIGNAL(finished()), this, SLOT(initiateObjectFinished()) );
 
-//  int index = dbWrapper()->count( (int)MAbstractDBWrapper::Initiated )-1;
-//  initiated()->insertObjects( index, index );
+  int index = dbWrapper()->count( (int)MAbstractDBWrapper::Initiated )-1;
+  initiated()->insertObjects( index, index );
 
-//  dbWrapper()->releaseOldResources();
+  dbWrapper()->releaseOldResources();
 
   emit statusChanged();
 }
 
 void MOrganizationDataSource::saveObjectFinished()
 {
-//  disconnect( dbWrapper(), SIGNAL(finished()), this, SLOT(saveObjectFinished()) );
+  disconnect( dbWrapper(), SIGNAL(finished()), this, SLOT(saveObjectFinished()) );
 
-//  int index = dbWrapper()->count( MAbstractDBWrapper::Selected )-1;
-//  selected()->insertObjects( index, index );
+  int index = savedObjectIndex();
+  setSavedObjectIndex( -1 );
+  initiated()->removeObjects( index, index );
 
-//  index = savedObjectIndex();
-//  setSavedObjectIndex( -1 );
-//  initiated()->removeObjects( index, index );
-
-//  dbWrapper()->releaseOldResources();
+  dbWrapper()->releaseOldResources();
 
   emit saved();
   emit statusChanged();

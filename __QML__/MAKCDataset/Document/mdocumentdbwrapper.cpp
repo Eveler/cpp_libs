@@ -450,10 +450,10 @@ bool MDocumentDBWrapper::searching( MOrganization *organization, const QString &
   }
   if ( !qry->next() ) return true;
 
-  currentQuery = tr( "SELECT docs.id, docs.doctype_id, docs.docname, docs.docseries, docs.docdate, docs.expires,"
+  currentQuery = tr( "SELECT docs.id, docs.doctype_id, docs.docname, docs.docseries, docs.docnum, docs.docdate, docs.expires,"
                      "   docs.docagency_id, docs.url, docs.revoke_date, docs.revoke_user_id, docs.revoke_comment"
                      " FROM client_documents cdocs, documents docs WHERE cdocs.documents_id=docs.id AND cdocs.clients_id=%1 AND %2"
-                     " GROUP BY docs.id, docs.doctype_id, docs.docname, docs.docseries, docs.docdate, docs.expires,"
+                     " GROUP BY docs.id, docs.doctype_id, docs.docname, docs.docseries, docs.docnum, docs.docdate, docs.expires,"
                      "   docs.docagency_id, docs.url, docs.revoke_date, docs.revoke_user_id, docs.revoke_comment"
                      " ORDER BY docs.id" ).arg( qry->record().value( 0 ).toInt() ).arg( filter.isEmpty() ? "true" : filter );
   qry->clear();

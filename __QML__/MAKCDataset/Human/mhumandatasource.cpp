@@ -51,10 +51,7 @@ void MHumanDataSource::saveObjectFinished()
 {
   disconnect( dbWrapper(), SIGNAL(finished()), this, SLOT(saveObjectFinished()) );
 
-  int index = dbWrapper()->count( MAbstractDBWrapper::Selected )-1;
-  selected()->insertObjects( index, index );
-
-  index = savedObjectIndex();
+  int index = savedObjectIndex();
   setSavedObjectIndex( -1 );
   initiated()->removeObjects( index, index );
 

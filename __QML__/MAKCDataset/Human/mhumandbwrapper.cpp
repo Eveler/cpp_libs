@@ -487,9 +487,10 @@ bool MHumanDBWrapper::saving( QObject *object )
     qry.clear();
   }
 
+  m__ExistHumans[identifier.toInt()] = human;
+  pInsert( (int)Founded, human );
   int index = pIndex( (int)Initiated, human );
   pTake( (int)Initiated, index );
-  pInsert( (int)Selected, human );
 
   locker()->unlock();
 
