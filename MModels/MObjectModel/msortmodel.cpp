@@ -29,9 +29,11 @@ MObjectModel * MSortModel::sourceModel() const
 void MSortModel::setSourceModel( MObjectModel * sourceModel )
 {
 //  qDebug() << this->metaObject()->className() << __func__ << __LINE__;
+  QAbstractItemModel *abstractItemModel = sourceModel;
+  bool changed = ( abstractItemModel != QSortFilterProxyModel::sourceModel() );
   QSortFilterProxyModel::setSourceModel( sourceModel );
 
-  emit sourceModelChanged();
+  if ( changed ) emit sourceModelChanged();
 }
 
 MSortProperties * MSortModel::sortProperties() const
