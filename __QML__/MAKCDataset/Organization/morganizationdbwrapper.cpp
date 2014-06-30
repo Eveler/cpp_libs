@@ -18,7 +18,8 @@
 MOrganization::MOrganization( QQuickItem *parent ) :
   QQuickItem(parent),
   m__Delegate(NULL),
-  m__Documents(new MDataSourceModel( this ))
+  m__Documents(new MDataSourceModel( this )),
+  m__ExternalLinksCount(0)
 {
 }
 

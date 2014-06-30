@@ -13,10 +13,11 @@ class EXPORT_MDATASET MAbstractDataSource : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString connectionName READ connectionName WRITE setConnectionName NOTIFY connectionNameChanged)
-    Q_PROPERTY(int status READ status NOTIFY statusChanged)
+    Q_PROPERTY(Statuses status READ status NOTIFY statusChanged)
     Q_PROPERTY(MDataSourceModel * founded READ founded NOTIFY foundedChanged)
     Q_PROPERTY(MDataSourceModel * initiated READ initiated NOTIFY initiatedChanged)
     Q_PROPERTY(MDataSourceModel * selected READ selected NOTIFY selectedChanged)
+    Q_ENUMS(Statuses)
 
 
   public:
@@ -38,7 +39,7 @@ class EXPORT_MDATASET MAbstractDataSource : public QObject
 
     QString connectionName() const;
     void setConnectionName( const QString & connectionName );
-    int status() const;
+    Statuses status() const;
     MDataSourceModel * founded() const;
     MDataSourceModel * initiated() const;
     MDataSourceModel * selected() const;

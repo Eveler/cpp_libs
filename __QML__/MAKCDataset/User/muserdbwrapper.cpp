@@ -16,7 +16,8 @@
  * Begin C++ - QML class definition: *[ MUser ]*
 */
 MUser::MUser( QQuickItem *parent ) :
-  QQuickItem(parent)
+  QQuickItem(parent),
+  m__ExternalLinksCount(0)
 {
 }
 

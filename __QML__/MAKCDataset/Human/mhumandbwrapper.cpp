@@ -17,7 +17,8 @@
 */
 MHuman::MHuman( QQuickItem *parent ) :
   QQuickItem(parent),
-  m__Documents(new MDataSourceModel( this ))
+  m__Documents(new MDataSourceModel( this )),
+  m__ExternalLinksCount(0)
 {
 }
 
@@ -267,6 +268,7 @@ bool MHumanDBWrapper::searching( const QString &queryText )
     return false;
   }
   int maxId = qry->record().value( 0 ).toInt();
+//  LogDebug() << "maxId" << maxId;
   qry->clear();
   delete qry;
   qry = NULL;

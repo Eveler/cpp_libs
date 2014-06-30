@@ -112,7 +112,7 @@ void MAbstractDataSource::setConnectionName( const QString &connectionName )
   emit connectionNameChanged();
 }
 
-int MAbstractDataSource::status() const
+MAbstractDataSource::Statuses MAbstractDataSource::status() const
 {
   if ( m__Wrapper == NULL || !m__Wrapper->isRunning() ) return Ready;
 
