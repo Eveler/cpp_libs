@@ -3,7 +3,6 @@ import logging
 from uuid import uuid4
 
 from sqlalchemy.engine import create_engine
-from sqlalchemy.schema import MetaData
 
 from declarlocker.objects import Base, DeclarLock
 
@@ -26,7 +25,7 @@ class LockManager:
         uid = uuid4()
         obj.set_uid(uid.__str__())
         self.registered.append(uid.__str__())
-        logging.debug("Registered client uid = %s", uid)
+        logging.info("Registered client uid = %s, addr = %s", uid, obj.host)
         return uid.__str__()
 
     def is_registered(self, uid):
@@ -36,7 +35,7 @@ class LockManager:
         c = []
         for l, o in self.clients:
             if o.uid == uid:
-                logging.info("Deleting lock %s.", l)
+                logging.info("Deleting lock %s. Client addr: %s", l, o.host)
                 c.append(o)
                 self.session.delete(l)
                 self.session.commit()
@@ -77,14 +76,14 @@ class LockManager:
                 .filter(DeclarLock.table_name == table_name).filter(DeclarLock.priority < priority).all():
             for l, o in self.clients:
                 if l == instance:
-                    logging.info("Notifying client %s to unlock %s.", o, instance)
+                    logging.info("Notifying client %s (addr: %s) to unlock %s.", o, o.host, instance)
                     o.notify({"table_name": table_name, "table_id": table_id, "user": user})
 
         lock = DeclarLock(table_id, table_name, user, priority)
         self.session.add(lock)
         self.session.commit()
         self.clients.append([lock, obj])
-        logging.info("Added %s", lock)
+        logging.info("Added %s. Client addr: %s", lock, obj.host)
         return True
 
     def locked_by(self, table_id, table_name):
@@ -98,19 +97,19 @@ class LockManager:
         Delete lock
         """
         for instance in self.session.query(DeclarLock).filter(DeclarLock.table_id == table_id) \
-                .filter(DeclarLock.table_name == table_name)\
+                .filter(DeclarLock.table_name == table_name) \
                 .filter(DeclarLock.priority == priority).all():
             for l, o in self.clients:
                 if l == instance:
-                    logging.info("Deleting lock %s.", instance)
+                    logging.info("Deleting lock %s. Client addr: %s", instance, o.host)
                     self.session.delete(instance)
                     self.session.commit()
                     self.clients.remove([l, o])
                     o.notify(False)
 
-# metadata = MetaData()
-# engine = create_engine('sqlite:///:memory:', echo=True)
-# engine = create_engine('sqlite:///:memory:', echo=(logging.root.level == logging.DEBUG))
+                # metadata = MetaData()
+                # engine = create_engine('sqlite:///:memory:', echo=True)
+                # engine = create_engine('sqlite:///:memory:', echo=(logging.root.level == logging.DEBUG))
 
     def connect_db(self, dbstr):
         engine = create_engine(dbstr, echo=(logging.root.level == logging.DEBUG))

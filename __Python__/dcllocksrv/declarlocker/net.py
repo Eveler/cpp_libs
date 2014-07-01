@@ -12,6 +12,7 @@ from twisted.web import server
 
 # path.insert(0, path[0]+"/jsonrpc")
 # from jsonrpc.server import ServerEvents, JSON_RPC
+from twisted.web.server import Request
 from declarlocker.base import lockmanager
 from declarlocker.pgdbauth import PgPasswordDB
 
@@ -32,6 +33,13 @@ class LockJsonRPC(jsonrpc.JSONRPC):
     """Json RPC to LockManager implementation."""
     uid = None
     d = None
+    host = None
+
+
+    def render(self, request):
+        assert isinstance(request, Request)
+        self.host = request.getHost().host
+        return jsonrpc.JSONRPC.render(self, request)
 
     def jsonrpc_register(self):
         return lockmanager.register(self)
@@ -110,20 +118,20 @@ def site(is_db=None):
 
     from txjsonrpc.auth import wrapResource
 
-# root = Example()
+    # root = Example()
     root = wrapResource(LockJsonRPC(), [checker], realmName="Declar Locker")
     s = server.Site(root)
     return s
 
 
 # def page(arg1, arg2):
-#     return '''
+# return '''
 # <!doctype html>
 # <title>Using server-sent events</title>
 # <ol id="eventlist">nothing sent yet.</ol>
 # <script>
 # if (!!window.EventSource) {
-#   var eventList = document.getElementById("eventlist");
+# var eventList = document.getElementById("eventlist");
 #   var source = new EventSource('/my_event_source');
 #   source.onmessage = function(e) {
 #     var newElement = document.createElement("li");
