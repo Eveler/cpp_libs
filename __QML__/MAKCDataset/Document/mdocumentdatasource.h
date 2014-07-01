@@ -4,8 +4,7 @@
 #include "mabstractdatasource.h"
 
 
-class MHuman;
-class MOrganization;
+class MDocument;
 
 class MDocumentDataSource : public MAbstractDataSource
 {
@@ -16,14 +15,19 @@ class MDocumentDataSource : public MAbstractDataSource
     explicit MDocumentDataSource( QObject *parent = NULL );
     ~MDocumentDataSource();
 
-    Q_INVOKABLE void findObject( MHuman *human );
-    Q_INVOKABLE void findObject( MOrganization *organization );
+    Q_INVOKABLE void findObject( QObject *documentOwner, const QString &filter = QString() );
+    Q_INVOKABLE virtual void saveObject( QObject *documentOwner, MDocument *document );
 
 
   protected slots:
     void findObjectFinished();
     void initiateObjectFinished();
     void saveObjectFinished();
+
+
+  private:
+    QObject *m__SavedDocumentOwner;
+    QObject *m__SavedDocument;
 };
 
 QML_DECLARE_TYPE( MDocumentDataSource )

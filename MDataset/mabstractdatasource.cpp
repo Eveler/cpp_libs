@@ -88,13 +88,13 @@ void MAbstractDataSource::selectObject( int indexInFounded )
   m__Selected->insertObjects( index, index );
 }
 
-void MAbstractDataSource::saveObject( int indexInInitiated )
+void MAbstractDataSource::saveObject( QObject *object )
 {
   if ( m__Wrapper == NULL || m__Wrapper->isRunning() ) return;
 
   connect( m__Wrapper, SIGNAL(finished()), this, SLOT(saveObjectFinished()) );
-  m__SavedObjectIndex = indexInInitiated;
-  if ( m__Wrapper->save( indexInInitiated ) ) emit statusChanged();
+  m__SavedObjectIndex = m__Wrapper->index( MAbstractDBWrapper::Initiated, object );
+  if ( m__Wrapper->save( object ) ) emit statusChanged();
   else disconnect( m__Wrapper, SIGNAL(finished()), this, SLOT(saveObjectFinished()) );
 }
 
@@ -112,7 +112,7 @@ void MAbstractDataSource::setConnectionName( const QString &connectionName )
   emit connectionNameChanged();
 }
 
-int MAbstractDataSource::status() const
+MAbstractDataSource::Statuses MAbstractDataSource::status() const
 {
   if ( m__Wrapper == NULL || !m__Wrapper->isRunning() ) return Ready;
 

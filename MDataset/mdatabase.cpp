@@ -3,8 +3,9 @@
 #include <QReadWriteLock>
 #include <QSqlDatabase>
 #include <QSqlQuery>
+#include <QSqlError>
 
-#include <QDebug>
+#include "amslogger.h"
 
 
 MDatabase *MDatabase::m__Instance = NULL;
@@ -32,10 +33,15 @@ MDatabase * MDatabase::instance( QObject *parent )
   return m__Instance;
 }
 
-void MDatabase::createDatabase( const QString &driverName, const QString &connectionName, const QString &hostName, int port,
+bool MDatabase::createDatabase( const QString &driverName, const QString &connectionName, const QString &hostName, int port,
                                 const QString &databaseName, const QString &userName, const QString &password )
 {
-  if ( !QSqlDatabase::isDriverAvailable( driverName ) || QSqlDatabase::connectionNames().contains( connectionName ) ) return;
+  LogDebug() << "<<= Try create database connection =>>";
+  if ( QSqlDatabase::connectionNames().contains( connectionName ) )
+  {
+    LogDebug() << "Connection" << connectionName << "already exists.";
+    return false;
+  }
 
   QSqlDatabase database = QSqlDatabase::addDatabase( driverName, connectionName );
   database.setHostName( hostName );
@@ -43,6 +49,15 @@ void MDatabase::createDatabase( const QString &driverName, const QString &connec
   database.setDatabaseName( databaseName );
   database.setUserName( userName );
   database.setPassword( password );
+
+  bool result = database.open();
+  if ( !result )
+  {
+    QSqlDatabase::removeDatabase( connectionName );
+    LogDebug() << QSqlDatabase::drivers();
+    LogDebug() << database.lastError().text();
+  }
+  return result;
 }
 
 QSqlQuery * MDatabase::getQuery( const QString &queryText, const QString &connectionName )

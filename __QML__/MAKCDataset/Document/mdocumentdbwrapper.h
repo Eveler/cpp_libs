@@ -7,6 +7,7 @@
 
 
 class MDoctype;
+class MUser;
 
 class MDocument : public QQuickItem
 {
@@ -20,6 +21,8 @@ class MDocument : public QQuickItem
     Q_PROPERTY(QDate created READ created WRITE setCreated NOTIFY createdChanged)
     Q_PROPERTY(QDate expires READ expires WRITE setExpires NOTIFY expiresChanged)
     Q_PROPERTY(QUrl source READ source WRITE setSource NOTIFY sourceChanged)
+    Q_PROPERTY(MUser * revoker READ revoker WRITE setRevoker NOTIFY revokerChanged)
+    Q_PROPERTY(QDateTime revoked READ revoked WRITE setRevoked NOTIFY revokedChanged)
 
 
   public:
@@ -50,6 +53,12 @@ class MDocument : public QQuickItem
     QUrl source() const;
     void setSource( QUrl source );
 
+    MUser * revoker() const;
+    void setRevoker( MUser *revoker );
+
+    QDateTime revoked() const;
+    void setRevoked( QDateTime revoked );
+
     int externalLinksCount() const;
 
 
@@ -62,6 +71,8 @@ class MDocument : public QQuickItem
     void createdChanged();
     void expiresChanged();
     void sourceChanged();
+    void revokerChanged();
+    void revokedChanged();
 
 
   private:
@@ -73,6 +84,8 @@ class MDocument : public QQuickItem
     QDate m__Created;
     QDate m__Expires;
     QUrl m__Source;
+    MUser *m__Revoker;
+    QDateTime m__Revoked;
     int m__ExternalLinksCount;
 
     int incrementExternalLinks();
@@ -100,8 +113,9 @@ class MDocumentDBWrapper : public MAbstractDBWrapper
     ~MDocumentDBWrapper();
 
     bool find( const QString &filter );
-    bool find( MHuman *human );
-    bool find( MOrganization *organization );
+    bool find( MHuman *human, const QString &filter );
+    bool find( MOrganization *organization, const QString &filter );
+    bool save( QObject *clientObject, MDocument *document );
 
     QObject * searched();
 
@@ -112,10 +126,11 @@ class MDocumentDBWrapper : public MAbstractDBWrapper
   protected:
     void job( int objectiveType, const QVariant &objectiveValue );
     bool searching( const QString &queryText );
-    bool searching( MHuman *human );
-    bool searching( MOrganization *organization );
+    bool searching( MHuman *human, const QString &filter );
+    bool searching( MOrganization *organization, const QString &filter );
     bool initiating();
     bool saving( QObject *object );
+    bool saving( QObject *clientObject, MDocument *document );
 
 
   private:

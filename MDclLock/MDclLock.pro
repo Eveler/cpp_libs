@@ -11,6 +11,10 @@ QT       -= gui
 TARGET = MDclLock
 TEMPLATE = lib
 
+exists( ../install_path.pri ){
+    include(../install_path.pri)
+}
+
 DEFINES += MDCLLOCK_LIBRARY
 
 INCLUDEPATH += ./ \
@@ -27,6 +31,11 @@ HEADERS += ../include/mdcllock.h \
 
 unix {
     target.path = /usr/lib
+    INSTALLS += target
+}
+
+win32 {
+    target.path = $$INSTALL_WIN_LIB
     INSTALLS += target
 }
 

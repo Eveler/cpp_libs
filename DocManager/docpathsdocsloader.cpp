@@ -42,7 +42,9 @@ DocumentsModel *DocpathsDocsLoader::load(QVariant foreignID){
                     "    AS agency,"
                     "  d.created,d.url,dd.documents_id,d.doctype_id,"
                     "  dd.added AS \"Добавлен\","
-                    "  user_name_initials(dd.responsible) AS \"Ответственный\" "
+                    "  user_name_initials(dd.responsible) AS \"Ответственный\","
+                    "  user_name_initials(d.revoke_user_id) AS \"Аннулировавший специалист\","
+                    "  d.revoke_date AS \"Дата аннулирования\" "
                     "FROM docpaths_documents dd,documents d,doctypes dt "
                     "WHERE dd.docpaths_id=%1 "
 //                    "  AND (d.expires>=now()::date OR d.expires IS NULL) "
@@ -82,7 +84,9 @@ DocumentsModel *DocpathsDocsLoader::load(QVariant foreignID){
             qry.record().field("date").value().toDate(),
             qry.record().field("expires").value().toDate(),
             qry.record().field("agency").value().toString(),
-            qry.record().field("created").value().toDateTime() );
+            qry.record().field("created").value().toDateTime(),
+            qry.record().field("Аннулировавший специалист").value().toString(),
+            qry.record().field("Дата аннулирования").value().toDateTime() );
       doc->setUrl( qry.record().field("url").value().toString() );
 
       for(int f=0;f<qry.record().count();f++){

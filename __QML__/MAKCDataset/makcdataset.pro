@@ -8,7 +8,8 @@ uri = extensions.mihail.makcdataset
 
 LIB_LIST = \
     -lMModels \
-    -lMDataset
+    -lMDataset \
+    -lAMSLogger
 
 INCLUDEPATH += ./ \
     ../../include/ \
@@ -19,7 +20,9 @@ INCLUDEPATH += ./ \
     ./Procedure/ \
     ./Recipient/ \
     ./Department/ \
-    ./Direction/
+    ./Direction/ \
+    ./Service/ \
+    ./User/
 
 
 # Input
@@ -42,7 +45,9 @@ SOURCES += \
     Department/mdepartmentdatasource.cpp \
     Direction/mdirectiondbwrapper.cpp \
     Direction/mdirectiondatasource.cpp \
-    Service/mservicedbwrapper.cpp
+    Service/mservicedbwrapper.cpp \
+    User/muserdbwrapper.cpp \
+    User/muserdatasource.cpp
 
 HEADERS += \
     makcdataset_plugin.h \
@@ -63,13 +68,16 @@ HEADERS += \
     Department/mdepartmentdatasource.h \
     Direction/mdirectiondbwrapper.h \
     Direction/mdirectiondatasource.h \
-    Service/mservicedbwrapper.h
+    Service/mservicedbwrapper.h \
+    User/muserdbwrapper.h \
+    User/muserdatasource.h
 
 OTHER_FILES = qmldir
 
 QT_5_1_1_MINGW = C:/Qt/Qt5.1.1/5.1.1/mingw48_32/qml
 QT_5_2_0_MINGW = C:/Qt/Qt5.2.0/5.2.0/mingw48_32/qml
-QT_INSTALL_QML = $$QT_5_2_0_MINGW
+QT_5_3_0_MINGW = C:/Qt/Qt5.3.0/5.3/mingw48_32/qml
+QT_INSTALL_QML = $$QT_5_3_0_MINGW
 
 !equals(_PRO_FILE_PWD_, $$OUT_PWD) {
     copy_qmldir.target = $$OUT_PWD/qmldir

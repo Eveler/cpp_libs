@@ -176,7 +176,7 @@ void FtpDocsStorage::ftpAnswer(FTPEngine::Command cmd, bool res){
     if(!curDoc){
       curDoc=MFCDocumentInfo::instance(
             QString(),QString(),QString(),QString(),QDate(),QDate(),QString(),
-            QDateTime(),this);
+               QDateTime(),QString(),QDateTime(),this);
 //      curDoc->setProperty("created_in",tr("%1 (%2)").arg(__FILE__).arg(__LINE__));
     }
     if(!arc){

@@ -28,6 +28,8 @@ class DOSSIER_EXPORT MFCDocumentInfo : public QObject
     Q_PROPERTY(QString localFile READ localFile WRITE setLocalFile)
     Q_PROPERTY(QDateTime created READ createDate WRITE setCreateDate)
     Q_PROPERTY(bool initial READ initial WRITE setInitial)
+    Q_PROPERTY(QString revoker READ revoker WRITE setRevoker)
+    Q_PROPERTY(QDateTime revoked READ revoked WRITE setRevoked)
 
 
   public:
@@ -37,6 +39,8 @@ class DOSSIER_EXPORT MFCDocumentInfo : public QObject
         QDate doc_date = QDate(), QDate doc_expires = QDate(),
         QString doc_agency = QString(),
         QDateTime doc_createdate = QDateTime::currentDateTime(),
+        QString doc_revoker = QString(),
+        QDateTime doc_revoked = QDateTime(),
         QObject *parent = NULL );
     static QStringList document_properties(MFCDocumentInfo *doc);
 
@@ -55,6 +59,8 @@ class DOSSIER_EXPORT MFCDocumentInfo : public QObject
     void setLocalFile( const QString &doc_localFile );
     void setCreateDate( QDateTime doc_createdate );
     void setInitial( bool doc_initial );
+    void setRevoker( const QString &doc_revoker );
+    void setRevoked( QDateTime doc_revoked );
 
     const QString & type() const;
     const QString & name() const;
@@ -71,6 +77,8 @@ class DOSSIER_EXPORT MFCDocumentInfo : public QObject
     const QString & localFile() const;
     const QDateTime & createDate() const;
     bool initial() const;
+    const QString & revoker() const;
+    const QDateTime & revoked() const;
 
     static void removeAll();
 
@@ -100,6 +108,8 @@ class DOSSIER_EXPORT MFCDocumentInfo : public QObject
     QString m__LocalFile;
     QDateTime m__CreateDate;
     bool m__Initial;
+    QString m__Revoker;
+    QDateTime m__Revoked;
 
     explicit MFCDocumentInfo( QObject *parent );
     ~MFCDocumentInfo();

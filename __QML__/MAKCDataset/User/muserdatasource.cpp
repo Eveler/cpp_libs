@@ -1,19 +1,19 @@
-#include "mhumandatasource.h"
+#include "muserdatasource.h"
 
-#include "mhumandbwrapper.h"
+#include "muserdbwrapper.h"
 
 #include <QDebug>
 
 
 /*
- * Begin C++ - QML class definition: *[ MHumanDataSource ]*
+ * Begin C++ - QML class definition: *[ MUserDataSource ]*
 */
-MHumanDataSource::MHumanDataSource(QObject *parent) :
-  MAbstractDataSource(new MHumanDBWrapper(), parent)
+MUserDataSource::MUserDataSource( QObject *parent ) :
+  MAbstractDataSource(new MUserDBWrapper(), parent)
 {
 }
 
-MHumanDataSource::~MHumanDataSource()
+MUserDataSource::~MUserDataSource()
 {
 //  qDebug() << __func__ << __LINE__;
   MAbstractDBWrapper *wrapper = dbWrapper();
@@ -24,7 +24,7 @@ MHumanDataSource::~MHumanDataSource()
   wrapper = NULL;
 }
 
-void MHumanDataSource::findObjectFinished()
+void MUserDataSource::findObjectFinished()
 {
   disconnect( dbWrapper(), SIGNAL(finished()), this, SLOT(findObjectFinished()) );
 
@@ -35,7 +35,7 @@ void MHumanDataSource::findObjectFinished()
   emit statusChanged();
 }
 
-void MHumanDataSource::initiateObjectFinished()
+void MUserDataSource::initiateObjectFinished()
 {
   disconnect( dbWrapper(), SIGNAL(finished()), this, SLOT(initiateObjectFinished()) );
 
@@ -47,11 +47,14 @@ void MHumanDataSource::initiateObjectFinished()
   emit statusChanged();
 }
 
-void MHumanDataSource::saveObjectFinished()
+void MUserDataSource::saveObjectFinished()
 {
   disconnect( dbWrapper(), SIGNAL(finished()), this, SLOT(saveObjectFinished()) );
 
-  int index = savedObjectIndex();
+  int index = dbWrapper()->count( MAbstractDBWrapper::Selected )-1;
+  selected()->insertObjects( index, index );
+
+  index = savedObjectIndex();
   setSavedObjectIndex( -1 );
   initiated()->removeObjects( index, index );
 
@@ -61,5 +64,5 @@ void MHumanDataSource::saveObjectFinished()
   emit statusChanged();
 }
 /*
- * End class definition: *[ MHumanDataSource ]*
+ * End class definition: *[ MUserDataSource ]*
 */

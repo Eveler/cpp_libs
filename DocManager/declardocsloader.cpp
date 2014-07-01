@@ -44,6 +44,8 @@ DocumentsModel *DeclarDocsLoader::load(QVariant foreignID){
                     "  d.created,d.url,dd.documents_id,d.doctype_id,"
                     "  dd.added AS \"Добавлен\","
                     "  user_name_initials(dd.responsible) AS \"Ответственный\","
+                    "  user_name_initials(d.revoke_user_id) AS \"Аннулировавший специалист\","
+                    "  d.revoke_date AS \"Дата аннулирования\","
                     "  dd.initial "
                     " FROM declar_documents dd,documents d,doctypes dt "
                     " WHERE dd.declars_id=%1 "
@@ -83,7 +85,9 @@ DocumentsModel *DeclarDocsLoader::load(QVariant foreignID){
             qry.record().field("date").value().toDate(),
             qry.record().field("expires").value().toDate(),
             qry.record().field("agency").value().toString(),
-            qry.record().field("created").value().toDateTime() );
+            qry.record().field("created").value().toDateTime(),
+            qry.record().field("Аннулировавший специалист").value().toString(),
+            qry.record().field("Дата аннулирования").value().toDateTime() );
       doc->setUrl( qry.record().field("url").value().toString() );
       doc->setInitial( qry.record().field( "initial" ).value().toBool() );
 

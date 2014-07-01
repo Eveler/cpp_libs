@@ -24,6 +24,7 @@ void MAKCDatasetPlugin::initializeEngine( QQmlEngine *engine, const char *uri )
   context->setContextProperty( "MAKCRecipients", MAKC_RecipientDataSource() );
   context->setContextProperty( "MAKCDepartments", MAKC_DepartmentDataSource() );
   context->setContextProperty( "MAKCDirections", MAKC_DirectionDataSource() );
+  context->setContextProperty( "MAKCUsers", MAKC_UserDataSource() );
 }
 
 void MAKCDatasetPlugin::registerTypes( const char *uri )
@@ -44,6 +45,7 @@ void MAKCDatasetPlugin::registerTypes( const char *uri )
   qmlRegisterUncreatableType<MRecipient>( uri, 1, 0, "MRecipient", "" );
   qmlRegisterUncreatableType<MDepartment>( uri, 1, 0, "MDepartment", "" );
   qmlRegisterUncreatableType<MDirection>( uri, 1, 0, "MDirection", "" );
+  qmlRegisterUncreatableType<MUser>( uri, 1, 0, "MUser", "" );
 }
 
 

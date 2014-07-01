@@ -149,8 +149,9 @@ const QList<MFCDocumentInfo *> & Dialog_SelectDocument::exec(
     twi->setCheckState( Qt::Unchecked );
   }
 
-  for ( int rIdx = m__Documents->columnCount()-1; rIdx > 6; rIdx-- )
+  for ( int rIdx = m__Documents->columnCount()-4; rIdx > 6; rIdx-- )
     ui->tableView->hideColumn( rIdx );
+  ui->tableView->hideColumn( m__Documents->columnCount()-1 );
   ui->tableView->resizeColumnsToContents();
 
   ui->tableView->resizeRowsToContents();
@@ -236,6 +237,18 @@ void Dialog_SelectDocument::on_tableView_doubleClicked(const QModelIndex &index)
   else
   {
     if ( ui->wgt_Progress->isVisible() ) return;
+    if ( !doc->revoker().isEmpty() )
+    {
+      foreach ( QAction *action_Doctype, ui->tBt_Create->menu()->actions() )
+        if ( action_Doctype->text() == doc->type() )
+        {
+          QMessageBox::information( this, tr( "Документ аннулирован" ), tr( "Документ «%1» аннулирован пользователем %2 %3" )
+                                    .arg( doc->type() ).arg( doc->revoker() ).arg( doc->revoked().toString( "dd.MM.yyyy 'года в' h 'ч.' m 'мин.'" ) ) );
+          action_Doctype->trigger();
+          break;
+        }
+      return;
+    }
 
     disconnect( m__Docmanager, SIGNAL(dataTransferProgress(qint64,qint64)),
                 this, SLOT(progress(qint64,qint64)) );
