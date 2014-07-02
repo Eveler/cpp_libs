@@ -3,19 +3,21 @@
 
 #include "mabstractdbwrapper.h"
 
+#include <QDate>
+
 
 class MHuman : public QQuickItem
 {
     Q_OBJECT
     friend class MOrganization;
     Q_PROPERTY(QVariant identifier READ identifier NOTIFY identifierChanged)
-    Q_PROPERTY(QVariant surname READ surname WRITE setSurname NOTIFY surnameChanged)
-    Q_PROPERTY(QVariant firstname READ firstname WRITE setFirstname NOTIFY firstnameChanged)
-    Q_PROPERTY(QVariant lastname READ lastname WRITE setLastname NOTIFY lastnameChanged)
-    Q_PROPERTY(QVariant phone READ phone WRITE setPhone NOTIFY phoneChanged)
-    Q_PROPERTY(QVariant address READ address WRITE setAddress NOTIFY addressChanged)
-    Q_PROPERTY(QVariant email READ email WRITE setEmail NOTIFY emailChanged)
-    Q_PROPERTY(QVariant birthday READ birthday WRITE setBirthday NOTIFY birthdayChanged)
+    Q_PROPERTY(QString surname READ surname WRITE setSurname NOTIFY surnameChanged)
+    Q_PROPERTY(QString firstname READ firstname WRITE setFirstname NOTIFY firstnameChanged)
+    Q_PROPERTY(QString lastname READ lastname WRITE setLastname NOTIFY lastnameChanged)
+    Q_PROPERTY(QString phone READ phone WRITE setPhone NOTIFY phoneChanged)
+    Q_PROPERTY(QString address READ address WRITE setAddress NOTIFY addressChanged)
+    Q_PROPERTY(QString email READ email WRITE setEmail NOTIFY emailChanged)
+    Q_PROPERTY(QDate birthday READ birthday WRITE setBirthday NOTIFY birthdayChanged)
     Q_PROPERTY(MDataSourceModel * documents READ documents)
 
 
@@ -26,26 +28,26 @@ class MHuman : public QQuickItem
     QVariant identifier() const;
     void setIdentifier( QVariant identifier );
 
-    const QVariant & surname() const;
-    void setSurname( const QVariant &surname );
+    const QString & surname() const;
+    void setSurname( const QString &surname );
 
-    const QVariant & firstname() const;
-    void setFirstname( const QVariant &firstname );
+    const QString & firstname() const;
+    void setFirstname( const QString &firstname );
 
-    const QVariant & lastname() const;
-    void setLastname( const QVariant &lastname );
+    const QString & lastname() const;
+    void setLastname( const QString &lastname );
 
-    const QVariant & phone() const;
-    void setPhone( const QVariant &phone );
+    const QString & phone() const;
+    void setPhone( const QString &phone );
 
-    const QVariant & address() const;
-    void setAddress( const QVariant &address );
+    const QString & address() const;
+    void setAddress( const QString &address );
 
-    const QVariant & email() const;
-    void setEmail( const QVariant &email );
+    const QString & email() const;
+    void setEmail( const QString &email );
 
-    const QVariant & birthday() const;
-    void setBirthday( const QVariant &birthday );
+    QDate birthday() const;
+    void setBirthday( QDate birthday );
 
     MDataSourceModel * documents() const;
 
@@ -66,13 +68,13 @@ class MHuman : public QQuickItem
 
   private:
     QVariant m__Identifier;
-    QVariant m__Surname;
-    QVariant m__Firstname;
-    QVariant m__Lastname;
-    QVariant m__Phone;
-    QVariant m__Address;
-    QVariant m__Email;
-    QVariant m__Birthday;
+    QString m__Surname;
+    QString m__Firstname;
+    QString m__Lastname;
+    QString m__Phone;
+    QString m__Address;
+    QString m__Email;
+    QDate m__Birthday;
     MDataSourceModel *m__Documents;
     int m__ExternalLinksCount;
 

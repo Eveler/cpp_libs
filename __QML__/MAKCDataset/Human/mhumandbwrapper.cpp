@@ -40,78 +40,78 @@ void MHuman::setIdentifier( QVariant identifier )
   emit identifierChanged();
 }
 
-const QVariant & MHuman::surname() const
+const QString & MHuman::surname() const
 {
   return m__Surname;
 }
 
-void MHuman::setSurname( const QVariant &surname )
+void MHuman::setSurname( const QString &surname )
 {
   m__Surname = surname;
   emit surnameChanged();
 }
 
-const QVariant & MHuman::firstname() const
+const QString & MHuman::firstname() const
 {
   return m__Firstname;
 }
 
-void MHuman::setFirstname( const QVariant &firstname )
+void MHuman::setFirstname( const QString &firstname )
 {
   m__Firstname = firstname;
   emit firstnameChanged();
 }
 
-const QVariant & MHuman::lastname() const
+const QString & MHuman::lastname() const
 {
   return m__Lastname;
 }
 
-void MHuman::setLastname( const QVariant &lastname )
+void MHuman::setLastname( const QString &lastname )
 {
   m__Lastname = lastname;
   emit lastnameChanged();
 }
 
-const QVariant & MHuman::phone() const
+const QString & MHuman::phone() const
 {
   return m__Phone;
 }
 
-void MHuman::setPhone( const QVariant &phone )
+void MHuman::setPhone( const QString &phone )
 {
   m__Phone = phone;
   emit phoneChanged();
 }
 
-const QVariant & MHuman::address() const
+const QString & MHuman::address() const
 {
   return m__Address;
 }
 
-void MHuman::setAddress( const QVariant &address )
+void MHuman::setAddress( const QString &address )
 {
   m__Address = address;
   emit addressChanged();
 }
 
-const QVariant & MHuman::email() const
+const QString & MHuman::email() const
 {
   return m__Email;
 }
 
-void MHuman::setEmail( const QVariant &email )
+void MHuman::setEmail( const QString &email )
 {
   m__Email = email;
   emit emailChanged();
 }
 
-const QVariant & MHuman::birthday() const
+QDate MHuman::birthday() const
 {
   return m__Birthday;
 }
 
-void MHuman::setBirthday( const QVariant &birthday )
+void MHuman::setBirthday( QDate birthday )
 {
   m__Birthday = birthday;
   emit birthdayChanged();
@@ -182,13 +182,13 @@ MHuman * MHumanDBWrapper::human( QVariant identifier )
     result->moveToThread( parent()->thread() );
     m__ExistHumans[identifier] = result;
     result->setIdentifier( identifier );
-    result->setSurname( qry->record().value( "surname" ) );
-    result->setFirstname( qry->record().value( "firstname" ) );
-    result->setLastname( qry->record().value( "lastname" ) );
-    result->setPhone( qry->record().value( "phone" ) );
-    result->setAddress( qry->record().value( "addr" ) );
-    result->setEmail( qry->record().value( "e-mail" ) );
-    result->setBirthday( qry->record().value( "birthday" ) );
+    result->setSurname( qry->record().value( "surname" ).toString() );
+    result->setFirstname( qry->record().value( "firstname" ).toString() );
+    result->setLastname( qry->record().value( "lastname" ).toString() );
+    result->setPhone( qry->record().value( "phone" ).toString() );
+    result->setAddress( qry->record().value( "addr" ).toString() );
+    result->setEmail( qry->record().value( "e-mail" ).toString() );
+    result->setBirthday( qry->record().value( "birthday" ).toDate() );
     locker()->unlock();
     qry->clear();
     delete qry;
@@ -232,13 +232,13 @@ QList<MHuman *> MHumanDBWrapper::humans( QVariantList identifiers )
       human->moveToThread( parent()->thread() );
       m__ExistHumans[identifier] = human;
       human->setIdentifier( identifier );
-      human->setSurname( qry->record().value( "surname" ) );
-      human->setFirstname( qry->record().value( "firstname" ) );
-      human->setLastname( qry->record().value( "lastname" ) );
-      human->setPhone( qry->record().value( "phone" ) );
-      human->setAddress( qry->record().value( "addr" ) );
-      human->setEmail( qry->record().value( "e-mail" ) );
-      human->setBirthday( qry->record().value( "birthday" ) );
+      human->setSurname( qry->record().value( "surname" ).toString() );
+      human->setFirstname( qry->record().value( "firstname" ).toString() );
+      human->setLastname( qry->record().value( "lastname" ).toString() );
+      human->setPhone( qry->record().value( "phone" ).toString() );
+      human->setAddress( qry->record().value( "addr" ).toString() );
+      human->setEmail( qry->record().value( "e-mail" ).toString() );
+      human->setBirthday( qry->record().value( "birthday" ).toDate() );
       result << human;
     }
     qry->clear();
@@ -348,13 +348,13 @@ bool MHumanDBWrapper::searching( const QString &queryText )
         lastFounded++;
         pInsert( (int)Founded, human, lastFounded );
       }
-      human->setSurname( qry->record().value( "surname" ) );
-      human->setFirstname( qry->record().value( "firstname" ) );
-      human->setLastname( qry->record().value( "lastname" ) );
-      human->setPhone( qry->record().value( "phone" ) );
-      human->setAddress( qry->record().value( "addr" ) );
-      human->setEmail( qry->record().value( "e-mail" ) );
-      human->setBirthday( qry->record().value( "birthday" ) );
+      human->setSurname( qry->record().value( "surname" ).toString() );
+      human->setFirstname( qry->record().value( "firstname" ).toString() );
+      human->setLastname( qry->record().value( "lastname" ).toString() );
+      human->setPhone( qry->record().value( "phone" ).toString() );
+      human->setAddress( qry->record().value( "addr" ).toString() );
+      human->setEmail( qry->record().value( "e-mail" ).toString() );
+      human->setBirthday( qry->record().value( "birthday" ).toDate() );
     }
 
     int humansCount = pCount( (int)Founded );
@@ -433,13 +433,13 @@ bool MHumanDBWrapper::saving( QObject *object )
   }
 
   QString identifier = human->identifier().toString();
-  QString surname = ( human->surname().isNull() ? "NULL" : "'"+human->surname().toString().replace( "'", "''" )+"'" );
-  QString firstname = ( human->firstname().isNull() ? "NULL" : "'"+human->firstname().toString().replace( "'", "''" )+"'" );
-  QString lastname = ( human->lastname().isNull() ? "NULL" : "'"+human->lastname().toString().replace( "'", "''" )+"'" );
-  QString address = ( human->address().isNull() ? "NULL" : "'"+human->address().toString().replace( "'", "''" )+"'" );
-  QString phone = ( human->phone().isNull() ? "NULL" : "'"+human->phone().toString().replace( "'", "''" )+"'" );
-  QString email = ( human->email().isNull() ? "NULL" : "'"+human->email().toString().replace( "'", "''" )+"'" );
-  QString birthday = ( human->birthday().isNull() ? "NULL" : "'"+human->birthday().toDate().toString( "dd.MM.yyyy" )+"'" );
+  QString surname = human->surname();       surname = ( surname.isNull() ? "NULL" : "'"+surname.replace( "'", "''" )+"'" );
+  QString firstname = human->firstname();   firstname = ( firstname.isNull() ? "NULL" : "'"+firstname.replace( "'", "''" )+"'" );
+  QString lastname = human->lastname();     lastname = ( lastname.isNull() ? "NULL" : "'"+lastname.replace( "'", "''" )+"'" );
+  QString address = human->address();       address = ( address.isNull() ? "NULL" : "'"+address.replace( "'", "''" )+"'" );
+  QString phone = human->phone();           phone = ( phone.isNull() ? "NULL" : "'"+phone.replace( "'", "''" )+"'" );
+  QString email = human->email();           email = ( email.isNull() ? "NULL" : "'"+email.replace( "'", "''" )+"'" );
+  QString birthday = ( human->birthday().isNull() ? "NULL" : "'"+human->birthday().toString( "dd.MM.yyyy" )+"'" );
 
   QString currentQuery = tr( "SELECT EXISTS ((SELECT id FROM humans WHERE id=%1))" ).arg( identifier );
   QSqlQuery qry( database );

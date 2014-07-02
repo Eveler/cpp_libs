@@ -22,6 +22,7 @@ bool MDclLock::lock(const int table_id, const QString &table_name,
                     const QString &user_name, const int priority,
                     const bool check_is_unlock_need)
 {
+  return true;
   if(!checkSelf()) return true;
 
   QJsonArray params;
@@ -59,6 +60,7 @@ bool MDclLock::lock(const int table_id, const QString &table_name,
 void MDclLock::unlock(const int table_id, const QString &table_name,
                       const int priority)
 {
+  return;
   if(!checkSelf()) return;
 
   QJsonArray params;

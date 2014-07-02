@@ -345,7 +345,7 @@ bool MOrganizationDBWrapper::saving( QObject *object )
   if ( updating )
     currentQuery = tr( "UPDATE orgs SET fullname=$name$, addr=$address$, phone=$phone$, \"e-mail\"=$email$, human_id=$delegate$ WHERE id=$identifier$" );
   else
-    currentQuery = tr( "INSERT INTO humans (fullname, addr, phone, \"e-mail\", human_id, id) VALUES ($name, $address$, $phone$, $email$, $delegate$, $identifier$)" );
+    currentQuery = tr( "INSERT INTO orgs (fullname, addr, phone, \"e-mail\", human_id, id) VALUES ($name, $address$, $phone$, $email$, $delegate$, $identifier$)" );
   currentQuery = currentQuery.replace( tr( "$name$" ), name );
   currentQuery = currentQuery.replace( tr( "$address$" ), address );
   currentQuery = currentQuery.replace( tr( "$phone$" ), phone );
