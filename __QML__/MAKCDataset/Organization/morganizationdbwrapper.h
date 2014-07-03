@@ -10,10 +10,10 @@ class MOrganization : public QQuickItem
 {
     Q_OBJECT
     Q_PROPERTY(QVariant identifier READ identifier NOTIFY identifierChanged)
-    Q_PROPERTY(QVariant name READ name WRITE setName NOTIFY nameChanged)
-    Q_PROPERTY(QVariant phone READ phone WRITE setPhone NOTIFY phoneChanged)
-    Q_PROPERTY(QVariant address READ address WRITE setAddress NOTIFY addressChanged)
-    Q_PROPERTY(QVariant email READ email WRITE setEmail NOTIFY emailChanged)
+    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
+    Q_PROPERTY(QString phone READ phone WRITE setPhone NOTIFY phoneChanged)
+    Q_PROPERTY(QString address READ address WRITE setAddress NOTIFY addressChanged)
+    Q_PROPERTY(QString email READ email WRITE setEmail NOTIFY emailChanged)
     Q_PROPERTY(MHuman * delegate READ delegate WRITE setDelegate NOTIFY delegateChanged)
     Q_PROPERTY(MDataSourceModel * documents READ documents)
 
@@ -25,17 +25,17 @@ class MOrganization : public QQuickItem
     QVariant identifier() const;
     void setIdentifier( QVariant identifier );
 
-    const QVariant & name() const;
-    void setName( const QVariant &name );
+    const QString & name() const;
+    void setName( const QString &name );
 
-    const QVariant & phone() const;
-    void setPhone( const QVariant &phone );
+    const QString & phone() const;
+    void setPhone( const QString &phone );
 
-    const QVariant & address() const;
-    void setAddress( const QVariant &address );
+    const QString & address() const;
+    void setAddress( const QString &address );
 
-    const QVariant & email() const;
-    void setEmail( const QVariant &email );
+    const QString & email() const;
+    void setEmail( const QString &email );
 
     MHuman * delegate() const;
     void setDelegate( MHuman *delegate );
@@ -57,10 +57,10 @@ class MOrganization : public QQuickItem
 
   private:
     QVariant m__Identifier;
-    QVariant m__Name;
-    QVariant m__Phone;
-    QVariant m__Address;
-    QVariant m__Email;
+    QString m__Name;
+    QString m__Phone;
+    QString m__Address;
+    QString m__Email;
     MHuman *m__Delegate;
     MDataSourceModel *m__Documents;
     int m__ExternalLinksCount;

@@ -39,45 +39,45 @@ void MOrganization::setIdentifier( QVariant identifier )
   emit identifierChanged();
 }
 
-const QVariant & MOrganization::name() const
+const QString & MOrganization::name() const
 {
   return m__Name;
 }
 
-void MOrganization::setName( const QVariant &name )
+void MOrganization::setName( const QString &name )
 {
   m__Name = name;
   emit nameChanged();
 }
 
-const QVariant & MOrganization::phone() const
+const QString & MOrganization::phone() const
 {
   return m__Phone;
 }
 
-void MOrganization::setPhone( const QVariant &phone )
+void MOrganization::setPhone( const QString &phone )
 {
   m__Phone = phone;
   emit phoneChanged();
 }
 
-const QVariant & MOrganization::address() const
+const QString & MOrganization::address() const
 {
   return m__Address;
 }
 
-void MOrganization::setAddress( const QVariant &address )
+void MOrganization::setAddress( const QString &address )
 {
   m__Address = address;
   emit addressChanged();
 }
 
-const QVariant & MOrganization::email() const
+const QString & MOrganization::email() const
 {
   return m__Email;
 }
 
-void MOrganization::setEmail( const QVariant &email )
+void MOrganization::setEmail( const QString &email )
 {
   m__Email = email;
   emit emailChanged();
@@ -241,10 +241,10 @@ bool MOrganizationDBWrapper::searching( const QString &queryText )
         lastFounded++;
         pInsert( (int)Founded, organization, lastFounded );
       }
-      organization->setName( qry->record().value( "fullname" ) );
-      organization->setPhone( qry->record().value( "phone" ) );
-      organization->setAddress( qry->record().value( "addr" ) );
-      organization->setEmail( qry->record().value( "e-mail" ) );
+      organization->setName( qry->record().value( "fullname" ).toString() );
+      organization->setPhone( qry->record().value( "phone" ).toString() );
+      organization->setAddress( qry->record().value( "addr" ).toString() );
+      organization->setEmail( qry->record().value( "e-mail" ).toString() );
       organization->setDelegate( humanDBWrapper->human( qry->record().value( "human_id" ) ) );
     }
 
@@ -325,10 +325,10 @@ bool MOrganizationDBWrapper::saving( QObject *object )
   }
 
   QString identifier = organization->identifier().toString();
-  QString name = ( organization->name().isNull() ? "NULL" : "'"+organization->name().toString().replace( "'", "''" )+"'" );
-  QString address = ( organization->address().isNull() ? "NULL" : "'"+organization->address().toString().replace( "'", "''" )+"'" );
-  QString phone = ( organization->phone().isNull() ? "NULL" : "'"+organization->phone().toString().replace( "'", "''" )+"'" );
-  QString email = ( organization->email().isNull() ? "NULL" : "'"+organization->email().toString().replace( "'", "''" )+"'" );
+  QString name = organization->name();          name = ( name.isNull() ? "NULL" : "'"+name.replace( "'", "''" )+"'" );
+  QString address = organization->address();    address = ( address.isNull() ? "NULL" : "'"+address.replace( "'", "''" )+"'" );
+  QString phone = organization->phone();        phone = ( phone.isNull() ? "NULL" : "'"+phone.replace( "'", "''" )+"'" );
+  QString email = organization->email();        email = ( email.isNull() ? "NULL" : "'"+email.replace( "'", "''" )+"'" );
   QString delegate = ( organization->delegate() == NULL ? "NULL" : organization->delegate()->identifier().toString() );
 
   QString currentQuery = tr( "SELECT EXISTS ((SELECT id FROM orgs WHERE id=%1))" ).arg( identifier );
@@ -345,7 +345,7 @@ bool MOrganizationDBWrapper::saving( QObject *object )
   if ( updating )
     currentQuery = tr( "UPDATE orgs SET fullname=$name$, addr=$address$, phone=$phone$, \"e-mail\"=$email$, human_id=$delegate$ WHERE id=$identifier$" );
   else
-    currentQuery = tr( "INSERT INTO orgs (fullname, addr, phone, \"e-mail\", human_id, id) VALUES ($name, $address$, $phone$, $email$, $delegate$, $identifier$)" );
+    currentQuery = tr( "INSERT INTO orgs (fullname, addr, phone, \"e-mail\", human_id, id) VALUES ($name$, $address$, $phone$, $email$, $delegate$, $identifier$)" );
   currentQuery = currentQuery.replace( tr( "$name$" ), name );
   currentQuery = currentQuery.replace( tr( "$address$" ), address );
   currentQuery = currentQuery.replace( tr( "$phone$" ), phone );

@@ -55,6 +55,9 @@ void MOrganizationDataSource::saveObjectFinished()
   setSavedObjectIndex( -1 );
   initiated()->removeObjects( index, index );
 
+  index = dbWrapper()->count( (int)MAbstractDBWrapper::Founded )-1;
+  founded()->insertObjects( index, index );
+
   dbWrapper()->releaseOldResources();
 
   emit saved();
