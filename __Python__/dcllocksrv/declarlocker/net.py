@@ -38,7 +38,7 @@ class LockJsonRPC(jsonrpc.JSONRPC):
 
     def render(self, request):
         assert isinstance(request, Request)
-        self.host = request.getHost().host
+        self.host = request.getClientIP()
         return jsonrpc.JSONRPC.render(self, request)
 
     def jsonrpc_register(self):
