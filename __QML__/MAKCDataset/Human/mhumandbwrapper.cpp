@@ -172,8 +172,10 @@ MHuman * MHumanDBWrapper::human( QVariant identifier )
     QSqlQuery *qry = MDatabase::instance()->getQuery( currentQuery, pConnectionName() );
     if ( qry->lastError().isValid() )
     {
-      LogDebug() << qry->lastError().text();
+      setError( tr( __FILE__ )+QString::number( __LINE__ )+"\n\n"+qry->lastError().text()+"\n"+currentQuery );
+      LogDebug() << pError();
       locker()->unlock();
+
       return result;
     }
     int identifier = qry->record().value( "id" ).toInt();
@@ -221,8 +223,10 @@ QList<MHuman *> MHumanDBWrapper::humans( QVariantList identifiers )
     QSqlQuery *qry = MDatabase::instance()->getQuery( currentQuery, pConnectionName() );
     if ( qry->lastError().isValid() )
     {
-      LogDebug() << qry->lastError().text();
+      setError( tr( __FILE__ )+QString::number( __LINE__ )+"\n\n"+qry->lastError().text()+"\n"+currentQuery );
+      LogDebug() << pError();
       locker()->unlock();
+
       return result;
     }
     while ( qry->next() )
@@ -264,7 +268,11 @@ bool MHumanDBWrapper::searching( const QString &queryText )
   QSqlQuery *qry = MDatabase::instance()->getQuery( maxIdQuery, connectionName() );
   if ( qry->lastError().isValid() || !qry->next() )
   {
-    LogDebug() << qry->lastError().text();
+    locker()->lockForWrite();
+    setError( tr( __FILE__ )+QString::number( __LINE__ )+"\n\n"+qry->lastError().text()+"\n"+maxIdQuery );
+    LogDebug() << pError();
+    locker()->unlock();
+
     return false;
   }
   int maxId = qry->record().value( 0 ).toInt();
@@ -276,7 +284,11 @@ bool MHumanDBWrapper::searching( const QString &queryText )
   qry = MDatabase::instance()->getQuery( currentQuery, connectionName() );
   if ( qry->lastError().isValid() )
   {
-    LogDebug() << qry->lastError().text();
+    locker()->lockForWrite();
+    setError( tr( __FILE__ )+QString::number( __LINE__ )+"\n\n"+qry->lastError().text()+"\n"+currentQuery );
+    LogDebug() << pError();
+    locker()->unlock();
+
     return false;
   }
 
@@ -387,7 +399,11 @@ bool MHumanDBWrapper::initiating()
   QSqlDatabase database = QSqlDatabase::database( connectionName(), false );
   if ( !database.open() )
   {
-    LogDebug() << database.lastError().text();
+    locker()->lockForWrite();
+    setError( tr( __FILE__ )+QString::number( __LINE__ )+"\n\n"+database.lastError().text() );
+    LogDebug() << pError();
+    locker()->unlock();
+
     return false;
   }
 
@@ -395,7 +411,11 @@ bool MHumanDBWrapper::initiating()
   QSqlQuery qry( currentQuery, database );
   if ( qry.lastError().isValid() || !qry.next() )
   {
-    LogDebug() << qry.lastError().text();
+    locker()->lockForWrite();
+    setError( tr( __FILE__ )+QString::number( __LINE__ )+"\n\n"+qry.lastError().text()+"\n"+currentQuery );
+    LogDebug() << pError();
+    locker()->unlock();
+
     return false;
   }
   locker()->lockForWrite();
@@ -416,7 +436,10 @@ bool MHumanDBWrapper::saving( QObject *object )
   QSqlDatabase database = QSqlDatabase::database( connectionName(), false );
   if ( !database.open() )
   {
-    LogDebug() << database.lastError().text();
+    locker()->lockForWrite();
+    setError( tr( __FILE__ )+QString::number( __LINE__ )+"\n\n"+database.lastError().text() );
+    LogDebug() << pError();
+    locker()->unlock();
 
     return false;
   }
@@ -426,7 +449,8 @@ bool MHumanDBWrapper::saving( QObject *object )
   MHuman *human = qobject_cast<MHuman *>( object );
   if ( human == NULL )
   {
-    LogDebug() << "Human object is NULL";
+    setError( tr( __FILE__ )+QString::number( __LINE__ )+"\n\nHuman object is NULL\n" );
+    LogDebug() << pError();
     locker()->unlock();
 
     return false;
@@ -445,7 +469,8 @@ bool MHumanDBWrapper::saving( QObject *object )
   QSqlQuery qry( database );
   if ( !qry.exec( currentQuery ) || !qry.next() )
   {
-    LogDebug() << qry.lastError().text() << "\n" << currentQuery;
+    setError( tr( __FILE__ )+QString::number( __LINE__ )+"\n\n"+qry.lastError().text()+"\n"+currentQuery );
+    LogDebug() << pError();
     locker()->unlock();
 
     return false;
@@ -459,7 +484,8 @@ bool MHumanDBWrapper::saving( QObject *object )
   currentQuery = currentQuery.arg( surname, firstname, lastname, address, phone, email, birthday, identifier );
   if ( !qry.exec( currentQuery ) )
   {
-    LogDebug() << qry.lastError().text() << "\n" << currentQuery;
+    setError( tr( __FILE__ )+QString::number( __LINE__ )+"\n\n"+qry.lastError().text()+"\n"+currentQuery );
+    LogDebug() << pError();
     locker()->unlock();
 
     return false;
@@ -469,7 +495,9 @@ bool MHumanDBWrapper::saving( QObject *object )
   currentQuery = tr( "SELECT NOT EXISTS ((SELECT id FROM clients WHERE clid=%1 AND isorg=0))" ).arg( identifier );
   if ( !qry.exec( currentQuery ) || !qry.next() )
   {
-    LogDebug() << qry.lastError().text() << "\n" << currentQuery;
+    setError( tr( __FILE__ )+QString::number( __LINE__ )+"\n\n"+qry.lastError().text()+"\n"+currentQuery );
+    LogDebug() << pError();
+
     locker()->unlock();
 
     return false;
@@ -481,7 +509,8 @@ bool MHumanDBWrapper::saving( QObject *object )
     currentQuery = tr( "INSERT INTO clients (clid, isorg) VALUES (%1, %2)" ).arg( identifier, "0" );
     if ( !qry.exec( currentQuery ) )
     {
-      LogDebug() << qry.lastError().text() << "\n" << currentQuery;
+      setError( tr( __FILE__ )+QString::number( __LINE__ )+"\n\n"+qry.lastError().text()+"\n"+currentQuery );
+      LogDebug() << pError();
       locker()->unlock();
 
       return false;

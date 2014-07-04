@@ -97,6 +97,15 @@ bool MAbstractDBWrapper::setConnectionName( const QString & connectionName )
   return true;
 }
 
+QString MAbstractDBWrapper::error() const
+{
+  locker()->lockForRead();
+  QString result = m__Error;
+  locker()->unlock();
+
+  return result;
+}
+
 bool MAbstractDBWrapper::find( const QString &filter )
 {
   if ( isRunning() ) return false;
@@ -212,6 +221,16 @@ const QString & MAbstractDBWrapper::pConnectionName() const
   return m__ConnectionName;
 }
 
+void MAbstractDBWrapper::setError( const QString &error )
+{
+  m__Error = error;
+}
+
+const QString & MAbstractDBWrapper::pError() const
+{
+  return m__Error;
+}
+
 void MAbstractDBWrapper::setObjective( int objectiveType, QVariant objectiveValue )
 {
   locker()->lockForWrite();
@@ -222,6 +241,9 @@ void MAbstractDBWrapper::setObjective( int objectiveType, QVariant objectiveValu
 
 void MAbstractDBWrapper::run()
 {
+  locker()->lockForWrite();
+  setError( QString() );
+  locker()->unlock();
   QPair<int, QVariant> objective = this->objective();
   job( objective.first, objective.second );
 }

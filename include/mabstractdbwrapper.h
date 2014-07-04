@@ -37,6 +37,8 @@ class EXPORT_MDATASET MAbstractDBWrapper : public QThread, public ObjectListPriv
     QString connectionName() const;
     bool setConnectionName( const QString &connectionName );
 
+    QString error() const;
+
     virtual bool find( const QString &filter );
     virtual bool initiate();
     virtual bool select( int indexInFounded );
@@ -62,6 +64,8 @@ class EXPORT_MDATASET MAbstractDBWrapper : public QThread, public ObjectListPriv
   protected:
     QReadWriteLock * locker() const;
     const QString & pConnectionName() const;
+    void setError( const QString &error );
+    const QString & pError() const;
     void setObjective( int objectiveType, QVariant objectiveValue );
     void run();
     QPair<int, QVariant> objective();
@@ -76,6 +80,7 @@ class EXPORT_MDATASET MAbstractDBWrapper : public QThread, public ObjectListPriv
     QString m__ConnectionName;
     int m__ObjectiveType;
     QVariant m__ObjectiveValue;
+    QString m__Error;
 };
 
 #endif // MABSTRACTDBWRAPPER_H

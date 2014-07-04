@@ -52,6 +52,7 @@ class EXPORT_MDATASET MAbstractDataSource : public QObject
     void initiatedChanged();
     void selectedChanged();
     void saved();
+    void error( QString errorText );
 
 
   public slots:

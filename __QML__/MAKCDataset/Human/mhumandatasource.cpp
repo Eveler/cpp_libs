@@ -28,7 +28,8 @@ void MHumanDataSource::findObjectFinished()
 {
   disconnect( dbWrapper(), SIGNAL(finished()), this, SLOT(findObjectFinished()) );
 
-  founded()->resetModel();
+  if ( dbWrapper()->error().isNull() )  founded()->resetModel();
+  else emit error( dbWrapper()->error() );
 
   dbWrapper()->releaseOldResources();
 
@@ -39,8 +40,12 @@ void MHumanDataSource::initiateObjectFinished()
 {
   disconnect( dbWrapper(), SIGNAL(finished()), this, SLOT(initiateObjectFinished()) );
 
-  int index = dbWrapper()->count( (int)MAbstractDBWrapper::Initiated )-1;
-  initiated()->insertObjects( index, index );
+  if ( dbWrapper()->error().isNull() )
+  {
+    int index = dbWrapper()->count( (int)MAbstractDBWrapper::Initiated )-1;
+    initiated()->insertObjects( index, index );
+  }
+  else emit error( dbWrapper()->error() );
 
   dbWrapper()->releaseOldResources();
 
@@ -53,10 +58,15 @@ void MHumanDataSource::saveObjectFinished()
 
   int index = savedObjectIndex();
   setSavedObjectIndex( -1 );
-  initiated()->removeObjects( index, index );
 
-  index = dbWrapper()->count( (int)MAbstractDBWrapper::Founded )-1;
-  founded()->insertObjects( index, index );
+  if ( dbWrapper()->error().isNull() )
+  {
+    initiated()->removeObjects( index, index );
+
+    index = dbWrapper()->count( (int)MAbstractDBWrapper::Founded )-1;
+    founded()->insertObjects( index, index );
+  }
+  else emit error( dbWrapper()->error() );
 
   dbWrapper()->releaseOldResources();
 
