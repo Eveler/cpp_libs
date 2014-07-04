@@ -175,9 +175,10 @@ bool MFCDocumentZipper::save( MFCDocument *doc )
     stream<<"count="<<atts->count()<<"\n";
     for(int a=0;a<atts->count();a++){
       const DocAttachment &att=atts->getAttachment(a);
+      QFileInfo fi(att.fileName());
       stream<<"filename"<<a<<"="<<att.fileName()<<"\n";
       stream<<"mimetype"<<a<<"="<<att.mimeType()<<"\n";
-      stream<<"file"<<a<<"="<<"attachment"<<a<<"\n";
+      stream<<"file"<<a<<"="<<"attachment"<<a<<fi.completeSuffix()<<"\n";
     }
   }
   if(doc->havePages()){
@@ -210,11 +211,12 @@ bool MFCDocumentZipper::save( MFCDocument *doc )
 #endif
     for(int a=0;a<atts->count();a++){
       const DocAttachment &att=atts->getAttachment(a);
+      QFileInfo fi(att.fileName());
 #ifndef QT_NO_DEBUG
       qDebug()<<"Archiving doc attachment"<<tr("attachment")+att.fileName()<<
              "size ="<<att.device()->size();
 #endif
-      zinfo=QuaZipNewInfo(tr("attachment%1").arg(a));
+      zinfo=QuaZipNewInfo(tr("attachment%1%2").arg(a).arg(fi.completeSuffix()));
       zinfo.internalAttr=0660;
       zinfo.externalAttr=0660;
       if(!zipf.open(QIODevice::WriteOnly,
