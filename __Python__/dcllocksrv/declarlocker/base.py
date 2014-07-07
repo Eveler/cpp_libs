@@ -61,13 +61,13 @@ class LockManager:
         If there is lock with lower priority, notify that clients, they need to unlock
         :rtype : bool
         """
-        logging.debug("Try to set lock on %s(%s), prority = %s", table_name, table_id, priority)
+        logging.info("Try to set lock on %s(%s), prority = %s. Client addr: %s", table_name, table_id, priority, obj.host)
 
         locks = self.session.query(DeclarLock).filter(DeclarLock.table_id == table_id) \
             .filter(DeclarLock.table_name == table_name).filter(DeclarLock.priority >= priority).all()
 
         for instance in locks:
-            logging.debug("Found %s", instance)
+            logging.info("Found %s", instance)
 
         if len(locks) > 0:
             return False
