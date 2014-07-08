@@ -2,6 +2,7 @@
 import logging
 
 from sqlalchemy.engine import create_engine
+
 try:
     from sqlalchemy.ext.declarative.api import declarative_base
 except ImportError:
@@ -43,9 +44,13 @@ class PgPasswordDB:
             dblogin=credentials.username
         ).first()
         if not user is None:
-            return defer.maybeDeferred(
-                credentials.checkPassword,
-                user.rightpass).addCallback(
-                self._cbPasswordMatch, str(credentials.username))
+            try:
+                return defer.maybeDeferred(
+                    credentials.checkPassword,
+                    user.rightpass).addCallback(
+                    self._cbPasswordMatch, str(credentials.username))
+            except Exception as e:
+                logging.error(e.message)
+                return defer.fail(error.UnauthorizedLogin())
         else:
             return defer.fail(error.UnauthorizedLogin())
