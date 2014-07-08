@@ -61,7 +61,8 @@ class LockManager:
         If there is lock with lower priority, notify that clients, they need to unlock
         :rtype : bool
         """
-        logging.info("Try to set lock on %s(%s), prority = %s. Client addr: %s", table_name, table_id, priority, obj.host)
+        logging.info("Try to set lock on %s(%s), prority = %s. Client addr: %s", table_name, table_id, priority,
+                     obj.host)
 
         locks = self.session.query(DeclarLock).filter(DeclarLock.table_id == table_id) \
             .filter(DeclarLock.table_name == table_name).filter(DeclarLock.priority >= priority).all()
@@ -72,8 +73,9 @@ class LockManager:
         if len(locks) > 0:
             return False
 
-        for instance in self.session.query(DeclarLock).filter(DeclarLock.table_id == table_id) \
-                .filter(DeclarLock.table_name == table_name).filter(DeclarLock.priority < priority).all():
+        locks = self.session.query(DeclarLock).filter(DeclarLock.table_id == table_id) \
+            .filter(DeclarLock.table_name == table_name).filter(DeclarLock.priority < priority).all()
+        for instance in locks:
             for l, o in self.clients:
                 if l == instance:
                     logging.info("Notifying client %s (addr: %s) to unlock %s.", o, o.host, instance)
@@ -107,9 +109,9 @@ class LockManager:
                     self.clients.remove([l, o])
                     o.notify(False)
 
-                # metadata = MetaData()
-                # engine = create_engine('sqlite:///:memory:', echo=True)
-                # engine = create_engine('sqlite:///:memory:', echo=(logging.root.level == logging.DEBUG))
+                    # metadata = MetaData()
+                    # engine = create_engine('sqlite:///:memory:', echo=True)
+                    # engine = create_engine('sqlite:///:memory:', echo=(logging.root.level == logging.DEBUG))
 
     def connect_db(self, dbstr):
         engine = create_engine(dbstr, echo=(logging.root.level == logging.DEBUG))
