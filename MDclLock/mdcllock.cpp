@@ -15,14 +15,19 @@ QString MDclLock::msg = QString();
 
 MDclLock *MDclLock::instance()
 {
-  if(!self) self = new MDclLock();return self;
+  LogDebug()<<Q_FUNC_INFO<<"BEGIN";
+  if(!self) self = new MDclLock();
+  LogDebug()<<Q_FUNC_INFO<<"END";
+  return self;
 }
 
 bool MDclLock::lock(const int table_id, const QString &table_name,
                     const QString &user_name, const int priority,
                     const bool check_is_unlock_need)
 {
-  return true;
+  LogDebug()<<Q_FUNC_INFO<<tr("Params: %1, %2, %3, %4, %5 BEGIN")
+              .arg(table_id).arg(table_name).arg(user_name).arg(priority)
+              .arg(check_is_unlock_need);
   if(!checkSelf()) return true;
 
   QJsonArray params;
@@ -55,12 +60,14 @@ bool MDclLock::lock(const int table_id, const QString &table_name,
 
     return res;
   }
+  LogDebug()<<Q_FUNC_INFO<<"END";
 }
 
 void MDclLock::unlock(const int table_id, const QString &table_name,
                       const int priority)
 {
-  return;
+  LogDebug()<<Q_FUNC_INFO<<tr("Params: %1, %2, %3 BEGIN")
+              .arg(table_id).arg(table_name).arg(priority);
   if(!checkSelf()) return;
 
   QJsonArray params;
@@ -75,6 +82,7 @@ void MDclLock::unlock(const int table_id, const QString &table_name,
              .arg(response.errorMessage())
              .arg(response.errorData().toString())
              .arg(response.errorCode()));
+    LogDebug()<<Q_FUNC_INFO<<tr("END");
     return;
   }else{
     LockInfo l;
@@ -83,12 +91,14 @@ void MDclLock::unlock(const int table_id, const QString &table_name,
     l.priority = priority;
     int i = self->locks.indexOf(l);
     if(i>-1) self->locks.removeAt(i);
-    return;
   }
+  LogDebug()<<Q_FUNC_INFO<<tr("END");
 }
 
 QString MDclLock::locked_by(const int table_id, const QString &table_name)
 {
+  LogDebug()<<Q_FUNC_INFO<<tr("Params: %1, %2 BEGIN")
+              .arg(table_id).arg(table_name);
   if(!checkSelf()) return QString();
 
   QJsonArray params;
@@ -106,11 +116,14 @@ QString MDclLock::locked_by(const int table_id, const QString &table_name)
   }else{
     return response.result().toString();
   }
+  LogDebug()<<Q_FUNC_INFO<<tr("END");
 }
 
 MDclLock *MDclLock::is_unlock_need(const int table_id,
                               const QString &table_name, const int priority)
 {
+  LogDebug()<<Q_FUNC_INFO<<tr("Params: %1, %2, %3 BEGIN")
+              .arg(table_id).arg(table_name).arg(priority);
   /// воспользуемся long poling для получения сообщения о необходимости
   /// разблокировать запись
   /// приэтом нужно соединить сигнал \fn unlockRequired() с методом снятия
@@ -125,23 +138,32 @@ MDclLock *MDclLock::is_unlock_need(const int table_id,
         QJsonRpcMessage::createRequest("is_unlock_need", params));
   connect(reply, SIGNAL(finished()), self, SLOT(unlockRequested()));
 
+  LogDebug()<<Q_FUNC_INFO<<tr("END");
   return self;
 }
 
 void MDclLock::setLogin(const QString &login,
                         const QString &pass)
 {
+  LogDebug()<<Q_FUNC_INFO<<tr("Params: %1, %2 BEGIN")
+              .arg(login).arg(pass);
   if(!self) instance();
 
   self->m_login = login;
   self->m_pass = pass;
-  if(!self->m_url.isValid()) return;
+  if(!self->m_url.isValid()){
+    LogDebug()<<Q_FUNC_INFO<<tr("END");
+    return;
+  }
 
   self->initClient(self->m_url, self->m_login, self->m_pass);
+  LogDebug()<<Q_FUNC_INFO<<tr("END");
 }
 
 void MDclLock::setUrl(const QUrl &url)
 {
+  LogDebug()<<Q_FUNC_INFO<<tr("Params: %1 BEGIN")
+              .arg(url.toString());
   if(!self) instance();
 
   if(url.isValid()) self->m_url = url;
@@ -149,14 +171,18 @@ void MDclLock::setUrl(const QUrl &url)
     setError(tr("Ошибочный адресс"));
     return;
   }
-  if(self->m_login.isEmpty()) return;
+  if(self->m_login.isEmpty()){
+    LogDebug()<<Q_FUNC_INFO<<tr("END");
+    return;
+  }
 
   self->initClient(self->m_url, self->m_login, self->m_pass);
+  LogDebug()<<Q_FUNC_INFO<<tr("END");
 }
 
 MDclLock::~MDclLock()
 {
-//  LogDebug()<<Q_FUNC_INFO<<"BEGIN";
+  LogDebug()<<Q_FUNC_INFO<<"BEGIN";
   errStr.clear();
   msg.clear();
 
@@ -173,31 +199,32 @@ MDclLock::~MDclLock()
 
   releaseClient();
   self = NULL;
-//  LogDebug()<<Q_FUNC_INFO<<"END";
+  LogDebug()<<Q_FUNC_INFO<<"END";
 }
 
 void MDclLock::release()
 {
-//  LogDebug()<<Q_FUNC_INFO<<"BEGIN";
+  LogDebug()<<Q_FUNC_INFO<<"BEGIN";
   if(self){
     delete self;
     self = NULL;
   }
-//  LogDebug()<<Q_FUNC_INFO<<"END";
+  LogDebug()<<Q_FUNC_INFO<<"END";
 }
 
 void MDclLock::releaseClient()
 {
-//  LogDebug()<<Q_FUNC_INFO<<"BEGIN";
+  LogDebug()<<Q_FUNC_INFO<<"BEGIN";
   if(client){
     delete client;
     client = NULL;
   }
-//  LogDebug()<<Q_FUNC_INFO<<"END";
+  LogDebug()<<Q_FUNC_INFO<<"END";
 }
 
 void MDclLock::unlockRequested()
 {
+  LogDebug()<<Q_FUNC_INFO<<tr("BEGIN");
   QJsonRpcServiceReply *reply = qobject_cast<QJsonRpcServiceReply*>(sender());
   if(!reply) return;
 
@@ -215,6 +242,7 @@ void MDclLock::unlockRequested()
     emit unlockRequired(tr("не определён"));
   }
   reply->deleteLater();
+  LogDebug()<<Q_FUNC_INFO<<tr("END");
 }
 
 void MDclLock::errorRecieved(QString errStr)
@@ -230,6 +258,8 @@ MDclLock::MDclLock(QObject *parent): QObject(parent),cc(NULL)
 void MDclLock::initClient(const QUrl &url, const QString &login,
                           const QString &pass)
 {
+  LogDebug()<<Q_FUNC_INFO<<tr("Params: %1, %2, %3 BEGIN")
+              .arg(url.toString()).arg(login).arg(pass);
   if(!self->client){
     self->client = new HttpClient(url.toString(), login, pass, self);
     // register on server now
@@ -240,10 +270,12 @@ void MDclLock::initClient(const QUrl &url, const QString &login,
     self->client->setUsername(login);
     self->client->setPassword(pass);
   }
+  LogDebug()<<Q_FUNC_INFO<<tr("END");
 }
 
 void MDclLock::registerOnServer()
 {
+  LogDebug()<<Q_FUNC_INFO<<tr("BEGIN");
   QJsonRpcMessage response = client->sendMessageBlocking(
         QJsonRpcMessage::createRequest("register"));
   if(response.type() == QJsonRpcMessage::Error){
@@ -263,10 +295,12 @@ void MDclLock::registerOnServer()
       connect(cc, SIGNAL(disconnected()), SLOT(releaseClient()));
     }
   }
+  LogDebug()<<Q_FUNC_INFO<<tr("END");
 }
 
 bool MDclLock::checkSelf()
 {
+  LogDebug()<<Q_FUNC_INFO<<tr("BEGIN");
   if(!self){
     instance();
     LogWarning()<<"Need to setLogin and setUrl";
@@ -280,6 +314,7 @@ bool MDclLock::checkSelf()
     }else self->initClient(self->m_url, self->m_login, self->m_pass);
   }
 
+  LogDebug()<<Q_FUNC_INFO<<tr("END");
   return true;
 }
 
