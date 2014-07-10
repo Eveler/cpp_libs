@@ -103,9 +103,40 @@ void MObjectModel::replace( int index, QObject *object )
 
   m__Objects.replace( index, object );
 
-  QVector<int> roles;
-  roles << (int)ObjectRole;
+  QVector<int> roles = QVector<int>::fromList( roleNames().keys() );
   emit dataChanged( createIndex( index, 0 ), createIndex( index, 0 ), roles );
+}
+
+void MObjectModel::move( int fromIndex, int toIndex, int count )
+{
+  if ( fromIndex == toIndex || fromIndex+count > m__Objects.count() || toIndex+count > m__Objects.count() || fromIndex < 0 || toIndex < 0 || count < 0 ) return;
+
+  beginMoveRows( QModelIndex(), fromIndex, fromIndex+count-1, QModelIndex(), ( toIndex > fromIndex ? toIndex+count : toIndex ) );
+  if ( fromIndex > toIndex )
+  {
+    QList<QObject *> arr_BeforeTo = m__Objects.mid( 0, toIndex );
+    QList<QObject *> arr_Moved = m__Objects.mid( fromIndex, count );
+    QList<QObject *> arr_MidToFrom = m__Objects.mid( toIndex, fromIndex-toIndex );
+    QList<QObject *> arr_AfterFrom = m__Objects.mid( fromIndex+count );
+    m__Objects.clear();
+    m__Objects << arr_BeforeTo;
+    m__Objects << arr_Moved;
+    m__Objects << arr_MidToFrom;
+    m__Objects << arr_AfterFrom;
+  }
+  else
+  {
+    QList<QObject *> arr_BeforeFrom = m__Objects.mid( 0, fromIndex );
+    QList<QObject *> arr_Moved = m__Objects.mid( fromIndex, count );
+    QList<QObject *> arr_MidFromTo = m__Objects.mid( fromIndex+count, toIndex-fromIndex );
+    QList<QObject *> arr_AfterTo = m__Objects.mid( toIndex+count );
+    m__Objects.clear();
+    m__Objects << arr_BeforeFrom;
+    m__Objects << arr_MidFromTo;
+    m__Objects << arr_Moved;
+    m__Objects << arr_AfterTo;
+  }
+  endMoveRows();
 }
 
 int MObjectModel::index( QObject *object ) const
