@@ -51,6 +51,7 @@ class EXPORT_MMODELS MObjectModel : public QAbstractListModel
     Q_INVOKABLE virtual void insert( int index, QObject *object );
     Q_INVOKABLE virtual void remove( int index );
     Q_INVOKABLE virtual void replace( int index, QObject *object );
+    Q_INVOKABLE virtual void move( int fromIndex, int toIndex, int count );
     Q_INVOKABLE virtual int index( QObject *object ) const;
 
     virtual int count() const;
@@ -62,7 +63,7 @@ class EXPORT_MMODELS MObjectModel : public QAbstractListModel
 
 
   protected:
-    QHash<int, QByteArray> roleNames() const;
+    virtual QHash<int, QByteArray> roleNames() const;
 
 
   public slots:
