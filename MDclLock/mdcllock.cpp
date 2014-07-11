@@ -28,7 +28,6 @@ bool MDclLock::lock(const int table_id, const QString &table_name,
   LogDebug()<<Q_FUNC_INFO<<tr("Params: %1, %2, %3, %4, %5 BEGIN")
               .arg(table_id).arg(table_name).arg(user_name).arg(priority)
               .arg(check_is_unlock_need);
-  return true;
   if(!checkSelf()) return true;
 
   LockInfo l;
@@ -77,7 +76,6 @@ void MDclLock::unlock(const int table_id, const QString &table_name,
 {
   LogDebug()<<Q_FUNC_INFO<<tr("Params: %1, %2, %3 BEGIN")
               .arg(table_id).arg(table_name).arg(priority);
-  return;
   if(!checkSelf()) return;
 
   QJsonArray params;
