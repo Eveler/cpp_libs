@@ -56,7 +56,7 @@ def set_config(config):
         if "main" in cfg.sections():
             if "logfile" in cfg.options("main"):
                 # log.startLogging(DailyLogFile.fromFullPath(cfg.get("main", "logfile")))
-                handler = TimedRotatingFileHandler(cfg.get("main", "logfile"), when='D', backupCount=5)
+                handler = TimedRotatingFileHandler(cfg.get("main", "logfile"), when='D', backupCount=7)
                 handler.setFormatter(Formatter('%(asctime)s %(module)s(%(lineno)d): %(levelname)s: %(message)s'))
                 logging.root.addHandler(handler)
             logging.info("config = %s" % config)

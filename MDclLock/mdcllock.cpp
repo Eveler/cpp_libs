@@ -30,6 +30,14 @@ bool MDclLock::lock(const int table_id, const QString &table_name,
               .arg(check_is_unlock_need);
   if(!checkSelf()) return true;
 
+  LockInfo l;
+  l.table_id = table_id;
+  l.table_name = table_name;
+  l.priority = priority;
+  if(self->locks.indexOf(l)>-1)
+    LogWarning()<<tr("Lock <%1(%2) pririty = %3> already set")
+                  .arg(table_name).arg(table_id).arg(priority);
+
   QJsonArray params;
   params.append(table_id);
   params.append(table_name);
@@ -52,7 +60,7 @@ bool MDclLock::lock(const int table_id, const QString &table_name,
       l.table_id = table_id;
       l.table_name = table_name;
       l.priority = priority;
-      self->locks << l;
+      if(self->locks.indexOf(l)<0) self->locks << l;
       if(check_is_unlock_need) is_unlock_need(table_id, table_name, priority);
     }else{
       msg = locked_by(table_id, table_name);

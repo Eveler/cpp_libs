@@ -67,11 +67,20 @@ class LockManager:
         locks = self.session.query(DeclarLock).filter(DeclarLock.table_id == table_id) \
             .filter(DeclarLock.table_name == table_name).filter(DeclarLock.priority >= priority).all()
 
+        # let`s find if client already set same lock
+        found = False
         for instance in locks:
             logging.info("Found %s", instance)
+            for l, o in self.clients:
+                if o.host == obj.host and instance.table_id == table_id and instance.table_name == table_name:
+                    found = True
+                    logging.info("Lock %s already set", instance)
 
-        if len(locks) > 0:
+        if len(locks) > 0 and not found:
             return False
+        else:
+            if found:
+                return found
 
         locks = self.session.query(DeclarLock).filter(DeclarLock.table_id == table_id) \
             .filter(DeclarLock.table_name == table_name).filter(DeclarLock.priority < priority).all()
