@@ -125,21 +125,21 @@ bool AbstractDocListSaver::saveDocuments(DocumentsModel *docList,
       }
     }
 
-    curDoc=doc;
-    if ( !doc->localFile().isEmpty() )
-    {
-      bool res=docStorage->save(doc,declar);
-      if(!res) return false;
-      timer->start();
-      if( curDoc && loop->exec() != 0 ) return false;
-    }
-    else
-    {
+//    curDoc=doc;
+//    if ( !doc->localFile().isEmpty() )
+//    {
+//      bool res=docStorage->save(doc,declar);
+//      if(!res) return false;
+//      timer->start();
+//      if( curDoc && loop->exec() != 0 ) return false;
+//    }
+//    else
+//    {
       QVariant id = saveDocumentToDatabase( curDoc );
       curDoc = NULL;
       if ( id.isNull() ) return false;
       else emit documentSaved( doc, id );
-    }
+//    }
   }
 
   return true;
