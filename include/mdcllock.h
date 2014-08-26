@@ -76,6 +76,7 @@ private:
   QString m_login;
   QString m_pass;
   QUrl m_url;
+  qint8 recur_level;
 };
 
 #endif // MDCLLOCK_H

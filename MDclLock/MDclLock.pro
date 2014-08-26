@@ -16,6 +16,7 @@ exists( ../install_path.pri ){
 }
 
 DEFINES += MDCLLOCK_LIBRARY
+#DEFINES += MDCLLOCK_DEBUG
 
 INCLUDEPATH += ./ \
     ../include/ \
