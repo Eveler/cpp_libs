@@ -2,6 +2,7 @@
 import logging
 
 from sqlalchemy.engine import create_engine
+from sqlalchemy.exc import StatementError
 
 try:
     from sqlalchemy.ext.declarative.api import declarative_base
@@ -40,9 +41,19 @@ class PgPasswordDB:
             return failure.Failure(error.UnauthorizedLogin())
 
     def requestAvatarId(self, credentials):
-        user = self.session.query(self.users).filter_by(
-            dblogin=credentials.username
-        ).first()
+        try:
+            user = self.session.query(self.users).filter_by(
+                dblogin=credentials.username
+            ).first()
+        except StatementError:
+            # try to reconnect
+            self.session.rollback()
+            try:
+                user = self.session.query(self.users).filter_by(
+                    dblogin=credentials.username
+                ).first()
+            except Exception as e:
+                logging.error(e.message)
         if not user is None:
             try:
                 return defer.maybeDeferred(
