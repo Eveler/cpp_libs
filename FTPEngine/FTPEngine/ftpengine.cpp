@@ -79,9 +79,21 @@ bool FTPEngine::connectToHost( const QUrl &url, int port )
 
   m__Socket->disconnect();
 
-  if ( m__Url.isEmpty() || m__Port == -1 ) return false;
+  if ( m__Url.isEmpty() || m__Port == -1 )
+  {
+#ifdef FTPENGINE_DEBUG
+    LogDebug() << "Url is empty or port not defined.";
+#endif
+    return false;
+  }
 
-  if ( m__Socket->state() != QAbstractSocket::UnconnectedState ) return true;
+  if ( m__Socket->state() != QAbstractSocket::UnconnectedState )
+  {
+#ifdef FTPENGINE_DEBUG
+    LogDebug() << "State is not unconnected.";
+#endif
+    return true;
+  }
 
 #ifdef FTPENGINE_DEBUG
   QUrl u=m__Url;
@@ -1078,7 +1090,7 @@ void FTPEngine::socketAllReply()
       sendNextCommand = ( result && ( m__CurrentCommand->hasNextCommand() || !m__Commands.isEmpty() ) );
       break;
     case FTPCommand::Type_Allo:
-      result = ( code == 200 );
+      result = ( code == 200 || code == 202 );
       if ( !result ) m__LastError = text;
       else m__LastText = text;
       sendAnswer = ( !result || !m__CurrentCommand->hasNextCommand() );
