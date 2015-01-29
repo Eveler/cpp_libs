@@ -35,7 +35,7 @@ def parse_args():
     # return options.config
     config = Options()
     try:
-        config.parseOptions() # When given no argument, parses sys.argv[1:]
+        config.parseOptions()  # When given no argument, parses sys.argv[1:]
     except usage.UsageError, errortext:
         print '%s: %s' % (sys.argv[0], errortext)
         print '%s: Try --help for usage details.' % (sys.argv[0])
@@ -76,7 +76,7 @@ def set_config(config):
         if "auth" in cfg.sections():
             if "db_type" in cfg.options("auth"):
                 is_db = cfg.get("auth", "db_type")+"://"
-                if dbstr == "://":
+                if is_db == "://":
                     raise Exception("Wrong or not set auth.db_type in config file")
                 if "db_user" in cfg.options("auth"):
                     is_db += cfg.get("auth", "db_user")

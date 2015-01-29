@@ -11,11 +11,13 @@ class MFCDocument;
 class DOSSIER_EXPORT MFCDocumentIOProvider
 {
   public:
+    enum Format {Version10, Version11};
+
     MFCDocumentIOProvider();
     ~MFCDocumentIOProvider();
 
     virtual bool load( MFCDocument *doc ) = 0;
-    virtual bool save( MFCDocument *doc ) = 0;
+    virtual bool save(MFCDocument *doc, Format fmt = Version11) = 0;
 
     const QString & error() const;
 

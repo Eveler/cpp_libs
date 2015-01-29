@@ -54,6 +54,9 @@ class PgPasswordDB:
                 ).first()
             except Exception as e:
                 logging.error(e.message)
+        finally:
+            self.session.rollback()
+
         if not user is None:
             try:
                 return defer.maybeDeferred(
