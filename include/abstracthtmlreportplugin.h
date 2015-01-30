@@ -73,12 +73,12 @@ public:
   // для согласия ПДн ********************************************************//
   virtual bool setData(const ClientInfo &client, const DeclarInfo &declar);
   //******************************************************** для согласия ПДн //
-//  virtual bool setData(const QList<ClientInfo> &clientList,
-//                       const DeclarInfo &declar,
-//                       const QList<MFCDocumentInfo *> &docs,
-//                       const QString &resultWay,
-//                       const QList<MFCDocumentInfo *> docsNProvided,
-//                       const QList<MFCDocumentInfo *> outdocs);
+  virtual bool setData(const QList<ClientInfo> &clientList,
+                       const DeclarInfo &declar,
+                       const QList<MFCDocumentInfo *> &docs,
+                       const QString &resultWay,
+                       const QList<MFCDocumentInfo *> docsNProvided,
+                       const QList<MFCDocumentInfo *> outdocs);
   virtual QString lastError() const;
 
 signals:
