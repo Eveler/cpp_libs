@@ -3,6 +3,7 @@
 #include "amslogger.h"
 #include "mfcdocument.h"
 #include "quazipfile.h"
+#include "poppler-qt5.h"
 
 #include <QFileInfo>
 #include <QObject>
@@ -11,7 +12,8 @@
 #include <QMetaProperty>
 #include <QImageReader>
 #include <QBuffer>
-
+#include <QPrinter>
+#include <QPainter>
 
 MFCDocumentZipper::MFCDocumentZipper( QObject *parent ) :
   QObject(parent),
@@ -51,8 +53,9 @@ bool MFCDocumentZipper::load( MFCDocument *doc )
   reqFile.seek(0);
   QSettings requisites(reqFile.fileName(),QSettings::IniFormat);
   requisites.setIniCodec("UTF-8");
-  if(requisites.value("FORMAT/version","0").toString()!="1.0"){
-    setError( tr("Не совместимый формат документа %1. Требуется 1.0").arg(
+  QString format = requisites.value("FORMAT/version","0").toString();
+  if(format!="1.0" && format!="1.1"){
+    setError( tr("Не совместимый формат документа %1. Требуется 1.0 или 1.1").arg(
                 requisites.value("FORMAT/version","0").toString()) );
     return false;
   }
@@ -100,7 +103,22 @@ bool MFCDocumentZipper::load( MFCDocument *doc )
       zip.close();
     }
   }
-  if(requisites.allKeys().contains("PAGES/count")){
+
+  if(requisites.allKeys().contains("PDF/file")){
+    //////////////////////// PDF variant ///////////////////////////////////////
+    QuaZipFile zip(
+          m__FilePath,
+          requisites.value("PDF/file").toString());
+    if(!zip.open(QIODevice::ReadOnly)){
+      setError(tr("Ошибка при чтении архива: ")+zipErrStr(zip.getZipError()));
+      return false;
+    }
+    if(!addPDF(doc, zip.readAll(), &requisites)){
+      zip.close();
+      return false;
+    }
+    zip.close();
+  }else if(requisites.allKeys().contains("PAGES/count")){
     int pageCount=requisites.value("PAGES/count").toInt();
 #ifndef QT_NO_DEBUG
     qDebug()<<"PAGES:"<<pageCount;
@@ -129,7 +147,7 @@ bool MFCDocumentZipper::load( MFCDocument *doc )
   return true;
 }
 
-bool MFCDocumentZipper::save( MFCDocument *doc )
+bool MFCDocumentZipper::save(MFCDocument *doc , Format fmt)
 {
   QuaZip zip( m__FilePath );
   if(!zip.open(QuaZip::mdCreate)){
@@ -150,12 +168,14 @@ bool MFCDocumentZipper::save( MFCDocument *doc )
   if(!zipf.open(QIODevice::WriteOnly,zinfo)){
     setError( tr( "Ошибка при добавлении реквизитов в архив: ")+
               zipErrStr(zipf.getZipError()) );
+    zip.close();
     return false;
   }
   QTextStream stream(&zipf);
   stream.setCodec("UTF-8");
   stream<<"[FORMAT]\n";
-  stream<<"version=1.0\n";
+  QString format = fmt==Version11?"1.1":"1.0";
+  stream<<"version="<<format<<"\n";
   stream<<"[e-Doc]"<<"\n";
   const QMetaObject *mobj=doc->metaObject();
   for(int i=mobj->propertyOffset();i<mobj->propertyCount();i++){
@@ -183,12 +203,23 @@ bool MFCDocumentZipper::save( MFCDocument *doc )
   }
   if(doc->havePages()){
     MFCDocumentPages *pages=doc->pages();
-    stream<<"[PAGES]\n";
-    stream<<"count="<<pages->count()<<"\n";
-    for(int p=0;p<pages->count();p++){
-      MFCDocumentPage *page=pages->getPage(p);
-      stream<<"name"<<p<<"="<<page->getPageName()<<"\n";
-      stream<<"file"<<p<<"="<<"page"<<p<<".jpg\n";
+    if(fmt==Version11){
+      //////////////////////// PDF variant /////////////////////////////////////
+      stream<<"[PDF]\n";
+      stream<<"file=pages.pdf\n";
+      stream<<"count="<<pages->count()<<"\n";
+      for(int p=0;p<pages->count();p++){
+        MFCDocumentPage *page=pages->getPage(p);
+        stream<<"name"<<p<<"="<<page->getPageName()<<"\n";
+      }
+    }else{
+      stream<<"[PAGES]\n";
+      stream<<"count="<<pages->count()<<"\n";
+      for(int p=0;p<pages->count();p++){
+        MFCDocumentPage *page=pages->getPage(p);
+        stream<<"name"<<p<<"="<<page->getPageName()<<"\n";
+        stream<<"file"<<p<<"="<<"page"<<p<<".jpg\n";
+      }
     }
   }
   stream.flush();
@@ -196,6 +227,7 @@ bool MFCDocumentZipper::save( MFCDocument *doc )
   if(zipf.getZipError()!=UNZ_OK){
     setError( tr( "Ошибка при добавлении реквизитов в архив: ")+
               zipErrStr(zipf.getZipError()) );
+    zip.close();
     return false;
   }
   ////////////////////////////////////////////// сохраним реквизиты документа //
@@ -223,6 +255,7 @@ bool MFCDocumentZipper::save( MFCDocument *doc )
                     QuaZipNewInfo(zinfo))){
         setError( tr( "Ошибка при добавлении вложения в архив: ")+
                   zipErrStr(zipf.getZipError()) );
+        zip.close();
         return false;
       }
       zipf.write(att.data());
@@ -230,6 +263,7 @@ bool MFCDocumentZipper::save( MFCDocument *doc )
       if(zipf.getZipError()!=UNZ_OK){
         setError( tr( "Ошибка при добавлении вложения в архив: ")+
                   zipErrStr(zipf.getZipError()) );
+        zip.close();
         return false;
       }
     }
@@ -245,48 +279,129 @@ bool MFCDocumentZipper::save( MFCDocument *doc )
 #ifndef QT_NO_DEBUG
     qDebug()<<"pages.count():"<<pages->count();
 #endif
-    for(int p=0;p<pages->count();p++){
-      MFCDocumentPage *page=pages->getPage(p);
-#ifndef QT_NO_DEBUG
-      qDebug()<<"Archiving doc page:"<<
-             tr("page%1_%2").arg(p).arg(page->getPageName());
-#endif
-      zinfo=QuaZipNewInfo(tr("page%1.jpg").arg(p));
+
+    if(fmt==Version11){
+      //////////////////////// PDF variant /////////////////////////////////////
+      QPrinter printer;
+      QFileInfo fi(QFileInfo(m__FilePath).absolutePath()+"/pages.pdf");
+      printer.setOutputFileName(fi.absoluteFilePath());
+      printer.setResolution(200);
+      printer.setPaperSize(QPrinter::A4);
+      printer.setOrientation(QPrinter::Portrait);
+      printer.setPageMargins(5, 5, 5, 5, QPrinter::Millimeter);
+      QPainter painter;
+      painter.begin(&printer);
+
+      int count = pages->count();
+      for(int pIdx=0;pIdx<count;pIdx++){
+        QPixmap pixmap = QPixmap();
+        MFCDocumentPage *page = pages->getPage(pIdx);
+        pixmap.loadFromData(page->getBody());
+        painter.drawPixmap(
+              0, 0, pixmap.scaled(printer.pageRect().size(),
+                                  Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        if(pIdx<count-1) printer.newPage();
+        emit dataTransferProgress(pIdx+1, pages->count());
+      }
+
+      painter.end();
+
+      zinfo=QuaZipNewInfo("pages.pdf");
       zinfo.internalAttr=0660;
       zinfo.externalAttr=0660;
       if(!zipf.open(QIODevice::WriteOnly,
                     QuaZipNewInfo(zinfo))){
-        setError( tr( "Ошибка при добавлении страницы %1 в архив: ").arg(p+1)+
-                  zipErrStr(zipf.getZipError()) );
+        setError(tr("Ошибка при добавлении страниц в архив: %1").arg(
+                   zipErrStr(zipf.getZipError())));
+        zip.close();
         return false;
       }
-      page->device()->seek(0);
-      QImageReader ir(page->device());
-      if(ir.format().toUpper()!="JPG" || ir.format().toUpper()!="JPEG"){
-        QBuffer buf;
-        QImage im;
-        im=ir.read();
-        if(im.isNull()){
-          setError( tr( "Ошибка при обработке страницы %1: %2").arg(p+1).arg(ir.errorString()) );
+
+      QFile pdf(fi.absoluteFilePath());
+      if(!pdf.open(QFile::ReadOnly)){
+        pdf.remove();
+        zipf.close();
+        zip.close();
+        setError(tr("Ошибка чтения временного файла: ").arg(pdf.errorString()));
+        return false;
+      }
+      zipf.write(pdf.readAll());
+      zipf.close();
+      pdf.remove();
+      if(zipf.getZipError()!=UNZ_OK){
+        setError(tr("Ошибка при добавлении страниц в архив: %1").arg(
+                   zipErrStr(zipf.getZipError())));
+        zip.close();
+        return false;
+      }
+    }else{
+      for(int p=0;p<pages->count();p++){
+        MFCDocumentPage *page=pages->getPage(p);
+  #ifndef QT_NO_DEBUG
+        qDebug()<<"Archiving doc page:"<<
+               tr("page%1_%2").arg(p).arg(page->getPageName());
+  #endif
+        zinfo=QuaZipNewInfo(tr("page%1.jpg").arg(p));
+        zinfo.internalAttr=0660;
+        zinfo.externalAttr=0660;
+        if(!zipf.open(QIODevice::WriteOnly,
+                      QuaZipNewInfo(zinfo))){
+          setError( tr( "Ошибка при добавлении страницы %1 в архив: ").arg(p+1)+
+                    zipErrStr(zipf.getZipError()) );
           return false;
         }
-        buf.open(QBuffer::ReadWrite);
-        im.save(&buf,"JPG");
-        zipf.write(buf.buffer());
-      }else zipf.write(page->getBody());
-      zipf.close();
-      if(zipf.getZipError()!=UNZ_OK){
-        setError( tr( "Ошибка при добавлении страницы %1 в архив: ").arg(p+1)+
-                  zipErrStr(zipf.getZipError()) );
-        return false;
-      }
+        page->device()->seek(0);
+        QImageReader ir(page->device());
+        if(ir.format().toUpper()!="JPG" || ir.format().toUpper()!="JPEG"){
+          QBuffer buf;
+          QImage im;
+          im=ir.read();
+          if(im.isNull()){
+            setError( tr( "Ошибка при обработке страницы %1: %2").arg(p+1).arg(ir.errorString()) );
+            return false;
+          }
+          buf.open(QBuffer::ReadWrite);
+          im.save(&buf,"JPG");
+          zipf.write(buf.buffer());
+        }else zipf.write(page->getBody());
+        zipf.close();
+        if(zipf.getZipError()!=UNZ_OK){
+          setError( tr( "Ошибка при добавлении страницы %1 в архив: ").arg(p+1)+
+                    zipErrStr(zipf.getZipError()) );
+          return false;
+        }
 //      emit dataTransferProgress(p+1,pages->count(),tr("Обработка: %p%"));
-      emit dataTransferProgress( p+1, pages->count() );
+        emit dataTransferProgress( p+1, pages->count() );
+      }
     }
   }
   ///////////////////////////////////////////////////////// сохраним страницы //
 
   zip.close();
+
+  return true;
+}
+
+bool MFCDocumentZipper::addPDF(MFCDocument *doc, QByteArray data,
+                               QSettings *requisites){
+  Poppler::Document *pdf = Poppler::Document::loadFromData(data);
+  if(!pdf){
+    setError(tr("Ошибка загрузки данных"));
+    return false;
+  }
+  int pageCount = pdf->numPages();
+  for(int a = 0; a < pageCount; a++){
+    Poppler::Page *pdfPage = pdf->page(a);
+    QString label = requisites?requisites->value(
+          tr("PDF/name%1").arg(a), pdfPage->label()).toString():pdfPage->label();
+    MFCDocumentPage *page=new MFCDocumentPage(
+          label.isEmpty() || label.toInt()!=0?
+          tr("Страница %1 (Скан %1)").arg(a+1):label,
+          QPixmap::fromImage(pdfPage->renderToImage(200, 200)));
+    doc->addPage(*page);
+    qApp->processEvents();
+    emit dataTransferProgress( a+1, pageCount );
+  }
 
   return true;
 }

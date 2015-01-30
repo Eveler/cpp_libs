@@ -63,7 +63,6 @@ MFCDocument *MFCDocument::instance(QString doc_type, QString doc_name,
 }
 
 MFCDocument * MFCDocument::instance( MFCDocumentIOProvider *provider, QObject *parent )
-
 {
   MFCDocument *doc = new MFCDocument( parent );
   if ( !provider->load( doc ) ) return NULL;

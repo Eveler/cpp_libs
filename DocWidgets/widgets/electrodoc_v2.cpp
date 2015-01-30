@@ -722,6 +722,7 @@ void ElectroDoc_v2::loadImage(){
   QStringList supportedFormats;
   foreach ( QString formatName, QImageReader::supportedImageFormats() )
     supportedFormats << formatName;
+  supportedFormats << "pdf";
   QStringList fNames=QFileDialog::getOpenFileNames(
         this,tr("Выберите файл(ы) изображений"),"",
                        QString( "Image files (*.%1 *.%2)" )
@@ -745,18 +746,51 @@ void ElectroDoc_v2::loadImage(){
 
 void ElectroDoc_v2::loadImage(const QString &fName)
 {
-  QPixmap img;
-  if(img.load(fName)){
-    addPage(tr("Страница %1 (Скан %2)").arg(ui->lWgt_Pages->count()+1).arg(
-              ui->lWgt_Pages->count()+1),
-            img);
-  }
-  else
-  {
-    QMessageBox::warning( NULL, tr( "Ошибка" ),
-                             tr( "Произошла неизвестная ошибка при попытке "
-                                 "прочитать файл изображения.\nФайл: %1" )
-                          .arg( fName ) );
+  QFileInfo fi(fName);
+  if(fi.suffix().toLower().contains("pdf")){
+    MFCDocumentZipper provider;
+    connect(&provider, SIGNAL(dataTransferProgress(int,int)), ui->pBar_Scan,
+            SLOT(setValue(int)));
+    if(m_Document==NULL) m_Document=MFCDocument::instance();
+    QFile pdf(fName);
+    if(!pdf.open(QFile::ReadOnly)){
+      QMessageBox::warning(this, tr("Ошибка"),
+                           tr("Ошибка открытия файла: %1").arg(pdf.errorString()));
+      return;
+    }
+    if(!provider.addPDF(m_Document, pdf.readAll())){
+      QMessageBox::warning(this, tr("Ошибка"),
+                           tr("Ошибка чтения файла: %1").arg(provider.error()));
+    }
+    pdf.close();
+
+    ui->lWgt_Pages->clear();
+    MFCDocumentPages *docPages = m_Document->pages();
+    for(int p=0;p<docPages->count();p++){
+      MFCDocumentPage* pg=docPages->getPage(p);
+      ui->lWgt_Pages->addItem(pg->getPageName());
+      if ( ui->lWgt_Pages->count() == 1 )
+      {
+        ui->lWgt_Pages->setCurrentRow( 0 );
+      }
+    }
+    setModified(true);
+    viewer->documentChanged(m_Document);
+    return;
+  }else{
+    QPixmap img;
+    if(img.load(fName)){
+      addPage(tr("Страница %1 (Скан %2)").arg(ui->lWgt_Pages->count()+1).arg(
+                ui->lWgt_Pages->count()+1),
+              img);
+    }
+    else
+    {
+      QMessageBox::warning( NULL, tr( "Ошибка" ),
+                            tr( "Произошла неизвестная ошибка при попытке "
+                                "прочитать файл изображения.\nФайл: %1" )
+                            .arg( fName ) );
+    }
   }
 }
 

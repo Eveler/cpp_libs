@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT     += network
+QT     += network printsupport
 
 TARGET = Dossier
 TEMPLATE = lib
@@ -89,3 +89,12 @@ CONFIG(debug, debug|release){
 
 CONFIG(release, debug|release) LIBS += -lAMSLogger -lFTPEngine -lquazip
 CONFIG(debug, debug|release) LIBS += -lAMSLogger -lFTPEngined -lquazip
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../3dparty/poppler/lib/ -llibpoppler-qt5
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../3dparty/poppler/lib/ -llibpoppler-qt5d
+else:unix: LIBS += -L$$PWD/../3dparty/poppler/lib/ -llibpoppler-qt5
+
+INCLUDEPATH += $$PWD/../3dparty/poppler/include/poppler-qt5
+DEPENDPATH += $$PWD/../3dparty/poppler/include/poppler-qt5
+INCLUDEPATH += $$PWD/../3dparty/poppler/include/poppler-cpp
+DEPENDPATH += $$PWD/../3dparty/poppler/include/poppler-cpp
