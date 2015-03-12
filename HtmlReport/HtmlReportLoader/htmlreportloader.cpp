@@ -346,7 +346,7 @@ QString FtpLoader::load(const QUrl &url)
   file = new QFile(d.absolutePath()+"/"+fi.fileName(), this);
   if(!file->open(QFile::WriteOnly)){
     errStr = tr("Ошибка открытия: %1").arg(file->errorString());
-    return QString();
+    return file->fileName();
   }
 
   if(!engine->getFile(m_url.path(), file)){
