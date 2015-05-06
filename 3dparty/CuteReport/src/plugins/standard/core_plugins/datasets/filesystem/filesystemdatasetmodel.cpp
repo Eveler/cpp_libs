@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the eXaro project                                *
- *   Copyright (C) 2012-2014 by Mikhalov Alexander                         *
+ *   Copyright (C) 2012-2015 by Mikhalov Alexander                         *
  *   alexander.mikhalov@gmail.com                                          *
  **                   GNU General Public License Usage                    **
  *                                                                         *

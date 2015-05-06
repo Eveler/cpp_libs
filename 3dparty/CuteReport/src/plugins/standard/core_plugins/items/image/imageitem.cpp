@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -69,6 +69,13 @@ ImageItem::~ImageItem()
 void ImageItem::moduleInit()
 {
     initMyResource();
+}
+
+
+void ImageItem::init()
+{
+    BaseItemInterface::init();
+    tryToLoadDynamicImage();
 }
 
 
@@ -230,15 +237,19 @@ QString ImageItem::source() const
 void ImageItem::setSource(const QString & source)
 {
     Q_D(ImageItem);
-    if (d->source != source) {
-        d->source = source;
-        QImage image(source);
-        //        if (!image.isNull())
-        setImage(image);
-        emit sourceChanged(d->source);
-        emit scriptingStringsChanged();
-        emit changed();
+    if (d->source == source)
+        return;
+
+    d->source = source;
+    if (m_inited) {
+        tryToLoadDynamicImage();
+        update_gui();
     }
+
+    emit sourceChanged(d->source);
+    emit scriptingStringsChanged();
+    emit changed();
+
 }
 
 
@@ -271,7 +282,7 @@ QString ImageItem::scaleTypeStr() const
 
 void ImageItem::setScaleTypeStr(const QString &paintType)
 {
-    bool ok;
+    bool ok = false;
     ImageItem::ScaleType value = scaleTypeFromString(paintType, &ok);
     if (ok)
         setScaleType(value);
@@ -324,6 +335,7 @@ void ImageItem::renderInit(RendererPublicInterface *renderer)
     m_renderer->registerEvaluationString(d->source, this);
 }
 
+
 void ImageItem::renderReset()
 {
     m_renderer = 0;
@@ -334,9 +346,10 @@ bool ImageItem::renderPrepare()
 {
     emit printBefore();
     setRenderingPointer(new ImageItemPrivate(*(reinterpret_cast<ImageItemPrivate*>(d_ptr))));
+    Q_D(ImageItem);
     emit printDataBefore();
     emit printDataAfter();
-    return true;
+    return d->enabled;
 }
 
 
@@ -525,6 +538,29 @@ ImageItem::ScaleType ImageItem::scaleTypeFromString(const QString &value, bool *
 }
 
 
+void ImageItem::tryToLoadDynamicImage()
+{
+    Q_D(ImageItem);
+    CuteReport::ReportInterface * report = reportObject();
+    if (!report)
+        return;
+
+    switch (d->sourceType) {
+        case ImageItem::Storage: {
+                //QImage image;
+                //image.loadFromData( reportCore()->loadObject(d->source, report) );
+                //setImage(image);
+                d->image.loadFromData( reportCore()->loadObject(d->source, report) );
+            }
+            break;
+        case ImageItem::Dataset:
+            break;
+        case ImageItem::Static :
+            break;
+    }
+}
+
+
 QStringList ImageItem::_sourceType_variants() const
 {
     return ImageItem_SourceType_variants();
@@ -575,7 +611,7 @@ RenderedImageItem::RenderedImageItem(CuteReport::BaseItemInterface * item, CuteR
                 QString str = d->source.remove('[').remove(']').remove('"');
                 CuteReport::DatasetInterface * dataset = renderer->dataset(str.section('.', 0, 0));
                 if (dataset)
-                    d->image.loadFromData( dataset->value(str.section('.', 1, 1)).toByteArray() );
+                    d->image.loadFromData( dataset->getValue(str.section('.', 1, 1)).toByteArray() );
                 else
                     d->image = QImage();
             }

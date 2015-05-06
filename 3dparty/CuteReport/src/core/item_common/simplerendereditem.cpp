@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -30,7 +30,7 @@
 #include "simplerendereditem.h"
 #include "pageinterface.h"
 #include "iteminterface.h"
-#include "functions.h"
+#include "cutereport_functions.h"
 #include <QPainter>
 
 using namespace CuteReport;

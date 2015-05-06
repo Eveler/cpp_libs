@@ -1,0 +1,18 @@
+CREATE ..\..\..\..\..\..\build\cutereport\plugins\libPage.a
+ADDMOD page.o
+ADDMOD pagegui.o
+ADDMOD layoutmanager.o
+ADDMOD pagemanipulator.o
+ADDMOD pageitemselection.o
+ADDMOD magnets.o
+ADDMOD scene.o
+ADDMOD view.o
+ADDMOD qrc_page.o
+ADDMOD moc_page.o
+ADDMOD moc_pagegui.o
+ADDMOD moc_pagemanipulator.o
+ADDMOD moc_pageitemselection.o
+ADDMOD moc_magnets.o
+ADDMOD moc_scene.o
+ADDMOD moc_view.o
+SAVE

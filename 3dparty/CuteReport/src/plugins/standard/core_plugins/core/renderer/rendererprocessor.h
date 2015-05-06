@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -34,18 +34,24 @@
 #include "rendererinterface.h"
 #include "rendereriteminterface.h"
 #include "rendererpublicinterface.h"
+#include "cutereport_globals.h"
+#include "plugins_common.h"
+
+#include <QtScript>
 #include <QScriptValue>
 #include <QMutex>
-#include "globals.h"
+#include <QObject>
+
 
 /** global variables :
- * _line - current dataset line starting from 1
- * _page - current page number starting from 1
- * _pages - total pages (require report double pass)
- * _passes - report pass number
- * _template_page - current page of template: means number of page in designer
- * _template_pages - total pages of template: means number of pages in designer (starting from 1)
+ * LINE - current dataset line starting from 1
+ * PAGE - current page number starting from 1
+ * PAGES - total pages (require report double pass)
+ * PASSES - report pass number
+ * TPAGE - current page of template: means number of page in designer
+ * TPAGES - total pages of template: means number of pages in designer (starting from 1)
  */
+
 
 namespace CuteReport {
 class DatasetInterface;
@@ -53,17 +59,24 @@ class BandInterface;
 class BaseItemInterface;
 class PageInterface;
 class RenderedItemInterface;
+class RenderedReport;
 }
 
+SUIT_BEGIN_NAMESPACE
 class Renderer;
 class RendererData;
 class AggregateFunctions;
+class PreParser;
+SUIT_END_NAMESPACE
 
-class  RendererProcessor: public QObject
+USING_SUIT_NAMESPACE
+
+SUIT_BEGIN_NAMESPACE
+class RendererProcessor: public QObject
 {
     Q_OBJECT
 public:
-    explicit RendererProcessor(RendererData * data);
+    explicit RendererProcessor(Renderer * renderer, CuteReport::ReportInterface * report);
     ~RendererProcessor();
 
     void start();
@@ -79,9 +92,16 @@ public:
     QString processString(const QString & string, const CuteReport::BaseItemInterface * item);
     void registerEvaluationString(const QString & string, const QString & delimiterBegin, const QString & delimiterEnd, CuteReport::BaseItemInterface *item);
     void registerEvaluationString(const QString & string, CuteReport::BaseItemInterface *item);
-    QString preprocessEvaluateString(QString str, const CuteReport::BaseItemInterface *item);
+    QString preprocessEvaluateString(const QString &str, const CuteReport::BaseItemInterface *item);
+    bool preprocessScript(QString &str);
 
     const CuteReport::BandInterface *getBandForItem(const CuteReport::BaseItemInterface *item);
+
+    AggregateFunctions *aggregateFunctions() const;
+    RendererItemInterface *rendererItemInterface() const;
+
+    void sendLog(CuteReport::LogLevel level, const QString & shortMessage, const QString & fullMessage);
+    static QScriptValue scriptPrint( QScriptContext *context, QScriptEngine *engine);
 
 public slots:
     void run();
@@ -89,18 +109,20 @@ public slots:
 signals:
     void started();
     void message(int logLevel, QString msg);
-    void done(bool withouErrors);
+    void done(bool withouErrors, CuteReport::RenderedReport *);
     void processingPage(int page, int total);
     void log(CuteReport::LogLevel level, const QString & shortMessage, const QString & fullMessage);
 
+    void beforeTemplatePageRendering(CuteReport::PageInterface * page);
+    void afterTemplatePageRendering(CuteReport::PageInterface * page);
+
 private slots:
-    void _run();
     void _done(bool success);
-//    void scriptException(QScriptValue value);
+    void scriptEngineException(QScriptValue value);
 
 private:
+    void processEventsIfNeeded();
     void initScriptEngine();
-    void makeAutomaticConnections();
     void resetScriptEngine();
     bool evaluateScript();
     void resetData();
@@ -122,7 +144,7 @@ private:
     QString _processString(const QString & string, const CuteReport::BaseItemInterface * item);
 
 private:
-    RendererData * m_data;
+    SUIT_NAMESPACE::RendererData * m_data;
     RendererItemInterface * m_rendererItemInterface;
     bool m_terminate;
     QMutex mutex;
@@ -151,9 +173,15 @@ private:
     int m_delay;
     CuteReport::RendererPublicInterface::PageDrawState m_state;
     AggregateFunctions * m_aggregateFunctions;
+    PreParser * m_preparser;
     bool m_runs;
+    bool m_processEvents;
 
-    int m_zValue;
+//    bool m_oneMorePassRequired;
+    int m_passNumber;
+    int m_passesNeeded;
+    int m_pages;
+    bool m_fakePass;
     quint32 m_lastItemId;
     QHash<QString, qint32> m_lastIdForItem;
 
@@ -167,10 +195,11 @@ class Thread: public QThread
 public:
     explicit Thread();
     ~Thread();
-public slots:
-    void stop();
+//public slots:
+//    void stop();
 };
 
+SUIT_END_NAMESPACE
 
 #endif // RENDERERPROCESSOR_H
 

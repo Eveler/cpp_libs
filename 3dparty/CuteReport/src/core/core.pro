@@ -12,22 +12,17 @@ lessThan(QT_MAJOR_VERSION, 5) {
     QT += widgets
 }
 
-win32 {
-    DEFINES += LIB_EXPORTS
-    TARGET_EXT = .dll
-}
-
 TARGET = CuteReport
 TEMPLATE =  lib
 
 HEADERS += \
-    globals.h \
+    cutereport_globals.h \
     reportcore.h \
     pageinterface.h \
     datasetinterface.h \
     reportplugininterface.h \
     reportinterface.h \
-    types.h \
+    cutereport_types.h \
     baseiteminterface.h \
     baseiteminterface_p.h \
     iteminterface.h \
@@ -48,7 +43,7 @@ HEADERS += \
     objectfactory.h \
     forminterface.h \
     cutereport.h \
-    functions.h \
+    cutereport_functions.h \
     dummyitem.h \
     dummyband.h \
     renderedreport.h \
@@ -58,13 +53,12 @@ HEADERS += \
     designeriteminterface.h
 
 SOURCES += \
-    globals.cpp \
     reportcore.cpp \
     pageinterface.cpp \
     datasetinterface.cpp \
     reportplugininterface.cpp \
     reportinterface.cpp \
-    types.cpp \
+    cutereport_types.cpp \
     baseiteminterface.cpp \
     iteminterface.cpp \
     bandinterface.cpp \
@@ -81,7 +75,7 @@ SOURCES += \
     objectfactory.cpp \
     forminterface.cpp \
     cutereport.cpp \
-    functions.cpp \
+    cutereport_functions.cpp \
     dummyitem.cpp \
     dummyband.cpp \
     renderedreport.cpp \
@@ -93,7 +87,7 @@ SOURCES += \
 
 PRIVATE_HEADERS.files = reportcore.h reportinterface.h datasetinterface.h bandinterface.h iteminterface.h baseiteminterface.h \
                         exportinterface.h forminterface.h printerinterface.h rendererinterface.h pageinterface.h storageinterface.h \
-                        serializerinterface.h scriptextensioninterface.h
+                        serializerinterface.h scriptextensioninterface.h cutereport_globals.h cutereport_types.h cutereport_functions.h reportplugininterface.h
 INSTALLS += PRIVATE_HEADERS
 
 contains(DEFINES, SYSTEMINSTALL) {
@@ -108,4 +102,10 @@ contains(DEFINES, SYSTEMINSTALL) {
 
 contains(DEFINES, STATIC_CORE) {
     CONFIG += static
+} else {
+    win32: TARGET_EXT = .dll
+}
+
+win32 {
+    DEFINES += LIB_EXPORTS
 }

@@ -42,3 +42,6 @@ contains(DEFINES, SYSTEMINSTALL) {
     IMAGE_FILES.path = $$OUT_PWD/$$BUILD_DIR/$$REPORT_EXAMPLES_PATH/images/
 }
 
+RESOURCES += \
+    ../../../../../../home/alex/work/projects/CuteReport/src/widgets/widgets/reportpreview.qrc
+

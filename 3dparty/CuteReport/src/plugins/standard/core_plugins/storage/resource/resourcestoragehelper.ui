@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>802</width>
+    <width>672</width>
     <height>530</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+   <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -129,50 +129,14 @@
           <property name="spacing">
            <number>0</number>
           </property>
-          <item row="0" column="0">
-           <widget class="QPushButton" name="bAddPrefix">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="toolTip">
-             <string>Add Prefix</string>
-            </property>
-            <property name="icon">
-             <iconset resource="ResourceStorageResources.qrc">
-              <normaloff>:/images/list-add.png</normaloff>:/images/list-add.png</iconset>
+          <item row="0" column="1">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Prefixes</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="6">
-           <spacer name="horizontalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Preferred</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>13</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="1" column="4" colspan="3">
-           <widget class="QListWidget" name="objectsList">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="5">
+          <item row="0" column="8">
            <widget class="QPushButton" name="bRemoveObject">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
@@ -190,64 +154,12 @@
              <string>Remove object</string>
             </property>
             <property name="icon">
-             <iconset resource="ResourceStorageResources.qrc">
+             <iconset resource="resource_storage.qrc">
               <normaloff>:/images/list-remove.png</normaloff>:/images/list-remove.png</iconset>
             </property>
            </widget>
           </item>
-          <item row="1" column="0" colspan="4">
-           <widget class="QListWidget" name="objectPrefixList">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>20</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="resizeMode">
-             <enum>QListView::Fixed</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QPushButton" name="bRemovePrefix">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="toolTip">
-             <string>Remove prefix</string>
-            </property>
-            <property name="icon">
-             <iconset resource="ResourceStorageResources.qrc">
-              <normaloff>:/images/list-remove.png</normaloff>:/images/list-remove.png</iconset>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="3">
-           <spacer name="horizontalSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Fixed</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>0</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="0" column="4">
+          <item row="0" column="7">
            <widget class="QToolButton" name="bAddObject">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
@@ -265,7 +177,7 @@
              <string>Add Object</string>
             </property>
             <property name="icon">
-             <iconset resource="ResourceStorageResources.qrc">
+             <iconset resource="resource_storage.qrc">
               <normaloff>:/images/list-add.png</normaloff>:/images/list-add.png</iconset>
             </property>
             <property name="popupMode">
@@ -279,14 +191,122 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="2">
+          <item row="0" column="6">
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Objects</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="6" colspan="5">
+           <widget class="QListWidget" name="objectsList">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="5">
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>0</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="0" column="4">
            <spacer name="horizontalSpacer_5">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
-              <width>40</width>
+              <width>13</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="0" column="3">
+           <widget class="QPushButton" name="bRemovePrefix">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Remove prefix</string>
+            </property>
+            <property name="icon">
+             <iconset resource="resource_storage.qrc">
+              <normaloff>:/images/list-remove.png</normaloff>:/images/list-remove.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QPushButton" name="bAddPrefix">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Add Prefix</string>
+            </property>
+            <property name="icon">
+             <iconset resource="resource_storage.qrc">
+              <normaloff>:/images/list-add.png</normaloff>:/images/list-add.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="6">
+           <widget class="QListWidget" name="objectPrefixList">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="resizeMode">
+             <enum>QListView::Fixed</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="9" colspan="2">
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>13</width>
               <height>20</height>
              </size>
             </property>
@@ -331,7 +351,7 @@
            <string>...</string>
           </property>
           <property name="icon">
-           <iconset resource="ResourceStorageResources.qrc">
+           <iconset resource="resource_storage.qrc">
             <normaloff>:/images/list-remove.png</normaloff>:/images/list-remove.png</iconset>
           </property>
          </widget>
@@ -370,7 +390,7 @@
            <string>Add Object</string>
           </property>
           <property name="icon">
-           <iconset resource="ResourceStorageResources.qrc">
+           <iconset resource="resource_storage.qrc">
             <normaloff>:/images/list-add.png</normaloff>:/images/list-add.png</iconset>
           </property>
           <property name="popupMode">
@@ -414,7 +434,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="ResourceStorageResources.qrc"/>
+  <include location="resource_storage.qrc"/>
  </resources>
  <connections/>
 </ui>

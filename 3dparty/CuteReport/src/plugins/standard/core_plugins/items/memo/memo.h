@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -33,8 +33,8 @@
 #include "iteminterface.h"
 #include "iteminterfaceview.h"
 #include "renderediteminterface.h"
-#include "globals.h"
-#include "types.h"
+#include "cutereport_globals.h"
+#include "cutereport_types.h"
 #include "plugins_common.h"
 
 SUIT_BEGIN_NAMESPACE
@@ -63,7 +63,7 @@ class MemoItem : public CuteReport::ItemInterface
     Q_PROPERTY(bool allowExpressions READ allowExpressions WRITE setAllowExpressions NOTIFY allowExpressionsChanged)
     Q_PROPERTY(QString text READ text WRITE setText NOTIFY textChanged)
     Q_PROPERTY(QColor textColor READ textColor WRITE setTextColor NOTIFY textColorChaged)
-    Q_PROPERTY(qreal textMargin READ textMargin WRITE setTextMargin NOTIFY textMarginChaged)
+    Q_PROPERTY(QPointF textMargin READ textMargin WRITE setTextMargin NOTIFY textMarginChanged)
     Q_PROPERTY(QFont font READ font WRITE setFont NOTIFY fontChanged)
     Q_PROPERTY(bool stretchFont READ stretchFont WRITE setStretchFont NOTIFY stretchFontChanged)
     Q_PROPERTY(QString expDelimiters READ delimiters WRITE setDelimiters NOTIFY delimitersChanged)
@@ -77,19 +77,15 @@ public:
 
 	enum TextFlag 
 	{
-		AlignLeft = Qt::AlignLeft,
-		AlignRight = Qt::AlignRight,
-		AlignHCenter = Qt::AlignHCenter,
-		AlignJustify = Qt::AlignJustify,
-		AlignTop = Qt::AlignTop,
-		AlignBottom = Qt::AlignBottom,
-		AlignVCenter = Qt::AlignVCenter,
-		AlignCenter = Qt::AlignCenter,
-		TextDontClip = Qt::TextDontClip,
-		TextSingleLine = Qt::TextSingleLine,
-		TextExpandTabs = Qt::TextExpandTabs,
-		TextShowMnemonic = Qt::TextShowMnemonic,
-		TextWordWrap = Qt::TextWordWrap
+        AlignLeft = Qt::AlignLeft,
+        AlignRight = Qt::AlignRight,
+        AlignHCenter = Qt::AlignHCenter,
+        AlignJustify = Qt::AlignJustify,
+        AlignTop = Qt::AlignTop,
+        AlignBottom = Qt::AlignBottom,
+        AlignVCenter = Qt::AlignVCenter,
+        AlignCenter = Qt::AlignCenter,
+        TextWordWrap = Qt::TextWordWrap
 	};
     Q_DECLARE_FLAGS(TextFlags, TextFlag)
 
@@ -138,8 +134,8 @@ public:
     bool allowExpressions() const;
     void setAllowExpressions(bool value);
 
-    qreal textMargin() const;
-    void setTextMargin(qreal value);
+    QPointF textMargin() const;
+    void setTextMargin(const QPointF & value);
 
     TextFlags textFlags() const;
     void setTextFlags(TextFlags textFlags);
@@ -166,11 +162,14 @@ public:
     void renderReset();
     virtual bool renderPrepare();
     CuteReport::RenderedItemInterface * renderView();
+    virtual void afterSiblingsRendering(QList<BaseItemInterface*> siblings);
 
     static void paint(QPainter * painter, const QStyleOptionGraphicsItem *option, const CuteReport::BaseItemInterfacePrivate * data, const QRectF &boundingRect, CuteReport::RenderingType type = CuteReport::RenderingTemplate);
 
     virtual QStringList scriptingStrings();
     virtual void initScript(QScriptEngine * scriptEngine);
+
+    virtual CuteReport::StdEditorPropertyList stdEditorList() const;
 
     /** propertyeditor hints   */
     QStringList _stretchMode_variants() const;
@@ -188,7 +187,7 @@ signals:
     void stretchFontChanged(bool);
     void allowHTMLChanged(bool);
     void allowExpressionsChanged(bool);
-    void textMarginChaged(int);
+    void textMarginChanged(QPointF);
     void showStretchabilityChanged(bool);
     void textWidthWasReset();
     void adjusted();

@@ -38,6 +38,7 @@
 #include <QLayout>
 #include <QComboBox>
 #include <QLineEdit>
+#include <QDebug>
 
 TextFormatToolBar::TextFormatToolBar(QWidget *parent) :
     QToolBar(parent),
@@ -159,6 +160,7 @@ void TextFormatToolBar::setTextEdit(QTextEdit *editor)
     }
 
     m_editor = editor;
+    currentCharFormatChanged(m_editor->currentCharFormat());
 
     connect(m_editor,SIGNAL(currentCharFormatChanged(QTextCharFormat)),
             SLOT(currentCharFormatChanged(QTextCharFormat)));
@@ -273,6 +275,7 @@ void TextFormatToolBar::mergeFormatOnWordOrSelection(const QTextCharFormat &form
 
 void TextFormatToolBar::fontChanged(const QFont &f)
 {
+//    qDebug() << "changed";
     m_currentFont = f;
     m_acTextBold->setChecked(f.bold());
     m_acTextItalic->setChecked(f.italic());

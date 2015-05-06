@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -60,6 +60,7 @@ PageGUI::PageGUI(Page * page) :
   //    m_zoom(1.0)
 {
     m_scene = new Scene(m_page, this);
+    m_scene->setStickyFocus(true);
 
     m_pageItem = new PageItem();
     m_pageItem->setFlag(QGraphicsItem::ItemClipsChildrenToShape, true);
@@ -67,6 +68,7 @@ PageGUI::PageGUI(Page * page) :
 
     m_scene->addItem(m_pageItem);
     m_scene->setBackgroundBrush(QBrush(QColor(Qt::gray)));
+    m_scene->setFocusItem(m_pageItem);
 
     m_magnets = new Magnets(this);
 
@@ -86,6 +88,7 @@ PageGUI::PageGUI(Page * page) :
 
 PageGUI::~PageGUI()
 {
+    qDeleteAll(m_registeredViews);
     delete m_geometryLabel;
     delete m_posLabel;
     delete m_magnets;
@@ -108,6 +111,20 @@ void PageGUI::updateScene()
     //    drawPageGrid();
     //    updateItems();
     emit sceneUpdated();
+}
+
+
+void PageGUI::slotItemClickedBySelector(BaseItemInterface *item, QGraphicsSceneMouseEvent *e)
+{
+    if (e->modifiers()&Qt::ControlModifier) {
+        if (isItemSelected(item)) {
+            if (m_selectedItems.count() > 1)
+                removeFromSelection(item);
+        } else {
+            addToSelection(item);
+        }
+    } else
+        setSelected(item);
 }
 
 
@@ -387,7 +404,7 @@ void PageGUI::redrawPageGrid()
 void PageGUI::slotPaperSizeChanged(QSizeF size)
 {
     Q_UNUSED(size)
-    qDebug("Extended::PageGUI::slotFormatChanged");
+    //qDebug("Extended::PageGUI::slotFormatChanged");
     updateScene();
 }
 
@@ -410,7 +427,7 @@ void PageGUI::slotMousePressed(QGraphicsSceneMouseEvent *event)
     QPointF pagePos =  convertUnit(event->scenePos(), Pixel, page()->unit(), page()->dpi()) - convertUnit(QPointF(PAGE_BORDER, PAGE_BORDER), CuteReport::Millimeter, m_page->unit(), m_page->dpi());
     BaseItemInterface * item = m_page->itemAt(pagePos);
 
-    qDebug() << "pagePos" << pagePos;
+//    qDebug() << "pagePos" << pagePos;
 
 
     if (event->modifiers()&Qt::ShiftModifier) {
@@ -420,9 +437,9 @@ void PageGUI::slotMousePressed(QGraphicsSceneMouseEvent *event)
         } else {
             addToSelection(item);
         }
-        if (m_selectedItems.count() > 1)
+//        if (m_selectedItems.count() > 1)
             // TODO: group selection properties instead of 0
-            item = 0;
+//            item = 0;
     } else
         setSelected(item);
 
@@ -464,7 +481,10 @@ void PageGUI::slotMouseDoubleClicked(QGraphicsSceneMouseEvent * event)
 
 void PageGUI::slotDropItem(QString className, QPointF pagePos)
 {
-    m_page->addItem(className, pagePos);
+    BaseItemInterface * item = m_page->addItem(className, pagePos);
+    if (!item)
+        return;
+    m_registeredViews.at(0)->graphicsView()->viewport()->setFocus();
 }
 
 
@@ -486,7 +506,9 @@ void PageGUI::addToSelection(BaseItemInterface * item)
     if (!item)
         return;
     m_selectedItems.insert(0, item);
-    /*ItemSelection * selecter =*/ new SUIT_NAMESPACE::ItemSelection(this, item);
+    ItemSelection * selecter = new SUIT_NAMESPACE::ItemSelection(this, item);
+    connect(selecter, SIGNAL(itemClicked(CuteReport::BaseItemInterface*,QGraphicsSceneMouseEvent*)),
+            this, SLOT(slotItemClickedBySelector(CuteReport::BaseItemInterface*,QGraphicsSceneMouseEvent*)));
 }
 
 
@@ -507,6 +529,23 @@ void PageGUI::clearSelection()
         delete sel;
     }
     m_selectedItems.clear();
+}
+
+
+void PageGUI::registerView(PageViewInterface *view)
+{
+    PageView* pageView = qobject_cast<PageView*>(view);
+    Q_ASSERT(!m_registeredViews.contains(pageView));
+    m_registeredViews.append(pageView);
+}
+
+
+void PageGUI::unregisterView(PageViewInterface *view)
+{
+    PageView* pageView = qobject_cast<PageView*>(view);
+    Q_ASSERT(m_registeredViews.contains(pageView));
+    m_registeredViews.removeOne(pageView);
+    Q_ASSERT(!m_registeredViews.contains(pageView));
 }
 
 
@@ -545,6 +584,7 @@ PageView::PageView(Page * page, PageGUI * pageGui, QWidget * parent, Qt::WindowF
     :PageViewInterface(parent, f),
       m_pageGui(pageGui)
 {
+    pageGui->registerView(this);
     m_view = new View(page, pageGui);
     m_view->setScene(pageGui->m_scene);
     m_view->centerOn( 0, 0 );
@@ -561,6 +601,12 @@ PageView::PageView(Page * page, PageGUI * pageGui, QWidget * parent, Qt::WindowF
 }
 
 
+PageView::~PageView()
+{
+    m_pageGui->unregisterView(this);
+}
+
+
 void PageView::fit()
 {
     m_view->horizontalScrollBar()->hide();
@@ -568,8 +614,11 @@ void PageView::fit()
     qreal xScale =  m_view->viewport()->width() / m_pageGui->m_scene->sceneRect().width();
     qreal yScale = m_view->viewport()->height() / m_pageGui->m_scene->sceneRect().height();
     qreal resultScale = qMin(xScale, yScale);
-    m_view->resetTransform();
-    m_view->scale(resultScale, resultScale);
+
+    int newDPI = resultScale  * m_pageGui->page()->dpi();
+    if (resultScale > 0 && m_pageGui->page()->dpi() != newDPI) {
+        m_pageGui->page()->setDpi(newDPI);
+    }
 }
 
 

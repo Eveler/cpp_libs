@@ -19,10 +19,14 @@ HEADERS  += mainwindow.h
 
 FORMS    += mainwindow.ui
 
-INCLUDEPATH += ../../src/core/ \
-        ../../src/widgets/widgets/
+!include( /usr/include/cutereport/CuteReport.pri ) {
+    error( Cannot find the CuteReport.pri file! )
+}
 
-DEPENDPATH += $$INCLUDEPATH
+#INCLUDEPATH += ../../src/core/ \
+#        ../../src/widgets/widgets/
 
-LIBS += -L/home/alex/work/projects_hdd/build-CuteReport-Desktop_4_8_4-Debug/build -lCuteReport
-LIBS += -L/home/alex/work/projects_hdd/build-CuteReport-Desktop_4_8_4-Debug/build -lCuteReportWidgets
+#DEPENDPATH += $$INCLUDEPATH
+
+#LIBS += -L/home/alex/work/projects_hdd/build-CuteReport-Desktop_4_8_4-Debug/build -lCuteReport
+#LIBS += -L/home/alex/work/projects_hdd/build-CuteReport-Desktop_4_8_4-Debug/build -lCuteReportWidgets

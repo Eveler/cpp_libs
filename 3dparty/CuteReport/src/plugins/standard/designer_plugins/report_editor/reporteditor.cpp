@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -36,6 +36,7 @@
 #include <QMenu>
 #include <QWidget>
 #include <QMessageBox>
+#include <QInputDialog>
 
 using namespace CuteReport;
 
@@ -46,6 +47,8 @@ inline void initMyResource() { Q_INIT_RESOURCE(reporteditor); }
 
 ReportEditor::ReportEditor(QObject *parent) :
     ModuleInterface(parent)
+  ,m_saveReportAction(0)
+  ,m_closeReportAction(0)
 {
 }
 
@@ -66,10 +69,13 @@ void ReportEditor::init(CuteDesigner::Core *core)
 
     ui = new ReportContainer(this);
 
+    if (core->getSettingValue("ReportProperties/tabMode").isNull())
+        core->setSettingValue("ReportProperties/tabMode", 2);
+
     connect(core, SIGNAL(currentReportChanged(CuteReport::ReportInterface*)),
             this, SLOT(slotCurrentReportChangedByCore(CuteReport::ReportInterface*)));
     connect(core, SIGNAL(requestForReport(QString)), this, SLOT(loadReport(QString)));
-    connect(core, SIGNAL(appIsAboutToClose()), this, SLOT(slotAppIsAboutToClose()));
+    connect(core, SIGNAL(appIsAboutToClose(bool*)), this, SLOT(slotAppIsAboutToClose(bool*)));
     connect(core, SIGNAL(initDone()), this, SLOT(slotDesignerInitDone()));
 
     // queued because need to have lowest priority for preventing emmitting currentReportChanged before reportCreated
@@ -154,6 +160,13 @@ QString ReportEditor::name()
 
 void ReportEditor::slotCurrentReportChangedByCore(CuteReport::ReportInterface* report)
 {
+    if (m_saveReportAction)
+        m_saveReportAction->setEnabled(report);
+    if (m_saveReportAsAction)
+        m_saveReportAsAction->setEnabled(report);
+    if (m_closeReportAction)
+        m_closeReportAction->setEnabled(report);
+
     if (!report) {
         core()->setDocumentTitles(documentId, QString());
         return;
@@ -162,6 +175,7 @@ void ReportEditor::slotCurrentReportChangedByCore(CuteReport::ReportInterface* r
     ui->setCurrentTab(report->objectName());
     QString reportName = (report->name().isEmpty() ? "NoName" : report->name()) +  (report->isValid() ? "" : "(invalid)") + (report->isDirty() ? "*" : "");
     core()->setDocumentTitles(documentId, reportName);
+
 }
 
 
@@ -176,43 +190,73 @@ void ReportEditor::slotCurrentTabChanged(int index)
 }
 
 
-void ReportEditor::slotPrinterChanged(CuteReport::PrinterInterface* printer)
-{
-    CuteReport::ReportInterface * report = dynamic_cast<CuteReport::ReportInterface *>(sender());
-    if (!report)
-        return;
+//void ReportEditor::slotPrinterChanged(CuteReport::PrinterInterface* printer)
+//{
+//    CuteReport::ReportInterface * report = dynamic_cast<CuteReport::ReportInterface *>(sender());
+//    if (!report)
+//        return;
 
-    ReportIterator i;
-    for (i = m_reports.begin(); i != m_reports.end(); ++i) {
-        if (i->report == report) {
-            i->printerPropertyEditor->setObject(printer);
-            break;
-        }
-    }
-}
+//    ReportIterator i;
+//    for (i = m_reports.begin(); i != m_reports.end(); ++i) {
+//        if (i->report == report) {
+//            i->printerPropertyEditor->setObject(printer);
+//            break;
+//        }
+//    }
+//}
 
 
-void ReportEditor::slotRendererChanged(CuteReport::RendererInterface* renderer)
-{
-    CuteReport::ReportInterface * report = dynamic_cast<CuteReport::ReportInterface*>(sender());
-    if (!report)
-        return;
+//void ReportEditor::slotRendererChanged(CuteReport::RendererInterface* renderer)
+//{
+//    CuteReport::ReportInterface * report = dynamic_cast<CuteReport::ReportInterface*>(sender());
+//    if (!report)
+//        return;
 
-    ReportIterator i;
-    for (i = m_reports.begin(); i != m_reports.end(); ++i) {
-        if (i->report == report) {
-            i->rendererPropertyEditor->setObject(renderer);
-            break;
-        }
-    }
-}
+//    ReportIterator i;
+//    for (i = m_reports.begin(); i != m_reports.end(); ++i) {
+//        if (i->report == report) {
+//            i->rendererPropertyEditor->setObject(renderer);
+//            break;
+//        }
+//    }
+//}
 
 
 void ReportEditor::slotRequestForNewRenderer(const CuteReport::RendererInterface *renderer)
 {
     if (!core()->currentReport())
         return;
-    core()->currentReport()->setRenderer( core()->reportCore()->createRendererObject(core()->currentReport(), renderer->moduleFullName()) );
+    core()->currentReport()->addRenderer( core()->reportCore()->createRendererObject(renderer->moduleFullName(), core()->currentReport()) );
+}
+
+
+void ReportEditor::slotRequestForDeleteRenderer(const QString &name)
+{
+    if (!core()->currentReport())
+        return;
+    core()->currentReport()->deleteRenderer(name);
+}
+
+
+void ReportEditor::slotRequestForChangeDefaultRenderer(const QString &name)
+{
+    if (!core()->currentReport())
+        return;
+    core()->currentReport()->setDefaultRendererName(name);
+}
+
+
+void ReportEditor::slotRequestForNewRendererName(const QString &name)
+{
+    bool ok;
+    QString text = QInputDialog::getText(0, tr("Renderer renaming"),
+                                         tr("Renderer name:"), QLineEdit::Normal,
+                                         name, &ok);
+    if (ok && !text.isEmpty()) {
+        RendererInterface * renderer = core()->currentReport()->renderer(name);
+        if (renderer)
+            renderer->setObjectName(text);
+    }
 }
 
 
@@ -220,7 +264,37 @@ void ReportEditor::slotRequestForNewPrinter(const CuteReport::PrinterInterface* 
 {
     if (!core()->currentReport())
         return;
-    core()->currentReport()->setPrinter( core()->reportCore()->createPrinterObject(core()->currentReport(), printer->moduleFullName()) );
+    core()->currentReport()->addPrinter( core()->reportCore()->createPrinterObject(printer->moduleFullName(), core()->currentReport()) );
+}
+
+
+void ReportEditor::slotRequestForDeletePrinter(const QString &name)
+{
+    if (!core()->currentReport())
+        return;
+    core()->currentReport()->deletePrinter(name);
+}
+
+
+void ReportEditor::slotRequestForChangeDefaultPrinter(const QString &name)
+{
+    if (!core()->currentReport())
+        return;
+    core()->currentReport()->setDefaultPrinterName(name);
+}
+
+
+void ReportEditor::slotRequestForNewPrinterName(const QString &name)
+{
+    bool ok;
+    QString text = QInputDialog::getText(0, tr("Printer renaming"),
+                                         tr("Printer name:"), QLineEdit::Normal,
+                                         name, &ok);
+    if (ok && !text.isEmpty()) {
+        PrinterInterface * printer = core()->currentReport()->printer(name);
+        if (printer)
+            printer->setObjectName(text);
+    }
 }
 
 
@@ -228,7 +302,7 @@ void ReportEditor::slotRequestForNewStorage(const CuteReport::StorageInterface* 
 {
     if (!core()->currentReport())
         return;
-    core()->currentReport()->addStorage( core()->reportCore()->createStorageObject( core()->currentReport(), storage->moduleFullName()) );
+    core()->currentReport()->addStorage( core()->reportCore()->createStorageObject( storage->moduleFullName(), core()->currentReport()) );
 }
 
 
@@ -248,26 +322,24 @@ void ReportEditor::slotRequestForChangeDefaultStorage(const QString & storageNam
 }
 
 
-void ReportEditor::slotRequestForDeletePrinter()
+void ReportEditor::slotRequestForNewStorageName(const QString &storageName)
 {
-    if (!core()->currentReport())
-        return;
-    core()->currentReport()->setPrinter(0);
-}
-
-
-void ReportEditor::slotRequestForDeleteRenderer()
-{
-    if (!core()->currentReport())
-        return;
-    core()->currentReport()->setRenderer(0);
+    bool ok;
+    QString text = QInputDialog::getText(0, tr("Storage renaming"),
+                                         tr("Storage name:"), QLineEdit::Normal,
+                                         storageName, &ok);
+    if (ok && !text.isEmpty()) {
+        StorageInterface * storage = core()->currentReport()->storage(storageName);
+        if (storage)
+            storage->setObjectName(text);
+    }
 }
 
 
 void ReportEditor::slotRequestForTemplate()
 {
     CuteReport::StdStorageDialog d(core()->reportCore(), core()->mainWindow(), "Load Report");
-    d.setUrlHint("templates");
+//    d.setUrlHint("templates");
     if (!d.exec())
         return;
 
@@ -312,11 +384,14 @@ void ReportEditor::loadReport(const QString & objectUrl)
 
     if (selectedObjectUrl.isEmpty()) {
         CuteReport::StdStorageDialog d(core()->reportCore(), core()->mainWindow(), "Load Report");
-        d.setUrlHint("reports");
+        QString lastURL = core()->getSettingValue("ReportProperties/lastURL").toString();
+        d.setUrl(lastURL);
+        //d.setUrlHint(lastURL.isEmpty() ? "reports" : lastURL);
         if (!d.exec())
             return;
 
         selectedObjectUrl = d.currentObjectUrl();
+        core()->setSettingValue("ReportProperties/lastURL", selectedObjectUrl);
     }
 
     CuteReport::ReportInterface * new_report = core()->reportCore()->loadReport(selectedObjectUrl);
@@ -328,6 +403,7 @@ void ReportEditor::loadReport(const QString & objectUrl)
     } else {
         core()->emitLoadReportAfter(new_report);
     }
+
 }
 
 
@@ -366,7 +442,7 @@ void ReportEditor::slotRequestForOpenReport()
 
 void ReportEditor::slotRequestForSaveReport()
 {
-    saveReport(false);
+    saveReport(core()->currentReport(), false);
 }
 
 
@@ -393,15 +469,15 @@ bool ReportEditor::saveReport(CuteReport::ReportInterface * report, bool askFile
 
     QString objectUrl;
 
-    if (askFileName || report->filePath().isEmpty()) {
+    if (askFileName || report->fileUrl().isEmpty()) {
         CuteReport::StdStorageDialog d(core()->reportCore(), core()->mainWindow(), tr("Save Report"));
-        d.setUrlHint("reports");
-        d.setObjectHint(report->filePath());
+//        d.setUrlHint("reports");
+//        d.setObjectHint(report->fileUrl());
         if (!d.exec())
             return false;
         objectUrl = d.currentObjectUrl();
     } else
-        objectUrl = report->filePath();
+        objectUrl = report->fileUrl();
 
 
     QFileInfo file(objectUrl);
@@ -458,8 +534,8 @@ void ReportEditor::slotReportObjectDestroyed(QObject *report)
 
     ReportStruct s = m_reports.takeAt(index);
     ui->removeTab(index);
-    delete s.printerPropertyEditor;
-    delete s.rendererPropertyEditor;
+//    delete s.printerPropertyEditor;
+//    delete s.rendererPropertyEditor;
     delete s.reportProperties;
 
     index = qMin(index, m_reports.size()-1);
@@ -500,35 +576,42 @@ void ReportEditor::newReportPreprocess(CuteReport::ReportInterface * report)
 
     reportProp.report = report;
     reportProp.tabText = report->objectName();
-    reportProp.rendererPropertyEditor = core()->createPropertyEditor(ui);
-    reportProp.printerPropertyEditor = core()->createPropertyEditor(ui);
+//    reportProp.rendererPropertyEditor = core()->createPropertyEditor(ui);
+//    reportProp.printerPropertyEditor = core()->createPropertyEditor(ui);
     reportProp.reportProperties = new PropertyEditor::ReportProperties(core(), ui);
 
-    reportProp.reportProperties->addRendererPropertyEditor(reportProp.rendererPropertyEditor);
-    reportProp.reportProperties->addPrinterPropertyEditor(reportProp.printerPropertyEditor);
+//    reportProp.reportProperties->addRendererPropertyEditor(reportProp.rendererPropertyEditor);
+//    reportProp.reportProperties->addPrinterPropertyEditor(reportProp.printerPropertyEditor);
 
     reportProp.reportProperties->connectReport(report);
-    reportProp.rendererPropertyEditor->setObject(report->renderer());
-    reportProp.printerPropertyEditor->setObject(report->printer());
+//    reportProp.rendererPropertyEditor->setObject(report->renderer());
+//    reportProp.printerPropertyEditor->setObject(report->printer());
     m_reports.append(reportProp);
 
     ui->addTab(reportProp.reportProperties, QIcon(":images/report.png"), report->objectName());
 
-    connect(report, SIGNAL(printerChanged(CuteReport::PrinterInterface*)),
-            this, SLOT(slotPrinterChanged(CuteReport::PrinterInterface*)));
-    connect(report, SIGNAL(rendererChanged(CuteReport::RendererInterface*)),
-            this, SLOT(slotRendererChanged(CuteReport::RendererInterface*)));
+//    connect(report, SIGNAL(printerChanged(CuteReport::PrinterInterface*)),
+//            this, SLOT(slotPrinterChanged(CuteReport::PrinterInterface*)));
+//    connect(report, SIGNAL(rendererChanged(CuteReport::RendererInterface*)),
+//            this, SLOT(slotRendererChanged(CuteReport::RendererInterface*)));
     connect(report, SIGNAL(nameChanged(QString)), this, SLOT(slotReportNameChangedOutside(QString)));
     connect(report, SIGNAL(dirtynessChanged(bool)), this, SLOT(slotDirtynessChanged(bool)));
     connect(report, SIGNAL(destroyed(QObject*)), this, SLOT(slotReportObjectDestroyed(QObject*)));
 
-    connect(reportProp.reportProperties, SIGNAL(requestForNewRenderer(const CuteReport::RendererInterface*)), this, SLOT(slotRequestForNewRenderer(const CuteReport::RendererInterface*)));
-    connect(reportProp.reportProperties, SIGNAL(requestForNewPrinter(const CuteReport::PrinterInterface*)), this, SLOT(slotRequestForNewPrinter(const CuteReport::PrinterInterface*)));
     connect(reportProp.reportProperties, SIGNAL(requestForNewStorage(const CuteReport::StorageInterface*)), this, SLOT(slotRequestForNewStorage(const CuteReport::StorageInterface*)));
     connect(reportProp.reportProperties, SIGNAL(requestForDeleteStorage(QString)), this, SLOT(slotRequestForDeleteStorage(QString)));
     connect(reportProp.reportProperties, SIGNAL(requestForDefaultStorage(QString)), this, SLOT(slotRequestForChangeDefaultStorage(QString)));
-    connect(reportProp.reportProperties, SIGNAL(requestForDeletePrinter()), this, SLOT(slotRequestForDeletePrinter()));
-    connect(reportProp.reportProperties, SIGNAL(requestForDeleteRenderer()), this, SLOT(slotRequestForDeleteRenderer()));
+    connect(reportProp.reportProperties, SIGNAL(requestForNewStorageName(QString)), this, SLOT(slotRequestForNewStorageName(QString)) );
+
+    connect(reportProp.reportProperties, SIGNAL(requestForNewRenderer(const CuteReport::RendererInterface*)), this, SLOT(slotRequestForNewRenderer(const CuteReport::RendererInterface*)));
+    connect(reportProp.reportProperties, SIGNAL(requestForDeleteRenderer(QString)), this, SLOT(slotRequestForDeleteRenderer(QString)));
+    connect(reportProp.reportProperties, SIGNAL(requestForDefaultRenderer(QString)), this, SLOT(slotRequestForChangeDefaultRenderer(QString)));
+    connect(reportProp.reportProperties, SIGNAL(requestForNewRendererName(QString)), this, SLOT(slotRequestForNewRendererName(QString)) );
+
+    connect(reportProp.reportProperties, SIGNAL(requestForNewPrinter(const CuteReport::PrinterInterface*)), this, SLOT(slotRequestForNewPrinter(const CuteReport::PrinterInterface*)));
+    connect(reportProp.reportProperties, SIGNAL(requestForDeletePrinter(QString)), this, SLOT(slotRequestForDeletePrinter(QString)));
+    connect(reportProp.reportProperties, SIGNAL(requestForDefaultPrinter(QString)), this, SLOT(slotRequestForChangeDefaultPrinter(QString)));
+    connect(reportProp.reportProperties, SIGNAL(requestForNewPrinterName(QString)), this, SLOT(slotRequestForNewPrinterName(QString)) );
 
     QTimer::singleShot(10, report, SLOT(updateVariables()));
 }
@@ -545,9 +628,16 @@ QList<CuteDesigner::DesignerMenu*> ReportEditor::mainMenu()
 
     reportMenu->menu->addAction(createAction("actionNewReport", "New Report", ":/images/document-new.png", "Ctrl+N", SLOT(slotRequestForNewReport())));
     reportMenu->menu->addAction(createAction("actionOpenReport", "Open Report", ":/images/document-open.png", "Ctrl+O", SLOT(slotRequestForOpenReport())));
-    reportMenu->menu->addAction(createAction("actionSaveReport", "Save Report", ":/images/document-save.png", "Ctrl+S", SLOT(slotRequestForSaveReport())));
-    reportMenu->menu->addAction(createAction("actionSaveAsReport", "Save Report As...", ":/images/document-save-as.png", "", SLOT(slotRequestForSaveReportAs())));
-    reportMenu->menu->addAction(createAction("actionCloseReport", "Close Report", ":/images/document-close.png", "Ctrl+W", SLOT(slotRequestForCloseReport())));
+    m_saveReportAction = createAction("actionSaveReport", "Save Report", ":/images/document-save.png", "Ctrl+S", SLOT(slotRequestForSaveReport()));
+    reportMenu->menu->addAction(m_saveReportAction);
+    m_saveReportAsAction = createAction("actionSaveAsReport", "Save Report As...", ":/images/document-save-as.png", "", SLOT(slotRequestForSaveReportAs()));
+    reportMenu->menu->addAction(m_saveReportAsAction);
+    m_closeReportAction = createAction("actionCloseReport", "Close Report", ":/images/document-close.png", "Ctrl+W", SLOT(slotRequestForCloseReport()));
+    reportMenu->menu->addAction(m_closeReportAction);
+
+    m_saveReportAction->setEnabled(false);
+    m_closeReportAction->setEnabled(false);
+    m_saveReportAsAction->setEnabled(false);
 
     return menus;
 }
@@ -630,7 +720,7 @@ void ReportEditor::slotDesignerInitDone()
 }
 
 
-void ReportEditor::slotAppIsAboutToClose()
+void ReportEditor::slotAppIsAboutToClose(bool* cancel)
 {
     QStringList list;
     foreach (ReportStruct st, m_reports) {
@@ -639,12 +729,22 @@ void ReportEditor::slotAppIsAboutToClose()
             int ret = QMessageBox::warning(core()->mainWindow(), tr("Cute Report"),
                                            tr("The document <b>\"%1\"</b> has been modified.<br>"
                                               "Do you want to save your changes?").arg(report->name().isEmpty() ? tr("NoName") : report->name()),
-                                           QMessageBox::Save | QMessageBox::Ignore,
-                                           QMessageBox::Save);
-            if (ret == QMessageBox::Save)
-                saveReport(report);
+                                           QMessageBox::Yes | QMessageBox::No| QMessageBox::Cancel,
+                                           QMessageBox::Yes);
+            if (ret == QMessageBox::Cancel) {
+                if (cancel) {
+                    (*cancel) = true;
+                    return;
+                }
+            } else if (ret == QMessageBox::Yes) {
+                bool res = saveReport(report);
+                if (!res && cancel) {
+                    (*cancel) = true;
+                    return;
+                }
+            }
         }
-        list << report->filePath();
+        list << report->fileUrl();
     }
     core()->setSettingValue("Designer/LastReportURLs", list.join(";"));
 }

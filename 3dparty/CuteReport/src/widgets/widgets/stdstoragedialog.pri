@@ -9,3 +9,5 @@ FORMS += \
 
 RESOURCES += \
     stdstoragedialog.qrc
+
+WIDGETS_HEADERS.files += stdstoragedialog.h

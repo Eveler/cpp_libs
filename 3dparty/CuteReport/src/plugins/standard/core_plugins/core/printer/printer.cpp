@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -150,80 +150,96 @@ bool Printer::process_(CuteReport::ReportInterface * report, bool forceShowDialo
         }
     }
 
-    /** if print to file we set papersize (there is wierd behaviour with pixel page size calculation if not set)
-    * generaly we use paperSize set in dialog or defaul for the current printer
-    * qt 4.8.4 */
-    if (!printer.outputFileName().isEmpty() && printer.outputFormat() != QPrinter::NativeFormat)
-        printer.setPaperSize(page->paperSize(), (QPrinter::Unit)page->unit());
-    else
-        printer.setPaperSize(printer.paperSize(QPrinter::Millimeter), QPrinter::Millimeter);
-
-    qreal left, right, top, bottom;
-    printer.getPageMargins(&left, &top, &right, &bottom, QPrinter::Millimeter);
-    CuteReport::Margins dialogMargins(left,top,right,bottom);
+    int printerDPI = printer.resolution();
+    //bool printToFile = !printer.outputFileName().isEmpty();
 
     if (firstPage > lastPage) {
-        m_lastError = "First page number is bigger then last";
+        m_lastError = "First page number is greater then last one";
         return false;
     }
 
-    painter.begin(&printer);
     QGraphicsScene scene;
+
+    painter.begin(&printer);
 
     for (int i = firstPage; i <= lastPage; i++) {
 
         if (i > firstPage)
             printer.newPage();
 
-        printer.setFullPage(true);
         painter.resetTransform();
+        printer.setFullPage(true);
+        printer.setOrientation((QPrinter::Orientation)page->orientation());
+
+        printer.setPageSize(QPrinter::Custom);
+        //printer.setPageSize(QPrinter::Letter);
+        QSizeF size = page->paperSize();
+        printer.setPaperSize(size, (QPrinter::Unit)page->unit());
+
+//        printer.setPaperRect(QRectF(QPointF(0,0),size), (QPrinter::Unit)page->unit());
+//        printer.setPageRect(QRectF(QPointF(0,0),size), (QPrinter::Unit)page->unit());
+
+//        qDebug() << printer.paperSize();
+//        qDebug() << printer.paperSize(QPrinter::Millimeter);
+//        qDebug() << printer.paperRect(QPrinter::Millimeter);
+//        qDebug() << printer.pageRect(QPrinter::Millimeter);
 
         CuteReport::RenderedPageInterface * p = reportCore()->rendererGetPage(report,i);
-        CuteReport::RenderedPageInterface::ShowFlags flags = p->showFlags();
+
+        QGraphicsScene * oldScene = p->scene();
+        int pageDPI = p->dpi();
+        CuteReport::RenderedPageInterface::ShowFlags pageFlags = p->showFlags();
+        QPointF pagePos = p->pos();
+        if (oldScene)
+            oldScene->removeItem(p);
+
+        scene.addItem(p);
+        p->setDpi(printerDPI);
         p->setShowFlags(CuteReport::RenderedPageInterface::ShowDefaultPrint);
+        p->redraw();
+        p->setPos(0,0);
+        scene.setSceneRect(0, 0, p->boundingRect().width(), p->boundingRect().height());
 
 
 //        qreal left, right, top, bottom;
 //        printer.getPageMargins(&left, &top, &right, &bottom, QPrinter::Millimeter);
 
-        qreal sw = 1.0;
-        qreal sh = 1.0;
-        QSizeF paperSizePixels;
+//        qreal sw = 1.0;
+//        qreal sh = 1.0;
+//        QSizeF paperSizePixels;
 
-        if (m_scaleToFit) {     // fit to current format even if rendered page has different one
-            paperSizePixels = printer.paperSize(QPrinter::DevicePixel);
-        } else {                // print without obey current printer page size and do as rendered page promotes
-            QPrinter pr;
-            pr.setPrinterName(printer.printerName());
-            pr.setPaperSize(p->paperSize(CuteReport::Millimeter), QPrinter::Millimeter);
-            paperSizePixels = pr.paperSize(QPrinter::DevicePixel);
-        }
+//        if (m_scaleToFit) {     // fit to current format even if rendered page has different one
+//            paperSizePixels = printer.paperSize(QPrinter::DevicePixel);
+//        } else {                // print without obey current printer page size and do as rendered page promotes
+//            QPrinter pr;
+//            pr.setPrinterName(printer.printerName());
+//            pr.setPaperSize(p->paperSize(CuteReport::Millimeter), QPrinter::Millimeter);
+//            paperSizePixels = pr.paperSize(QPrinter::DevicePixel);
+//        }
 
-        sw = paperSizePixels.width() / p->boundingRect().width();
-        sh = paperSizePixels.height() / p->boundingRect().height();
+//        sw = paperSizePixels.width() / p->boundingRect().width();
+//        sh = paperSizePixels.height() / p->boundingRect().height();
 
-        if (m_keepAspectRatio) {
-            qreal s = qMin(sw, sh);
-            sw = sh = s;
-        }
+//        if (m_keepAspectRatio) {
+//            qreal s = qMin(sw, sh);
+//            sw = sh = s;
+//        }
 
-        if (sw != 1.0 || sh != 1.0)
-            painter.scale(sw, sh);
+//        if (sw != 1.0 || sh != 1.0)
+//            painter.scale(sw, sh);
 
-        QPointF pos = p->pos();
-        QGraphicsScene * oldScene = p->scene();
-
-        p->setPos(0,0);
-        scene.setSceneRect(0, 0, p->boundingRect().width(), p->boundingRect().height());
-        scene.addItem(p);
         scene.render(&painter, QRectF(0, 0, p->boundingRect().width(), p->boundingRect().height()));
-        scene.removeItem(p);
+
 
         /** restoring */
-        p->setPos(pos);
-        p->setShowFlags(flags);
+        scene.removeItem(p);
         if (oldScene)
             oldScene->addItem(p);
+        p->setDpi(pageDPI);
+        p->setShowFlags(pageFlags);
+        p->setPos(pagePos);
+        p->redraw();
+
     }
 
     painter.end();

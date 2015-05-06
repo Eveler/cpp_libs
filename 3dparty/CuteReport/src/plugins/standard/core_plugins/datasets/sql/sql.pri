@@ -8,3 +8,5 @@ HEADERS += sqldataset.h \
 	
 FORMS += sqldatasethelper.ui
 RESOURCES += sqldataset.qrc
+
+#INSTALL_HEADERS.files = sqldataset.h

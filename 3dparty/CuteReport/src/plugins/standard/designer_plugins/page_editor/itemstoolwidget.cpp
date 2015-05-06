@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -23,7 +23,7 @@
 #include <QTimer>
 #include <QMouseEvent>
 #include <QDrag>
-#include <QPushButton>
+#include <QToolButton>
 #include <QLayout>
 
 ItemsToolWidget::ItemsToolWidget(QWidget * parent, const QString & imagePath)
@@ -138,7 +138,7 @@ void ItemsToolWidget::showItems()
 
 void ItemsToolWidget::leaveEvent ( QEvent * event )
 {
-    qDebug() << "leaveEvent";
+//    qDebug() << "leaveEvent";
     QWidget::leaveEvent(event);
     m_hideDelay.start();
 }
@@ -152,7 +152,7 @@ void ItemsToolWidget::leaveEvent ( QEvent * event )
 
 void ItemsToolWidget::tryHideMenu()
 {
-    qDebug() << "tryHideMenu";
+//    qDebug() << "tryHideMenu";
     if ((m_menu) && (!m_menu->underMouse()))
         m_menu->hide();
 }
@@ -169,7 +169,7 @@ Menu::Menu(QWidget * parent )
 
 void Menu::leaveEvent ( QEvent * event )
 {
-    qDebug() << "Menu::leaveEvent";
+//    qDebug() << "Menu::leaveEvent";
     Q_UNUSED(event)
     hide ();
 }
@@ -211,8 +211,13 @@ void Menu::dragLeaveEvent ( QDragLeaveEvent * /*event*/ )
 
 
 ToolButton::ToolButton(const QIcon &icon, const QString &text, QWidget *parent)
-    :QPushButton(icon, text, parent)
+    :QToolButton(parent)
 {
+    setIcon(icon);
+    setText(text);
+    setAutoRaise(true);
+    setPopupMode(QToolButton::InstantPopup);
+    setIconSize(QSize(22,22));
     //connect(this, SIGNAL(pressed())
 }
 
@@ -221,12 +226,12 @@ void ToolButton::enterEvent(QEvent *event)
 {
 //    qDebug() << "ToolButton::enterEvent";
 //    click();
-    QPushButton::enterEvent(event);
+    QToolButton::enterEvent(event);
 }
 
 
 void ToolButton::leaveEvent(QEvent *event)
 {
     //emit hideMenu();
-    QPushButton::leaveEvent(event);
+    QToolButton::leaveEvent(event);
 }

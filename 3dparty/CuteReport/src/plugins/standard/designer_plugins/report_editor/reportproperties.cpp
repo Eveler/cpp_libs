@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -27,7 +27,9 @@
 #include "rendererinterface.h"
 #include "storageinterface.h"
 #include "propertyeditor.h"
+
 #include <QDebug>
+#include <QMenu>
 
 namespace PropertyEditor{
 
@@ -49,15 +51,52 @@ ReportProperties::ReportProperties(CuteDesigner::Core * core, QWidget *parent) :
 
     ui->tabWidget->setCurrentIndex(0);
 
-    connect(ui->assignRenderer, SIGNAL(clicked()), this, SLOT(setNewRendererModule()));
-    connect(ui->assignPrinter, SIGNAL(clicked()), this, SLOT(setNewPrinterModule()));
-    connect(ui->assignStorage, SIGNAL(clicked()), this, SLOT(setNewStorageModule()));
+    QMenu * menu = new QMenu(ui->bAddStorage);
+    foreach (CuteReport::ReportPluginInterface* module, m_core->reportCore()->modules(CuteReport::StorageModule)) {
+        QAction * action = new QAction(module->moduleShortName(), menu);
+        action->setData(module->moduleFullName());
+        connect(action, SIGNAL(triggered()), this, SLOT(setNewStorageModule()));
+        menu->addAction(action);
+    }
+    ui->bAddStorage->setMenu(menu);
+
+    QMenu * menuRenderers = new QMenu(ui->bAddRenderer);
+    foreach (CuteReport::ReportPluginInterface* module, m_core->reportCore()->modules(CuteReport::RendererModule)) {
+        QAction * action = new QAction(module->moduleFullName().replace("::", " "), menuRenderers);
+        action->setData(module->moduleFullName());
+        connect(action, SIGNAL(triggered()), this, SLOT(setNewRendererModule()));
+        menuRenderers->addAction(action);
+    }
+    ui->bAddRenderer->setMenu(menuRenderers);
+
+    QMenu * menuPrinters = new QMenu(ui->bAddPrinter);
+    foreach (CuteReport::ReportPluginInterface* module, m_core->reportCore()->modules(CuteReport::PrinterModule)) {
+        QAction * action = new QAction(module->moduleFullName().replace("::", " "), menuPrinters);
+        action->setData(module->moduleFullName());
+        connect(action, SIGNAL(triggered()), this, SLOT(setNewPrinterModule()));
+        menuPrinters->addAction(action);
+    }
+    ui->bAddPrinter->setMenu(menuPrinters);
+
+
     connect(ui->bDeleteStorage, SIGNAL(clicked()), this, SLOT(deleteCurrentStorage()));
-    connect(ui->bRendererDelete, SIGNAL(clicked()), this, SIGNAL(requestForDeleteRenderer()));
-    connect(ui->bPrinterDelete, SIGNAL(clicked()), this, SIGNAL(requestForDeletePrinter()));
     connect(ui->bDefaultStorage, SIGNAL(clicked()), this, SLOT(setDefaultStorage()));
     connect(ui->bResetDefaultStorage, SIGNAL(clicked()), this, SLOT(clearDefaultStorage()));
+    connect(ui->bStorageRename, SIGNAL(clicked()), this, SLOT(renameStorage()));
     connect(ui->storageList, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)), this, SLOT(storagesListIndexChanged(QTreeWidgetItem*,QTreeWidgetItem*)));
+
+    connect(ui->bDeleteRenderer, SIGNAL(clicked()), this, SLOT(deleteCurrentRenderer()));
+    connect(ui->bDefaultRenderer, SIGNAL(clicked()), this, SLOT(setDefaultRenderer()));
+    connect(ui->bResetDefaultRenderer, SIGNAL(clicked()), this, SLOT(clearDefaultRenderer()));
+    connect(ui->bRendererRename, SIGNAL(clicked()), this, SLOT(renameRenderer()));
+    connect(ui->rendererList, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)), this, SLOT(rendererListIndexChanged(QTreeWidgetItem*,QTreeWidgetItem*)));
+
+    connect(ui->bDeletePrinter, SIGNAL(clicked()), this, SLOT(deleteCurrentPrinter()));
+    connect(ui->bDefaultPrinter, SIGNAL(clicked()), this, SLOT(setDefaultPrinter()));
+    connect(ui->bResetDefaultPrinter, SIGNAL(clicked()), this, SLOT(clearDefaultPrinter()));
+    connect(ui->bPrinterRename, SIGNAL(clicked()), this, SLOT(renamePrinter()));
+    connect(ui->printerList, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)), this, SLOT(printerListIndexChanged(QTreeWidgetItem*,QTreeWidgetItem*)));
+
     connect(ui->variables, SIGNAL(itemChanged(QTableWidgetItem*)), this, SLOT(variableItemChanged(QTableWidgetItem*)));
 }
 
@@ -92,14 +131,14 @@ void ReportProperties::reloadSettings()
 void ReportProperties::addRendererPropertyEditor(PropertyEditor::EditorWidget * propertyEditor)
 {
     m_rendererPropertyEditor = propertyEditor;
-    ui->propertyEditorFrame->layout()->addWidget(propertyEditor);
+    ui->rendererHelperLayout->addWidget(propertyEditor);
 }
 
 
 void ReportProperties::addPrinterPropertyEditor(PropertyEditor::EditorWidget * propertyEditor)
 {
     m_printerPropertyEditor = propertyEditor;
-    ui->printerPropertyEditorFrame->layout()->addWidget(propertyEditor);
+    ui->printerHelperLayout->addWidget(propertyEditor);
 }
 
 
@@ -113,36 +152,48 @@ void ReportProperties::connectReport(CuteReport::ReportInterface * report)
     if (!m_report)
         return;
 
-    ui->url->setText(m_report->filePath());
+    ui->url->setText(m_report->fileUrl());
     ui->reportName->setText(m_report->name());
     ui->author->setText(m_report->author());
     ui->description->setText(m_report->description());
 
-    ui->printModules->clear();
-    ui->renderingModules->clear();
-    ui->storageModules->clear();
-    ui->printModules->addItems(m_core->reportCore()->moduleNames(CuteReport::PrinterModule));
-    ui->renderingModules->addItems(m_core->reportCore()->moduleNames(CuteReport::RendererModule));
-    ui->storageModules->addItems(m_core->reportCore()->moduleNames(CuteReport::StorageModule));
+//    ui->printModules->clear();
+//    ui->renderingModules->clear();
+//    ui->printModules->addItems(m_core->reportCore()->moduleNames(CuteReport::PrinterModule));
+//    ui->renderingModules->addItems(m_core->reportCore()->moduleNames(CuteReport::RendererModule));
 
-    ui->rendererName->setText(m_report->renderer() ? m_report->renderer()->moduleFullName() : "");
-    ui->printerName->setText(m_report->printer() ? m_report->printer()->moduleFullName() : "");
-    ui->lGlobalRenderer->setVisible(!m_report->renderer());
-    ui->lGlobalPrinter->setVisible(!m_report->printer());
+//    ui->rendererName->setText(m_report->renderer() ? m_report->renderer()->moduleFullName() : "");
+//    ui->printerName->setText(m_report->printer() ? m_report->printer()->moduleFullName() : "");
+//    ui->lGlobalRenderer->setVisible(!m_report->renderer());
+//    ui->lGlobalPrinter->setVisible(!m_report->printer());
 
-    foreach (const QString &name, m_report->storagesName())
-        ui->storageList->addTopLevelItem(new QTreeWidgetItem ( ui->storageList, QStringList() << name));
+    foreach (CuteReport::StorageInterface * storage, m_report->storages())
+        addGUIReportStorage(storage);
     ui->leDefaultStorage->setText(m_report->defaultStorageName());
 
-    connect(m_report.data(), SIGNAL(filePathChanged(QString)), this, SLOT(setGUIReportFilePath(QString)));
+    foreach (CuteReport::RendererInterface *renderer, m_report->renderers())
+        addGUIReportRenderer(renderer);
+    ui->leDefaultRenderer->setText(m_report->defaultRendererName());
+
+    foreach (CuteReport::PrinterInterface * printer, m_report->printers())
+        addGUIReportPrinter(printer);
+
+    ui->leDefaultPrinter->setText(m_report->defaultPrinterName());
+
+    connect(m_report.data(), SIGNAL(fileUrlChanged(QString)), this, SLOT(setGUIReportFilePath(QString)));
     connect(m_report.data(), SIGNAL(nameChanged(QString)), this, SLOT(setGUIReportName(QString)));
     connect(m_report.data(), SIGNAL(authorChanged(QString)), this, SLOT(setGUIReportAuthor(QString)));
     connect(m_report.data(), SIGNAL(descriptionChanged(QString)), this, SLOT(setGUIReportDescription(QString)));
-    connect(m_report.data(), SIGNAL(printerChanged(CuteReport::PrinterInterface*)), this, SLOT(setGUIReportPrinter(CuteReport::PrinterInterface*)));
-    connect(m_report.data(), SIGNAL(rendererChanged(CuteReport::RendererInterface*)), this, SLOT(setGUIReportRenderer(CuteReport::RendererInterface*)));
     connect(m_report.data(), SIGNAL(storageAdded(CuteReport::StorageInterface*)), this, SLOT(addGUIReportStorage(CuteReport::StorageInterface*)));
     connect(m_report.data(), SIGNAL(storageDeleted(CuteReport::StorageInterface*)), this, SLOT(removeGUIReportStorage(CuteReport::StorageInterface*)));
-    connect(m_report.data(), SIGNAL(defaultStorageNameChanged(QString)), this, SLOT(setGUIDefaultStorage(QString)));
+    connect(m_report.data(), SIGNAL(defaultStorageChanged(QString)), this, SLOT(setGUIDefaultStorage(QString)));
+    connect(m_report.data(), SIGNAL(rendererAdded(CuteReport::RendererInterface*)), this, SLOT(addGUIReportRenderer(CuteReport::RendererInterface*)));
+    connect(m_report.data(), SIGNAL(rendererDeleted(CuteReport::RendererInterface*)), this, SLOT(removeGUIReportRenderer(CuteReport::RendererInterface*)));
+    connect(m_report.data(), SIGNAL(defaultRendererChanged(QString)), this, SLOT(setGUIDefaultRenderer(QString)));
+    connect(m_report.data(), SIGNAL(printerAdded(CuteReport::PrinterInterface*)), this, SLOT(addGUIReportPrinter(CuteReport::PrinterInterface*)));
+    connect(m_report.data(), SIGNAL(printerDeleted(CuteReport::PrinterInterface*)), this, SLOT(removeGUIReportPrinter(CuteReport::PrinterInterface*)));
+    connect(m_report.data(), SIGNAL(defaultPrinterChanged(QString)), this, SLOT(setGUIDefaultPrinter(QString)));
+
     connect(m_report.data(), SIGNAL(variablesChanged()), this, SLOT(updateGUIvariables()));
 
     connect(ui->reportName, SIGNAL(editingFinished ()), this, SLOT(saveAll()));
@@ -192,30 +243,32 @@ void ReportProperties::setGUIReportDescription(const QString & reportDescription
 }
 
 
-void ReportProperties::setGUIReportPrinter(CuteReport::PrinterInterface* printer)
-{
-    ui->printerName->blockSignals(true);
-    ui->printerName->setText(printer ? printer->moduleFullName() : "");
-    ui->lGlobalPrinter->setVisible(!printer);
-    m_printerPropertyEditor->setVisible(printer);
-    ui->printerName->blockSignals(false);
-}
+//void ReportProperties::setGUIReportPrinter(CuteReport::PrinterInterface* printer)
+//{
+//    ui->printerName->blockSignals(true);
+//    ui->printerName->setText(printer ? printer->moduleFullName() : "");
+//    ui->lGlobalPrinter->setVisible(!printer);
+//    m_printerPropertyEditor->setVisible(printer);
+//    ui->printerName->blockSignals(false);
+//}
 
 
-void ReportProperties::setGUIReportRenderer(CuteReport::RendererInterface* renderer)
-{
-    ui->rendererName->blockSignals(true);
-    ui->rendererName->setText(renderer ? renderer->moduleFullName() : "");
-    ui->lGlobalRenderer->setVisible(!renderer);
-    m_rendererPropertyEditor->setVisible(renderer);
-    ui->rendererName->blockSignals(false);
-}
+//void ReportProperties::setGUIReportRenderer(CuteReport::RendererInterface* renderer)
+//{
+//    ui->rendererName->blockSignals(true);
+//    ui->rendererName->setText(renderer ? renderer->moduleFullName() : "");
+//    ui->lGlobalRenderer->setVisible(!renderer);
+//    m_rendererPropertyEditor->setVisible(renderer);
+//    ui->rendererName->blockSignals(false);
+//}
 
 
 void ReportProperties::addGUIReportStorage(CuteReport::StorageInterface * storage)
 {
-    QTreeWidgetItem * newStorage = new QTreeWidgetItem ( ui->storageList, QStringList() << storage->objectName() << storage->moduleFullName() );
-    ui->storageList->addTopLevelItem(new QTreeWidgetItem (newStorage));
+    QTreeWidgetItem * newTreeItem = new QTreeWidgetItem ( ui->storageList, QStringList() << storage->objectName() << storage->moduleFullName() );
+    ui->storageList->addTopLevelItem(newTreeItem);
+    newTreeItem->setData(0, Qt::UserRole, (qint64)storage);
+    connect(storage, SIGNAL(objectNameChanged(QString)), this, SLOT(slotStorageNameChanged(QString)));
 }
 
 
@@ -232,6 +285,51 @@ void ReportProperties::setGUIDefaultStorage(const QString & storageName)
 }
 
 
+void ReportProperties::addGUIReportRenderer(CuteReport::RendererInterface * object)
+{
+    QTreeWidgetItem * newTreeItem = new QTreeWidgetItem ( ui->rendererList, QStringList() << object->objectName() << object->moduleFullName() );
+    ui->rendererList->addTopLevelItem(newTreeItem);
+    newTreeItem->setData(0, Qt::UserRole, (qint64)object);
+    connect(object, SIGNAL(objectNameChanged(QString)), this, SLOT(slotRendererNameChanged(QString)));
+}
+
+
+void ReportProperties::removeGUIReportRenderer(CuteReport::RendererInterface *object)
+{
+    qDeleteAll(ui->rendererList->findItems(object->objectName(), Qt::MatchExactly));
+    updateLayout();
+}
+
+
+void ReportProperties::setGUIDefaultRenderer(const QString & objectName)
+{
+    ui->leDefaultRenderer->setText(objectName);
+}
+
+
+void ReportProperties::addGUIReportPrinter(CuteReport::PrinterInterface * object)
+{
+    QTreeWidgetItem * newTreeItem = new QTreeWidgetItem ( ui->printerList, QStringList() << object->objectName() << object->moduleFullName() );
+    ui->printerList->addTopLevelItem(newTreeItem);
+    newTreeItem->setData(0, Qt::UserRole, (qint64)object);
+    connect(object, SIGNAL(objectNameChanged(QString)), this, SLOT(slotPrinterNameChanged(QString)));
+}
+
+
+void ReportProperties::removeGUIReportPrinter(CuteReport::PrinterInterface *object)
+{
+    qDeleteAll(ui->printerList->findItems(object->objectName(), Qt::MatchExactly));
+    updateLayout();
+}
+
+
+void ReportProperties::setGUIDefaultPrinter(const QString & objectName)
+{
+    ui->leDefaultPrinter->setText(objectName);
+}
+
+
+
 void ReportProperties::updateGUIvariables()
 {
     ui->variables->setRowCount(m_report->variables().keys().size());
@@ -240,6 +338,7 @@ void ReportProperties::updateGUIvariables()
     foreach (const QString & key, m_report->variables().keys()) {
         ++row;
         QTableWidgetItem *newName = new QTableWidgetItem(key);
+//        qDebug() << m_report->variables().value(key);
         QTableWidgetItem *newValue = new QTableWidgetItem(m_report->variables().value(key).toString());
         newName->setFlags(Qt::ItemIsEnabled);
         newValue->setFlags(Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable);
@@ -259,23 +358,143 @@ void ReportProperties::variableItemChanged(QTableWidgetItem * item)
 }
 
 
+void ReportProperties::slotStorageNameChanged(QString name)
+{
+    CuteReport::StorageInterface *object = dynamic_cast<CuteReport::StorageInterface*> (sender());
+    if (!object)
+        return;
+    for (int i=0; i<ui->storageList->topLevelItemCount(); ++i) {
+        QTreeWidgetItem * item = ui->storageList->topLevelItem(i);
+        if ((qint64)object == item->data(0, Qt::UserRole).toLongLong()) {
+            item->setText(0, object->objectName());
+            break;
+        }
+    }
+}
+
+
+void ReportProperties::slotRendererNameChanged(QString name)
+{
+    CuteReport::RendererInterface *object = dynamic_cast<CuteReport::RendererInterface*> (sender());
+    if (!object)
+        return;
+    for (int i=0; i<ui->rendererList->topLevelItemCount(); ++i) {
+        QTreeWidgetItem * item = ui->rendererList->topLevelItem(i);
+        if ((qint64)object == item->data(0, Qt::UserRole).toLongLong()) {
+            item->setText(0, object->objectName());
+            break;
+        }
+    }
+}
+
+
+void ReportProperties::slotPrinterNameChanged(QString name)
+{
+    CuteReport::PrinterInterface *object = dynamic_cast<CuteReport::PrinterInterface*> (sender());
+    if (!object)
+        return;
+    for (int i=0; i<ui->printerList->topLevelItemCount(); ++i) {
+        QTreeWidgetItem * item = ui->printerList->topLevelItem(i);
+        if ((qint64)object == item->data(0, Qt::UserRole).toLongLong()) {
+            item->setText(0, object->objectName());
+            break;
+        }
+    }
+}
+
+
 void ReportProperties::setNewRendererModule()
 {
-    CuteReport::RendererInterface * renderer = m_core->reportCore()->rendererModule(ui->renderingModules->currentText());
+    QAction * action = qobject_cast<QAction*>(sender());
+    Q_ASSERT(action);
+    QString moduleName = action->data().toString();
+    const CuteReport::RendererInterface * renderer = static_cast<const CuteReport::RendererInterface*>(m_core->reportCore()->module(CuteReport::RendererModule, moduleName));
     emit requestForNewRenderer(renderer);
+}
+
+
+void ReportProperties::deleteCurrentRenderer()
+{
+    if (!ui->rendererList->currentItem())
+        return;
+    QString name = ui->rendererList->currentItem()->text(0);
+    emit requestForDeleteRenderer(name);
+}
+
+
+void ReportProperties::setDefaultRenderer()
+{
+    if (!ui->rendererList->currentItem())
+        return;
+    QString name = ui->rendererList->currentItem()->text(0);
+    emit requestForDefaultRenderer(name);
+}
+
+
+void ReportProperties::clearDefaultRenderer()
+{
+    emit requestForDefaultRenderer(QString());
+}
+
+
+void ReportProperties::renameRenderer()
+{
+    if (!ui->rendererList->currentItem())
+        return;
+    QString name = ui->rendererList->currentItem()->text(0);
+    emit requestForNewRendererName(name);
 }
 
 
 void ReportProperties::setNewPrinterModule()
 {
-    const CuteReport::PrinterInterface * printer = m_core->reportCore()->printerModule(ui->printModules->currentText());
+    QAction * action = qobject_cast<QAction*>(sender());
+    Q_ASSERT(action);
+    QString moduleName = action->data().toString();
+    const CuteReport::PrinterInterface * printer = static_cast<const CuteReport::PrinterInterface*>(m_core->reportCore()->module(CuteReport::PrinterModule, moduleName));
     emit requestForNewPrinter(printer);
+}
+
+
+void ReportProperties::deleteCurrentPrinter()
+{
+    if (!ui->printerList->currentItem())
+        return;
+    QString name = ui->printerList->currentItem()->text(0);
+    emit requestForDeletePrinter(name);
+}
+
+
+void ReportProperties::setDefaultPrinter()
+{
+    if (!ui->printerList->currentItem())
+        return;
+    QString name = ui->printerList->currentItem()->text(0);
+    emit requestForDefaultPrinter(name);
+}
+
+
+void ReportProperties::clearDefaultPrinter()
+{
+    emit requestForDefaultPrinter(QString());
+}
+
+
+void ReportProperties::renamePrinter()
+{
+    if (!ui->printerList->currentItem())
+        return;
+    QString name = ui->printerList->currentItem()->text(0);
+    emit requestForNewPrinterName(name);
 }
 
 
 void ReportProperties::setNewStorageModule()
 {
-    const CuteReport::StorageInterface * storage = m_core->reportCore()->storageModule(ui->storageModules->currentText());
+    QAction * action = qobject_cast<QAction*>(sender());
+    Q_ASSERT(action);
+    QString moduleName = action->data().toString();
+    const CuteReport::StorageInterface * storage = static_cast<const CuteReport::StorageInterface*>(m_core->reportCore()->module(CuteReport::StorageModule, moduleName));
     emit requestForNewStorage(storage);
 }
 
@@ -295,6 +514,15 @@ void ReportProperties::setDefaultStorage()
         return;
     QString storageName = ui->storageList->currentItem()->text(0);
     emit requestForDefaultStorage(storageName);
+}
+
+
+void ReportProperties::renameStorage()
+{
+    if (!ui->storageList->currentItem())
+        return;
+    QString storageName = ui->storageList->currentItem()->text(0);
+    emit requestForNewStorageName(storageName);
 }
 
 
@@ -335,6 +563,67 @@ void ReportProperties::storagesListIndexChanged(QTreeWidgetItem* current, QTreeW
 }
 
 
+void ReportProperties::rendererListIndexChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
+{
+    Q_UNUSED(previous)
+    if (!current) {
+        delete m_currentRendererHelper;
+        return;
+    }
+
+    CuteReport::RendererInterface * object = m_report->renderer(current->text(0));
+    if (!object)
+        return;
+
+    if (m_currentRendererHelper) {
+        CuteReport::RendererHelperInterface * rHelper = qobject_cast<CuteReport::RendererHelperInterface *>(m_currentRendererHelper);
+        if (rHelper)
+            rHelper->save();
+    }
+    delete m_currentRendererHelper;
+
+    m_currentRendererHelper = object->helper();
+    if (!m_currentRendererHelper) {
+        PropertyEditor::EditorWidget * editor = m_core->createPropertyEditor(this);
+        editor->setObject(object);
+        m_currentRendererHelper = editor;
+    }
+    ui->rendererHelperLayout->addWidget(m_currentRendererHelper);
+    ui->rendererType->setText(object->moduleFullName());
+    updateLayout();
+}
+
+
+void ReportProperties::printerListIndexChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
+{
+    Q_UNUSED(previous)
+    if (!current) {
+        delete m_currentPrinterHelper;
+        return;
+    }
+    CuteReport::PrinterInterface * object = m_report->printer(current->text(0));
+    if (!object)
+        return;
+
+    if (m_currentPrinterHelper) {
+        CuteReport::PrinterHelperInterface * pHelper = qobject_cast<CuteReport::PrinterHelperInterface *>(m_currentPrinterHelper);
+        if (pHelper)
+            pHelper->save();
+    }
+    delete m_currentPrinterHelper;
+
+    m_currentPrinterHelper = object->helper();
+    if (!m_currentPrinterHelper) {
+        PropertyEditor::EditorWidget * editor = m_core->createPropertyEditor(this);
+        editor->setObject(object);
+        m_currentPrinterHelper = editor;
+    }
+    ui->printerHelperLayout->addWidget(m_currentPrinterHelper);
+    ui->printerType->setText(object->moduleFullName());
+    updateLayout();
+}
+
+
 void ReportProperties::updateLayout()
 {
 //    if (m_currentStorageHelper) {
@@ -347,6 +636,9 @@ void ReportProperties::updateLayout()
 
 void ReportProperties::saveAll()
 {
+    if (!m_report)
+        return;
+
     if (m_report->name() != ui->reportName->text())
         m_report->setName(ui->reportName->text());
     if (m_report->author() != ui->author->text())

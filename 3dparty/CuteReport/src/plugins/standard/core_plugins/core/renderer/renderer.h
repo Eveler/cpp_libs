@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -33,22 +33,33 @@
 #include <QPointer>
 #include <QMutex>
 #include <QThread>
+#include <QObject>
+
 #include "rendererinterface.h"
 #include "reportinterface.h"
 #include "pageinterface.h"
+#include "plugins_common.h"
+#include "cutereport_types.h"
 
 namespace CuteReport {
 class BaseItemInterface;
 class BandInterface;
 class RendererPublicInterface;
 class RenderedReportInterface;
+class RenderedReport;
 }
 
-class RenderProcessor;
+SUIT_BEGIN_NAMESPACE
+class RendererProcessor;
 class RendererItemInterface;
 class RendererData;
+class Renderer;
+class Thread;
+SUIT_END_NAMESPACE
 
+USING_SUIT_NAMESPACE
 
+SUIT_BEGIN_NAMESPACE
 class Renderer : public CuteReport::RendererInterface
 {
     Q_OBJECT
@@ -60,20 +71,21 @@ class Renderer : public CuteReport::RendererInterface
     Q_PROPERTY(bool antialiasing READ antialiasing WRITE setAntialiasing NOTIFY antialiasingChanged)
     Q_PROPERTY(bool textAntialiasing READ textAntialiasing WRITE setTextAntialiasing NOTIFY textAntialiasingChanged)
     Q_PROPERTY(bool smoothPixmapTransform READ smoothPixmapTransform WRITE setSmoothPixmapTransform NOTIFY textAntialiasingChanged)
-//    Q_PROPERTY(int dpi READ dpi WRITE setDpi NOTIFY dpiChanged)
+    Q_PROPERTY(int dpi READ dpi WRITE setDpi NOTIFY dpiChanged)
     Q_PROPERTY(int iterationDelay READ delay WRITE setDelay NOTIFY delayChanged)
 
 public:
     explicit Renderer(QObject *parent = 0);
     ~Renderer();
 
-    virtual RendererInterface * createInstance(QObject * parent) const;
-    virtual RendererInterface * clone() const;
+    virtual CuteReport::RendererInterface * createInstance(QObject * parent) const;
+    virtual CuteReport::RendererInterface * clone() const;
 
     virtual QString moduleShortName() const;
-    virtual QString suitName() const { return "Standard"; }
+    virtual QString suitName() const { return SUIT_NAMESPACE_STR; }
+    virtual QString objectNameHint() const {return QString("renderer");}
 
-    virtual void run(CuteReport::ReportInterface* report);
+    virtual void run(CuteReport::ReportInterface* report, ThreadingLevel threading = ThreadNo);
     virtual void stop();
     bool isRunning();
 
@@ -106,32 +118,36 @@ signals:
          void done(bool errorsFound);
          void cancelled();
          void processingPage(int page, int total);
-         void dpiChanged(int);
     */
 
     void antialiasingChanged(bool);
     void textAntialiasingChanged(bool);
     void smoothPixmapTransformChanged(bool);
     void workWithReportCopyChanged(bool);
+    void dpiChanged(int);
     void delayChanged(int);
 
 
 private slots:
-    void slotProcessorDone(bool successfull);
+    void slotProcessorDone(bool successfull, CuteReport::RenderedReport* renderedReport);
     void slotReportDestroyed(QObject * object);
     void slotLog(CuteReport::LogLevel level, const QString & shortMessage, const QString & fullMessage) const;
 
 private:
     Renderer(const Renderer &dd, QObject * parent);
 
-    RendererData * m_data;
+    CuteReport::RenderedReport* m_renderedReport;
+    SUIT_NAMESPACE::RendererProcessor * m_processor;
+    Thread * m_renderingThread;
+    CuteReport::ReportInterface * m_report;
 
     bool m_antialiasing;
     bool m_textAntialiasing;
     bool m_smoothPixmapTransform;
     int m_dpi;
     int m_delay;
-    bool m_resultReady;
 };
 
-#endif // RENDERER_H
+SUIT_END_NAMESPACE
+
+#endif // SUIT_NAMESPACE_RENDERER_H

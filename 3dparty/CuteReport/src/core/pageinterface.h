@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -31,7 +31,7 @@
 #define PAGEINTERFACE_H
 
 #include "reportplugininterface.h"
-#include "types.h"
+#include "cutereport_types.h"
 
 #include <QPointF>
 #include <QRectF>
@@ -40,6 +40,7 @@
 #include <QString>
 #include <QGraphicsRectItem>
 #include <QWidget>
+#include <QAction>
 
 
 //static int RenderedPageInterfaceType = QGraphicsItem::UserType + 12789;
@@ -58,6 +59,7 @@ class PageManipulatorInterface;
 class ReportCore;
 class RenderedPageInterface;
 class PageViewInterface;
+class RendererPublicInterface;
 
 
 class CUTEREPORT_EXPORTS PageAction  {
@@ -74,24 +76,32 @@ class CUTEREPORT_EXPORTS PageInterface : public ReportPluginInterface
 
     Q_ENUMS(Unit)
     Q_ENUMS(Orientation)
+    Q_ENUMS(FillDirection)
 
     Q_PROPERTY(Orientation orientation READ orientation WRITE setOrientation NOTIFY orientationChanged)
     Q_PROPERTY(QString format READ format WRITE setFormat/* NOTIFY formatChanged*/)
     Q_PROPERTY(QSizeF paperSize READ paperSize WRITE setPaperSize NOTIFY paperSizeChanged)
     Q_PROPERTY(QString unit READ unitStr WRITE setUnitStr NOTIFY unitChanged)
     Q_PROPERTY(int dpi READ dpi WRITE setDpi NOTIFY dpiChanged)
+    Q_PROPERTY(int columns READ columns WRITE setColumns NOTIFY columnsChanged)
+    Q_PROPERTY(FillDirection fillDirection READ fillDirection WRITE setFillDirection NOTIFY fillDirectionChanged)
     Q_PROPERTY(qreal marginLeft READ marginLeft WRITE setMarginLeft NOTIFY marginLeftChanged)
     Q_PROPERTY(qreal marginTop READ marginTop WRITE setMarginTop NOTIFY marginTopChanged)
     Q_PROPERTY(qreal marginRight READ marginRight WRITE setMarginRight NOTIFY marginRightChanged)
     Q_PROPERTY(qreal marginBottom READ marginBottom WRITE setMarginBottom NOTIFY marginBottomChanged)
     Q_PROPERTY(QColor background READ background WRITE setBackground NOTIFY backgroundChanged)
+    Q_PROPERTY(int order READ order WRITE setOrder NOTIFY orderChanged)
+    Q_PROPERTY(QFont font READ font WRITE setFont NOTIFY fontChanged)
+
 
     Q_PROPERTY(int _current_property READ _currentProperty WRITE _setCurrentProperty DESIGNABLE false)
     Q_PROPERTY(QString _current_property_description READ _current_property_description DESIGNABLE false)
     Q_PROPERTY(int _current_property_precision READ _current_property_precision DESIGNABLE false)
+    Q_PROPERTY(QIcon _icon READ icon DESIGNABLE false)
 
 public:
     enum Orientation { Portrait = 0, Landscape = 1 };
+    enum FillDirection { Vertical = 0, Horizontal = 1 };
 
     explicit PageInterface(QObject *parent = 0);
     virtual ~PageInterface();
@@ -135,20 +145,27 @@ public:
     virtual void setDpi(int dpi) = 0;
     virtual QColor background() const = 0;
     virtual void setBackground(const QColor & background) = 0;
+    virtual int columns() const {return 1;}
+    virtual void setColumns(int columns) {Q_UNUSED(columns);}
+    virtual FillDirection fillDirection() const {return Vertical;}
+    virtual void setFillDirection(FillDirection value) {Q_UNUSED(value);}
+    virtual int order() const = 0;
+    virtual void setOrder(int order) = 0;
+    virtual QFont font() const = 0;
+    virtual void setFont(const QFont & font) = 0;
 
     virtual bool addItem(BaseItemInterface * item, QPointF pagePos, QString * error = 0) = 0;
     virtual bool addItem(BaseItemInterface * item) = 0;
-    virtual bool addItem(const QString & className, QPointF pagePos, QString * error = 0) = 0;
+    virtual BaseItemInterface * addItem(const QString & className, QPointF pagePos, QString * error = 0) = 0;
     virtual void deleteItem(BaseItemInterface * item) = 0;
     virtual void deleteItem(const QString & itemName) = 0;
 
     /// Renderer
-    virtual void renderInit(){}
+    virtual void renderInit(RendererPublicInterface * renderer){Q_UNUSED(renderer);}
     virtual CuteReport::RenderedPageInterface * render(int customDPI = 0) = 0;
     virtual void render(QPainter * /*painter*/, QPointF /*translate*/, const QRectF & /*clipRect*/){}
     virtual void renderPageCompleted() {}
     virtual void renderReset(){}
-
 
     virtual BaseItemInterface * itemAt(QPointF pos) = 0;
     virtual QList<BaseItemInterface *> itemsAt(QPointF pos) = 0;
@@ -163,13 +180,14 @@ public:
     virtual QList <PageViewInterface *> views() = 0;
     virtual PageViewInterface * createView(QWidget * parent = 0) = 0;
     virtual CuteReport::PageViewInterface * createSimpleView(QWidget * parent = 0) = 0; // the simplest view without any additional elements like shadow, rulers, etc.
-    virtual  QGraphicsItem * pageItem() = 0;
+    virtual QGraphicsItem * pageItem() = 0;
 
     // mapping units
 //    virtual QRectF mapFromPixel(QRectF rect, int customDPI = 0) = 0;
 //    virtual QPointF mapFromPixel(QPointF point, int customDPI = 0) = 0;
 //    virtual QRect mapToPixel(QRectF rect, int customDPI = 0) = 0;
 //    virtual QPoint mapToPixel(QPointF point, int customDPI = 0) = 0;
+    virtual StdEditorPropertyList stdEditorList() const {return StdEditorPropertyList();}
 
     virtual void _setCurrentProperty(int num) {m_currentProperty = num;}
     virtual int _currentProperty() { return m_currentProperty;}
@@ -185,6 +203,7 @@ signals:
     void afterItemRemoved(CuteReport::BaseItemInterface* item, QString itemName, bool directDeletion);
     void itemGeometryChanged(BaseItemInterface * item, QRectF oldGeometry, QRectF newGeometry);
     void viewCreated(PageViewInterface *);
+    void stdEditorListChanded(StdEditorPropertyList);
 
     //properties
     void orientationChanged(Orientation newOrientation);
@@ -200,6 +219,10 @@ signals:
     void marginBottomChanged(qreal margin);
     void marginChanged();
     void backgroundChanged(QColor);
+    void columnsChanged(int);
+    void fillDirectionChanged(FillDirection newFillDirection);
+    void orderChanged(int);
+    void fontChanged(const QFont &font);
 
 protected:
     PageInterface(const PageInterface &dd, QObject * parent);

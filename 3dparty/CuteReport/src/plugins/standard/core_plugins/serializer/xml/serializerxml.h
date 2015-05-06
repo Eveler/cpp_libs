@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -31,7 +31,7 @@
 #define SERIALIZER_XML_H
 
 #include "serializerinterface.h"
-#include "globals.h"
+#include "cutereport_globals.h"
 #include <QDomDocument>
 
 namespace CuteReport {
@@ -83,17 +83,7 @@ private:
 
     QDomElement propertyToDom(QDomDocument * doc, const QObject *object, int propertyNum);
 
-    QObject * createObject(CuteReport::ReportInterface *report, const QString & classname, QObject *parent = 0) const;
     QObject * createObject(const QDomElement & dom, QObject * parent, CuteReport::ReportInterface *report) const;
-
-    const QObject *                         pluginByClassName(const QString &name) const;
-    const CuteReport::BaseItemInterface *itemPluginByClassName(const QString &name) const;
-    const CuteReport::PageInterface *       pagePluginByClassName(const QString &name) const;
-    const CuteReport::DatasetInterface *    datasetPluginByClassName(const QString &name) const;
-    const CuteReport::PrinterInterface *    printerPluginByClassName(const QString &name) const;
-    const CuteReport::RendererInterface *   rendererPluginByClassName(const QString &name) const;
-    const CuteReport::StorageInterface *    storagePluginByClassName(const QString &name) const;
-    const CuteReport::FormInterface *       formPluginByClassName(const QString &name) const;
 
 private:
     QString m_lastError;

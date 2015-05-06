@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -33,7 +33,7 @@
 #include "iteminterfaceview.h"
 #include "bandinterface.h"
 #include "reportcore.h"
-#include "functions.h"
+#include "cutereport_functions.h"
 #include "magnets.h"
 
 #include <QtGui>
@@ -140,7 +140,7 @@ QRectF ItemHandle::boundingRect () const
 
 void ItemHandle::mousePressEvent(QGraphicsSceneMouseEvent *e)
 {
-    qDebug() << "ItemHandle::mousePressEvent";
+//    qDebug() << "ItemHandle::mousePressEvent";
 
     if (!(m_itemView && e->button() == Qt::LeftButton))
         return;
@@ -156,7 +156,7 @@ void ItemHandle::mousePressEvent(QGraphicsSceneMouseEvent *e)
     m_geom = m_origGeom;
 
     // do not use magnets for bands
-    m_useMagnets = !qobject_cast<CuteReport::BandInterface*>(m_itemView->coreItem());
+    //m_useMagnets = !qobject_cast<CuteReport::BandInterface*>(m_itemView->coreItem());
 
     m_checkingItems.clear();
     foreach (BaseItemInterface * item, m_sel->pageGUI()->page()->items()) {
@@ -180,121 +180,56 @@ void ItemHandle::mouseMoveEvent(QGraphicsSceneMouseEvent *e)
     const QPointF deltaPix = e->scenePos() - m_origPressPos;
     const QPointF deltaMM = convertUnit(deltaPix, Pixel, Millimeter, m_itemView->coreItem()->dpi());
 
-    QList<QPointF> pointsList;
+    m_geom = m_origGeom;
 
     switch (m_type) {
 
         case LeftTop: {
-                m_geom.setTopLeft(m_origGeom.topLeft() + deltaMM);
-                if (m_useMagnets) {
-                    pointsList << m_geom.topLeft();
-                    QPointF point = m_sel->pageGUI()->magnets()->delta(pointsList, m_checkingItems, Magnets::HVDirection);
-                    m_geom.setTopLeft(m_geom.topLeft() + point);
-                    if (point.isNull())
-                        m_sel->pageGUI()->setItemAjustedAbsoluteGeometryMM(m_itemView->coreItem(), m_geom);
-                    else
-                        m_itemView->coreItem()->setAbsoluteGeometry(m_geom);
-                } else
-                    m_sel->pageGUI()->setItemAjustedAbsoluteGeometryMM(m_itemView->coreItem(), m_geom);
+                QPointF point = m_sel->alignedPoint(deltaMM, m_origGeom.topLeft(), m_checkingItems);
+                m_geom.setTopLeft(point);
+                m_itemView->coreItem()->setAbsoluteGeometry(m_geom, Millimeter);
             } break;
 
         case Top: {
-                m_geom.setTop(m_origGeom.top() + deltaMM.y());
-                if (m_useMagnets) {
-                    pointsList << m_geom.topLeft();
-                    QPointF point = m_sel->pageGUI()->magnets()->delta(pointsList, m_checkingItems, Magnets::VDirection);
-                    m_geom.setTop(m_geom.top() + point.y());
-                    if (point.isNull())
-                        m_sel->pageGUI()->setItemAjustedAbsoluteGeometryMM(m_itemView->coreItem(), m_geom);
-                    else
-                        m_itemView->coreItem()->setAbsoluteGeometry(m_geom);
-                } else
-                    m_sel->pageGUI()->setItemAjustedAbsoluteGeometryMM(m_itemView->coreItem(), m_geom);
+                QPointF point = m_sel->alignedPoint(QPointF(0, deltaMM.y()), m_origGeom.topLeft(), m_checkingItems);
+                m_geom.setTop(point.y());
+                m_itemView->coreItem()->setAbsoluteGeometry(m_geom, Millimeter);
             } break;
 
         case RightTop: {
-                m_geom.setTopRight(m_origGeom.topRight() + deltaMM);
-                if (m_useMagnets) {
-                    pointsList << m_geom.topRight();
-                    QPointF point = m_sel->pageGUI()->magnets()->delta(pointsList, m_checkingItems, Magnets::HVDirection);
-                    m_geom.setTopRight(m_geom.topRight() + point);
-                    if (point.isNull())
-                        m_sel->pageGUI()->setItemAjustedAbsoluteGeometryMM(m_itemView->coreItem(), m_geom);
-                    else
-                        m_itemView->coreItem()->setAbsoluteGeometry(m_geom);
-                } else
-                    m_sel->pageGUI()->setItemAjustedAbsoluteGeometryMM(m_itemView->coreItem(), m_geom);
+                QPointF point = m_sel->alignedPoint(deltaMM, m_origGeom.topRight(), m_checkingItems);
+                m_geom.setTopRight(point);
+                m_itemView->coreItem()->setAbsoluteGeometry(m_geom, Millimeter);
             } break;
 
         case Right: {
-                m_geom.setWidth(m_origGeom.width() + deltaMM.x());
-                if (m_useMagnets) {
-                    pointsList << m_geom.bottomRight();
-                    QPointF point = m_sel->pageGUI()->magnets()->delta(pointsList, m_checkingItems, Magnets::HDirection);
-                    m_geom.setRight(m_geom.right() + point.x());
-                    if (point.isNull())
-                        m_sel->pageGUI()->setItemAjustedAbsoluteGeometryMM(m_itemView->coreItem(), m_geom);
-                    else
-                        m_itemView->coreItem()->setAbsoluteGeometry(m_geom);
-                } else
-                    m_sel->pageGUI()->setItemAjustedAbsoluteGeometryMM(m_itemView->coreItem(), m_geom);
+                QPointF point = m_sel->alignedPoint(QPointF(deltaMM.x(), 0), m_origGeom.topRight(), m_checkingItems);
+                m_geom.setRight(point.x());
+                m_itemView->coreItem()->setAbsoluteGeometry(m_geom, Millimeter);
             } break;
 
         case RightBottom: {
-                m_geom.setBottomRight(m_origGeom.bottomRight() + deltaMM);
-                if (m_useMagnets) {
-                    pointsList << m_geom.bottomRight();
-                    QPointF point = m_sel->pageGUI()->magnets()->delta(pointsList, m_checkingItems, Magnets::HVDirection);
-                    m_geom.setBottomRight(m_geom.bottomRight() + point);
-                    if (point.isNull())
-                        m_sel->pageGUI()->setItemAjustedAbsoluteGeometryMM(m_itemView->coreItem(), m_geom);
-                    else
-                        m_itemView->coreItem()->setAbsoluteGeometry(m_geom);
-                } else
-                    m_sel->pageGUI()->setItemAjustedAbsoluteGeometryMM(m_itemView->coreItem(), m_geom);
+                QPointF point = m_sel->alignedPoint(deltaMM, m_origGeom.bottomRight(), m_checkingItems);
+                m_geom.setBottomRight(point);
+                m_itemView->coreItem()->setAbsoluteGeometry(m_geom, Millimeter);
             } break;
 
         case Bottom: {
-                m_geom.setHeight(m_origGeom.height() + deltaMM.y());
-                if (m_useMagnets) {
-                    pointsList << m_geom.bottomLeft();
-                    QPointF point = m_sel->pageGUI()->magnets()->delta(pointsList, m_checkingItems, Magnets::VDirection);
-                    m_geom.setBottom(m_geom.bottom() + point.y());
-                    if (point.isNull())
-                        m_sel->pageGUI()->setItemAjustedAbsoluteGeometryMM(m_itemView->coreItem(), m_geom);
-                    else
-                        m_itemView->coreItem()->setAbsoluteGeometry(m_geom);
-                } else
-                    m_sel->pageGUI()->setItemAjustedAbsoluteGeometryMM(m_itemView->coreItem(), m_geom);
+                QPointF point = m_sel->alignedPoint(QPointF(0, deltaMM.y()), m_origGeom.bottomLeft(), m_checkingItems);
+                m_geom.setBottom(point.y());
+                m_itemView->coreItem()->setAbsoluteGeometry(m_geom, Millimeter);
             } break;
 
         case LeftBottom: {
-                m_geom.setBottomLeft(m_origGeom.bottomLeft()+ deltaMM);
-                if (m_useMagnets) {
-                    pointsList << m_geom.bottomLeft();
-                    QPointF point = m_sel->pageGUI()->magnets()->delta(pointsList, m_checkingItems, Magnets::HVDirection);
-                    m_geom.setBottomLeft(m_geom.bottomLeft() + point);
-                    if (point.isNull())
-                        m_sel->pageGUI()->setItemAjustedAbsoluteGeometryMM(m_itemView->coreItem(), m_geom);
-                    else
-                        m_itemView->coreItem()->setAbsoluteGeometry(m_geom);
-                } else
-                    m_sel->pageGUI()->setItemAjustedAbsoluteGeometryMM(m_itemView->coreItem(), m_geom);
+                QPointF point = m_sel->alignedPoint(deltaMM, m_origGeom.bottomLeft(), m_checkingItems);
+                m_geom.setBottomLeft(point);
+                m_itemView->coreItem()->setAbsoluteGeometry(m_geom, Millimeter);
             } break;
 
         case Left: {
-                m_geom.setLeft(m_origGeom.left() + deltaMM.x());
-                if (m_useMagnets) {
-                    pointsList << m_geom.bottomLeft();
-                    QPointF point = m_sel->pageGUI()->magnets()->delta(pointsList, m_checkingItems, Magnets::HDirection);
-                    m_geom.setLeft(m_geom.left()+ point.x());
-                    if (point.isNull())
-                        m_sel->pageGUI()->setItemAjustedAbsoluteGeometryMM(m_itemView->coreItem(), m_geom);
-                    else
-                        m_itemView->coreItem()->setAbsoluteGeometry(m_geom);
-                } else
-                    m_sel->pageGUI()->setItemAjustedAbsoluteGeometryMM(m_itemView->coreItem(), m_geom);
-
+                QPointF point = m_sel->alignedPoint(QPointF(deltaMM.x(), 0), m_origGeom.bottomLeft(), m_checkingItems);
+                m_geom.setLeft(point.x());
+                m_itemView->coreItem()->setAbsoluteGeometry(m_geom, Millimeter);
             } break;
 
         default: break;
@@ -306,7 +241,7 @@ void ItemHandle::mouseMoveEvent(QGraphicsSceneMouseEvent *e)
 
 void ItemHandle::mouseReleaseEvent(QGraphicsSceneMouseEvent *e)
 {
-    qDebug() << "ItemHandle::mouseReleaseEvent";
+//    qDebug() << "ItemHandle::mouseReleaseEvent";
     e->accept();
     //m_sel->pageGUI()->setIgnoreObjectSelection(true);
     if (e->button() != Qt::LeftButton || !m_active)
@@ -507,9 +442,12 @@ void ItemSelection::paint ( QPainter * painter, const QStyleOptionGraphicsItem *
 
 void ItemSelection::mousePressEvent(QGraphicsSceneMouseEvent *e)
 {
-    m_origPressPos = convertUnit(e->scenePos(), Pixel, m_item->unit(), m_item->dpi());
-    m_geom = m_origGeom = m_item->absoluteGeometry();
-    m_moved = false;
+//    qDebug() << "ItemSelection::mousePressEvent";
+
+    //    if  (e->button() != Qt::LeftButton)
+    //        return;
+
+    e->accept();
 
     QPointF pagePos =  convertUnit(e->scenePos(), Pixel, m_pageGui->page()->unit(), m_pageGui->page()->dpi()) -
                        convertUnit(QPointF(PAGE_BORDER, PAGE_BORDER), CuteReport::Millimeter, m_pageGui->page()->unit(), m_pageGui->page()->dpi());
@@ -517,6 +455,11 @@ void ItemSelection::mousePressEvent(QGraphicsSceneMouseEvent *e)
 
     if (item != m_item)
         e->ignore();
+
+    m_origPressPos = e->scenePos();
+    m_origGeom = m_item->absoluteGeometry(Millimeter);
+    m_geom = m_origGeom;
+    m_moved = false;
 
     m_checkingItems.clear();
     foreach (BaseItemInterface * item, m_pageGui->page()->items()) {
@@ -528,6 +471,28 @@ void ItemSelection::mousePressEvent(QGraphicsSceneMouseEvent *e)
             m_checkingItems.append(item);
     }
 
+
+    //    m_origPressPos = convertUnit(e->scenePos(), Pixel, m_item->unit(), m_item->dpi());
+    //    m_geom = m_origGeom = m_item->absoluteGeometry();
+    //    m_moved = false;
+
+    //    QPointF pagePos =  convertUnit(e->scenePos(), Pixel, m_pageGui->page()->unit(), m_pageGui->page()->dpi()) -
+    //                       convertUnit(QPointF(PAGE_BORDER, PAGE_BORDER), CuteReport::Millimeter, m_pageGui->page()->unit(), m_pageGui->page()->dpi());
+    //    BaseItemInterface * item = m_pageGui->page()->itemAt(pagePos);
+
+    //    if (item != m_item)
+    //        e->ignore();
+
+    //    m_checkingItems.clear();
+    //    foreach (BaseItemInterface * item, m_pageGui->page()->items()) {
+    //        if (item == m_item)
+    //            continue;
+    //        if (item->parentItem() == m_item->parentItem() || m_item->parentItem() == m_item)
+    //            m_checkingItems.insert(0,  item);
+    //        else
+    //            m_checkingItems.append(item);
+    //    }
+
     //e->ignore();
     //QGraphicsObject::mousePressEvent(e);
 }
@@ -538,21 +503,20 @@ void ItemSelection::mouseMoveEvent(QGraphicsSceneMouseEvent *e)
     if (m_item->resizeFlags() & BaseItemInterface::FixedPos)
         return;
 
-    m_moved = true;
-    const QPointF rp = convertUnit(e->scenePos(), Pixel, m_item->unit(), m_item->dpi());
-    const QPointF d = rp - m_origPressPos;
-    m_geom = m_origGeom.translated(d);
+    e->accept();
 
+    m_moved = true;
+    const QPointF deltaPix = e->scenePos() - m_origPressPos;
+    const QPointF deltaMM = convertUnit(deltaPix, Pixel, Millimeter, m_item->dpi());
+    m_geom = m_origGeom;
+
+    m_geom.translate(deltaMM);
     QList<QPointF> pointsList;
     pointsList << m_geom.bottomLeft() << m_geom.bottomRight() << m_geom.topLeft() << m_geom.topRight();
 
-    QPointF correctionDelta = m_pageGui->magnets()->delta(pointsList, m_checkingItems, Magnets::HVDirection);
-    m_geom = m_geom.translated(correctionDelta);
-
-    if (correctionDelta.isNull())
-        pageGUI()->setItemAjustedAbsoluteGeometryMM(m_item, m_geom);
-    else
-        m_item->setAbsoluteGeometry(m_geom);
+    QPointF point = alignedPoint(deltaMM, m_origGeom.topLeft(), m_checkingItems, pointsList);
+    m_geom.moveTopLeft(point);
+    m_item->setAbsoluteGeometry(m_geom, Millimeter);
 }
 
 
@@ -560,28 +524,31 @@ void ItemSelection::mouseReleaseEvent(QGraphicsSceneMouseEvent *e)
 {
     Q_UNUSED(e)
     if (m_moved) {
-        m_checkingItems.clear();
-        QPointF controlPoint = convertUnit(e->scenePos(), Pixel, m_pageGui->page()->unit(), m_pageGui->page()->dpi()) -
-                               convertUnit(QPointF(PAGE_BORDER, PAGE_BORDER), Millimeter, m_pageGui->page()->unit(), m_pageGui->page()->dpi());
+        if (e->button() == Qt::RightButton) {
+            m_checkingItems.clear();
+            QPointF controlPoint = convertUnit(e->scenePos(), Pixel, m_pageGui->page()->unit(), m_pageGui->page()->dpi()) -
+                                   convertUnit(QPointF(PAGE_BORDER, PAGE_BORDER), Millimeter, m_pageGui->page()->unit(), m_pageGui->page()->dpi());
 
-        BaseItemInterface * parentItem = 0;
+            BaseItemInterface * parentItem = 0;
 
-        QList<BaseItemInterface *> items = m_item->page()->itemsAt(controlPoint);
-        for (int i=items.size()-1; i>=0; --i) {
-            if (items[i] != m_item && items[i]->canContain(m_item)) {
-                parentItem = items[i];
-                break;
+            QList<BaseItemInterface *> items = m_item->page()->itemsAt(controlPoint);
+            for (int i=items.size()-1; i>=0; --i) {
+                if (items[i] != m_item && items[i]->canContain(m_item)) {
+                    parentItem = items[i];
+                    break;
+                }
             }
-        }
 
 
-        if (parentItem  && !(m_item->findChildren<CuteReport::BaseItemInterface*>().contains(parentItem))) {
-            QRectF absoluteGeometry = m_item->absoluteGeometry();
-            m_item->setParentItem(parentItem);
-            m_item->setAbsoluteGeometry(absoluteGeometry);
+            if (parentItem  && !(m_item->findChildren<CuteReport::BaseItemInterface*>().contains(parentItem))) {
+                QRectF absoluteGeometry = m_item->absoluteGeometry();
+                m_item->setParentItem(parentItem);
+                m_item->setAbsoluteGeometry(absoluteGeometry);
+            }
+            //m_pageGui->setIgnoreObjectSelection(true);
         }
-        //m_pageGui->setIgnoreObjectSelection(true);
-    }
+    }  else
+        emit itemClicked(m_item, e);
 
     e->ignore();
     //QGraphicsObject::mouseReleaseEvent(e);
@@ -592,5 +559,52 @@ void ItemSelection::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *e)
 {
     e->ignore();
 }
+
+
+QPointF ItemSelection::alignedPoint(const QPointF delta, const QPointF origPoint, const QList<CuteReport::BaseItemInterface*> & checkingItems, QList<QPointF> pointsList)
+{
+    QPointF pointResult = origPoint + delta;
+
+    bool needCorrection = true;
+    Page * page = reinterpret_cast<Page*>(m_item->page());
+    // do not use magnets for bands
+    bool useMagnets = !qobject_cast<CuteReport::BandInterface*>(m_item);
+
+    if (useMagnets) {
+        if (pointsList.isEmpty())
+            pointsList << pointResult;
+        Magnets::MagnetDirection direction;
+        if (delta.x() != 0 && delta.y() != 0)
+            direction = Magnets::HVDirection;
+        else if (delta.x() != 0)
+            direction = Magnets::HDirection;
+        else
+            direction = Magnets::VDirection;
+
+        QPointF magnetDelta = m_pageGui->magnets()->delta(pointsList, checkingItems, direction);
+
+        if (!magnetDelta.isNull()) {
+            needCorrection = false;
+            pointResult += magnetDelta;
+        }
+    }
+
+    if (needCorrection && page->useGrid()) {
+        qreal pageStepMM =  convertUnit(page->gridStep(), page->unit(), Millimeter, page->dpi());
+        qreal corrX = (delta.x() >= 0.0) ? 0 : pageStepMM/2;
+        qreal corrY = (delta.y() >= 0.0) ? 0 : pageStepMM/2;
+        qreal x = int((pointResult.x() + corrX) / pageStepMM) * pageStepMM;
+        qreal y = int((pointResult.y() + corrY) / pageStepMM) * pageStepMM;
+        pointResult = QPointF(x,y);
+    }
+
+    if ((delta.y() > 0 && pointResult.y() < origPoint.y()) || (delta.y() < 0 && pointResult.y() > origPoint.y()))
+        pointResult.setY(origPoint.y());
+    if ((delta.x() > 0 && pointResult.x() < origPoint.x()) || (delta.x() < 0 && pointResult.x() > origPoint.x()))
+        pointResult.setX(origPoint.x());
+
+    return pointResult;
+}
+
 
 SUIT_END_NAMESPACE

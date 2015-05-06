@@ -68,8 +68,8 @@ void MainThreadObject::getCurrentThread(Parameters *value)
     QThread *thread = QThread::currentThread();
     QThread *mainthread = this->thread();
 
-    qDebug() << (qint64)thread;
-    qDebug() << (qint64)mainthread;
+//    qDebug() << (qint64)thread;
+//    qDebug() << (qint64)mainthread;
 
     if(thread == mainthread)
         invokeWidgetMethod(value);
@@ -97,13 +97,13 @@ void MainThreadObject::invokeWidgetMethod(Parameters *value)
     }
 
     QMetaMethod method = metaObject->method(index);
-    qDebug() << method.typeName();
-    qDebug() << method.parameterTypes();
+//    qDebug() << method.typeName();
+//    qDebug() << method.parameterTypes();
     //    qDebug() << method.parameterNames();
 
 
-    qDebug() << (qint64) QThread::currentThread();
-    qDebug() << (qint64) w->thread();
+//    qDebug() << (qint64) QThread::currentThread();
+//    qDebug() << (qint64) w->thread();
 
     bool invokable;
 
@@ -138,8 +138,8 @@ void MainThreadObject::initWidget()
     if (m_dialog)
         return;
 
-    qDebug() << (qint64) QThread::currentThread();
-    qDebug() << (qint64) this->thread();
+//    qDebug() << (qint64) QThread::currentThread();
+//    qDebug() << (qint64) this->thread();
 
     QUiLoader loader;
     QBuffer buffer(this);
@@ -166,15 +166,15 @@ QGenericArgument MainThreadObject::makeGenericArgument(const QByteArray &paramet
     // argument type should be the same as parameter type, castable type or QObject
     //    QVariant::Type varType = QVariant::nameToType(parameterType);
     //        QVariant arg(varType, value->arg1.data());
-    qDebug() << "================================================";
-    qDebug() << QVariant::nameToType(parameterType);
-    qDebug() << arg.userType();
-    qDebug() << arg.typeName();
-    qDebug() << QMetaType::type(arg.typeName());
-    qDebug() << QMetaType::type(parameterType);
-    qDebug() << QMetaType::typeName(QMetaType::type(arg.typeName()));
-    qDebug() << QMetaType::typeName(QMetaType::type(parameterType));
-    qDebug() << arg.canConvert((QVariant::Type)QMetaType::type(parameterType));
+//    qDebug() << "================================================";
+//    qDebug() << QVariant::nameToType(parameterType);
+//    qDebug() << arg.userType();
+//    qDebug() << arg.typeName();
+//    qDebug() << QMetaType::type(arg.typeName());
+//    qDebug() << QMetaType::type(parameterType);
+//    qDebug() << QMetaType::typeName(QMetaType::type(arg.typeName()));
+//    qDebug() << QMetaType::typeName(QMetaType::type(parameterType));
+//    qDebug() << arg.canConvert((QVariant::Type)QMetaType::type(parameterType));
     //    qDebug() << arg.canConvert<CuteReport::DatasetInterface*>();
     int parType = QMetaType::type(parameterType);
     int argType = QMetaType::type(arg.typeName());

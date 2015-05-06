@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -36,19 +36,20 @@
 #include "reportinterface.h"
 #include "layoutmanager.h"
 #include "pagemanipulator.h"
-#include "types.h"
+#include "cutereport_types.h"
+#include "rendererpublicinterface.h"
 
-#include "QtCore"
-#include "QtGui"
+#include <QtCore>
+#include <QtGui>
 #include <QApplication>
 #include <QDesktopWidget>
 
 #define MANIPULATOR_ID 17322121
 #define MODULENAME "Page"
 
-inline void initMyResource() { Q_INIT_RESOURCE(page); }
-
 using namespace CuteReport;
+
+inline void initMyResource() { Q_INIT_RESOURCE(page); }
 
 SUIT_BEGIN_NAMESPACE
 
@@ -70,6 +71,7 @@ Page::Page(QObject * parent):
     d->magnetValue = 0;
     d->background = QColor(Qt::white);
     d->renderingStage = false;
+    d->order = 0;
 
     //    d->grid = new Grid();
 }
@@ -209,16 +211,17 @@ void Page::setOrientation(const Orientation &orientation)
         return;
 
     d->orientation = orientation;
-    if (m_inited) {
-        QSizeF size = d->format.sizeMM;
-        d->format.sizeMM = QSizeF(size.height(), size.width());
+    if (!m_inited)
+        return;
 
-        afterGeometryChanged();
+    QSizeF size = d->format.sizeMM;
+    d->format.sizeMM = QSizeF(size.height(), size.width());
 
-        emit orientationChanged(d->orientation);
-        emit paperSizeChanged(paperSize());
-        emit changed();
-    }
+    afterGeometryChanged();
+
+    emit orientationChanged(d->orientation);
+    emit paperSizeChanged(paperSize());
+    emit changed();
 }
 
 
@@ -235,29 +238,29 @@ void Page::setFormat(const QString & formatName)
 
     d->format = m_formats.value(formatName);
 
-    if (m_inited) {
-        if (d->orientation == Landscape) {
-            QSizeF size = d->format.sizeMM;
-            d->format.sizeMM = QSizeF(size.height(), size.width());
-        }
+    if (!m_inited)
+        return;
 
-        afterGeometryChanged();
-
-        emit formatChanged(d->format.name);
-        emit paperSizeChanged(paperSize());
-        emit changed();
+    if (d->orientation == Landscape) {
+        QSizeF size = d->format.sizeMM;
+        d->format.sizeMM = QSizeF(size.height(), size.width());
     }
+
+    afterGeometryChanged();
+
+    emit formatChanged(d->format.name);
+    emit paperSizeChanged(paperSize());
+    emit changed();
 }
 
 
 QSizeF Page::paperSize(Unit unit) const
 {
-    if (m_inited) {
-        Unit u = (unit == UnitNotDefined) ? d->unit : unit;
-        return convertUnit(d->format.sizeMM, Millimeter, u, d->dpi);
-    } else {
+    if (!m_inited) {
         return d->format.sizeMM;
     }
+    Unit u = (unit == UnitNotDefined) ? d->unit : unit;
+    return convertUnit(d->format.sizeMM, Millimeter, u, d->dpi);
 }
 
 
@@ -277,21 +280,22 @@ void Page::setPaperSize(const QSizeF &size, CuteReport::Unit unit)
     d->format.name = "Custom";
     d->format.sizeMM = newSize;
 
-    if (m_inited) {
-        if (d->orientation == Landscape && d->format.sizeMM.width() < d->format.sizeMM.height()) {
-            d->orientation = Portrait;
-            emit orientationChanged(d->orientation);
-        } else if (d->orientation == Portrait && d->format.sizeMM.width() > d->format.sizeMM.height()) {
-            d->orientation = Landscape;
-            emit orientationChanged(d->orientation);
-        }
+    if (!m_inited)
+        return;
 
-        afterGeometryChanged();
-
-        emit formatChanged(d->format.name);
-        emit paperSizeChanged(paperSize());
-        emit changed();
+    if (d->orientation == Landscape && d->format.sizeMM.width() < d->format.sizeMM.height()) {
+        d->orientation = Portrait;
+        emit orientationChanged(d->orientation);
+    } else if (d->orientation == Portrait && d->format.sizeMM.width() > d->format.sizeMM.height()) {
+        d->orientation = Landscape;
+        emit orientationChanged(d->orientation);
     }
+
+    afterGeometryChanged();
+
+    emit formatChanged(d->format.name);
+    emit paperSizeChanged(paperSize());
+    emit changed();
 }
 
 
@@ -349,18 +353,17 @@ void Page::setUnit(const CuteReport::Unit &unit)
     if (d->unit == unit)
         return;
 
-    if (m_inited) {
-        d->unit = unit;
+    d->unit = unit;
 
-        foreach (BaseItemInterface * item, findChildren<BaseItemInterface*>())
-            item->setUnit( unit );
+    if (!m_inited)
+        return;
 
-        emit unitChanged(d->unit);
-        emit unitChanged(unitToFullString(d->unit));
-        emit changed();
-    } else {
-        d->unit = unit;
-    }
+    foreach (BaseItemInterface * item, findChildren<BaseItemInterface*>())
+        item->setUnit( unit );
+
+    emit unitChanged(d->unit);
+    emit unitChanged(unitToFullString(d->unit));
+    emit changed();
 }
 
 
@@ -422,8 +425,8 @@ Units Page::units() const
 void Page::setUnits(const Units &units)
 {
     d->units = units;
+    emit changed();
 }
-
 
 
 QColor Page::background() const
@@ -436,22 +439,48 @@ void Page::setBackground(const QColor & background)
 {
     if (d->background == background)
         return;
-
     d->background = background;
     emit backgroundChanged(d->background);
     emit changed();
 }
 
 
+int Page::order() const
+{
+    return d->order;
+}
+
+
+void Page::setOrder(int order)
+{
+    if (d->order == order)
+        return;
+    d->order = order;
+    emit orderChanged(d->order);
+    emit changed();
+}
+
+
+QFont Page::font() const
+{
+    return d->font;
+}
+
+
+void Page::setFont(const QFont &font)
+{
+    if (d->font == font)
+        return;
+    d->font = font;
+    emit fontChanged(d->font);
+    emit changed();
+}
+
+
 bool Page::addItem(BaseItemInterface * item, QPointF pagePos, QString * error)
 {
-    bool cancel = false;
-    if (cancel) {
-        if (error)
-            *error = "canceled";
-        return false;
-    }
 
+    bool cancel = false;
     if (!canContainAt(item, pagePos)) {
         if (error)
             *error = "Page can't conatain the item in this position";
@@ -466,13 +495,20 @@ bool Page::addItem(BaseItemInterface * item, QPointF pagePos, QString * error)
 
     emit beforeNewItemAdded(item, &cancel);
 
+    if (cancel) {
+        if (error)
+            *error = "canceled";
+        return false;
+    }
+
     prepareNewItem(item, true);
 
     if (m_gui)
         m_gui->itemAdded(item);
 
     emit afterNewItemAdded(item);
-    emit activeObjectChanged(item);
+//    emit activeObjectChanged(item);
+    emit changed();
 
     return true;
 }
@@ -485,34 +521,32 @@ bool Page::addItem(BaseItemInterface *item)
     if (cancel) {
         return false;
     }
-
     prepareNewItem(item, true);
-
     if (m_gui)
         m_gui->itemAdded(item);
 
     emit afterNewItemAdded(item);
-    emit activeObjectChanged(item);
+//    emit activeObjectChanged(item);
+    emit changed();
 
     return true;
 }
 
-
-bool Page::addItem(const QString & moduleName, QPointF pagePos, QString * error)
+BaseItemInterface *Page::addItem(const QString & moduleName, QPointF pagePos, QString * error)
 {
     // do not set parent, because need to check it first may it be placed or not
     ReportInterface * report = dynamic_cast<CuteReport::ReportInterface *>(parent());
-    BaseItemInterface * item = reportCore()->createItemObject(report, moduleName, 0);
+    BaseItemInterface * item = reportCore()->createItemObject(moduleName, report, 0);
     if (!item) {
         if (error)
             *error = QString("item by moduleName \'%1\' not found").arg(moduleName);
-        return false;
+        return 0;
     }
 
     if (!this->addItem(item, pagePos))
         delete item;
 
-    return true;
+    return item;
 }
 
 
@@ -525,7 +559,7 @@ void Page::deleteItem(BaseItemInterface *item)
         emit activeObjectChanged(item->parentItem() ? (QObject*)item->parentItem() : (QObject*)this);
 
     bool isBand = (bool)qobject_cast<CuteReport::BandInterface *>(item);
-    _deleteItem(item);
+    _deleteItem(item, true, true);
     if (isBand)
         LayoutManager::updatePositions(this);
 }
@@ -543,36 +577,36 @@ void Page::_deleteItem(BaseItemInterface *item, bool emitSignals, bool directDel
     reportCore()->log(LogDebug, MODULENAME, QString("_deleteItem(%1)").arg(itemName));
     bool cancel;
 
-
     if (emitSignals)
         emit beforeItemRemoved(item,&cancel);
 
     disconnect(item, SIGNAL(destroyed(QObject*)), this, SLOT(slotItemDestroyed(QObject*)));
 
-    item->deleteLater();
-
-    if (emitSignals)
-        emit afterItemRemoved(item, itemName, directDeletion);
+    if (m_gui)
+        m_gui->itemBeforeDestroyed(item);
 
     foreach (BaseItemInterface * child, item->findChildren<BaseItemInterface *>())
         if (child->parentItem() == item)
             _deleteItem(child, emitSignals, false);
 
-    if (m_gui)
-        m_gui->itemBeforeDestroyed(item);
+    /// direct delete instead of deleteLater, since some objects like Object inspector will still see this item
+    delete item;
+
+    if (emitSignals) {
+        emit afterItemRemoved(item, itemName, directDeletion);
+        emit changed();
+    }
 }
 
 
 QRectF Page::pageRect(CuteReport::Unit unit)
 {
-    if (m_inited) {
-        Unit u = (unit == UnitNotDefined) ? d->unit : unit;
-        return convertUnit(d->pageRect, Millimeter, u, d->dpi);
-    } else {
+    if (!m_inited) {
         return d->pageRect;
     }
+    Unit u = (unit == UnitNotDefined) ? d->unit : unit;
+    return convertUnit(d->pageRect, Millimeter, u, d->dpi);
 }
-
 
 qreal Page::marginLeft(CuteReport::Unit unit) const
 {
@@ -735,9 +769,10 @@ int Page::layerLevel(BaseItemInterface * item)
 }
 
 
-void Page::renderInit()
+void Page::renderInit(RendererPublicInterface *renderer)
 {
     d->renderingStage = true;
+    m_renderer = renderer;
 }
 
 
@@ -750,7 +785,7 @@ CuteReport::RenderedPageInterface * Page::render(int /*customDPI*/)
 
 void Page::renderPageCompleted()
 {
-
+    m_renderer = 0;
 }
 
 
@@ -833,6 +868,7 @@ void Page::setBandsIndention(qreal value)
 {
     d->bandsIndention = value;
     emit bandsIndentionsChanged();
+    emit changed();
     // FIXME: update view;
 }
 
@@ -855,6 +891,7 @@ void Page::setMagnetValue(int value)
 
     d->magnetValue = value;
     emit magnetValueChanged(d->magnetValue);
+    emit changed();
 }
 
 
@@ -871,6 +908,7 @@ void Page::setMagnetRate(int rate)
 
     d->magnetRate = rate;
     emit magnetRateChanged(d->magnetRate);
+    emit changed();
 }
 
 
@@ -906,6 +944,7 @@ void Page::setUseGrid(bool b)
         return;
     d->useGrid = b;
     emit useGridChanged(d->useGrid);
+    emit changed();
 }
 
 
@@ -915,7 +954,7 @@ qreal Page::gridStep(CuteReport::Unit unit)
     QHash<CuteReport::Unit,qreal>::const_iterator it = d->gridSteps.find(u);
     if (it == d->gridSteps.end()) { // inser default step
         switch (u) {
-            case Millimeter:    d->gridSteps.insert(Millimeter, 0.5); break;
+            case Millimeter:    d->gridSteps.insert(Millimeter, 2.0); break;
             case Inch:          d->gridSteps.insert(Inch, 0.05); break;
             default:            d->gridSteps.insert(UnitNotDefined, 1.0); break;
         }
@@ -933,6 +972,7 @@ void Page::setGridStep(qreal value, CuteReport::Unit unit)
         return;
     d->gridSteps.insert(u, value);
     emit gridStepChanged(value, u);
+    emit changed();
 }
 
 
@@ -956,6 +996,15 @@ void Page::setGridSteps(QString values)
         d->gridSteps.insert(unit, value);
     }
     emit gridStepChanged(d->gridSteps.value(d->unit));
+    emit changed();
+}
+
+
+StdEditorPropertyList Page::stdEditorList() const
+{
+    StdEditorPropertyList list;
+    list << StdEditorProperty(EDFont, "font");
+    return list;
 }
 
 
@@ -1093,7 +1142,6 @@ void Page::prepareNewItem(BaseItemInterface * item, bool doLayout, bool withChil
         LayoutManager::itemAdded(this, item);
     }
 
-
     connect(item, SIGNAL(destroyed(QObject*)), this, SLOT(slotItemDestroyed(QObject*)));
     connect(item, SIGNAL(geometryChanged(QRectF)), this, SLOT(slotItemGeometryChanged(QRectF)));
     connect(item, SIGNAL(orderChanged(int)), this, SLOT(slotItemOrderChanged(int)));
@@ -1126,7 +1174,7 @@ RenderedPage::RenderedPage(Page *page)
 }
 
 
-void RenderedPage::paintBegin ( QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget)
+void RenderedPage::paint( QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget)
 {
     Q_UNUSED(option);
     Q_UNUSED(widget);
@@ -1143,7 +1191,7 @@ void RenderedPage::paintBegin ( QPainter * painter, const QStyleOptionGraphicsIt
 
 //CuteReport::Margins RenderedPage::margins(CuteReport::Unit unit) const
 //{
-//    QPointF p1 = convertUnit(QPointF(marginsLeft, m_marginsMM.top()), Millimeter, unit, m_dpi);
+//    QPointF p1 = convertUnit(QPointF(m_marginLeft(), m_marginsMM.top()), Millimeter, unit, m_dpi);
 //    QPointF p2 = convertUnit(QPointF(m_marginsMM.right(), m_marginsMM.bottom()), Millimeter, unit, m_dpi);
 //    return Margins(p1.x(), p1.y(), p2.x(), p2.y());
 //}
@@ -1213,6 +1261,7 @@ void RenderedPage::redraw()
             }
         }
     }
+
 }
 
 SUIT_END_NAMESPACE

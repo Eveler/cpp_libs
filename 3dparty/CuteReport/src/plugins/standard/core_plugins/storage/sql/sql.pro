@@ -16,3 +16,5 @@ HEADERS += sql.h\
 
 FORMS += \
     sqlstoragehelper.ui
+
+#INSTALL_HEADERS.files = sql.h

@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -33,13 +33,22 @@
 
 #include <QHash>
 #include <QPair>
+#include <QScriptEngine>
+#include "plugins_common.h"
 
 namespace CuteReport {
 class DatasetInterface;
 class BandInterface;
+class ReportInterface;
 }
 
+SUIT_BEGIN_NAMESPACE
+class ScriptEngine;
+SUIT_END_NAMESPACE
 
+USING_SUIT_NAMESPACE
+
+SUIT_BEGIN_NAMESPACE
 /** functions: sum, min, max, avg, count
  *  format: function(dataset."fieldname" [, precision])
  */
@@ -60,23 +69,36 @@ public:
 
     void reset();
 
-    /** add new function to precess list, if not exists */
+    /** add new function to process list, if not exists */
     void addFunction(const QString & bandName, const QString & datasetName, const QString & fieldName, const QString & functionName);
 
     qreal getValue(const QString & bandName, const QString & datasetName, const QString & fieldName, const QString & functionName, bool *error = 0);
 
-    void findAndRegisterAggregateFunctions(const QString & strIn, const CuteReport::BandInterface *band);
+    bool initialItemScriptPreprocess(QString &script, const QString &carrierBandName, CuteReport::ReportInterface *report, QStringList * errors);
+    bool itemScriptPreprocess(QString &script, const QString &carrierBandName, CuteReport::ReportInterface *report, QStringList * errors);
 
     void processDatasetIteration(CuteReport::DatasetInterface * dataset);
-    QString replaceWithRealValues(const QString & strIn, const CuteReport::BandInterface *band);
 
     void resetValuesForDataset(const QString & datasetName);
     void resetValuesForBand(const QString & bandName, bool delayedTillNextRecursion = true);
-//    void clear();
+
+    void registerScriptObjects(ScriptEngine * scriptEngine);
+    bool mainScriptPreprocess(QString & script, CuteReport::ReportInterface * report, QStringList *errors = 0);
+
+    static QScriptValue sum(QScriptContext *context, QScriptEngine *engine);
+    static QScriptValue avg(QScriptContext *context, QScriptEngine *engine);
+    static QScriptValue min(QScriptContext *context, QScriptEngine *engine);
+    static QScriptValue max(QScriptContext *context, QScriptEngine *engine);
+    static QScriptValue count(QScriptContext *context, QScriptEngine *engine);
 
 private:
+    bool _scriptPreprocess(QString &script, const QString &defaultBandName, CuteReport::ReportInterface *report, bool replace, bool addNewFunctions, QStringList * errors);
+    static QScriptValue _scriptableFunction(QScriptContext *context, QScriptEngine *engine, const QString &funcName);
+
     qreal getValue(const QString & funcName, FunctionStruct & funcStruct);
     void accumulataValue(const QString & funcName, FunctionStruct & funcStruct, qreal value);
+
+    bool isCommentOrString(const QString & str, int pos, int length);
 
     typedef QHash<QString, FunctionStruct> FunctionData; // functionName, data
     typedef QHash<QString, FunctionStruct>::iterator FieldFunctionsIterator;
@@ -93,5 +115,7 @@ private:
     BandData m_data;
     QList<QString> m_delayedBandReset;
 };
+
+SUIT_END_NAMESPACE
 
 #endif // AGGREGATEFUNCTIONS_H

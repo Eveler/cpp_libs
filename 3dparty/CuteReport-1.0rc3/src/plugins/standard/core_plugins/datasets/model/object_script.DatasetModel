@@ -1,0 +1,15 @@
+INPUT(
+./modeldataset.o
+./modeldatasethelper.o
+./testmodel.o
+./columntypemodel.o
+./proxymodel.o
+./clonemodel.o
+./qrc_modeldataset.o
+./moc_modeldataset.o
+./moc_modeldatasethelper.o
+./moc_testmodel.o
+./moc_columntypemodel.o
+./moc_proxymodel.o
+./moc_clonemodel.o
+);

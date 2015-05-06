@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -32,7 +32,7 @@
 
 #include <bandinterface.h>
 #include "bandinterface_p.h"
-#include "globals.h"
+#include "cutereport_globals.h"
 
 class OverlayPrivate;
 
@@ -57,7 +57,7 @@ public:
 
     CuteReport::BandInterface::LayoutType layoutType() const { return LayoutFree;}
     int layoutPriority() const { return 100;}
-    CuteReport::BandInterface::AccomodationType accommodationType() const { return AccomodationEveryPage;}
+    //CuteReport::BandInterface::AccomodationType accommodationType() const { return AccomodationEveryPage;}
 
     QIcon itemIcon() const;
     QString moduleShortName() const;

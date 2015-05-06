@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -38,14 +38,16 @@
 
 using namespace CuteReport;
 
+
+SUIT_BEGIN_NAMESPACE
+
 RendererData::RendererData():
     origReport(0)
-    ,renderer(0)
-    ,scriptEngine(0)
-    ,processor(0)
-    ,processorThread(0)
+  ,renderer(0)
+  ,scriptEngine(0)
+  ,processor(0)
 {
-
+//    scriptEngine = new QScriptEngine();
 }
 
 
@@ -53,27 +55,24 @@ RendererData::~RendererData()
 {    
     delete scriptEngine;
     qDeleteAll(pages);
-//    qDeleteAll(forms);
 }
-
-
-//void RendererData::setRunning(bool b)
-//{
-//    QMutexLocker locker(&mutex);
-//    running = b;
-//}
 
 
 void RendererData::clear()
 {
-    QMutexLocker locker(&mutex);
-
     delete scriptEngine;
-    scriptEngine = new QScriptEngine();
+    scriptEngine = 0;
     qDeleteAll(pages);
     pages.clear();
-//    qDeleteAll(forms);
-//    forms.clear();
+    m_errors.clear();
+}
+
+void RendererData::reset()
+{
+    qDeleteAll(pages);
+    pages.clear();
+    //    qDeleteAll(forms);
+    //    forms.clear();
     m_errors.clear();
 }
 
@@ -99,14 +98,12 @@ void RendererData::clear()
 
 void RendererData::appendPage(RenderedPageInterface * page)
 {
-    QMutexLocker locker(&mutex);
     QPointer<RenderedPageInterface> pointer(page);
     pages.append(pointer);
 }
 
 RenderedPageInterface* RendererData::getPage(int number)
 {
-    QMutexLocker locker(&mutex);
     if (number < pages.count() && number >=0)
         return pages[number];
     else
@@ -115,13 +112,11 @@ RenderedPageInterface* RendererData::getPage(int number)
 
 int RendererData::pagesCount()
 {
-    QMutexLocker locker(&mutex);
     return pages.count();
 }
 
 void RendererData::appendError(QString error)
 {
-    QMutexLocker locker(&mutex);
     m_errors.append(error);
 }
 
@@ -130,3 +125,4 @@ QStringList RendererData::errors()
     return m_errors;
 }
 
+SUIT_END_NAMESPACE

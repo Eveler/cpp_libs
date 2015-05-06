@@ -12,8 +12,8 @@ HEADERS  += \
 INCLUDEPATH += \
     ../../core \
     ../../thirdparty/propertyeditor/lib/  \
-    ../designerCore/ \
-    ../designerCore/widgets/ \
+    ../../appsCore/designerCore/ \
+    ../../appsCore/designerCore/widgets/ \
     widgets \
     widgets/objectinspector \
     ../../thirdparty/propertyeditor/lib/ \
@@ -37,18 +37,26 @@ contains(DEFINES, STATICBUILD) {
     CONFIG += static
     lessThan(QT_MAJOR_VERSION, 5) {
         CONFIG += designer
+        QT += webkit
     } else {
         QT += designer
     }
 }
 
-LIBS += -L../../../$$BUILD_DIR -lPropertyEditor
+LIBS += -L../../../$$BUILD_DIR
+
+contains(DEFINES, STATIC_PROPERTYEDITOR) {
+    LIBS += -lPropertyEditor
+}
 
 contains(DEFINES, STATICPLUGINS_PROPERTYEDITOR) {
     include(../../thirdparty/propertyeditor/propertyeditor_static.pri)
     HEADERS += propertyeditor_static.h
     LIBS += -L../../../$$BUILD_DIR/$$PROPERTYEDITOR_PLUGINS_PATH
 }
+
+
+LIBS += -lCuteDesigner -lCuteReportWidgets -lCuteReport
 
 contains(DEFINES, STATICPLUGINS_DESIGNER) {
     include(../../plugins/standard/designer_plugins/designer_static.pri)
@@ -74,4 +82,9 @@ contains(DEFINES, STATICPLUGINS_CORE) {
     }
 }
 
+!contains(DEFINES, STATIC_PROPERTYEDITOR) {
+    LIBS += -lPropertyEditor
+}
+
 LIBS += -lCuteDesigner -lCuteReportWidgets -lCuteReport
+

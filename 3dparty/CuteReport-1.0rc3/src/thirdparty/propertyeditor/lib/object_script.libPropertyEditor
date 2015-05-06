@@ -1,0 +1,14 @@
+CREATE ..\..\..\..\build\libPropertyEditor.dll
+ADDMOD propertyeditor.o
+ADDMOD propertymodel.o
+ADDMOD propertyinterface.o
+ADDMOD propertydelegate.o
+ADDMOD propertyvalidator.o
+ADDMOD propertyeditorcore.o
+ADDMOD moc_propertyeditor.o
+ADDMOD moc_propertymodel.o
+ADDMOD moc_propertyinterface.o
+ADDMOD moc_propertydelegate.o
+ADDMOD moc_propertyvalidator.o
+ADDMOD moc_propertyeditorcore.o
+SAVE

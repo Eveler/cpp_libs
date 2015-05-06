@@ -33,7 +33,7 @@
 #include <QScriptEngine>
 
 #include "reportcore.h"
-#include "types.h"
+#include "cutereport_types.h"
 #include "ellipse.h"
 #include "baseiteminterface.h"
 #include "iteminterface.h"
@@ -67,22 +67,22 @@ static QScriptValue qtscript_create_enum_class_helper(
 }
 
 
-//static QScriptValue qtscript_create_flags_class_helper(
-//        QScriptEngine *engine,
-//        QScriptEngine::FunctionSignature construct,
-//        QScriptEngine::FunctionSignature valueOf,
-//        QScriptEngine::FunctionSignature toString,
-//        QScriptEngine::FunctionSignature equals)
-//{
-//    QScriptValue proto = engine->newObject();
-//    proto.setProperty(QString::fromLatin1("valueOf"),
-//                      engine->newFunction(valueOf), QScriptValue::SkipInEnumeration);
-//    proto.setProperty(QString::fromLatin1("toString"),
-//                      engine->newFunction(toString), QScriptValue::SkipInEnumeration);
-//    proto.setProperty(QString::fromLatin1("equals"),
-//                      engine->newFunction(equals), QScriptValue::SkipInEnumeration);
-//    return engine->newFunction(construct, proto);
-//}
+static QScriptValue qtscript_create_flags_class_helper(
+        QScriptEngine *engine,
+        QScriptEngine::FunctionSignature construct,
+        QScriptEngine::FunctionSignature valueOf,
+        QScriptEngine::FunctionSignature toString,
+        QScriptEngine::FunctionSignature equals)
+{
+    QScriptValue proto = engine->newObject();
+    proto.setProperty(QString::fromLatin1("valueOf"),
+                      engine->newFunction(valueOf), QScriptValue::SkipInEnumeration);
+    proto.setProperty(QString::fromLatin1("toString"),
+                      engine->newFunction(toString), QScriptValue::SkipInEnumeration);
+    proto.setProperty(QString::fromLatin1("equals"),
+                      engine->newFunction(equals), QScriptValue::SkipInEnumeration);
+    return engine->newFunction(construct, proto);
+}
 
 
 struct qtscript_Qt_metaObject_helper : private QObject
@@ -99,24 +99,24 @@ static const QMetaObject *qtscript_Qt_metaObject()
 
 /** ======================= Frame =========================== */
 
-static const BaseItemInterface::Frame qtscript_Ellipse_Frame_values[] = {
+static const BaseItemInterface::Frame qtscript_BaseItemInterface_Frame_values[] = {
     BaseItemInterface::DrawLeft,
     BaseItemInterface::DrawRight,
     BaseItemInterface::DrawTop,
     BaseItemInterface::DrawBottom
 };
 
-static const char * const qtscript_Ellipse_Frame_keys[] = {
+static const char * const qtscript_BaseItemInterface_Frame_keys[] = {
     "DrawLeft",
     "DrawRight",
     "DrawTop",
     "DrawBottom"
 };
 
-static int Ellipse_Frame_num = 4;
+static int BaseItemInterface_Frame_num = 4;
 
 
-static QString qtscript_Ellipse_Frame_toStringHelper(BaseItemInterface::Frame value)
+static QString qtscript_BaseItemInterface_Frame_toStringHelper(BaseItemInterface::Frame value)
 {
     const QMetaObject meta = BaseItemInterface::staticMetaObject;
     int idx = meta.indexOfEnumerator("Frame");
@@ -126,20 +126,20 @@ static QString qtscript_Ellipse_Frame_toStringHelper(BaseItemInterface::Frame va
 }
 
 
-static QScriptValue qtscript_Ellipse_Frame_toScriptValue(QScriptEngine *engine, const BaseItemInterface::Frame &value)
+static QScriptValue qtscript_BaseItemInterface_Frame_toScriptValue(QScriptEngine *engine, const BaseItemInterface::Frame &value)
 {
     QScriptValue clazz = engine->globalObject().property(QString::fromLatin1("Ellipse"));
-    return clazz.property(qtscript_Ellipse_Frame_toStringHelper(value));
+    return clazz.property(qtscript_BaseItemInterface_Frame_toStringHelper(value));
 }
 
 
-static void qtscript_Ellipse_Frame_fromScriptValue(const QScriptValue &value, BaseItemInterface::Frame &out)
+static void qtscript_BaseItemInterface_Frame_fromScriptValue(const QScriptValue &value, BaseItemInterface::Frame &out)
 {
     out = qvariant_cast<BaseItemInterface::Frame>(value.toVariant());
 }
 
 
-static QScriptValue qtscript_construct_Ellipse_Frame(QScriptContext *context, QScriptEngine *engine)
+static QScriptValue qtscript_construct_BaseItemInterface_Frame(QScriptContext *context, QScriptEngine *engine)
 {
     int arg = context->argument(0).toInt32();
     const QMetaObject *meta = qtscript_Qt_metaObject();
@@ -152,32 +152,32 @@ static QScriptValue qtscript_construct_Ellipse_Frame(QScriptContext *context, QS
 }
 
 
-static QScriptValue qtscript_Ellipse_Frame_valueOf(QScriptContext *context, QScriptEngine *engine)
+static QScriptValue qtscript_BaseItemInterface_Frame_valueOf(QScriptContext *context, QScriptEngine *engine)
 {
     BaseItemInterface::Frame value = qscriptvalue_cast<BaseItemInterface::Frame>(context->thisObject());
     return QScriptValue(engine, static_cast<int>(value));
 }
 
 
-static QScriptValue qtscript_Ellipse_Frame_toString(QScriptContext *context, QScriptEngine *engine)
+static QScriptValue qtscript_BaseItemInterface_Frame_toString(QScriptContext *context, QScriptEngine *engine)
 {
     BaseItemInterface::Frame value = qscriptvalue_cast<BaseItemInterface::Frame>(context->thisObject());
-    return QScriptValue(engine, qtscript_Ellipse_Frame_toStringHelper(value));
+    return QScriptValue(engine, qtscript_BaseItemInterface_Frame_toStringHelper(value));
 }
 
 
-static QScriptValue qtscript_create_Ellipse_Frame_class(QScriptEngine *engine, QScriptValue &clazz)
+static QScriptValue qtscript_create_BaseItemInterface_Frame_class(QScriptEngine *engine, QScriptValue &clazz)
 {
     QScriptValue ctor = qtscript_create_enum_class_helper(
-                            engine, qtscript_construct_Ellipse_Frame,
-                            qtscript_Ellipse_Frame_valueOf, qtscript_Ellipse_Frame_toString);
+                            engine, qtscript_construct_BaseItemInterface_Frame,
+                            qtscript_BaseItemInterface_Frame_valueOf, qtscript_BaseItemInterface_Frame_toString);
 
-    qScriptRegisterMetaType<BaseItemInterface::Frame>(engine, qtscript_Ellipse_Frame_toScriptValue,
-                                                   qtscript_Ellipse_Frame_fromScriptValue, ctor.property(QString::fromLatin1("prototype")));
+    qScriptRegisterMetaType<BaseItemInterface::Frame>(engine, qtscript_BaseItemInterface_Frame_toScriptValue,
+                                                   qtscript_BaseItemInterface_Frame_fromScriptValue, ctor.property(QString::fromLatin1("prototype")));
 
-    for (int i = 0; i < Ellipse_Frame_num; ++i) {
-        clazz.setProperty(QString::fromLatin1(qtscript_Ellipse_Frame_keys[i]),
-                          engine->newVariant(qVariantFromValue(qtscript_Ellipse_Frame_values[i])),
+    for (int i = 0; i < BaseItemInterface_Frame_num; ++i) {
+        clazz.setProperty(QString::fromLatin1(qtscript_BaseItemInterface_Frame_keys[i]),
+                          engine->newVariant(qVariantFromValue(qtscript_BaseItemInterface_Frame_values[i])),
                           QScriptValue::ReadOnly | QScriptValue::Undeletable);
     }
 
@@ -185,31 +185,31 @@ static QScriptValue qtscript_create_Ellipse_Frame_class(QScriptEngine *engine, Q
 }
 
 
-QString Ellipse_Frame_toString(BaseItemInterface::Frame value)
+QString BaseItemInterface_Frame_toString(BaseItemInterface::Frame value)
 {
     int idx = -1;
-    for (int i = 0; i < Ellipse_Frame_num; ++i) {
-        if (qtscript_Ellipse_Frame_values[i] == value) {
+    for (int i = 0; i < BaseItemInterface_Frame_num; ++i) {
+        if (qtscript_BaseItemInterface_Frame_values[i] == value) {
             idx = i;
             break;
         }
     }
 
     if (idx == -1) {
-        CuteReport::ReportCore::log(LogError, "BaseItemInterface", "Ellipse_Frame_toString", QString("Value \'%1\' is not within range").arg((int)value));
+        CuteReport::ReportCore::log(LogError, "BaseItemInterface", "BaseItemInterface_Frame_toString", QString("Value \'%1\' is not within range").arg((int)value));
         return QString();
     }
 
-    return QString(qtscript_Ellipse_Frame_keys[idx]);
+    return QString(qtscript_BaseItemInterface_Frame_keys[idx]);
 }
 
 
-BaseItemInterface::Frame Ellipse_Frame_fromString(const QString &value, bool *ok)
+BaseItemInterface::Frame BaseItemInterface_Frame_fromString(const QString &value, bool *ok)
 {
     QString strIn = value.toLower();
     int idx = -1;
-    for (int i = 0; i < Ellipse_Frame_num; ++i) {
-        QString str(qtscript_Ellipse_Frame_keys[i]);
+    for (int i = 0; i < BaseItemInterface_Frame_num; ++i) {
+        QString str(qtscript_BaseItemInterface_Frame_keys[i]);
         if (strIn == str.toLower()) {
             idx = i;
             break;
@@ -217,18 +217,18 @@ BaseItemInterface::Frame Ellipse_Frame_fromString(const QString &value, bool *ok
     }
 
     if (idx == -1) {
-        CuteReport::ReportCore::log(LogError, "BaseItemInterface", "Ellipse_Frame_fromString", QString("Value \'%1\' is not within range").arg(value));
+        CuteReport::ReportCore::log(LogError, "BaseItemInterface", "BaseItemInterface_Frame_fromString", QString("Value \'%1\' is not within range").arg(value));
         if (ok)
             *ok = false;
     }
 
-    return BaseItemInterface::Frame(qtscript_Ellipse_Frame_values[idx]);
+    return BaseItemInterface::Frame(qtscript_BaseItemInterface_Frame_values[idx]);
 }
 
 
 /** ======================= ResizeFlags =========================== */
 
-static const BaseItemInterface::ResizeFlags qtscript_Ellipse_ResizeFlags_values[] = {
+static const BaseItemInterface::ResizeFlags qtscript_BaseItemInterface_ResizeFlags_values[] = {
     BaseItemInterface::Fixed,
     BaseItemInterface::ResizeLeft,
     BaseItemInterface::ResizeRight,
@@ -237,7 +237,7 @@ static const BaseItemInterface::ResizeFlags qtscript_Ellipse_ResizeFlags_values[
     BaseItemInterface::FixedPos
 };
 
-static const char * const qtscript_Ellipse_ResizeFlags_keys[] = {
+static const char * const qtscript_BaseItemInterface_ResizeFlags_keys[] = {
     "Fixed",
     "ResizeLeft",
     "ResizeRight",
@@ -246,10 +246,10 @@ static const char * const qtscript_Ellipse_ResizeFlags_keys[] = {
     "FixedPos"
 };
 
-static int Ellipse_ResizeFlags_num = 6;
+static int BaseItemInterface_ResizeFlags_num = 6;
 
 
-static QString qtscript_Ellipse_ResizeFlags_toStringHelper(BaseItemInterface::ResizeFlags value)
+static QString qtscript_BaseItemInterface_ResizeFlags_toStringHelper(BaseItemInterface::ResizeFlags value)
 {
     const QMetaObject meta = BaseItemInterface::staticMetaObject;
     int idx = meta.indexOfEnumerator("ResizeFlags");
@@ -259,20 +259,20 @@ static QString qtscript_Ellipse_ResizeFlags_toStringHelper(BaseItemInterface::Re
 }
 
 
-static QScriptValue qtscript_Ellipse_ResizeFlags_toScriptValue(QScriptEngine *engine, const BaseItemInterface::ResizeFlags &value)
+static QScriptValue qtscript_BaseItemInterface_ResizeFlags_toScriptValue(QScriptEngine *engine, const BaseItemInterface::ResizeFlags &value)
 {
     QScriptValue clazz = engine->globalObject().property(QString::fromLatin1("Ellipse"));
-    return clazz.property(qtscript_Ellipse_ResizeFlags_toStringHelper(value));
+    return clazz.property(qtscript_BaseItemInterface_ResizeFlags_toStringHelper(value));
 }
 
 
-static void qtscript_Ellipse_ResizeFlags_fromScriptValue(const QScriptValue &value, BaseItemInterface::ResizeFlags &out)
+static void qtscript_BaseItemInterface_ResizeFlags_fromScriptValue(const QScriptValue &value, BaseItemInterface::ResizeFlags &out)
 {
     out = qvariant_cast<BaseItemInterface::ResizeFlags>(value.toVariant());
 }
 
 
-static QScriptValue qtscript_construct_Ellipse_ResizeFlags(QScriptContext *context, QScriptEngine *engine)
+static QScriptValue qtscript_construct_BaseItemInterface_ResizeFlags(QScriptContext *context, QScriptEngine *engine)
 {
     int arg = context->argument(0).toInt32();
     const QMetaObject *meta = qtscript_Qt_metaObject();
@@ -285,32 +285,32 @@ static QScriptValue qtscript_construct_Ellipse_ResizeFlags(QScriptContext *conte
 }
 
 
-static QScriptValue qtscript_Ellipse_ResizeFlags_valueOf(QScriptContext *context, QScriptEngine *engine)
+static QScriptValue qtscript_BaseItemInterface_ResizeFlags_valueOf(QScriptContext *context, QScriptEngine *engine)
 {
     BaseItemInterface::ResizeFlags value = qscriptvalue_cast<BaseItemInterface::ResizeFlags>(context->thisObject());
     return QScriptValue(engine, static_cast<int>(value));
 }
 
 
-static QScriptValue qtscript_Ellipse_ResizeFlags_toString(QScriptContext *context, QScriptEngine *engine)
+static QScriptValue qtscript_BaseItemInterface_ResizeFlags_toString(QScriptContext *context, QScriptEngine *engine)
 {
     BaseItemInterface::ResizeFlags value = qscriptvalue_cast<BaseItemInterface::ResizeFlags>(context->thisObject());
-    return QScriptValue(engine, qtscript_Ellipse_ResizeFlags_toStringHelper(value));
+    return QScriptValue(engine, qtscript_BaseItemInterface_ResizeFlags_toStringHelper(value));
 }
 
 
-static QScriptValue qtscript_create_Ellipse_ResizeFlags_class(QScriptEngine *engine, QScriptValue &clazz)
+static QScriptValue qtscript_create_BaseItemInterface_ResizeFlags_class(QScriptEngine *engine, QScriptValue &clazz)
 {
     QScriptValue ctor = qtscript_create_enum_class_helper(
-                            engine, qtscript_construct_Ellipse_ResizeFlags,
-                            qtscript_Ellipse_ResizeFlags_valueOf, qtscript_Ellipse_ResizeFlags_toString);
+                            engine, qtscript_construct_BaseItemInterface_ResizeFlags,
+                            qtscript_BaseItemInterface_ResizeFlags_valueOf, qtscript_BaseItemInterface_ResizeFlags_toString);
 
-    qScriptRegisterMetaType<BaseItemInterface::ResizeFlags>(engine, qtscript_Ellipse_ResizeFlags_toScriptValue,
-                                                   qtscript_Ellipse_ResizeFlags_fromScriptValue, ctor.property(QString::fromLatin1("prototype")));
+    qScriptRegisterMetaType<BaseItemInterface::ResizeFlags>(engine, qtscript_BaseItemInterface_ResizeFlags_toScriptValue,
+                                                   qtscript_BaseItemInterface_ResizeFlags_fromScriptValue, ctor.property(QString::fromLatin1("prototype")));
 
-    for (int i = 0; i < Ellipse_ResizeFlags_num; ++i) {
-        clazz.setProperty(QString::fromLatin1(qtscript_Ellipse_ResizeFlags_keys[i]),
-                          engine->newVariant(qVariantFromValue(qtscript_Ellipse_ResizeFlags_values[i])),
+    for (int i = 0; i < BaseItemInterface_ResizeFlags_num; ++i) {
+        clazz.setProperty(QString::fromLatin1(qtscript_BaseItemInterface_ResizeFlags_keys[i]),
+                          engine->newVariant(qVariantFromValue(qtscript_BaseItemInterface_ResizeFlags_values[i])),
                           QScriptValue::ReadOnly | QScriptValue::Undeletable);
     }
 
@@ -318,31 +318,31 @@ static QScriptValue qtscript_create_Ellipse_ResizeFlags_class(QScriptEngine *eng
 }
 
 
-QString Ellipse_ResizeFlags_toString(BaseItemInterface::ResizeFlags value)
+QString BaseItemInterface_ResizeFlags_toString(BaseItemInterface::ResizeFlags value)
 {
     int idx = -1;
-    for (int i = 0; i < Ellipse_ResizeFlags_num; ++i) {
-        if (qtscript_Ellipse_ResizeFlags_values[i] == value) {
+    for (int i = 0; i < BaseItemInterface_ResizeFlags_num; ++i) {
+        if (qtscript_BaseItemInterface_ResizeFlags_values[i] == value) {
             idx = i;
             break;
         }
     }
 
     if (idx == -1) {
-        CuteReport::ReportCore::log(LogError, "BaseItemInterface", "Ellipse_ResizeFlags_toString", QString("Value \'%1\' is not within range").arg((int)value));
+        CuteReport::ReportCore::log(LogError, "BaseItemInterface", "BaseItemInterface_ResizeFlags_toString", QString("Value \'%1\' is not within range").arg((int)value));
         return QString();
     }
 
-    return QString(qtscript_Ellipse_ResizeFlags_keys[idx]);
+    return QString(qtscript_BaseItemInterface_ResizeFlags_keys[idx]);
 }
 
 
-BaseItemInterface::ResizeFlags Ellipse_ResizeFlags_fromString(const QString &value, bool *ok)
+BaseItemInterface::ResizeFlags BaseItemInterface_ResizeFlags_fromString(const QString &value, bool *ok)
 {
     QString strIn = value.toLower();
     int idx = -1;
-    for (int i = 0; i < Ellipse_ResizeFlags_num; ++i) {
-        QString str(qtscript_Ellipse_ResizeFlags_keys[i]);
+    for (int i = 0; i < BaseItemInterface_ResizeFlags_num; ++i) {
+        QString str(qtscript_BaseItemInterface_ResizeFlags_keys[i]);
         if (strIn == str.toLower()) {
             idx = i;
             break;
@@ -350,33 +350,160 @@ BaseItemInterface::ResizeFlags Ellipse_ResizeFlags_fromString(const QString &val
     }
 
     if (idx == -1) {
-        CuteReport::ReportCore::log(LogError, "BaseItemInterface", "Ellipse_ResizeFlags_fromString", QString("Value \'%1\' is not within range").arg(value));
+        CuteReport::ReportCore::log(LogError, "BaseItemInterface", "BaseItemInterface_ResizeFlags_fromString", QString("Value \'%1\' is not within range").arg(value));
         if (ok)
             *ok = false;
     }
 
-    return BaseItemInterface::ResizeFlags(qtscript_Ellipse_ResizeFlags_values[idx]);
+    return BaseItemInterface::ResizeFlags(qtscript_BaseItemInterface_ResizeFlags_values[idx]);
+}
+
+
+/** ======================= BorderType =========================== */
+
+static const BaseItemInterface::BorderType qtscript_BaseItemInterface_BorderType_values[] = {
+    BaseItemInterface::Middle,
+    BaseItemInterface::Inner,
+    BaseItemInterface::Outer
+};
+
+static const char * const qtscript_BaseItemInterface_BorderType_keys[] = {
+    "Middle",
+    "Inner",
+    "Outer"
+};
+
+static int BaseItemInterface_BorderType_num = 3;
+
+
+static QString qtscript_BaseItemInterface_BorderType_toStringHelper(BaseItemInterface::BorderType value)
+{
+    const QMetaObject meta = BaseItemInterface::staticMetaObject;
+    int idx = meta.indexOfEnumerator("BorderType");
+    Q_ASSERT(idx != -1);
+    QMetaEnum menum = meta.enumerator(idx);
+    return QString::fromLatin1(menum.valueToKey(value));
+}
+
+
+static QScriptValue qtscript_BaseItemInterface_BorderType_toScriptValue(QScriptEngine *engine, const BaseItemInterface::BorderType &value)
+{
+    QScriptValue clazz = engine->globalObject().property(QString::fromLatin1("Ellipse"));
+    return clazz.property(qtscript_BaseItemInterface_BorderType_toStringHelper(value));
+}
+
+
+static void qtscript_BaseItemInterface_BorderType_fromScriptValue(const QScriptValue &value, BaseItemInterface::BorderType &out)
+{
+    out = qvariant_cast<BaseItemInterface::BorderType>(value.toVariant());
+}
+
+
+static QScriptValue qtscript_construct_BaseItemInterface_BorderType(QScriptContext *context, QScriptEngine *engine)
+{
+    int arg = context->argument(0).toInt32();
+    const QMetaObject *meta = qtscript_Qt_metaObject();
+    int idx = meta->indexOfEnumerator("BorderType");
+    Q_ASSERT(idx != -1);
+    QMetaEnum menum = meta->enumerator(idx);
+    if (menum.valueToKey(arg) != 0)
+        return qScriptValueFromValue(engine,  static_cast<BaseItemInterface::BorderType>(arg));
+    return context->throwError(QString::fromLatin1("BorderType(): invalid enum value (%0)").arg(arg));
+}
+
+
+static QScriptValue qtscript_BaseItemInterface_BorderType_valueOf(QScriptContext *context, QScriptEngine *engine)
+{
+    BaseItemInterface::BorderType value = qscriptvalue_cast<BaseItemInterface::BorderType>(context->thisObject());
+    return QScriptValue(engine, static_cast<int>(value));
+}
+
+
+static QScriptValue qtscript_BaseItemInterface_BorderType_toString(QScriptContext *context, QScriptEngine *engine)
+{
+    BaseItemInterface::BorderType value = qscriptvalue_cast<BaseItemInterface::BorderType>(context->thisObject());
+    return QScriptValue(engine, qtscript_BaseItemInterface_BorderType_toStringHelper(value));
+}
+
+
+static QScriptValue qtscript_create_BaseItemInterface_BorderType_class(QScriptEngine *engine, QScriptValue &clazz)
+{
+    QScriptValue ctor = qtscript_create_enum_class_helper(
+                            engine, qtscript_construct_BaseItemInterface_BorderType,
+                            qtscript_BaseItemInterface_BorderType_valueOf, qtscript_BaseItemInterface_BorderType_toString);
+
+    qScriptRegisterMetaType<BaseItemInterface::BorderType>(engine, qtscript_BaseItemInterface_BorderType_toScriptValue,
+                                                   qtscript_BaseItemInterface_BorderType_fromScriptValue, ctor.property(QString::fromLatin1("prototype")));
+
+    for (int i = 0; i < BaseItemInterface_BorderType_num; ++i) {
+        clazz.setProperty(QString::fromLatin1(qtscript_BaseItemInterface_BorderType_keys[i]),
+                          engine->newVariant(qVariantFromValue(qtscript_BaseItemInterface_BorderType_values[i])),
+                          QScriptValue::ReadOnly | QScriptValue::Undeletable);
+    }
+
+    return ctor;
+}
+
+
+QString BaseItemInterface_BorderType_toString(BaseItemInterface::BorderType value)
+{
+    int idx = -1;
+    for (int i = 0; i < BaseItemInterface_BorderType_num; ++i) {
+        if (qtscript_BaseItemInterface_BorderType_values[i] == value) {
+            idx = i;
+            break;
+        }
+    }
+
+    if (idx == -1) {
+        CuteReport::ReportCore::log(LogError, "BaseItemInterface", "BaseItemInterface_BorderType_toString", QString("Value \'%1\' is not within range").arg((int)value));
+        return QString();
+    }
+
+    return QString(qtscript_BaseItemInterface_BorderType_keys[idx]);
+}
+
+
+BaseItemInterface::BorderType BaseItemInterface_BorderType_fromString(const QString &value, bool *ok)
+{
+    QString strIn = value.toLower();
+    int idx = -1;
+    for (int i = 0; i < BaseItemInterface_BorderType_num; ++i) {
+        QString str(qtscript_BaseItemInterface_BorderType_keys[i]);
+        if (strIn == str.toLower()) {
+            idx = i;
+            break;
+        }
+    }
+
+    if (idx == -1) {
+        CuteReport::ReportCore::log(LogError, "BaseItemInterface", "BaseItemInterface_BorderType_fromString", QString("Value \'%1\' is not within range").arg(value));
+        if (ok)
+            *ok = false;
+    }
+
+    return BaseItemInterface::BorderType(qtscript_BaseItemInterface_BorderType_values[idx]);
 }
 
 
 /** ======================= ShiftMode =========================== */
 
-static const ItemInterface::ShiftMode qtscript_Ellipse_ShiftMode_values[] = {
+static const ItemInterface::ShiftMode qtscript_ItemInterface_ShiftMode_values[] = {
     ItemInterface::AlwaysShift,
     ItemInterface::DontShift,
     ItemInterface::ShiftWhenOverlapped
 };
 
-static const char * const qtscript_Ellipse_ShiftMode_keys[] = {
+static const char * const qtscript_ItemInterface_ShiftMode_keys[] = {
     "AlwaysShift",
     "DontShift",
     "ShiftWhenOverlapped"
 };
 
-static int Ellipse_ShiftMode_num = 3;
+static int ItemInterface_ShiftMode_num = 3;
 
 
-static QString qtscript_Ellipse_ShiftMode_toStringHelper(ItemInterface::ShiftMode value)
+static QString qtscript_ItemInterface_ShiftMode_toStringHelper(ItemInterface::ShiftMode value)
 {
     const QMetaObject meta = ItemInterface::staticMetaObject;
     int idx = meta.indexOfEnumerator("ShiftMode");
@@ -386,20 +513,20 @@ static QString qtscript_Ellipse_ShiftMode_toStringHelper(ItemInterface::ShiftMod
 }
 
 
-static QScriptValue qtscript_Ellipse_ShiftMode_toScriptValue(QScriptEngine *engine, const ItemInterface::ShiftMode &value)
+static QScriptValue qtscript_ItemInterface_ShiftMode_toScriptValue(QScriptEngine *engine, const ItemInterface::ShiftMode &value)
 {
     QScriptValue clazz = engine->globalObject().property(QString::fromLatin1("Ellipse"));
-    return clazz.property(qtscript_Ellipse_ShiftMode_toStringHelper(value));
+    return clazz.property(qtscript_ItemInterface_ShiftMode_toStringHelper(value));
 }
 
 
-static void qtscript_Ellipse_ShiftMode_fromScriptValue(const QScriptValue &value, ItemInterface::ShiftMode &out)
+static void qtscript_ItemInterface_ShiftMode_fromScriptValue(const QScriptValue &value, ItemInterface::ShiftMode &out)
 {
     out = qvariant_cast<ItemInterface::ShiftMode>(value.toVariant());
 }
 
 
-static QScriptValue qtscript_construct_Ellipse_ShiftMode(QScriptContext *context, QScriptEngine *engine)
+static QScriptValue qtscript_construct_ItemInterface_ShiftMode(QScriptContext *context, QScriptEngine *engine)
 {
     int arg = context->argument(0).toInt32();
     const QMetaObject *meta = qtscript_Qt_metaObject();
@@ -412,32 +539,32 @@ static QScriptValue qtscript_construct_Ellipse_ShiftMode(QScriptContext *context
 }
 
 
-static QScriptValue qtscript_Ellipse_ShiftMode_valueOf(QScriptContext *context, QScriptEngine *engine)
+static QScriptValue qtscript_ItemInterface_ShiftMode_valueOf(QScriptContext *context, QScriptEngine *engine)
 {
     ItemInterface::ShiftMode value = qscriptvalue_cast<ItemInterface::ShiftMode>(context->thisObject());
     return QScriptValue(engine, static_cast<int>(value));
 }
 
 
-static QScriptValue qtscript_Ellipse_ShiftMode_toString(QScriptContext *context, QScriptEngine *engine)
+static QScriptValue qtscript_ItemInterface_ShiftMode_toString(QScriptContext *context, QScriptEngine *engine)
 {
     ItemInterface::ShiftMode value = qscriptvalue_cast<ItemInterface::ShiftMode>(context->thisObject());
-    return QScriptValue(engine, qtscript_Ellipse_ShiftMode_toStringHelper(value));
+    return QScriptValue(engine, qtscript_ItemInterface_ShiftMode_toStringHelper(value));
 }
 
 
-static QScriptValue qtscript_create_Ellipse_ShiftMode_class(QScriptEngine *engine, QScriptValue &clazz)
+static QScriptValue qtscript_create_ItemInterface_ShiftMode_class(QScriptEngine *engine, QScriptValue &clazz)
 {
     QScriptValue ctor = qtscript_create_enum_class_helper(
-                            engine, qtscript_construct_Ellipse_ShiftMode,
-                            qtscript_Ellipse_ShiftMode_valueOf, qtscript_Ellipse_ShiftMode_toString);
+                            engine, qtscript_construct_ItemInterface_ShiftMode,
+                            qtscript_ItemInterface_ShiftMode_valueOf, qtscript_ItemInterface_ShiftMode_toString);
 
-    qScriptRegisterMetaType<ItemInterface::ShiftMode>(engine, qtscript_Ellipse_ShiftMode_toScriptValue,
-                                                   qtscript_Ellipse_ShiftMode_fromScriptValue, ctor.property(QString::fromLatin1("prototype")));
+    qScriptRegisterMetaType<ItemInterface::ShiftMode>(engine, qtscript_ItemInterface_ShiftMode_toScriptValue,
+                                                   qtscript_ItemInterface_ShiftMode_fromScriptValue, ctor.property(QString::fromLatin1("prototype")));
 
-    for (int i = 0; i < Ellipse_ShiftMode_num; ++i) {
-        clazz.setProperty(QString::fromLatin1(qtscript_Ellipse_ShiftMode_keys[i]),
-                          engine->newVariant(qVariantFromValue(qtscript_Ellipse_ShiftMode_values[i])),
+    for (int i = 0; i < ItemInterface_ShiftMode_num; ++i) {
+        clazz.setProperty(QString::fromLatin1(qtscript_ItemInterface_ShiftMode_keys[i]),
+                          engine->newVariant(qVariantFromValue(qtscript_ItemInterface_ShiftMode_values[i])),
                           QScriptValue::ReadOnly | QScriptValue::Undeletable);
     }
 
@@ -445,31 +572,31 @@ static QScriptValue qtscript_create_Ellipse_ShiftMode_class(QScriptEngine *engin
 }
 
 
-QString Ellipse_ShiftMode_toString(ItemInterface::ShiftMode value)
+QString ItemInterface_ShiftMode_toString(ItemInterface::ShiftMode value)
 {
     int idx = -1;
-    for (int i = 0; i < Ellipse_ShiftMode_num; ++i) {
-        if (qtscript_Ellipse_ShiftMode_values[i] == value) {
+    for (int i = 0; i < ItemInterface_ShiftMode_num; ++i) {
+        if (qtscript_ItemInterface_ShiftMode_values[i] == value) {
             idx = i;
             break;
         }
     }
 
     if (idx == -1) {
-        CuteReport::ReportCore::log(LogError, "ItemInterface", "Ellipse_ShiftMode_toString", QString("Value \'%1\' is not within range").arg((int)value));
+        CuteReport::ReportCore::log(LogError, "ItemInterface", "ItemInterface_ShiftMode_toString", QString("Value \'%1\' is not within range").arg((int)value));
         return QString();
     }
 
-    return QString(qtscript_Ellipse_ShiftMode_keys[idx]);
+    return QString(qtscript_ItemInterface_ShiftMode_keys[idx]);
 }
 
 
-ItemInterface::ShiftMode Ellipse_ShiftMode_fromString(const QString &value, bool *ok)
+ItemInterface::ShiftMode ItemInterface_ShiftMode_fromString(const QString &value, bool *ok)
 {
     QString strIn = value.toLower();
     int idx = -1;
-    for (int i = 0; i < Ellipse_ShiftMode_num; ++i) {
-        QString str(qtscript_Ellipse_ShiftMode_keys[i]);
+    for (int i = 0; i < ItemInterface_ShiftMode_num; ++i) {
+        QString str(qtscript_ItemInterface_ShiftMode_keys[i]);
         if (strIn == str.toLower()) {
             idx = i;
             break;
@@ -477,12 +604,12 @@ ItemInterface::ShiftMode Ellipse_ShiftMode_fromString(const QString &value, bool
     }
 
     if (idx == -1) {
-        CuteReport::ReportCore::log(LogError, "ItemInterface", "Ellipse_ShiftMode_fromString", QString("Value \'%1\' is not within range").arg(value));
+        CuteReport::ReportCore::log(LogError, "ItemInterface", "ItemInterface_ShiftMode_fromString", QString("Value \'%1\' is not within range").arg(value));
         if (ok)
             *ok = false;
     }
 
-    return ItemInterface::ShiftMode(qtscript_Ellipse_ShiftMode_values[idx]);
+    return ItemInterface::ShiftMode(qtscript_ItemInterface_ShiftMode_values[idx]);
 }
 
 /** ============================================================================================================= */
@@ -518,9 +645,10 @@ QScriptValue qtscript_create_EllipseItem_class(QScriptEngine *engine)
     QScriptValue ctor = engine->newFunction(qtscript_EllipseItem_static_call, proto, 0);
     ctor.setData(QScriptValue(engine, uint(0xBABE0000 + 0)));
 
-    ctor.setProperty(QString::fromLatin1("Frame"), qtscript_create_Ellipse_Frame_class(engine, ctor));
-    ctor.setProperty(QString::fromLatin1("ResizeFlags"), qtscript_create_Ellipse_ResizeFlags_class(engine, ctor));
-    ctor.setProperty(QString::fromLatin1("ShiftMode"), qtscript_create_Ellipse_ShiftMode_class(engine, ctor));
+    ctor.setProperty(QString::fromLatin1("Frame"), qtscript_create_BaseItemInterface_Frame_class(engine, ctor));
+    ctor.setProperty(QString::fromLatin1("ResizeFlags"), qtscript_create_BaseItemInterface_ResizeFlags_class(engine, ctor));
+    ctor.setProperty(QString::fromLatin1("BorderType"), qtscript_create_BaseItemInterface_BorderType_class(engine, ctor));
+    ctor.setProperty(QString::fromLatin1("ShiftMode"), qtscript_create_ItemInterface_ShiftMode_class(engine, ctor));
 
     return ctor;
 }

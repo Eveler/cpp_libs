@@ -10,3 +10,5 @@ FORMS += filesystemdatasethelper.ui
 
 RESOURCES += \
     filesystemdataset.qrc
+
+#INSTALL_HEADERS.files = filesystemdataset.h

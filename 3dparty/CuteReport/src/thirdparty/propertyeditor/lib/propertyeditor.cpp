@@ -50,7 +50,7 @@ namespace PropertyEditor
 EditorWidget::EditorWidget(QWidget *parent)
     : QWidget(parent),
       ui(new Ui::propertyeditor),
-      m_object(0), m_model(0), m_delegate(0), m_pluginManager(0)
+      m_pluginManager(0), m_object(0), m_model(0), m_delegate(0)
 {
     init();
 }
@@ -59,7 +59,7 @@ EditorWidget::EditorWidget(QWidget *parent)
 EditorWidget::EditorWidget(PluginManager * pluginManager, QWidget *parent)
     : QWidget(parent),
       ui(new Ui::propertyeditor),
-      m_object(0), m_model(0), m_delegate(0), m_pluginManager(pluginManager)
+      m_pluginManager(pluginManager), m_object(0), m_model(0), m_delegate(0)
 {
     init();
 }
@@ -67,7 +67,8 @@ EditorWidget::EditorWidget(PluginManager * pluginManager, QWidget *parent)
 
 EditorWidget::~EditorWidget()
 {
-    qDebug() << "PropertyEditor DTOR";
+    delete ui;
+//    qDebug() << "PropertyEditor DTOR";
 }
 
 

@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -43,15 +43,18 @@ StorageFileSystem::StorageFileSystem(QObject * parent)
     : StorageInterface(parent),
       m_askForOverwrite(true)
 {
-    m_objectsPath = QString(REPORT_EXAMPLES_PATH);
-    //    m_path = QString(REPORT_EXAMPLES_PATH) + "/reports";
-    m_localDefaultPath = QString(QDir::homePath() + "/" + REPORT_VARS_PATH + "/file_storage/");
-    m_localDefaultPath.replace(QRegExp("/+"), "/");
-    if (!QString(REPORT_VARS_PATH).isEmpty()) {
-        QDir dir(m_localDefaultPath);
-        if (!dir.exists())
-            dir.mkpath(m_localDefaultPath);
-    }
+    m_objectsPath = "/";
+    m_localDefaultPath = "/";
+
+    //    m_objectsPath = QString(REPORT_EXAMPLES_PATH);
+    ////    m_localDefaultPath = QString(REPORT_EXAMPLES_PATH) + "/reports";
+    //    m_localDefaultPath = QString(QDir::homePath() + "/" + REPORT_VARS_PATH + "/file_storage/");
+    //    m_localDefaultPath.replace(QRegExp("/+"), "/");
+    //    if (!QString(REPORT_VARS_PATH).isEmpty()) {
+    //        QDir dir(m_localDefaultPath);
+    //        if (!dir.exists())
+    //            dir.mkpath(m_localDefaultPath);
+    //    }
 
     if (m_urlHints.isEmpty()) {
         initHints();
@@ -116,7 +119,11 @@ QString StorageFileSystem::urlScheme() const
 
 QString StorageFileSystem::urlHint(const QString & key)
 {
-    return urlScheme() + ":" + m_urlHints.value(key);
+    if (m_urlHints.contains(key))
+        return urlScheme() + ":" + m_urlHints.value(key);
+
+    QFileInfo info(key);
+//    qDebug() << info.absolutePath();
 }
 
 
@@ -132,7 +139,7 @@ QString StorageFileSystem::localCachedFileName(const QString & url)
 }
 
 
-bool StorageFileSystem::saveObject(const QString &url, const QVariant &objectData)
+bool StorageFileSystem::saveObject(const QString &url, const QByteArray &objectData)
 {
     QString absoluteFilePath = urlToLocal(url);
     if (absoluteFilePath.isEmpty())
@@ -140,7 +147,7 @@ bool StorageFileSystem::saveObject(const QString &url, const QVariant &objectDat
 
     QFile file(absoluteFilePath);
     if (file.open(QIODevice::WriteOnly)){
-        file.write(objectData.toByteArray());
+        file.write(objectData);
         file.close();
         return true;
     } else {
@@ -150,17 +157,24 @@ bool StorageFileSystem::saveObject(const QString &url, const QVariant &objectDat
 }
 
 
-QVariant StorageFileSystem::loadObject(const QString & url)
+QByteArray StorageFileSystem::loadObject(const QString & url)
 {
     QString absoluteFilePath = urlToLocal(url);
     if (absoluteFilePath.isEmpty())
-        return QVariant();
+        return QByteArray();
 
-    QFile file(absoluteFilePath);
+
+#ifdef WIN32
+    QString winPath = absoluteFilePath;
+    winPath.replace(QRegExp("^/(\\w)/"),"\\1:/");
+    QFile file(winPath);
+#else
+     QFile file(absoluteFilePath);
+#endif
 
     if (!file.open(QIODevice::ReadOnly)) {
         m_lastError = QString("File \'%1\' cannot be opened: local path is \'%2\'").arg(url).arg(absoluteFilePath);
-        return QVariant();
+        return QByteArray();
     }
 
     QByteArray ba(file.readAll());
@@ -171,7 +185,7 @@ QVariant StorageFileSystem::loadObject(const QString & url)
 
 
 QList<StorageObjectInfo> StorageFileSystem::objectsList(const QString & url, const QStringList & nameFilters,
-                                             QDir::Filters filters, QDir::SortFlags sort, bool * ok)
+                                                        QDir::Filters filters, QDir::SortFlags sort, bool * ok)
 {
     QList<StorageObjectInfo> list;
 
@@ -190,7 +204,14 @@ QList<StorageObjectInfo> StorageFileSystem::objectsList(const QString & url, con
         return list;
     }
 
+#ifdef WIN32
+    QString winDir = absoluteFilePath;
+    winDir.replace(QRegExp("^/(\\w)/"),"\\1:/");
+    QDir dir (winDir);
+#else
     QDir dir (absoluteFilePath);
+#endif
+
 
     if (!dir.exists()) {
         m_lastError = "Url path does not exist";
@@ -199,19 +220,45 @@ QList<StorageObjectInfo> StorageFileSystem::objectsList(const QString & url, con
         return list;
     }
 
-    QFileInfoList infoList = dir.entryInfoList(nameFilters, filters | QDir::NoDotAndDotDot, sort);
+    QFileInfoList infoList;
+    bool doProcess = true;
 
-    foreach (const QFileInfo &fileInfo, infoList) {
-        StorageObjectInfo objectInfo;
-        objectInfo.url = urlScheme() + ":" + pathCutOff(fileInfo.absoluteFilePath());
-        objectInfo.size = fileInfo.size();
-        objectInfo.type = fileInfo.isDir() ? FileDir : FileUnknown;
+#ifdef WIN32
+    if (absoluteFilePath == "/") {
+        doProcess = false;
+        if (filters.testFlag(QDir::Dirs)) {
+            infoList = QDir::drives();
+            foreach (const QFileInfo &fileInfo, infoList) {
+                QString driveName = fileInfo.absoluteFilePath();
+                driveName.remove(":/");
+                StorageObjectInfo objectInfo;
+                objectInfo.name = driveName + ":";
+                objectInfo.url = urlScheme() + ":/" + driveName + "/";
+                objectInfo.size = fileInfo.size();
+                objectInfo.type = FileDrive ;
 
-        //        QString ext = fileInfo.suffix();
-        //        if (ext.indexOf(QRegExp("([Jj][Pp][eE]?[gG])|([Pp][Nn][gG]|[Bb][Mm][Pp])|([Ii][Cc][Oo])")) == 0)
-        //            objectInfo.type = FileImage;
+                list.append(objectInfo);
+            }
+        }
+    }
+#endif
 
-        list.append(objectInfo);
+    if (doProcess) {
+        infoList = dir.entryInfoList(nameFilters, filters | QDir::NoDotAndDotDot, sort);
+
+        foreach (const QFileInfo &fileInfo, infoList) {
+            StorageObjectInfo objectInfo;
+            objectInfo.name = fileInfo.isDir() ? fileInfo.absoluteFilePath().section("/",-1,-1) : fileInfo.absoluteFilePath();
+            objectInfo.url = urlScheme() + ":" + pathCutOff(fileInfo.absoluteFilePath());
+            objectInfo.size = fileInfo.size();
+            objectInfo.type = fileInfo.isDir() ? FileDir : FileUnknown;
+
+            //        QString ext = fileInfo.suffix();
+            //        if (ext.indexOf(QRegExp("([Jj][Pp][eE]?[gG])|([Pp][Nn][gG]|[Bb][Mm][Pp])|([Ii][Cc][Oo])")) == 0)
+            //            objectInfo.type = FileImage;
+
+            list.append(objectInfo);
+        }
     }
 
     return list;
@@ -268,13 +315,21 @@ QString StorageFileSystem::urlToLocal(const QString &url)
 
     absoluteFilePath.replace(QRegExp("/+"), "/");
 
+#ifdef WIN32
+    absoluteFilePath.replace(QRegExp("^\\w:/"),"/");
+#endif
+
     return absoluteFilePath;
 }
 
 
 QString StorageFileSystem::pathCutOff(const QString & absPath)
 {
-    QFileInfo pathIn(absPath);
+    QString _absPath = absPath;
+#ifdef WIN32
+    _absPath.replace(QRegExp("^(\\w):/"),"/\\1/");
+#endif
+    QFileInfo pathIn(_absPath);
     QFileInfo path(urlToLocal(""));
 
     QString resultFileName;

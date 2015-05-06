@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -51,7 +51,7 @@ MemoItem::MemoItem(QObject * parent) :
     d->rect = QRectF(0,0,30,8);
     d->frame = 0;
     d->text = "Memo";
-    setTextFlags(AlignLeft | AlignVCenter);
+    setTextFlags(AlignLeft | AlignVCenter | TextWordWrap);
 }
 
 
@@ -182,13 +182,17 @@ void MemoItem::adjust(MemoItemPrivate * d, const QPointF &posDeltaMM)
     d->posDeltaMM = posDeltaMM;
     QRectF qrect = d->rect.translated(posDeltaMM);
     QRectF absRectPix = convertUnit(d->absoluteRect, Millimeter, Pixel, d->dpi);
-    qreal marginPixel = convertUnit(d->textMargin, Millimeter, Pixel, d->dpi);
-    qreal bottomMargin = marginPixel;
-    qreal shift = marginPixel;
+    QPointF marginPixel = convertUnit(d->textMargin, Millimeter, Pixel, d->dpi);
+    qreal bottomMargin = marginPixel.y();
+    qreal shift = marginPixel.y();
+#if QT_VERSION >= 0x050000
+    d->sw = (d->dpi == 0) ? 1 : (qreal)d->dpi / (qreal)qApp->screens().at(0)->logicalDotsPerInchY();
+#else
     d->sw = (d->dpi == 0) ? 1 : (qreal)d->dpi / (qreal)qApp->desktop()->logicalDpiY();
+#endif
     qreal textWidth = d->textDocument ? d->textDocument->textWidth() : -1;
 
-    qreal x = marginPixel;
+    qreal x = marginPixel.x();
     qreal y = shift;
 
     QTextDocument * oldDoc = d->textDocument ? d->textDocument->clone() : 0;
@@ -205,15 +209,17 @@ void MemoItem::adjust(MemoItemPrivate * d, const QPointF &posDeltaMM)
         d->textDocument->setDocumentMargin(0);
     }
     d->textDocument->setDefaultFont(d->font);
-    d->textDocument->setDefaultTextOption(QTextOption(Qt::Alignment((int)d->textFlags)));
+    QTextOption options = QTextOption(Qt::Alignment((int)d->textFlags));
+    options.setWrapMode(d->textFlags.testFlag(TextWordWrap) ? QTextOption::WrapAtWordBoundaryOrAnywhere : QTextOption::NoWrap);
+    d->textDocument->setDefaultTextOption(options);
 
     if (d->textDocument) {
-        d->textDocument->setTextWidth( (textWidth == -1) ? (convertUnit(qrect, Millimeter, Pixel, d->dpi).width() - marginPixel*2) / d->sw : textWidth);
+        d->textDocument->setTextWidth( (textWidth == -1) ? (convertUnit(qrect, Millimeter, Pixel, d->dpi).width() - marginPixel.x()*2) / d->sw : textWidth);
 
         if (d->stretchFont && d->stretchMode == DontStretch) {
             y = 0;
             QFont font = d->font;
-            font.setPixelSize((absRectPix.height() - 2*marginPixel)/ d->sw * 0.85);
+            font.setPixelSize((absRectPix.height() - 2*marginPixel.y())/ d->sw * 0.85);
             d->textDocument->setDefaultFont(font);
         }
 
@@ -226,16 +232,16 @@ void MemoItem::adjust(MemoItemPrivate * d, const QPointF &posDeltaMM)
 
         d->textPos = QPointF(x,y);
         // FIXME: +2 unknown gap at the bottom sometimes
-        d->textClipRect = QRectF(0, 0, qMin(docSize.width(), (absRectPix.width() - bottomMargin) / d->sw),
+        d->textClipRect = QRectF(0, 0, qMin(docSize.width(), (absRectPix.width() - marginPixel.x()*2) / d->sw),
                                  qMax((absRectPix.height() - bottomMargin - y) / d->sw, (absRectPix.height() - bottomMargin - y) / d->sw) +2);
     }
 
-    if ((d->stretchMode == ActualHeight && d->renderingType == RenderingReport)
+    if ((d->stretchMode != DontStretch && d->renderingType == RenderingReport)
             || (d->stretchMode == ActualHeight && d->renderingType == RenderingTemplate && d->showStretchability)) {
         if (textWidth == -1) {
             qreal topMargin = 0;
             qreal textAddon = 0;
-            topMargin = marginPixel;
+            topMargin = marginPixel.y();
             qreal mainText = (d->textDocument && !d->textDocument->toPlainText().isEmpty()) ? d->textDocument->size().height() * d->sw : 0;
             qreal textHeightPix = topMargin + textAddon + mainText + bottomMargin;
             if (textHeightPix >= absRectPix.height()) {
@@ -393,29 +399,32 @@ void MemoItem::setAllowExpressions(bool value)
 }
 
 
-qreal MemoItem::textMargin() const
+QPointF MemoItem::textMargin() const
 {
     Q_D(const MemoItem);
     return convertUnit(d->textMargin, Millimeter, d->unit, d->dpi);
 }
 
 
-void MemoItem::setTextMargin(qreal value)
+void MemoItem::setTextMargin(const QPointF &value)
 {
     Q_D(MemoItem);
 
-    qreal newValue = convertUnit(value, d->unit, Millimeter, d->dpi);
+    QPointF newValue = convertUnit(value, d->unit, Millimeter, d->dpi);
     if (d->textMargin == newValue)
         return;
 
     d->textMargin = newValue;
-    if (d->textMargin < 0)
-        d->textMargin = 0;
+
+    if (d->textMargin.x() < 0)
+        d->textMargin.setX(0);
+    if (d->textMargin.y() < 0)
+        d->textMargin.setY(0);
 
     resetDocumentWidth();
     update_gui();
 
-    emit textMarginChaged(d->textMargin);
+    emit textMarginChanged(d->textMargin);
     emit changed();
 }
 
@@ -582,6 +591,25 @@ RenderedItemInterface *MemoItem::renderView()
 }
 
 
+void MemoItem::afterSiblingsRendering(QList<BaseItemInterface *> siblings)
+{
+    Q_D(MemoItem);
+    if (d->stretchMode != MaxHeight)
+        return;
+
+    qreal bottom = 0;
+    foreach (BaseItemInterface * item, siblings) {
+        QRectF rect = item->absoluteGeometry(Millimeter);
+        if (rect.bottom() > bottom)
+            bottom = rect.bottom();
+    }
+    QRectF itemGeometry = absoluteGeometry(Millimeter);
+    if (itemGeometry.bottom() < bottom)
+        itemGeometry.setBottom(bottom);
+    setAbsoluteGeometry(itemGeometry);
+}
+
+
 void MemoItem::paint(QPainter * painter, const QStyleOptionGraphicsItem *option, const BaseItemInterfacePrivate * data, const QRectF &boundingRect, RenderingType type)
 {
     Q_UNUSED(option)
@@ -598,7 +626,11 @@ void MemoItem::paint(QPainter * painter, const QStyleOptionGraphicsItem *option,
         painter->save();
         painter->translate(d->textPos.x(), d->textPos.y());
         painter->scale(d->sw, d->sw);
-        d->textDocument->drawContents(painter, d->textClipRect);
+        QAbstractTextDocumentLayout::PaintContext ctx;
+        ctx.palette.setColor(QPalette::Text, d->textColor);
+        ctx.clip = d->textClipRect;
+        d->textDocument->documentLayout()->draw(painter, ctx);
+//        d->textDocument->drawContents(painter, d->textClipRect);
         painter->restore();
     }
 
@@ -636,6 +668,17 @@ QStringList MemoItem::scriptingStrings()
 void MemoItem::initScript(QScriptEngine *scriptEngine)
 {
     registerMemoItemScriptClass(scriptEngine);
+}
+
+
+StdEditorPropertyList MemoItem::stdEditorList() const
+{
+    StdEditorPropertyList list;
+    list << ItemInterface::stdEditorList();
+    list << StdEditorProperty(EDFont, "font");
+    list << StdEditorProperty(EDFontColor, "textColor");
+    list << StdEditorProperty(EDTextAlignment, "textFlags");
+    return list;
 }
 
 

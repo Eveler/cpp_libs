@@ -1,0 +1,14 @@
+INPUT(
+./propertyeditor.o
+./propertymodel.o
+./propertyinterface.o
+./propertydelegate.o
+./propertyvalidator.o
+./propertyeditorcore.o
+./moc_propertyeditor.o
+./moc_propertymodel.o
+./moc_propertyinterface.o
+./moc_propertydelegate.o
+./moc_propertyvalidator.o
+./moc_propertyeditorcore.o
+);

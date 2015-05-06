@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -27,35 +27,37 @@
 #include "iostream"
 
 static const char* help = "Usage: cutereport -i filename[,filename]...\n\n"
-        "  -i, --input-file <filename[,filename...]> \n"
-        "                                load report file\n"
-        "  -u, --list-file <filename>    load report URLs found in local file\n"
-        "  -d  --directory <dirname>     directory name for output files\n"
-        "  -l, --log                     write log to specified file\n"
-        "  -o, --output <DESTINATION>    output destination. See below.\n"
-        "  -f  --format <format>         export to specified format. Default: pdf\n"
-        //                          "  -s, --storage-options <NAME:opt1=value[,opt2=value2]>\n"
-        //                          "                                set storage options for storage module NAME\n"
-        //                          "  -p, --printer-options <NAME:opt1=value[,opt2=value2]>\n"
-        //                          "                                set printer options for printer module NAME\n"
-        //                          "  -r, --renderer-options <NAME:opt1=value[,opt2=value2]> \n"
-        //                          "                                set renderer options for renderer module NAME\n"
-        "  -e, --export-options <NAME:opt1=value[,opt2=value2]> \n"
-        "                                set options for export module NAME\n"
-        "  -n  --number-treads <num>     set the number of threads for batch reports\n"
-        "                                rendering. Default:4\n"
-        //                          "  -t  --time [report][,total]   elapsed time per report and/or total.\n"
-        "  -v, --version                 display the version of CuteReport and exit\n"
-        "  -h, --help [-s [NAME]] [-p [NAME]] [-r [NAME]]\n"
-        "                                display this help and exit.\n"
-        "                                If other options follow it then show accessible\n"
-        "                                modules list. If NAME is specified then show \n"
-        "                                options for named module\n"
-        "             [-f]               List of export formats.\n"
-        "  DESTINATION: it can be: file, printer, preview.\n"
-        "    Use \'file\' if you want to render and export report to specific format file.\n"
-        "    Use \'printer\' if you want print rendered report.\n"
-        "    Use \'preview\' if you want to render report and watch it in preview window.\n";
+                          "  -i, --input-file <filename[,filename...]> \n"
+                          "                                load report file\n"
+                          "  -u, --list-file <filename>    load report URLs found in local file\n"
+                          "  -d  --directory <dirname>     directory name for output files\n"
+                          "  -l, --log                     write log to specified file\n"
+                          "  -o, --output <DESTINATION>    output destination. See below.\n"
+                          "  -f  --format <format>         export to specified format. Default: pdf\n"
+                          //                          "  -s, --storage-options <NAME:opt1=value[,opt2=value2]>\n"
+                          //                          "                                set storage options for storage module NAME\n"
+                          //                          "  -p, --printer-options <NAME:opt1=value[,opt2=value2]>\n"
+                          //                          "                                set printer options for printer module NAME\n"
+                          //                          "  -r, --renderer-options <NAME:opt1=value[,opt2=value2]> \n"
+                          //                          "                                set renderer options for renderer module NAME\n"
+                          "  -e, --export-options <NAME:opt1=value[,opt2=value2]> \n"
+                          "                                set options for export module NAME\n"
+                          "  -n  --number-treads <num>     set the number of threads for batch reports\n"
+                          "                                rendering. Default:4\n"
+                          //                          "  -t  --time [report][,total]   elapsed time per report and/or total.\n"
+                          "  --init                        create CuteReport development files.\n"
+                          "  --paths                       show install pathes.\n"
+                          "  -v, --version                 display the version of CuteReport and exit\n"
+                          "  -h, --help [-s [NAME]] [-p [NAME]] [-r [NAME]]\n"
+                          "                                display this help and exit.\n"
+                          "                                If other options follow it then show accessible\n"
+                          "                                modules list. If NAME is specified then show \n"
+                          "                                options for named module\n"
+                          "             [-f]               List of export formats.\n"
+                          "  DESTINATION: it can be: file, printer, preview.\n"
+                          "    Use \'file\' if you want to render and export report to specific format file.\n"
+                          "    Use \'printer\' if you want print rendered report.\n"
+                          "    Use \'preview\' if you want to render report and watch it in preview window.\n";
 
 
 Console::Console(QObject *parent) :
@@ -101,40 +103,40 @@ void Console::run(int argc, char *argv[])
         QString urlStr = url.toString();
 
         switch (m_output) {
-        case File: {
-            QString output;
-            if (m_outputDir.isEmpty()) {
-                output = urlStr.section(".",0, -2) + "." + m_format;
-            } else {
-                output = urlStr.section('/', -2);
-                output = output.section(".",0, -2) + "." + m_format;
-            }
-            m_reportCore->exportTo(url.toString(), m_format, output, m_exportOptions.split(",", QString::SkipEmptyParts));
-            ++m_counter;
-        }
-            break;
-        case Printer:
-            m_reportCore->print(urlStr);
-            ++m_counter;
-            break;
-        case Unknown:
-        case Preview: {
-            CuteReport::ReportInterface * report = m_reportCore->loadReport(urlStr);
-            if (report) {
-                m_preview = new CuteReport::ReportPreview;
-                m_preview->setReportCore(m_reportCore);
-                m_preview->connectReport(report);
-                m_preview->show();
-                m_preview->run();
-                connect(m_preview, SIGNAL(closed()), this, SLOT(slotPreviewClosed()));
-            } else {
-                std::cout << QString("Error: Not correct input file: \'%1\'\n").arg(urlStr).toStdString();
-                exit(1);
-            }
+            case File: {
+                    QString output;
+                    if (m_outputDir.isEmpty()) {
+                        output = urlStr.section(".",0, -2) + "." + m_format;
+                    } else {
+                        output = urlStr.section('/', -2);
+                        output = output.section(".",0, -2) + "." + m_format;
+                    }
+                    m_reportCore->exportTo(url.toString(), m_format, output, m_exportOptions.split(",", QString::SkipEmptyParts));
+                    ++m_counter;
+                }
+                break;
+            case Printer:
+                m_reportCore->print(urlStr);
+                ++m_counter;
+                break;
+            case Unknown:
+            case Preview: {
+                    CuteReport::ReportInterface * report = m_reportCore->loadReport(urlStr);
+                    if (report) {
+                        m_preview = new CuteReport::ReportPreview;
+                        m_preview->setReportCore(m_reportCore);
+                        m_preview->connectReport(report);
+                        m_preview->show();
+                        m_preview->run();
+                        connect(m_preview, SIGNAL(closed()), this, SLOT(slotPreviewClosed()));
+                    } else {
+                        std::cout << QString("Error: Not correct input file: \'%1\'\n").arg(urlStr).toStdString();
+                        exit(1);
+                    }
 
-            ++m_counter;
-        }
-            break;
+                    ++m_counter;
+                }
+                break;
 
         }
     }
@@ -233,6 +235,64 @@ void Console::showModuleHelp(CuteReport::ModuleType type, const QString &moduleN
 }
 
 
+void Console::reportInstallInit()
+{
+    QDir dir(REPORT_HEADERS_PATH);
+    QStringList files = dir.entryList(QStringList() << "*.h");
+    QFile headerFile(dir.absolutePath() + "/CuteReport");
+
+    if (headerFile.open(QFile::WriteOnly | QFile::Truncate)) {
+        QTextStream out(&headerFile);
+        out << "#ifndef CUTEREPORT_H \n";
+        out << "#define CUTEREPORT_H \n";
+        out << "\n";
+        foreach (QString fileName, files) {
+            out << QString("#include \"%1\"\n").arg(fileName);
+        }
+        out << "\n";
+        out << "#endif";
+    }
+
+    QFile priFile(dir.absolutePath() + "/CuteReport.pri");
+    if (priFile.open(QFile::WriteOnly | QFile::Truncate | QFile::Text)) {
+        QTextStream out(&priFile);
+
+        QDir libPath;
+
+        libPath.setPath(REPORT_HEADERS_PATH);
+        out << QString("INCLUDEPATH += %1 \n").arg(libPath.absolutePath());
+
+        libPath.setPath(REPORT_LIBS_PATH);
+        out << QString("LIBS += -L%1 \n").arg(libPath.absolutePath().isEmpty() ? QDir::currentPath() : libPath.absolutePath());
+
+        out << "LIBS += -lCuteReport \n";
+        out << "LIBS += -lCuteReportWidgets \n";
+    }
+}
+
+
+void Console::reportInstallPathes()
+{
+    std::cout << "REPORT_VERSION: " << REPORT_VERSION << std::endl;
+    std::cout << "REPORT_VARS_PATH: " << REPORT_VARS_PATH << std::endl;
+    std::cout << "REPORT_LIBS_PATH: " << REPORT_LIBS_PATH << std::endl;
+    std::cout << "REPORT_HEADERS_PATH: " << REPORT_HEADERS_PATH << std::endl;
+    std::cout << "REPORT_RESOURCES_PATH: " << REPORT_RESOURCES_PATH << std::endl;
+    std::cout << "REPORT_IMAGES_PATH: " << REPORT_IMAGES_PATH << std::endl;
+    std::cout << "REPORT_PLUGINS_PATH: " << REPORT_PLUGINS_PATH << std::endl;
+    std::cout << "REPORT_EXAMPLES_PATH: " << REPORT_EXAMPLES_PATH << std::endl;
+    std::cout << "REPORT_DESIGNER_PATH: " << REPORT_DESIGNER_PATH << std::endl;
+    std::cout << "REPORT_DESIGNER_PLUGINS_PATH: " << REPORT_DESIGNER_PLUGINS_PATH << std::endl;
+    std::cout << "REPORT_DESIGNER_LIBS_PATH: " << REPORT_DESIGNER_LIBS_PATH << std::endl;
+    std::cout << "REPORT_DESIGNER_IMAGES_PATH: " << REPORT_DESIGNER_IMAGES_PATH << std::endl;
+    std::cout << "REPORT_DESIGNER_RESOURCES_PATH: " << REPORT_DESIGNER_RESOURCES_PATH << std::endl;
+    std::cout << "REPORT_DESIGNER_RESOURCES_PATH: " << REPORT_DESIGNER_RESOURCES_PATH << std::endl;
+    std::cout << "PROPERTYEDITOR_LIBS : " << PROPERTYEDITOR_LIBS << std::endl;
+    std::cout << "PROPERTYEDITOR_HEADERS_PATH: " << PROPERTYEDITOR_HEADERS_PATH << std::endl;
+    std::cout << "PROPERTYEDITOR_PLUGINS_PATH: " << PROPERTYEDITOR_PLUGINS_PATH << std::endl;
+}
+
+
 void Console::parseArguments(int argc, char *argv[])
 {
     int i=1;
@@ -249,6 +309,9 @@ void Console::parseArguments(int argc, char *argv[])
 
         if (arg == "--version" || arg == "-v") {
             printf("cutereport version: %s\n", REPORT_VERSION);
+            exit(0);
+        } else if (arg == "--init") {
+            reportInstallInit();
             exit(0);
         } else if (arg == "--help" || arg == "-h") {
             bool extendedHelp = false;
@@ -382,6 +445,9 @@ void Console::parseArguments(int argc, char *argv[])
                     exit(1);
                 }
             }
+        }  else if (arg == "--paths") {
+            reportInstallPathes();
+            exit(0);
         }
 
 

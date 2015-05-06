@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -22,7 +22,7 @@
 #define CONSOLE_H
 
 #include <QObject>
-#include "types.h"
+#include "cutereport_types.h"
 
 namespace CuteReport {
 class ReportCore;
@@ -50,6 +50,8 @@ private:
     QStringList modulesList(CuteReport::ModuleType type);
     QStringList moduleOptions(CuteReport::ModuleType type, const QString &moduleName);
     void showModuleHelp(CuteReport::ModuleType type, const QString &moduleName);
+    void reportInstallInit();
+    void reportInstallPathes();
 
     CuteReport::ReportCore * m_reportCore;
     QStringList m_inputFiles;

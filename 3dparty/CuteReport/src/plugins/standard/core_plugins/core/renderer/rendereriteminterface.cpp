@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -45,6 +45,8 @@
 
 using namespace CuteReport;
 
+SUIT_BEGIN_NAMESPACE
+
 RendererItemInterface::RendererItemInterface(RendererProcessor *parent) :
     RendererPublicInterface(parent),
     m_processor(parent)
@@ -55,15 +57,12 @@ RendererItemInterface::RendererItemInterface(RendererProcessor *parent) :
 void RendererItemInterface::setValue(const QString & valueName, const QVariant &value)
 {
     m_processor->setValue(valueName, value);
-//    m_processor->m_scriptEngine->globalObject().setProperty(valueName, m_processor->m_scriptEngine->newVariant(value));
 }
-
 
 
 QVariant RendererItemInterface::getValue(const QString & valueName)
 {
     return m_processor->getValue(valueName);
-//    return m_processor->m_scriptEngine->globalObject().property(valueName).toVariant();
 }
 
 
@@ -97,9 +96,21 @@ QRectF RendererItemInterface::pageFreeSpace()
 }
 
 
+void RendererItemInterface::setPageFreeSpace(const QRectF &rect)
+{
+    m_processor->m_freeSpace = rect;
+}
+
+
 QPointF RendererItemInterface::currentBandDelta()
 {
     return m_processor->m_bandDelta;
+}
+
+
+void RendererItemInterface::setCurrentBandDelta(const QPointF &point)
+{
+    m_processor->m_bandDelta = point;
 }
 
 
@@ -138,7 +149,7 @@ CuteReport::DatasetInterface * RendererItemInterface::dataset(const QString & da
 }
 
 
-void RendererItemInterface::registerEvaluationString(const QString &string, const QString &delimiterBegin, const QString &delimiterEnd, BaseItemInterface *item)
+void RendererItemInterface::registerEvaluationString(const QString & string, const QString & delimiterBegin, const QString & delimiterEnd, CuteReport::BaseItemInterface *item)
 {
     m_processor->registerEvaluationString(string, delimiterBegin, delimiterEnd, item);
 }
@@ -181,9 +192,14 @@ void RendererItemInterface::processBand(const QString & objectName)
 }
 
 
-void RendererItemInterface::createNewPage()
+void RendererItemInterface::newPage()
 {
     m_processor->createNewRenderingPage();
+}
+
+
+void RendererItemInterface::newColumnOrPage()
+{
 }
 
 
@@ -241,17 +257,29 @@ RenderedItemInterface * RendererItemInterface::lastProcessedItemPointer(const QS
             return rItem;
         list.append(i->childItems());
     }
-
-//    foreach (QGraphicsItem * grItem, list) {
-//        RenderedItemInterface * rItem = qgraphicsitem_cast<RenderedItemInterface *>(grItem);
-//        if (rItem && rItem->id() == id)
-//            return rItem;
-//    }
     return 0;
 }
 
 
-QString RendererItemInterface::moduleName()
+int RendererItemInterface::passNumber()
+{
+    return m_processor->m_passNumber;
+}
+
+
+int RendererItemInterface::passTotal()
+{
+    return m_processor->m_passesNeeded;
+}
+
+
+void RendererItemInterface::setPassTotal(int value)
+{
+    m_processor->m_passesNeeded = value;
+}
+
+
+QString RendererItemInterface::name()
 {
     return m_processor->m_data->renderer->moduleFullName();
 }
@@ -274,3 +302,4 @@ void RendererItemInterface::run()
 //    return m_processor->calculateAgregateFunction(functName, expression, previousValue)
 //}
 
+SUIT_END_NAMESPACE

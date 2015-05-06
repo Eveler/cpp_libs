@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -27,6 +27,7 @@
 
 #include <QDebug>
 #include <QMessageBox>
+#include <QToolButton>
 
 DatasetContainer::DatasetContainer(DatasetEditor * datasetEditor, QWidget *parent) :
     QWidget(parent),
@@ -34,9 +35,8 @@ DatasetContainer::DatasetContainer(DatasetEditor * datasetEditor, QWidget *paren
     m_datasetEditor(datasetEditor)
 {
     ui->setupUi(this);
-    ui->cbDatasets->clear();
 
-    connect(ui->cbDatasets, SIGNAL(activated(int)), this, SLOT(slotNewDataset(int)));
+    //connect(ui->cbDatasets, SIGNAL(activated(int)), this, SLOT(slotNewDataset(int)));
     connect(ui->pbDelete, SIGNAL(clicked()), this, SIGNAL(requestForDeleteDataset()));
     connect(ui->bProperties, SIGNAL(toggled(bool)), this, SLOT(slotPropertyButtonToggled(bool)));
     connect(ui->bTest, SIGNAL(clicked()), this, SLOT(populateClicked()));
@@ -84,10 +84,18 @@ void DatasetContainer::reloadSettings()
 }
 
 
-void DatasetContainer::addDatasetPlugins(QList<CuteReport::DatasetInterface*> datasets)
+void DatasetContainer::addDatasetPlugins(QList<CuteReport::ReportPluginInterface*> datasets)
 {
-    foreach(CuteReport::DatasetInterface * ds, datasets) {
-        ui->cbDatasets->addItem(ds->moduleFullName());
+    foreach(CuteReport::ReportPluginInterface * plugin, datasets) {
+        CuteReport::DatasetInterface * ds = static_cast<CuteReport::DatasetInterface *>(plugin);
+        QToolButton * b = new QToolButton(this);
+        b->setIcon(ds->icon());
+        b->setToolTip(QString("Add dataset: %1").arg(ds->moduleFullName()));
+        b->setIconSize(QSize(22,22));
+        b->setAutoRaise(true);
+        connect(b, SIGNAL(clicked()), this, SLOT(slotNewDatasetPressed()));
+        ui->datasetButtonsLayout->addWidget(b);
+        m_buttonModules.insert(b, ds->moduleFullName());
     }
 }
 
@@ -114,10 +122,11 @@ void DatasetContainer::deleteTab(QString name)
 }
 
 
-void DatasetContainer::slotNewDataset(int index)
+void DatasetContainer::slotNewDatasetPressed()
 {
-    Q_UNUSED(index)
-    emit requestForCreateDataset(ui->cbDatasets->currentText());
+    QWidget * w = qobject_cast<QWidget*>(sender());
+    if (m_buttonModules.contains(w))
+        emit requestForCreateDataset(m_buttonModules.value(w));
 }
 
 

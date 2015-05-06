@@ -25,3 +25,5 @@ lessThan(QT_MAJOR_VERSION, 5) {
 } else {
     QT += concurrent
 }
+
+#INSTALL_HEADERS.files = git.h

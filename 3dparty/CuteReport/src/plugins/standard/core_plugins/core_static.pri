@@ -22,7 +22,7 @@ LIBS += -lExportPDF
 
 LIBS += -lArc
 LIBS += -lBarcode
-LIBS += -lChart
+#LIBS += -lChart
 LIBS += -lChord
 LIBS += -lEllipse
 LIBS += -lImage

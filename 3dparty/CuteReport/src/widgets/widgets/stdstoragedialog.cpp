@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -34,6 +34,7 @@
 #include "reportinterface.h"
 
 #include <QFormBuilder>
+#include <QtDesigner>
 
 static const int fileType    = QTreeWidgetItem::Type + 1;
 static const int folderType  = QTreeWidgetItem::Type + 2;
@@ -41,6 +42,8 @@ static const int urlRole     = Qt::UserRole + 1;
 
 static const QString defaultTitle("Storage Dialog");
 static const QString filterAllFiles("All files (*.*)");
+
+inline void initResource() { Q_INIT_RESOURCE(stdstoragedialog); }
 
 namespace CuteReport {
 
@@ -75,8 +78,33 @@ StdStorageDialog::~StdStorageDialog()
 }
 
 
+void StdStorageDialog::setUrl(const QString &url)
+{
+    m_storage = m_reportCore->storageByUrl(url, m_report);
+
+    //QString storageName = url.contains(":") ? url.section(":", 0,0) : QString();
+    QString path = url.section(":",1,1);
+    QString currentDir;
+    QString currentFile;
+
+    if (!path.startsWith("/"))
+        path.prepend("/");
+
+    if (path.endsWith("/")) {         // url is dir
+        currentDir = m_currentPath;
+    } else {                          // url is file
+        currentDir = path.section("/", 0,-2);
+        currentFile = path.section("/", -1,-1);
+    }
+
+    m_proposedFileName = currentFile;
+    m_currentPath = currentDir;
+}
+
+
 void StdStorageDialog::initMe()
 {
+    initResource();
     ui->setupUi(this);
 
     ui->preview->setReportCore(m_reportCore);
@@ -101,13 +129,13 @@ void StdStorageDialog::initMe()
             ui->cbStorage->addItem(QString ("%1 (%2)").arg(storage->objectName(), storage->moduleFullName()), storage->objectName());
     }
 
-    foreach (StorageInterface * storage, m_reportCore->storageModules()) {
+    foreach (ReportPluginInterface * storage, m_reportCore->storageList()) {
         if (ui->cbStorage->findData(storage->objectName()) != -1)
             continue;
         ui->cbStorage->addItem(QString ("%1 (%2)").arg(storage->objectName(), storage->moduleFullName()), storage->objectName());
     }
 
-//    ui->cbFilter->addItem(filterAllFiles);
+    //    ui->cbFilter->addItem(filterAllFiles);
     ui->labelNameFilter->hide();
     ui->cbFilter->hide();
 
@@ -119,26 +147,24 @@ void StdStorageDialog::initMe()
     connect(ui->bRootDir, SIGNAL(clicked()), this, SLOT(toRootDir()));
     connect(ui->bUpDir, SIGNAL(clicked()), this, SLOT(dirUp()));
     connect(ui->cbStorage, SIGNAL(currentIndexChanged(int)), this, SLOT(currentStoragetIndexChanged(int)));
-    connect(ui->cbFilter, SIGNAL(currentIndexChanged(int)), this, SLOT(currentFultertIndexChanged(int)));
+    connect(ui->cbFilter, SIGNAL(currentIndexChanged(int)), this, SLOT(currentFiltertIndexChanged(int)));
     connect(ui->fileName, SIGNAL(textEdited(QString)), this, SLOT(filenameEdited(QString)));
     connect(ui->fileName, SIGNAL(cursorPositionChanged(int,int)), SLOT(filenameCursorPositionChanged(int,int)));
 
-
-    if (m_report)
-        m_storage = m_reportCore->getStorageByName("",m_report);
-    else
-        m_storage = m_reportCore->defaultStorage();
-    if (m_storage)
-        ui->cbStorage->setCurrentIndex( ui->cbStorage->findData(m_storage->objectName() ) );
+    if (!m_reportCore->defaultStorageName().isEmpty())
+        ui->cbStorage->setCurrentIndex( ui->cbStorage->findData(m_reportCore->defaultStorageName()) );
+    else {
+        currentStoragetIndexChanged(ui->cbStorage->currentIndex());
+    }
 }
 
 
 void StdStorageDialog::setCurrentStorage(const QString & storageName, bool exclusive)
 {
-//    if (m_report)
-        m_storage = m_reportCore->getStorageByName(storageName, m_report);
-//    else
-//        m_storage = m_reportCore->storageModule(moduleName);
+    //    if (m_report)
+    m_storage = m_reportCore->storage(storageName, m_report);
+    //    else
+    //        m_storage = m_reportCore->storageModule(moduleName);
 
     if (m_storage) {
         ui->cbStorage->setCurrentIndex( ui->cbStorage->findData(m_storage->objectName() ) );
@@ -180,24 +206,24 @@ void StdStorageDialog::setExtensionAutocomplete(bool b)
 }
 
 
-void StdStorageDialog::setUrlHint(const QString & urlHint)
-{
-    m_urlHints.clear();
-    m_urlHints.append(urlHint);
-}
+//void StdStorageDialog::setUrlHint(const QString & urlHint)
+//{
+//    m_urlHints.clear();
+//    m_urlHints.append(urlHint);
+//}
 
 
-void StdStorageDialog::setUrlHints(const QStringList & urlHints)
-{
-    m_urlHints = urlHints;
-}
+//void StdStorageDialog::setUrlHints(const QStringList & urlHints)
+//{
+//    m_urlHints = urlHints;
+//}
 
 
-void StdStorageDialog::setObjectHint(const QString & objectHint)
-{
-    m_objectHint = objectHint.section("/", -1, -1);
-    m_extensionAutocomplete = m_objectHint.section(".", -1, -1);
-}
+//void StdStorageDialog::setObjectHint(const QString & objectHint)
+//{
+//    m_objectHint = objectHint.section("/", -1, -1);
+//    m_extensionAutocomplete = m_objectHint.section(".", -1, -1);
+//}
 
 
 void StdStorageDialog::setNameFilters(const QStringList & nameFilters, bool addAllFilesOption)
@@ -260,16 +286,15 @@ QString StdStorageDialog::rootDir() const
 //}
 
 
-void StdStorageDialog::populate(const QString &_url, const QString &urlIfEmpyTryThis)
+bool StdStorageDialog::populate()
 {
     if (!m_storage)
-        return;
+        return false;
 
+    ui->list->blockSignals(true);
     ui->list->clear();
+    ui->list->blockSignals(false);
 
-    QString url = _url;
-
-    bool ok = true;
     static const QDir::Filters dirFilters = QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot;
     static const QDir::Filters fileFilters = QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot;
 
@@ -280,26 +305,28 @@ void StdStorageDialog::populate(const QString &_url, const QString &urlIfEmpyTry
             nameFilters << rx.cap(1);
     }
 
+    bool dirsOk = true;
+    bool filesOk = true;
+    QList<StorageObjectInfo> fileInfoList;
+    QString storageURL = m_storage->objectName() + ":" + m_currentPath;
     // dirs
-    QList<StorageObjectInfo> fileInfoList = m_storage->objectsList(url, QStringList(), dirFilters, QDir::Name, &ok);
-    if (!ok) {
-        url = urlIfEmpyTryThis;
-        fileInfoList = m_storage->objectsList(url, QStringList(), dirFilters, QDir::Name, &ok);
-    }
+    fileInfoList << m_storage->objectsList(storageURL, QStringList(), dirFilters, QDir::Name, &dirsOk);
 
     // files
-    if (ok)
-        fileInfoList << m_storage->objectsList(url, nameFilters, fileFilters, QDir::Name, &ok);
+    fileInfoList << m_storage->objectsList(storageURL, nameFilters, fileFilters, QDir::Name, &filesOk);
 
     QTreeWidgetItem * defaultObjectItem = 0;
     qint64 totalSize = 0;
     int totalDirs = 0;
     int totalFiles = 0;
     foreach(const StorageObjectInfo & info, fileInfoList) {
+
         QStringList fields;
         QString sizeStr;
-        int type = (info.type == FileDir) ? folderType : fileType;
+        int type = (info.type == FileDir || info.type == FileDrive) ? folderType : fileType;
 
+        if (info.type == FileDrive)
+            sizeStr = "<DISK>";
         if (info.type == FileDir)
             sizeStr = "<DIR>";
         else if (info.size > 1024000000)
@@ -311,10 +338,15 @@ void StdStorageDialog::populate(const QString &_url, const QString &urlIfEmpyTry
         else
             sizeStr =QString::number(info.size) + "B";
 
-        QUrl u (info.url);
-        QFileInfo i(u.path());
+        if (info.type != FileDir && info.type != FileDrive) {
+            QUrl u (info.url);
+            QFileInfo i(u.path());
+            fields << i.baseName() << i.completeSuffix() << sizeStr;
+        } else {
+            fields << info.name << "" << sizeStr;
+        }
 
-        fields << i.baseName() << i.completeSuffix() << sizeStr;
+
 
         QTreeWidgetItem * objectItem = new QTreeWidgetItem(ui->list, fields, type );
         static const QIcon folderIcon(":folder-blue.png");
@@ -323,7 +355,7 @@ void StdStorageDialog::populate(const QString &_url, const QString &urlIfEmpyTry
         objectItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable /*| Qt::ItemIsEditable*/);
         objectItem->setData(0, urlRole, info.url);
 
-        if (i.fileName() == m_objectHint)
+        if (info.name == m_proposedFileName)
             defaultObjectItem = objectItem;
 
         totalSize += info.size;
@@ -334,20 +366,16 @@ void StdStorageDialog::populate(const QString &_url, const QString &urlIfEmpyTry
     }
 
 
-    m_previousUrl = m_currentUrl;
-    m_currentUrl = url;
-
-    QUrl curUrl(m_currentUrl);
+    //QUrl curUrl(m_currentUrl);
 
     ui->dirInfo->setText(QString("%1 files / %2 dir(s)").arg(totalFiles).arg(totalDirs));
-    ui->currentDir->setText(curUrl.path());
-//    if (ui->currentDir->text().isEmpty())  # no need to do this since it translated to wron path then
-//        ui->currentDir->setText("/");
+    ui->currentDir->setText(m_currentPath);
+
     ui->preview->clear();
     if (!m_currentFileNameIsManuallyEntered)
         ui->fileName->clear();
 
-    if (url == m_storage->rootUrl()) {
+    if (m_currentPath == m_storage->rootUrl()) {
         ui->bUpDir->setEnabled(false);
         ui->bRootDir->setEnabled(false);
     } else {
@@ -356,12 +384,125 @@ void StdStorageDialog::populate(const QString &_url, const QString &urlIfEmpyTry
     }
 
     if (defaultObjectItem) {
+        ui->list->blockSignals(true);
         ui->list->setCurrentItem(defaultObjectItem);
+        ui->list->blockSignals(false);
         currentItemChanged(defaultObjectItem, 0);
     }
 
     m_formPixmapCache.clear();
+
+    return filesOk && dirsOk;
 }
+
+
+//void StdStorageDialog::populate(const QString &_url, const QString &urlIfEmpyTryThis)
+//{
+//    if (!m_storage)
+//        return;
+
+//    ui->list->clear();
+
+//    QString url = _url.section(":",1,1);
+//    if (!url.startsWith("/"))
+//        url.prepend("/");
+
+//    QFileInfo urlInfo(url);
+//    url = urlInfo.absolutePath();
+
+//    bool ok = true;
+//    static const QDir::Filters dirFilters = QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot;
+//    static const QDir::Filters fileFilters = QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot;
+
+//    QStringList nameFilters;
+//    if (ui->cbFilter->currentIndex() > (m_useAllFilesFilter ? 0 : -1) ) {
+//        QRegExp rx("\\((.*)\\)");
+//        if (rx.indexIn(ui->cbFilter->currentText()) != -1)
+//            nameFilters << rx.cap(1);
+//    }
+
+//    // dirs
+//    QList<StorageObjectInfo> fileInfoList = m_storage->objectsList(url, QStringList(), dirFilters, QDir::Name, &ok);
+//    if (!ok) {
+//        url = urlIfEmpyTryThis;
+//        fileInfoList = m_storage->objectsList(url, QStringList(), dirFilters, QDir::Name, &ok);
+//    }
+
+//    // files
+//    if (ok)
+//        fileInfoList << m_storage->objectsList(url, nameFilters, fileFilters, QDir::Name, &ok);
+
+//    QTreeWidgetItem * defaultObjectItem = 0;
+//    qint64 totalSize = 0;
+//    int totalDirs = 0;
+//    int totalFiles = 0;
+//    foreach(const StorageObjectInfo & info, fileInfoList) {
+//        QStringList fields;
+//        QString sizeStr;
+//        int type = (info.type == FileDir) ? folderType : fileType;
+
+//        if (info.type == FileDir)
+//            sizeStr = "<DIR>";
+//        else if (info.size > 1024000000)
+//            sizeStr = QString::number(info.size/1024000000) + "Tb";
+//        else if (info.size > 1024000)
+//            sizeStr = QString::number(info.size/1024000) + "Mb";
+//        else if (info.size > 1024)
+//            sizeStr = QString::number(info.size/1024) + "Kb";
+//        else
+//            sizeStr =QString::number(info.size) + "B";
+
+//        QUrl u (info.url);
+//        QFileInfo i(u.path());
+
+//        fields << i.baseName() << i.completeSuffix() << sizeStr;
+
+//        QTreeWidgetItem * objectItem = new QTreeWidgetItem(ui->list, fields, type );
+//        static const QIcon folderIcon(":folder-blue.png");
+//        static const QIcon fileIcon(":page-simple.png");
+//        objectItem->setIcon(0, type == folderType ? folderIcon : fileIcon);
+//        objectItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable /*| Qt::ItemIsEditable*/);
+//        objectItem->setData(0, urlRole, info.url);
+
+//        if (i.fileName() == m_objectHint)
+//            defaultObjectItem = objectItem;
+
+//        totalSize += info.size;
+//        if (type == folderType)
+//            ++totalDirs;
+//        else if (type == fileType)
+//            ++totalFiles;
+//    }
+
+
+//    m_previousUrl = m_currentUrl;
+//    m_currentUrl = url;
+
+//    QUrl curUrl(m_currentUrl);
+
+//    ui->dirInfo->setText(QString("%1 files / %2 dir(s)").arg(totalFiles).arg(totalDirs));
+//    ui->currentDir->setText(curUrl.path());
+//    //    if (ui->currentDir->text().isEmpty())  # no need to do this since it translated to wron path then
+//    //        ui->currentDir->setText("/");
+//    ui->preview->clear();
+//    if (!m_currentFileNameIsManuallyEntered)
+//        ui->fileName->clear();
+
+//    if (url == m_storage->rootUrl()) {
+//        ui->bUpDir->setEnabled(false);
+//        ui->bRootDir->setEnabled(false);
+//    } else {
+//        ui->bUpDir->setEnabled(true);
+//        ui->bRootDir->setEnabled(true);
+//    }
+
+//    if (defaultObjectItem) {
+//        ui->list->setCurrentItem(defaultObjectItem);
+//        currentItemChanged(defaultObjectItem, 0);
+//    }
+
+//    m_formPixmapCache.clear();
+//}
 
 
 void StdStorageDialog::currentItemChanged ( QTreeWidgetItem * current, QTreeWidgetItem * previous )
@@ -378,7 +519,7 @@ void StdStorageDialog::currentItemChanged ( QTreeWidgetItem * current, QTreeWidg
         if (ext == "qtrp")
             ui->preview->setReport(currentObjectUrl());
         else if (ext == "jpg" || ext == "jpeg" || ext == "png")
-            ui->preview->setImage(QImage::fromData(m_storage->loadObject(currentObjectUrl()).toByteArray()));
+            ui->preview->setImage(QImage::fromData(m_storage->loadObject(currentObjectUrl())));
         else if (ext == "ui")
             ui->preview->setImage(formPreviewPixmap(current));
         else
@@ -390,24 +531,25 @@ void StdStorageDialog::currentItemChanged ( QTreeWidgetItem * current, QTreeWidg
 void StdStorageDialog::currentStoragetIndexChanged(int index)
 {
     Q_UNUSED(index);
-    m_storage = m_reportCore->getStorageByName(ui->cbStorage->itemData(ui->cbStorage->currentIndex()).toString(), m_report);
-    populate(m_currentUrl);
+    m_storage = m_reportCore->storage(ui->cbStorage->itemData(ui->cbStorage->currentIndex()).toString(), m_report);
+    m_currentPath = "/";
+    populate();
 }
 
 
-void StdStorageDialog::currentFultertIndexChanged(int index)
+void StdStorageDialog::currentFiltertIndexChanged(int index)
 {
     Q_UNUSED(index);
     //is objectHint is set, we use its extension enstead of filter;
-    if (m_objectHint.isEmpty()) {
-        if (ui->cbFilter->currentIndex() > (m_useAllFilesFilter ? 0 : -1) ) {
-            QRegExp rx("\\((.*)\\)");
-            if (rx.indexIn(ui->cbFilter->currentText()) != -1)
-                m_extensionAutocomplete = rx.cap(1).section(".", 1, 1);
-        }
-    }
+//    if (m_objectHint.isEmpty()) {
+//        if (ui->cbFilter->currentIndex() > (m_useAllFilesFilter ? 0 : -1) ) {
+//            QRegExp rx("\\((.*)\\)");
+//            if (rx.indexIn(ui->cbFilter->currentText()) != -1)
+//                m_extensionAutocomplete = rx.cap(1).section(".", 1, 1);
+//        }
+//    }
 
-    populate(m_currentUrl);
+    populate();
 }
 
 
@@ -433,7 +575,10 @@ void StdStorageDialog::itemActivated (QTreeWidgetItem * item, int column )
         return;
 
     if (item->type() == folderType) {
-        populate(item->data(0, urlRole).toString());
+        m_currentPath = item->data(0, urlRole).toString().section(":",1,1);
+        if (!m_currentPath.startsWith("/"))
+            m_currentPath.prepend("/");
+        populate();
     }
 }
 
@@ -442,7 +587,9 @@ void StdStorageDialog::toRootDir()
 {
     if (!m_storage)
         return;
-    populate(m_storage->rootUrl());
+//    m_currentPath = m_storage->rootUrl();
+    m_currentPath = "/";
+    populate();
 }
 
 
@@ -450,24 +597,32 @@ void StdStorageDialog::dirUp()
 {
     if (ui->currentDir->text().isEmpty())
         return;
-    QString currDir = ui->currentDir->text();
-    currDir = currDir.section("/", 0, -2);
 
-    populate(currDir);
+    m_currentPath = m_currentPath.section("/", 0, -2) + "/";
+//    QString currDir = ui->currentDir->text();
+//    currDir = currDir.section("/", 0, -2);
+
+    populate();
 }
 
 
 QString StdStorageDialog::currentFolderUrl() const
 {
-    return m_currentUrl;
+    return m_currentPath;
 }
 
 
 QString StdStorageDialog::currentObjectUrl() const
 {
-    QUrl curUrl(m_currentUrl);
-    QString path = curUrl.path();
-    return m_currentUrl + (path.isEmpty() ? "" : "/") + ui->fileName->text();
+    if (!m_storage)
+        return QString();
+
+    QString storageUrl = m_storage->objectName() + ":" + m_currentPath + "/" + ui->fileName->text();
+    storageUrl.replace(QRegExp("/{2,}"), "/");
+//    QUrl curUrl(storageUrl);
+//    QString path = curUrl.path();
+//    return m_currentPath + (path.isEmpty() ? "" : "/") + ui->fileName->text();
+    return storageUrl;
 }
 
 
@@ -485,7 +640,7 @@ QPixmap StdStorageDialog::formPreviewPixmap(const QTreeWidgetItem *item)
     if (it == m_formPixmapCache.end()) {
         QFormBuilder builder;
         QWidget *widget;
-        QByteArray ba = m_storage->loadObject(currentObjectUrl()).toByteArray();
+        QByteArray ba = m_storage->loadObject(currentObjectUrl());
         QBuffer buffer(&ba);
         buffer.open(QFile::ReadOnly);
         widget = builder.load(&buffer, this);
@@ -580,10 +735,10 @@ void StdStorageDialog::filenameEdited(const QString & filename)
         return;
 
     /// FIXME: show extension hint
-//    if (!m_extensionAutocomplete.isEmpty()) {
-//        ui->fileName->setText(filename + "." + m_extensionAutocomplete);
-//        ui->fileName->setSelection(ui->fileName->text().length(), -m_extensionAutocomplete.length() -1);
-//    }
+    //    if (!m_extensionAutocomplete.isEmpty()) {
+    //        ui->fileName->setText(filename + "." + m_extensionAutocomplete);
+    //        ui->fileName->setSelection(ui->fileName->text().length(), -m_extensionAutocomplete.length() -1);
+    //    }
 }
 
 
@@ -591,24 +746,34 @@ void StdStorageDialog::filenameCursorPositionChanged(int oldPos, int newPos)
 {
     Q_UNUSED(oldPos)
     Q_UNUSED(newPos)
-//    if (!m_extensionAutocomplete.isEmpty() && ui->fileName->text().endsWith(m_extensionAutocomplete)) {
-//        ui->fileName->setText(filename + "." + m_extensionAutocomplete);
-//        ui->fileName->setSelection(ui->fileName->text().length(), -m_extensionAutocomplete.length() -1);
-//    }
+    //    if (!m_extensionAutocomplete.isEmpty() && ui->fileName->text().endsWith(m_extensionAutocomplete)) {
+    //        ui->fileName->setText(filename + "." + m_extensionAutocomplete);
+    //        ui->fileName->setSelection(ui->fileName->text().length(), -m_extensionAutocomplete.length() -1);
+    //    }
 }
 
 
 void StdStorageDialog::showEvent ( QShowEvent * event )
 {
-    if (m_storage) {
-        QString hint;
-        foreach (const QString & str, m_urlHints) {
-            hint = m_storage->urlHint(str);
-            if (!hint.isEmpty())
-                break;
-        }
-        populate(hint.isEmpty() ? m_storage->rootUrl() : hint, hint.isEmpty() ? "" : m_storage->rootUrl() );
-    }
+    if (!m_storage)
+        m_storage = m_reportCore->storage(ui->cbStorage->itemData(0).toString(), m_report);
+
+
+//    if (m_storage) {
+//        if (!m_currentUrl.isEmpty()) {
+//            populate();
+//        } else {
+//            QString hint;
+//            foreach (const QString & str, m_urlHints) {
+//                hint = m_storage->urlHint(str);
+//                if (!hint.isEmpty())
+//                    break;
+//            }
+//            populate(hint.isEmpty() ? m_storage->rootUrl() : hint, hint.isEmpty() ? "" : m_storage->rootUrl() );
+//        }
+//    }
+    populate();
+
     QDialog::showEvent(event);
 }
 

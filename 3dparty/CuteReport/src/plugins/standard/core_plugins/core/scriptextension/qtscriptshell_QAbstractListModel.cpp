@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -148,6 +148,7 @@ QVariant  QtScriptShell_QAbstractListModel::data(const QModelIndex&  index, int 
             << qScriptValueFromValue(_q_engine, index)
             << qScriptValueFromValue(_q_engine, role)));
     }
+    return QVariant();
 }
 
 bool  QtScriptShell_QAbstractListModel::dropMimeData(const QMimeData*  data, Qt::DropAction  action, int  row, int  column, const QModelIndex&  parent)
@@ -401,6 +402,7 @@ int  QtScriptShell_QAbstractListModel::rowCount(const QModelIndex&  parent) cons
             QScriptValueList()
             << qScriptValueFromValue(_q_engine, parent)));
     }
+    return 0;
 }
 
 bool  QtScriptShell_QAbstractListModel::setData(const QModelIndex&  index, const QVariant&  value, int  role)

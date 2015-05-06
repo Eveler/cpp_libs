@@ -18,3 +18,5 @@ FORMS += \
 
 RESOURCES += \
     filesystem.qrc
+
+#INSTALL_HEADERS.files = filesystem.h

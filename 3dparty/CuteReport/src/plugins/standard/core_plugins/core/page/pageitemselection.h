@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -89,7 +89,7 @@ private:
     ItemSelection *m_sel;
     QRectF m_geom, m_origGeom;
     bool m_active;
-    bool m_useMagnets;
+//    bool m_useMagnets;
     QList<CuteReport::BaseItemInterface*> m_checkingItems;
 };
 
@@ -106,6 +106,11 @@ public:
     PageGUI * pageGUI() {return m_pageGui;}
 
     QRectF boundingRect () const;
+
+    QPointF alignedPoint(const QPointF delta, const QPointF origPoint, const QList<CuteReport::BaseItemInterface *> &checkingItems, QList<QPointF> pointsList = QList<QPointF>());
+
+signals:
+    void itemClicked(CuteReport::BaseItemInterface * item, QGraphicsSceneMouseEvent *);
 
 public slots:
     void updateActive();

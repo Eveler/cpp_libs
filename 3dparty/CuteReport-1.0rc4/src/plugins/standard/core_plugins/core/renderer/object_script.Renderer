@@ -1,0 +1,13 @@
+INPUT(
+./renderer.o
+./rendereriteminterface.o
+./rendererprocessor.o
+./rendererdata.o
+./aggregatefunctions.o
+./scriptengine.o
+./preparser.o
+./moc_renderer.o
+./moc_rendereriteminterface.o
+./moc_rendererprocessor.o
+./moc_scriptengine.o
+);

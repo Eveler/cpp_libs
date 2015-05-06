@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -30,8 +30,8 @@
 #ifndef BANDINTERFACEPRIVATE_H
 #define BANDINTERFACEPRIVATE_H
 
-#include "globals.h"
-#include "types.h"
+#include "cutereport_globals.h"
+#include "cutereport_types.h"
 #include "iteminterface_p.h"
 
 namespace CuteReport
@@ -54,7 +54,8 @@ public:
           stretchable(p.stretchable),
           stretchOriginalSize(p.stretchOriginalSize),
           stretched(p.stretched),
-          showStretchability(p.showStretchability)
+          showStretchability(p.showStretchability),
+          font(p.font)
     {}
 
     Margins margins;
@@ -62,6 +63,7 @@ public:
     QSizeF stretchOriginalSize;
     bool stretched;
     bool showStretchability;
+    QFont font;
 };
 
 CUTEREPORT_EXPORTS QDataStream &operator<<(QDataStream &s, const BandInterfacePrivate &p);

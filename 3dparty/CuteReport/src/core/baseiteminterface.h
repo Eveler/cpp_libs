@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -36,11 +36,12 @@
 #include <QPen>
 #include <QWidget>
 #include <QPolygonF>
+#include <QIcon>
 
 #include "reportplugininterface.h"
-#include "types.h"
-#include "functions.h"
-#include "globals.h"
+#include "cutereport_types.h"
+#include "cutereport_functions.h"
+#include "cutereport_globals.h"
 
 #define ITEMVIEWTYPE QGraphicsItem::UserType + 101
 
@@ -67,26 +68,32 @@ class CUTEREPORT_EXPORTS BaseItemInterface : public ReportPluginInterface
 
     Q_FLAGS(Frame Frames)
     Q_ENUMS(Frame ResizeFlags)
+    Q_ENUMS(BorderType)
 
     Q_PROPERTY(bool enabled READ enabled WRITE setEnabled NOTIFY enabledChanged)
     Q_PROPERTY(QRectF geometry READ geometry WRITE setGeometry NOTIFY geometryChanged)
-    Q_PROPERTY(QRectF boundingRect READ boundingRect NOTIFY boundingRectChanged)
+    Q_PROPERTY(QRectF boundingRect READ boundingRect NOTIFY boundingRectChanged) //if rotated
     Q_PROPERTY(Frames frame READ frame WRITE setFrame NOTIFY frameChanged)
     Q_PROPERTY(qreal opacity READ opacity WRITE setOpacity NOTIFY opacityChanged)
     Q_PROPERTY(qreal rotation READ rotation WRITE setRotation NOTIFY rotationChanged)
     Q_PROPERTY(QPen borderPen READ borderPen WRITE setBorderPen NOTIFY borderPenChanged)
+    Q_PROPERTY(QString borderType READ borderTypeStr WRITE setBorderTypeStr NOTIFY borderTypeChanged)
     Q_PROPERTY(QBrush backgroundBrush READ backgroundBrush WRITE setBackgroundBrush NOTIFY backgroundBrushChanged)
     Q_PROPERTY(int order READ order WRITE setOrder NOTIFY orderChanged)
+
+    Q_PROPERTY(BorderType borderType READ borderType WRITE setBorderType NOTIFY borderTypeChanged DESIGNABLE false)
+    Q_PROPERTY(QStringList _borderType_variants READ _borderType_variants DESIGNABLE false)
 
     Q_PROPERTY(int _current_property READ _currentProperty WRITE _setCurrentProperty DESIGNABLE false)
     Q_PROPERTY(QString _current_property_description READ _current_property_description DESIGNABLE false)
     Q_PROPERTY(int _current_property_precision READ _current_property_precision DESIGNABLE false)
+    Q_PROPERTY(QIcon _icon READ itemIcon DESIGNABLE false)
 
 public:
-    enum Frame {DrawLeft = 1, /**< Draw left frame*/
-                DrawRight = 2, /**< Draw right frame*/
-                DrawTop = 4, /**< Draw top frame*/
-                DrawBottom = 8 /**< Draw bottom frame*/
+    enum Frame {DrawLeft = CuteReport::DrawLeft, /**< Draw left frame*/
+                DrawRight = CuteReport::DrawRight, /**< Draw right frame*/
+                DrawTop = CuteReport::DrawTop, /**< Draw top frame*/
+                DrawBottom = CuteReport::DrawBottom /**< Draw bottom frame*/
                };
     Q_DECLARE_FLAGS(Frames, Frame)
 
@@ -97,6 +104,8 @@ public:
                       ResizeBottom = 8, /**< Item can be resized to bottom*/
                       FixedPos = 16 /**< Item cant be moved*/
                      };
+
+    enum BorderType { Middle = 0, Inner = 1, Outer = 2 };
 
     explicit BaseItemInterface(QObject * parent);
     virtual ~BaseItemInterface();
@@ -163,9 +172,9 @@ public:
     virtual bool renderEnd();
 
     /** method called before items on the same level (have the same parent) will be rendered */
-    virtual void beforeSiblingsRendering() {}
+    virtual void beforeSiblingsRendering(QList<BaseItemInterface*> siblings) {Q_UNUSED(siblings);}
     /** method called after items on the same level (have the same parent) have rendered */
-    virtual void afterSiblingsRendering() {}
+    virtual void afterSiblingsRendering(QList<BaseItemInterface*> siblings) {Q_UNUSED(siblings);}
 
     /** item provides its own geometry logic so renderer will net change it */
     virtual bool selfRendering();
@@ -202,6 +211,11 @@ public:
     virtual QBrush backgroundBrush() const;
     virtual void setBackgroundBrush(const QBrush & brush);
 
+    virtual BorderType borderType() const;
+    virtual void setBorderType(BaseItemInterface::BorderType borderType);
+    virtual QString borderTypeStr() const;
+    virtual void setBorderTypeStr(const QString & borderType);
+
     int resizeFlags() const;
 
     virtual bool enabled() const;
@@ -220,6 +234,8 @@ public:
     // common painter
     static void paintBegin(QPainter * painter, const QStyleOptionGraphicsItem *option, const BaseItemInterfacePrivate * data, const QRectF &boundingRect = QRectF(), RenderingType type = RenderingTemplate);
     static void paintEnd(QPainter * painter, const QStyleOptionGraphicsItem *option, const BaseItemInterfacePrivate * data, const QRectF &boundingRect = QRectF(), RenderingType type = RenderingTemplate);
+    static QRect paintArea(QPainter * painter, const QStyleOptionGraphicsItem *option, const BaseItemInterfacePrivate * data, const QRectF &boundingRect = QRectF(),
+                           RenderingType type = RenderingTemplate, bool ignoreBorderWidth = true);
 
     virtual QTransform transform() const;
 
@@ -244,6 +260,13 @@ public:
     static QTransform transform(const BaseItemInterfacePrivate *d);
     static QPointF transformedPos(const BaseItemInterfacePrivate *d, const QRectF &rect);
 
+    static BorderType borderTypeFromString(const QString & bType);
+    static QString borderTypeToString(BorderType bType);
+
+    virtual StdEditorPropertyList stdEditorList() const;
+
+    QStringList _borderType_variants();
+
     virtual void _setCurrentProperty(int num) {m_currentProperty = num;}
     virtual int _currentProperty() { return m_currentProperty;}
     virtual QString _current_property_description() const;
@@ -263,6 +286,9 @@ signals:
     void orderChanged(int);
     void parentItemChanged(CuteReport::BaseItemInterface * parent);
     void scriptingStringsChanged();
+    void stdEditorListChanded(StdEditorPropertyList);
+    void borderTypeChanged(BorderType);
+    void borderTypeChanged(QString);
 
     /** signal emited when renderInit() method is called */
     void printInit();
@@ -342,5 +368,6 @@ Q_DECLARE_INTERFACE(CuteReport::BaseItemInterface, "CuteReport.BaseItemInterface
 Q_DECLARE_METATYPE(CuteReport::BaseItemInterface*)
 Q_DECLARE_METATYPE(CuteReport::BaseItemInterface::Frame)
 Q_DECLARE_METATYPE(CuteReport::BaseItemInterface::ResizeFlags)
+Q_DECLARE_METATYPE(CuteReport::BaseItemInterface::BorderType)
 
 #endif // BASEITEMINTERFACE_H

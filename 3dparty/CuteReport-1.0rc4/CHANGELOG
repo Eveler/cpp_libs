@@ -1,0 +1,201 @@
+1.0rc4
+- objectInspector icons added;
+- global variables implemented: LINE, PAGE, PAGES, TPAGE, TPAGES
+  (Warning!!! for previous version users: replace _line, _page, etc with the new variable style)
+- page signals fixed;
+- Barcode item rendering fixed;
+- script engine improvements;
+- PageEditor now has some new widgets: FontEditor, AlignmentEditor, FrameEditor
+- page sorting fixed;
+- automatic dataset populating;
+- renderer fixes;
+- Mainwindow log widget does not show internal Qt messages anymore;
+- Script "print" function reimplemented to send log message;
+- Script runtime error handler has added;
+- CSV dataset fixes;
+- renderer is exposed to script as "engine" instead of "renderer";
+- report examples have been udated;
+- multiple settings of printers and renderers are possible now
+- Options dialog improved
+- Memo stretchMode maxHeight implementedж
+- SQL Storage: settings validation before object loading (Volkov Ivan)
+- "Save file" on exit dialog fixed;
+- Image item preview of picture stored in Resource storage implemented;
+- Default tab mode for most designer editors is set to vertical small
+- Extended Memo: helper initial focus fixes;
+- Multi-object selection has been fixed;
+- Multi-object property changing has been added;
+- Memo item: textMargin now support vertical and horizontal margin value
+- Pen join style by default is Miter
+- CSV dataset fix: determine fields in format data."0" if CVS has no header line
+- Copy/Paste functionality is added
+- Item border types (Middle, Outer, Inner) has been implemented to support some border drawing types
+- Resource storage fix to correct support sqlite databases
+- Report load dialog line thickness has been fixed
+- printer Landscape fix (SF #23)
+
+1.0rc3
+- Memo stretchability fixed;
+- Page selection magnets and drid precission fixed;
+- static build scenario implemented;
+- Memo text editor formatting added (thanks to Volkov Ivan)
+- saving reports on exit
+
+v1.0rc2
+- page zooming by CTRL+mouse wheel added (thanks to Volkov Ivan);
+- SQLStorage implemented (thanks to Volkov Ivan);
+- ModelDataset implemented (thanks to Volkov Ivan);
+- report core setting save method improved
+- dataset interface improvements and fixes;
+- items rotation implemented;
+- Image item properties improved (not compatible with old version)
+- Memo item text aligning fixes;
+- Rendering big improvement to better support scripting
+- documentation added;
+
+
+v1.0rc1
+- code cleaned up;
+- Qt5 graphics gaps fixed;
+- report examples improved;
+- page item selections improved;
+- Disigner: settings for primary Renderer added;
+- XML serializer pen::brush::style data loosing fixed
+- Memo, Image items fixes;
+- status bar mouse position improved;
+- page border appearance fixed when Inches selected;
+- ImageItem checking for global variables fixed;
+- MemoItem property "stretchMode" now works properly;
+- status bar constantly frame changing while cursor moving is fixed;
+
+v1.0 extended
+- Page rulers implemented;
+- automatic multi-pass added to renderer;
+- RendererExt can export function info model to use in ExpressionEditor;
+- format tags implemented [value #tag%options]
+- Memo item feature: database field drop-down list selector;
+- text flow using new Memo feature "flowTo"
+- Undo_Redo (experimental)
+- ExpressionEditor with Variables and Functions
+- Extended::renderer page column processing
+
+v1.0beta2
+- qt5 port
+- ReportPreview default values fixed;
+
+v1.0beta1
+- XML serialiser has been improved to support some properties with the same name;
+- missed items' property descriptions has benn added;
+- fixed bug with item selecting;
+- ReportEditor: "save report" and "save report as" work properly now;
+- PageEditor actions has been added to main menu;
+- Import interface has been added to support import reports from other report solutions;
+- All datasets are improved to support global report variables in most text properties;
+
+v0.9.1
+- Item's properties refactores for good view in propertyEditor
+- windows compilation issues fixed;
+
+v0.9
+- console application added;
+- Barcode item: now it can use any scriptable info as data; background fixed;
+- Page: margins fixed;
+- Designer: Items outline added
+- Memo features added: textMargin, stretchMode, allowHTML
+- Band: "stretchable" feature implemented;
+- Renderer refactored for multithreading support
+- FileSystemDataset improved with supporting filters, file types, recursive scan, max files counter;
+- multithreaded batch processing implemented;
+- ImageItem improved for support data sources: Dataset, Script, Static
+- SQLDataset can use global variables that can be passed by custom application
+- FormEditor excluded from installation for a while because of highly unstability;
+- Scripting improved: all items and bands are exported to script engine now and can be scripted
+- Memo property description added;
+
+v0.8
+- Preview widget improved for support some options
+- choosing storage type added to StorageDialog for using in custom applications
+- Page background color added;
+- a lot of look & feel improvements
+- Page: inch predefined formats recognition fixed;
+- Support for aggregate functions improved, unction result value precision has been added
+- renaming object by double click to tabBar implemented for DatasetEditor, PageEditor, ReportEditor
+- Designer::ReportEditor will switch to already opened report if it's open and user try to load it again
+- when save report dialog highlights current file name if exists;
+- PageInterface, ItemInterface meassure unit fixes and improvements;
+- Page: error saving with meassure unit different from mm fixed
+- Saving files issue has fixed;
+- ReportCore refactoring
+- error notification improved: animated button in status bar wih ability to see all messages in press
+- StrStorageDialog fixes;
+- support of global report variables added (can be set by custom application);
+- report dirtiness flag implemented
+- confirmation dialog while report closing added;
+- SQL dataset fixes;
+- appearence of items toolBox fixed;
+- if appropriate plugin not found while report loading, dummy item or dummy band will be shown and report set to invalid state.
+    Invalid report template can be viewed, but cannot be rendered;
+- Export: plugin interface implemented, PDF plugin has added, Designer Preview now has button "export";
+
+- StorageDialog file extension autocomplete implemented
+- Memo Item: simple helper;
+
+
+v0.7
+- fixed bug with tab panel if "icon" tab style choosen;
+- CuteReport Designer messages implemented;
+- Overlay Band has been added. It can be used for foreground (order>0), background (order <0 ), watermarks.
+- StorageInterface improved and simplified;
+- StorageDialog supposts preview for forms, images, reports;
+- FormEditor form loading improved;
+- Page: bringForward, bringBackward buttons added;
+- item geometry information added to status bar;
+- item placing logic fixed: items can't be placed outside bands, band can't be placed on item,
+    only LayoutFree bands can be placed outside page borders.
+- bug connecting to remote database fixed;
+- WaterMark example added;
+- FormEditor template loading fixed;
+- ResourceStorage some improvements
+
+v0.6
+- bands property description added;
+- GIT storage plugin added. It can be synced at options dialog now;
+- Resource storage added for keep embedded object;
+- Reports and objects preview widget added;
+- widget for represent rendered pages added;
+- report's private storages implemented. Now it's possible to keep storage settings direct inside report
+- for Designer's ReportPropertyEditor storage helpers implemented;
+- internal: Log interface changes
+- internal: metric messages added;
+
+v0.5
+- ReportCore log messages improved;
+- Propertyeditor: property description support implemented;
+- Std Page and ItemInterface: description for all properties have been added;
+- New datasets implemented: CSV, FileSystem;
+- Page meassure fixed: millimeters and inches are supported;
+- propertyEditor property variants and exclude list implemented;
+- Item and Page interfaces are cleaned up;
+- botton icons added;
+- fixed issue with band geometry change while page geometry changing;
+- fixed issue with hiding main menu in Designer UIEditor;
+- context menu appears only when user presses on tab, not entire page;
+- a lot of other bug fixed;
+
+v0.4
+- log system
+- items added: line, rectangle, ellipse, arc, chord, pie, barcode, chart
+- bug with item reparenting fixed;
+- windows compilation fixes;
+
+
+v0.3
+- item geometry adjusting added: ajustment value keep in Page::currentUnit property;
+- magnets added
+- moving by arrow keys added;
+- memo item stretchFont feature added;
+- detailHeader, detailFooter band added
+- aggregate functions added;
+- UI editor improved
+- some examples added
+

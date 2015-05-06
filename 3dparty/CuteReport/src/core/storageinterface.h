@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -32,8 +32,8 @@
 
 #include "reportcore.h"
 #include "reportplugininterface.h"
-#include "globals.h"
-#include "types.h"
+#include "cutereport_globals.h"
+#include "cutereport_types.h"
 #include <QString>
 #include <QWidget>
 
@@ -80,8 +80,8 @@ public:
 
     virtual QString localCachedFileName(const QString & url) = 0;
 
-    virtual bool saveObject(const QString & url, const QVariant & objectData) = 0;
-    virtual QVariant loadObject(const QString & url) = 0;
+    virtual bool saveObject(const QString & url, const QByteArray & objectData) = 0;
+    virtual QByteArray loadObject(const QString & url) = 0;
 
     /** must return ok false if path doesnt exist */
     virtual QList<StorageObjectInfo> objectsList(const QString & url, bool * ok = 0) = 0;

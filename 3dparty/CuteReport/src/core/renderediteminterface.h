@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -31,8 +31,8 @@
 #define RENDEREDITEMINTERFACE_H
 
 #include <QGraphicsRectItem>
-#include "globals.h"
-#include "types.h"
+#include "cutereport_globals.h"
+#include "cutereport_types.h"
 
 //static int RenderedItemInterfaceType = QGraphicsItem::UserType + 17778;
 
@@ -68,6 +68,8 @@ public:
 
     virtual int dpi();
     virtual void setDpi(int dpi, bool withChildren = true);
+
+    virtual QRectF boundingRect() const;
 
     int type() const { return Type; }
 

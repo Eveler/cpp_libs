@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -30,7 +30,7 @@
 #include "sqldataset.h"
 #include "sqldatasethelper.h"
 #include "reportcore.h"
-#include "functions.h"
+#include "cutereport_functions.h"
 
 #include <QSqlDatabase>
 
@@ -66,7 +66,7 @@ SqlDataset::SqlDataset(const SqlDataset &dd, QObject * parent)
     m_fmodel->setSourceModel(m_model);
     if (dd.m_isPopulated) {
         populate();
-        setCurrentRow(dd.m_currentRow);
+        setCurrentRowNumber(dd.m_currentRow);
     }
 }
 
@@ -105,7 +105,7 @@ DatasetHelperInterface * SqlDataset::helper()
 }
 
 
-QString SqlDataset::lastError()
+QString SqlDataset::getLastError()
 {
     if (!db.isValid() || db.isOpenError() || !db.isOpen())
         return m_lastError;
@@ -113,7 +113,7 @@ QString SqlDataset::lastError()
 }
 
 
-QString SqlDataset::fieldName(int column )
+QString SqlDataset::getFieldName(int column )
 {
     if (!m_isPopulated)
         populate();
@@ -123,7 +123,7 @@ QString SqlDataset::fieldName(int column )
 }
 
 
-QVariant::Type SqlDataset::fieldType(int column)
+QVariant::Type SqlDataset::getFieldType(int column)
 {
     return QVariant::String;
 }
@@ -157,6 +157,8 @@ void SqlDataset::setQuery(const QString &str)
 
 bool SqlDataset::populate()
 {
+    ReportCore::log(CuteReport::LogDebug, "SqlDataset", QString("\'%1\' populate").arg(objectName()));
+
     emit beforePopulate();
 
     reset();
@@ -174,7 +176,7 @@ bool SqlDataset::populate()
         QStringList missedVariables;
 
         if (!isStringValued(m_queryText, report->variables(), &missedVariables)) {
-            m_lastError = QString("Variable is not defined in \'query\' property: %1").arg(missedVariables.join(", "));
+            m_lastError = QString("Variable is not defined: %1").arg(missedVariables.join(", "));
             return false;
         }
         script = setVariablesValue(m_queryText, report->variables());
@@ -220,7 +222,7 @@ bool SqlDataset::populate()
 
     ReportCore::log(CuteReport::LogDebug, "SqlDataset", QString("query = %1").arg(script));
 
-    dbName = dbHost.isEmpty() ?  reportCore()->localCachedFileName(dbName, report) : dbName ;
+    dbName = dbHost.isEmpty() ? reportCore()->localCachedFileName(dbName, report) : dbName ;
     if (dbName.isEmpty()) {
         m_lastError = QString("Database name is empty.");
         return false;
@@ -263,8 +265,8 @@ bool SqlDataset::populate()
 			m_model->fetchMore();
 
     m_isPopulated = ret;
-    m_currentRow = -1;
     m_fmodel->setSourceModel(m_model);
+    m_currentRow = m_fmodel->rowCount() > 0 ? 0 : -1;
 
     emit afterPopulate();
 
@@ -300,12 +302,13 @@ void SqlDataset::resetCursor()
 }
 
 
-bool SqlDataset::firstRow()
+bool SqlDataset::setFirstRow()
 {
+    if (!m_isPopulated) populate();
 	emit(beforeFirst());
 
 	m_currentRow = 0;
-    bool ret = rows();
+    bool ret = getRowCount();
 
 	emit(afterFirst());
 
@@ -313,8 +316,9 @@ bool SqlDataset::firstRow()
 }
 
 
-bool SqlDataset::lastRow()
+bool SqlDataset::setLastRow()
 {
+    if (!m_isPopulated) populate();
 	emit(beforeLast());	
 
 	m_currentRow = m_fmodel->rowCount();
@@ -326,12 +330,13 @@ bool SqlDataset::lastRow()
 }
 
 
-bool SqlDataset::nextRow()
+bool SqlDataset::setNextRow()
 {
+    if (!m_isPopulated) populate();
 	emit(beforeNext());
 
 	m_currentRow++;
-    bool ret = m_currentRow < rows();
+    bool ret = m_currentRow < getRowCount();
 
 	emit(afterNext());
 
@@ -339,8 +344,9 @@ bool SqlDataset::nextRow()
 }
 
 
-bool SqlDataset::previousRow()
+bool SqlDataset::setPreviousRow()
 {
+    if (!m_isPopulated) populate();
 	emit(beforePrevious());
 
 	m_currentRow--;
@@ -352,71 +358,79 @@ bool SqlDataset::previousRow()
 }
 
 
-int SqlDataset::currentRow()
+int SqlDataset::getCurrentRowNumber()
 {
     return m_currentRow;
 }
 
 
-bool SqlDataset::setCurrentRow(int index)
+bool SqlDataset::setCurrentRowNumber(int index)
 {
+    if (!m_isPopulated) populate();
 	emit(beforeSeek(index));
 
-	m_currentRow = index;
+    m_currentRow = index;
 	bool ret = m_fmodel->index(m_currentRow, 0).isValid();
 
-	emit(afterSeek(index));
+    emit(afterSeek(index));
 
-	return ret;
+    return ret;
 }
 
 
-int SqlDataset::rows()
+int SqlDataset::getRowCount()
 {
+    if (!m_isPopulated) populate();
     return m_fmodel->rowCount();
 }
 
 
-int SqlDataset::columns()
+int SqlDataset::getColumnCount()
 {
-    if (!m_isPopulated)
-        populate();
+    if (!m_isPopulated) populate();
     return m_fmodel->columnCount();
 }
 
 
-QVariant SqlDataset::value(int index) const
+QVariant SqlDataset::getValue(int index)
 {
+    if (!m_isPopulated) populate();
     return m_fmodel->data( m_fmodel->index(m_currentRow,index) );
 }
 
 
-QVariant SqlDataset::value(const QString & field) const
+QVariant SqlDataset::getValue(const QString & field)
 {
-     return m_fmodel->data( m_fmodel->index(m_currentRow, m_model->record().indexOf(field) ) );
+    if (!m_isPopulated) populate();
+//    qDebug() << m_currentRow << m_fmodel->data( m_fmodel->index(m_currentRow, m_model->record().indexOf(field) ) ).toString();
+    return m_fmodel->data( m_fmodel->index(m_currentRow, m_model->record().indexOf(field) ) );
 }
 
 
-QVariant SqlDataset::lookaheadValue(int index) const
+QVariant SqlDataset::getNextRowValue(int index)
 {
+    if (!m_isPopulated) populate();
     return m_currentRow+1 < m_fmodel->rowCount() && index < m_fmodel->columnCount() ?  m_fmodel->data( m_fmodel->index(m_currentRow + 1,index) ) : QVariant::Invalid;
 }
 
 
-QVariant SqlDataset::lookaheadValue(const QString & field) const
+QVariant SqlDataset::getNextRowValue(const QString & field)
 {
+    if (!m_isPopulated) populate();
     return m_currentRow+1 < m_fmodel->rowCount() ?  m_fmodel->data( m_fmodel->index(m_currentRow + 1, m_model->record().indexOf(field) ) ) : QVariant::Invalid;
 }
 
 
-QVariant SqlDataset::lookbackValue(int index) const
+QVariant SqlDataset::getPreviousRowValue(int index)
 {
+    if (!m_isPopulated) populate();
     return m_currentRow-1 < 0 && index < m_fmodel->columnCount() ?  m_fmodel->data( m_fmodel->index(m_currentRow - 1,index) ) : QVariant::Invalid;
 }
 
 
-QVariant SqlDataset::lookbackValue(const QString & field) const
+QVariant SqlDataset::getPreviousRowValue(const QString & field)
 {
+    if (!m_isPopulated) populate();
     return m_currentRow-1 < 0  ?  m_fmodel->data( m_fmodel->index(m_currentRow - 1, m_model->record().indexOf(field) ) )  : QVariant::Invalid;
 }
 

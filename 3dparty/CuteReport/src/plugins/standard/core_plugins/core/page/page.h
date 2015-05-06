@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -31,14 +31,15 @@
 #define REPORTPAGE_H
 
 #include "pageinterface.h"
-#include "globals.h"
-#include "types.h"
+#include "cutereport_globals.h"
+#include "cutereport_types.h"
 #include "plugins_common.h"
 
 namespace CuteReport {
     class BaseItemInterface;
     class BandInterface;
     class RenderedPageInterface;
+    class RendererPublicInterface;
 }
 
 SUIT_BEGIN_NAMESPACE
@@ -125,10 +126,14 @@ public:
     virtual void setUnits(const CuteReport::Units &units);
     virtual QColor background() const;
     virtual void setBackground(const QColor &background);
+    virtual int order() const;
+    virtual void setOrder(int order);
+    virtual QFont font() const;
+    virtual void setFont(const QFont & font);
 
     virtual bool addItem(CuteReport::BaseItemInterface *item, QPointF pagePos, QString * error = 0);
     virtual bool addItem(CuteReport::BaseItemInterface * item);
-    virtual bool addItem(const QString & moduleName, QPointF pagePos, QString * error = 0);
+    virtual CuteReport::BaseItemInterface * addItem(const QString & moduleName, QPointF pagePos, QString * error = 0);
     virtual void deleteItem(CuteReport::BaseItemInterface * item);
     virtual void deleteItem(const QString & itemName);
 
@@ -139,7 +144,7 @@ public:
     virtual QList<CuteReport::BaseItemInterface *> itemsAt(QPointF pos);
 
     /** Rendering */
-    virtual void renderInit();
+    virtual void renderInit(CuteReport::RendererPublicInterface * renderer);
     virtual CuteReport::RenderedPageInterface * render(int /*customDPI*/ = 0);
     virtual void renderPageCompleted();
     virtual void renderReset();
@@ -172,6 +177,8 @@ public:
     QString gridSteps();
     void setGridSteps(QString values);
 
+    virtual CuteReport::StdEditorPropertyList stdEditorList() const;
+
     /** propertyeditor hints   */
     QStringList _format_variants() const;
     QStringList _unit_variants() const;
@@ -199,7 +206,6 @@ private:
     void afterGeometryChanged();
     void _setMargin(qreal & currentValue, const qreal & newValue, CuteReport::Unit unit, bool processGeometry = true);
 
-
 private slots:
     void slotItemGeometryChanged(QRectF newGeometry);
     void slotItemOrderChanged(int order);
@@ -213,6 +219,7 @@ private:
     PageGUI * m_gui;
     bool m_itemsConnected;  // for temporary disable items processing while layout changing
     int m_currentProperty;
+    CuteReport::RendererPublicInterface * m_renderer;
 
 friend class PageManipulator;
 friend class PageGUI;
@@ -227,7 +234,6 @@ struct PagePrivateData : public QSharedData
     PageFormat format;
     CuteReport::PageInterface::Orientation orientation;
     int dpi;
-//    CuteReport::Margins margins;
     qreal marginLeft;
     qreal marginTop;
     qreal marginRight;
@@ -241,6 +247,8 @@ struct PagePrivateData : public QSharedData
     bool useGrid;
     QHash<CuteReport::Unit,qreal> gridSteps;
     bool renderingStage;
+    int order;
+    QFont font;
 };
 
 
@@ -248,7 +256,7 @@ class RenderedPage: public CuteReport::RenderedPageInterface
 {
 public:
     explicit RenderedPage(Page * page);
-    virtual void paintBegin ( QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget = 0 );
+    virtual void paint ( QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget = 0 );
 
     virtual CuteReport::PageInterface::Orientation orientation() const {return m_orientation;}
 //    virtual CuteReport::Margins margins(CuteReport::Unit unit) const;
@@ -263,18 +271,18 @@ public:
 private:
 
     QSizeF m_paperSizeMM;
+//    CuteReport::Margins margins;
     qreal m_marginLeft;
-    qreal m_marginRight;
     qreal m_marginTop;
+    qreal m_marginRight;
     qreal m_marginBottom;
     int m_dpi;
     QRectF m_rect;
     QRectF m_border;
     CuteReport::PageInterface::Orientation m_orientation;
-
 friend class Page;
 };
 
 SUIT_END_NAMESPACE
 
-#endif
+#endif //REPORTPAGE_H

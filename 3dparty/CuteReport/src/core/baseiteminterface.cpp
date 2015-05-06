@@ -1,6 +1,6 @@
 /***************************************************************************
      *   This file is part of the CuteReport project                           *
-     *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+     *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
      *   alexander.mikhalov@gmail.com                                          *
      *                                                                         *
      **                   GNU General Public License Usage                    **
@@ -41,6 +41,9 @@
 
 namespace CuteReport
 {
+
+static const char * BorderTypeStr[] = {"Middle", "Inner", "Outer"};
+static const int BOrderTypeNum = 3;
 
 BaseItemInterface::BaseItemInterface(QObject * parent) :
     ReportPluginInterface(parent),
@@ -496,24 +499,14 @@ void BaseItemInterface::paintBegin(QPainter * painter, const QStyleOptionGraphic
 #endif
     const BaseItemInterfacePrivate * const d = data /*? data : d_func()*/;
 
-    /// border pen
-    QPen borderPen = penPrepared(d->borderPen, d->dpi);
     painter->setPen(Qt::NoPen);
     painter->setOpacity(d->opacity);
-
-    /// background brush
     painter->setBrush(d->bgBrush);
 
-    QRect rect;
-    rect.setSize((option->type == QStyleOption::SO_GraphicsItem) ? boundingRect.size().toSize() : option->exposedRect.size().toSize());
-
-    int penwidth = borderPen.width()/2;
-    if (borderPen.width()&1)
-        rect = rect.adjusted( penwidth, penwidth, -penwidth-1, -penwidth-1 );
-    else
-        rect = rect.adjusted( penwidth, penwidth, -penwidth, -penwidth );
+    QRect rect = paintArea(painter, option, data, boundingRect, type);
 
     painter->drawRect(rect);
+
     painter->save();
 }
 
@@ -534,20 +527,34 @@ void BaseItemInterface::paintEnd(QPainter * painter, const QStyleOptionGraphicsI
     /// background brush
     painter->setBrush(Qt::NoBrush);
 
-    QRect rect;
-    rect.setSize((option->type == QStyleOption::SO_GraphicsItem) ? boundingRect.size().toSize() : option->exposedRect.size().toSize());
+    QRect area = paintArea(painter, option, data, boundingRect, type);
 
-    int penwidth = borderPen.width()/2;
-    if (borderPen.width()&1)
-        rect = rect.adjusted( penwidth, penwidth, -penwidth-1, -penwidth-1 );
+    QRect rect = (option->type == QStyleOption::SO_GraphicsItem) ? boundingRect.toRect() : option->exposedRect.toRect();
+
+    int penWidth = borderPen.width();
+    int delta = 0;
+
+    switch(d->borderType) {
+        case Middle: delta = penWidth; break;
+        case Inner: delta = penWidth * 1.5; break;
+        case Outer: delta = penWidth / 2; break;
+    }
+
+#if QT_VERSION >= 0x050000
+    if (penWidth&1)
+        rect = rect.adjusted( delta, delta, -delta, -delta );
     else
-        rect = rect.adjusted( penwidth, penwidth, -penwidth, -penwidth );
-
+        rect = rect.adjusted( delta, delta, -delta+1, -delta+1 );
+#else
+    if (penWidth&1)
+        rect = rect.adjusted( delta, delta, -delta, -delta );
+    else
+        rect = rect.adjusted( delta, delta, -delta, -delta );
+#endif
     int _frame = d->frame;
 
     if(_frame & DrawLeft && _frame & DrawRight && _frame & DrawTop && _frame & DrawBottom) {
         painter->drawRect(rect);
-
     } else {
         painter->save();
         painter->setPen( QPen(Qt::NoPen));
@@ -559,7 +566,7 @@ void BaseItemInterface::paintEnd(QPainter * painter, const QStyleOptionGraphicsI
             painter->setPen(pen);
             painter->setBrush(Qt::NoBrush);
             painter->setOpacity(0.5);
-            painter->drawRect(rect);
+            painter->drawRect(area);
         }
 
         painter->restore();
@@ -576,8 +583,41 @@ void BaseItemInterface::paintEnd(QPainter * painter, const QStyleOptionGraphicsI
         if (_frame&DrawBottom)
             painter->drawLine(rect.left(), rect.bottom(), rect.right(), rect.bottom());
     }
+
 }
 
+
+QRect BaseItemInterface::paintArea(QPainter *painter, const QStyleOptionGraphicsItem *option, const BaseItemInterfacePrivate *data,
+                                   const QRectF &boundingRect, RenderingType type, bool ignoreBorderWidth)
+{
+    const BaseItemInterfacePrivate * const d = data;
+
+    QRect rect = (option->type == QStyleOption::SO_GraphicsItem) ? boundingRect.toRect() : option->exposedRect.toRect();
+
+    int penWidth = d->borderPen.widthF()/72*d->dpi;
+    int delta = 0;
+
+    if (ignoreBorderWidth) {
+        delta = penWidth;
+    } else {
+        switch(d->borderType) {
+            case Middle: delta = penWidth * 1.5; break;
+            case Inner: delta = penWidth *2; break;
+            case Outer: delta = penWidth; break;
+        }
+    }
+
+    if (penWidth&1)
+        rect = rect.adjusted( delta, delta, -delta+1, -delta+1 );
+    else
+        rect = rect.adjusted( delta, delta, -delta, -delta );
+
+#if QT_VERSION >= 0x050000
+    rect = rect.adjusted( 0, 0, +1, +1);
+#endif
+
+    return rect;
+}
 
 
 QRectF BaseItemInterface::mapFromPage(const QRectF & rect, Unit inputUnit, Unit outputUnit) const
@@ -713,6 +753,7 @@ QPen BaseItemInterface::penPrepared(const QPen &pen, qint16 dpi)
     QPen p(pen);
     int pixels = p.widthF()/72*dpi;
     p.setWidth(pixels);
+    p.setCosmetic(false);
     return p;
 }
 
@@ -876,7 +917,7 @@ void BaseItemInterface::setHeight(qreal height, Unit unit)
     Unit u = (unit == UnitNotDefined) ? d->unit : unit;
     qreal newValue = convertUnit(height, u, Millimeter, d->dpi);
 
-    if (d->rect.height()  == newValue)
+    if (d->rect.height() == newValue)
         return;
 
     d->rect.setHeight(newValue);
@@ -1056,6 +1097,41 @@ void BaseItemInterface::setBackgroundBrush(const QBrush & brush)
 }
 
 
+BaseItemInterface::BorderType BaseItemInterface::borderType() const
+{
+    Q_D(const BaseItemInterface);
+    return d->borderType;
+}
+
+
+void BaseItemInterface::setBorderType(BaseItemInterface::BorderType borderType)
+{
+    Q_D(BaseItemInterface);
+    if (d->borderType == borderType)
+        return;
+
+    d->borderType = borderType;
+
+    update_gui();
+
+    emit borderTypeChanged(d->borderType);
+    emit borderTypeChanged(borderTypeToString(d->borderType));
+    emit changed();
+}
+
+
+QString BaseItemInterface::borderTypeStr() const
+{
+    return borderTypeToString(borderType());
+}
+
+
+void BaseItemInterface::setBorderTypeStr(const QString &borderType)
+{
+    setBorderType(borderTypeFromString(borderType));
+}
+
+
 void BaseItemInterface::updateMeassure()
 {
     Q_D(BaseItemInterface);
@@ -1087,6 +1163,44 @@ QPointF BaseItemInterface::transformedPos(const BaseItemInterfacePrivate *d, con
 }
 
 
+BaseItemInterface::BorderType BaseItemInterface::borderTypeFromString(const QString &bType)
+{
+    QString t = bType.toLower();
+    for (int i=0; i<BOrderTypeNum; ++i) {
+        if (t == QString(BorderTypeStr[i]).toLower()) {
+            return BorderType(i);
+        }
+    }
+    return Inner;
+}
+
+
+QString BaseItemInterface::borderTypeToString(BaseItemInterface::BorderType bType)
+{
+    if (bType >= Middle && bType <= Outer)
+        return BorderTypeStr[bType];
+    return BorderTypeStr[2];
+}
+
+
+StdEditorPropertyList BaseItemInterface::stdEditorList() const
+{
+    StdEditorPropertyList list;
+    list << StdEditorProperty(EDFrame, "frame");
+    return list;
+}
+
+
+QStringList BaseItemInterface::_borderType_variants()
+{
+    QStringList list;
+    for (int i=0; i<BOrderTypeNum; ++i) {
+        list << borderTypeToString(BorderType(i));
+    }
+    return list;
+}
+
+
 /*********************************************************************************************
  *
  *          ItemInterfacePrivate
@@ -1096,7 +1210,7 @@ QPointF BaseItemInterface::transformedPos(const BaseItemInterfacePrivate *d, con
 QDataStream &operator<<(QDataStream &s, const BaseItemInterfacePrivate &p) {
     s << p.borderPen << p.bgBrush << p.rect << p.frame << p.opacity << p.rotation   << p.enabled << p.order
       << p.dpi << (qint8)p.unit << p.selfRendering << p.childrenSelfRendering << p.minRectSize << (qint16) p.resizeFlags
-      << (qint8)p.renderingType;
+      << (qint8)p.renderingType << (qint8)p.borderType;
 
     return s;
 }
@@ -1106,14 +1220,16 @@ QDataStream &operator>>(QDataStream &s, BaseItemInterfacePrivate &p) {
     qint8 unit;
     qint16 resizeFlags;
     qint8 renderingType;
+    qint8 borderType;
 
     s >> p.borderPen; s >> p.bgBrush; s >> p.rect; s >> p.frame; s >> p.opacity; s >> p.rotation;   s >> p.enabled; s >> p.order;
     s >> p.dpi; s >> unit; s >> p.selfRendering; s >> p.childrenSelfRendering; s >> p.minRectSize; s >>resizeFlags;
-    s >> renderingType;
+    s >> renderingType; s >> borderType;
 
     p.unit = (Unit)unit;
     p.resizeFlags = resizeFlags;
     p.renderingType = (RenderingType)renderingType;
+    p.borderType = (BaseItemInterface::BorderType)borderType;
 
     return s;
 }

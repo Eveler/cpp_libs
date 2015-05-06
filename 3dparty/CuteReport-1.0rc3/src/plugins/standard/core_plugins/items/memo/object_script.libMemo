@@ -1,0 +1,13 @@
+CREATE ..\..\..\..\..\..\build\cutereport\plugins\libMemo.a
+ADDMOD memo.o
+ADDMOD memohelper.o
+ADDMOD renderedmemoitem.o
+ADDMOD memoitemview.o
+ADDMOD textformattoolbar.o
+ADDMOD highlighter.o
+ADDMOD qrc_memo.o
+ADDMOD moc_memo.o
+ADDMOD moc_memohelper.o
+ADDMOD moc_textformattoolbar.o
+ADDMOD moc_highlighter.o
+SAVE

@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -30,6 +30,9 @@
 #include "reportcore.h"
 #include "renamedialog.h"
 #include "mainwindow.h"
+#include "fonteditor.h"
+#include "alignmenteditor.h"
+#include "frameeditor.h"
 
 #include <QLabel>
 #include <QMenu>
@@ -40,12 +43,21 @@ using namespace CuteDesigner;
 
 inline void initMyResource() { Q_INIT_RESOURCE(page_editor); }
 
+
+bool pageOrderLessThan(CuteReport::PageInterface * p1, CuteReport::PageInterface * p2)
+{
+    return p1->order() < p2->order();
+}
+
+
 PageEditor::PageEditor(QObject *parent) :
     ModuleInterface(parent),
     m_currentPage(0),
     m_activeObject(0),
     m_currentManipulator(0),
-    m_isActive(false)
+    m_isActive(false),
+    m_blockPageOrders(false),
+    m_copyPaste(0)
 {
 }
 
@@ -53,6 +65,7 @@ PageEditor::PageEditor(QObject *parent) :
 PageEditor::~PageEditor()
 {
     delete ui;
+    delete m_copyPaste;
 }
 
 
@@ -61,23 +74,32 @@ void PageEditor::init(Core *core)
     initMyResource();
     ModuleInterface::init(core);
 
+    if (core->getSettingValue("PageEditor/tabMode").isNull())
+        core->setSettingValue("PageEditor/tabMode", 2);
+
     ui = new PageEditorContainer(this);
     ui->init();
-    ui->addPagePlugins(core->reportCore()->pageModules());
+    ui->addPagePlugins(core->reportCore()->modules(CuteReport::PageModule));
 
     m_propertyEditor = core->createPropertyEditor(ui);
     ui->addPropertyEditor(m_propertyEditor);
     m_objectInspector = new ObjectInspector(ui);
     ui->addObjectInspector(m_objectInspector);
 
-    foreach (CuteReport::BaseItemInterface* itemPlugin, core->reportCore()->itemModules())
+    m_stdActions = Core::StdActions(Core::ActionCopy | Core::ActionPaste);
+
+    foreach (CuteReport::ReportPluginInterface* plugin, core->reportCore()->modules(CuteReport::ItemModule)) {
+        CuteReport::BaseItemInterface* itemPlugin = reinterpret_cast<CuteReport::BaseItemInterface*>(plugin);
         if (dynamic_cast<CuteReport::BandInterface*>(itemPlugin))
             ui->addItem(itemPlugin->itemIcon(), itemPlugin->moduleShortName(), itemPlugin->suitName(), itemPlugin->itemGroup());
+    }
 
-    foreach (CuteReport::BaseItemInterface* itemPlugin, core->reportCore()->itemModules())
+    foreach (CuteReport::ReportPluginInterface* plugin, core->reportCore()->modules(CuteReport::ItemModule)) {
+        CuteReport::BaseItemInterface* itemPlugin = reinterpret_cast<CuteReport::BaseItemInterface*>(plugin);
         if (!dynamic_cast<CuteReport::BandInterface*>(itemPlugin)) {
             ui->addItem(itemPlugin->itemIcon(), itemPlugin->moduleShortName(), itemPlugin->suitName(),  itemPlugin->itemGroup());
         }
+    }
 
     //connect(core, SIGNAL(loadReport_after(CuteReport::ReportInterface*)), this, SLOT(slotReportCreated(CuteReport::ReportInterface*)));
     //connect(core, SIGNAL(newReport_after(CuteReport::ReportInterface*)), this, SLOT(slotReportCreated(CuteReport::ReportInterface*)));
@@ -176,6 +198,67 @@ QList<DesignerMenu *> PageEditor::mainMenu()
 }
 
 
+Core::StdActions PageEditor::stdActions()
+{
+    return Core::StdActions(Core::ActionCopy | Core::ActionPaste);
+}
+
+
+void PageEditor::stdActionTriggered(Core::StdAction actionType, QAction *action)
+{
+//    qDebug() << actionType;
+
+    switch (actionType) {
+        case Core::ActionCopy: {
+                delete m_copyPaste;
+                m_copyPaste = new CopyPasteStruct;
+                CuteReport::BaseItemInterface * item = dynamic_cast<CuteReport::BaseItemInterface *> (m_activeObject.data());
+                m_copyPaste->page = m_currentPage ? m_currentPage->objectName() : QString();
+                m_copyPaste->item = item ? item->objectName() : QString();
+                m_copyPaste->cut = false;
+                if (item)
+                    m_copyPaste->data = core()->reportCore()->serialize(item);
+                else {      // only for items implemented
+                    delete m_copyPaste;
+                    m_copyPaste = 0;
+                }
+            }
+            break;
+        case Core::ActionPaste: {
+                if (!m_copyPaste || !m_currentReport)
+                    return;
+                QObject * object = core()->reportCore()->deserialize(m_copyPaste->data);
+                CuteReport::BaseItemInterface * item = dynamic_cast<CuteReport::BaseItemInterface *> (object);
+                CuteReport::BaseItemInterface * currentItem = dynamic_cast<CuteReport::BaseItemInterface *> (m_activeObject.data());
+                if (!item || !currentItem) {
+                    //TODO log add
+                    delete object;
+                    return;
+                }
+
+                if (currentItem->objectName() == item->objectName())
+                    currentItem = currentItem->parentItem();
+
+                if (!currentItem) {
+                    //TODO log add
+                    delete object;
+                    return;
+                }
+
+                CuteReport::PageInterface * page = currentItem->page();
+                item->setParentItem(currentItem);
+                item->setObjectName( core()->reportCore()->uniqueName(object, object->objectName(), m_currentReport));
+                item->init();
+                QRectF geom = item->absoluteGeometry(CuteReport::Millimeter);
+                geom.moveTopLeft(QPointF(qrand()% 10, qrand()% 10));
+                item->setAbsoluteGeometry(geom);
+                page->addItem(item);
+            }
+    }
+
+}
+
+
 void PageEditor::slotActiveObjectChanged(QObject * object)
 {
     if (object && object == m_activeObject)
@@ -183,14 +266,25 @@ void PageEditor::slotActiveObjectChanged(QObject * object)
 
     if (m_activeObject && dynamic_cast<CuteReport::BaseItemInterface *> (m_activeObject.data())) {
         disconnect(m_activeObject, SIGNAL(parentItemChanged(CuteReport::BaseItemInterface*)), this,  SLOT(slotUpdateObjectInspector()));
-    }
+    } /*else if (m_activeObject && dynamic_cast<CuteReport::PageInterface *> (m_activeObject.data())) {
+        disconnect(m_activeObject, SIGNAL(afterItemRemoved(CuteReport::BaseItemInterface*,QString,bool)), this, SLOT(slotUpdateObjectInspector()));
+    }*/
 
     m_activeObject = object;
 
+//    if (object)
+//        qDebug() << object->objectName();
+
     m_propertyEditor->setObject(object);
+
     if (!qobject_cast<ObjectInspector *> (sender())) {
+        m_objectInspector->blockSignals(true);
         m_objectInspector->setRootObject(object ? m_currentPage : 0);
-        m_objectInspector->selectObject(object);
+        if (m_currentPage) {
+            foreach(CuteReport::BaseItemInterface * item, m_currentPage->selectedItems())
+                m_objectInspector->selectObject(item, QItemSelectionModel::Select);
+        }
+        m_objectInspector->blockSignals(false);
     }
 
     CuteReport::BaseItemInterface * item = qobject_cast<CuteReport::BaseItemInterface *> (object);
@@ -198,6 +292,15 @@ void PageEditor::slotActiveObjectChanged(QObject * object)
         m_currentPage->setCurrentItem(item);
         connect(item, SIGNAL(parentItemChanged(CuteReport::BaseItemInterface*)), this, SLOT(slotUpdateObjectInspector()));
     }
+
+    /*else {
+        CuteReport::PageInterface * page = qobject_cast<CuteReport::PageInterface *> (object);
+        if (page) {
+            connect(page, SIGNAL(afterItemRemoved(CuteReport::BaseItemInterface*,QString,bool)), this, SLOT(slotUpdateObjectInspector()));
+        }
+    }*/
+
+    updateStdEditors();
 }
 
 
@@ -236,7 +339,9 @@ void PageEditor::slotReportChanged(CuteReport::ReportInterface * report)
     }
 
     if (report) {
-        foreach (CuteReport::PageInterface * page, report->pages()) {
+        QList<CuteReport::PageInterface *> pages = report->pages();
+        qSort(pages.begin(), pages.end(), pageOrderLessThan);
+        foreach (CuteReport::PageInterface * page, pages) {
             _processNewPage(page);
         }
         slotChangeCurrentPage( report->pages().count() ? report->pages()[0] : 0);
@@ -256,7 +361,7 @@ void PageEditor::slotReportChanged(CuteReport::ReportInterface * report)
 
 void PageEditor::slotRequestForCreatePage(QString moduleName)
 {
-    CuteReport::PageInterface * page = core()->reportCore()->createPageObject(core()->currentReport(), moduleName);
+    CuteReport::PageInterface * page = core()->reportCore()->createPageObject(moduleName, core()->currentReport());
     if (!page)
         return;
     page->init();
@@ -289,23 +394,23 @@ void PageEditor::slotRequestForDeletePage(QString pageName)
         }
 
     ui->removeTab(pageName);
-//    int index = m_pages.indexOf(page);
+    //    int index = m_pages.indexOf(page);
     m_pages.removeAt(index);
     m_pageNames.removeAt(index);
     m_currentReport->deletePage(page);
-//    m_currentPage = 0;
+    //    m_currentPage = 0;
 
-//    pages = core()->currentReport()->findChildren<CuteReport::PageInterface*>();
+    //    pages = core()->currentReport()->findChildren<CuteReport::PageInterface*>();
 
-//    if (index > pages.count() -1)
-//        index = pages.count() -1;
-//    if (index < 0)
-//        index = 0;
+    //    if (index > pages.count() -1)
+    //        index = pages.count() -1;
+    //    if (index < 0)
+    //        index = 0;
 
-//    slotChangeCurrentPage( pages.count() ? pages[index] : 0);
+    //    slotChangeCurrentPage( pages.count() ? pages[index] : 0);
 
-//    if (m_currentPage)
-//        ui->setCurrentTab(m_currentPage->objectName());
+    //    if (m_currentPage)
+    //        ui->setCurrentTab(m_currentPage->objectName());
 }
 
 
@@ -347,10 +452,11 @@ void PageEditor::slotCurrentPageChangedByGUI(QString pageName)
 
 void PageEditor::slotCurrentPageChangedByCore(CuteReport::PageInterface* page)
 {
-    if (page != m_currentPage) {
-        slotChangeCurrentPage(page);
-        ui->setCurrentTab(page->objectName());
-    }
+    if (page == m_currentPage)
+        return;
+
+    slotChangeCurrentPage(page);
+    ui->setCurrentTab(page->objectName());
 }
 
 
@@ -363,7 +469,7 @@ void PageEditor::slotRequestForRenamePage(QString pageName)
         d.setWindowTitle("Page renaming");
         if (d.exec() == QDialog::Accepted) {
             page->setObjectName(d.newName());
-//            ui->setNewPageName( pageName, d.newName());
+            //            ui->setNewPageName( pageName, d.newName());
         }
     }
 }
@@ -371,6 +477,7 @@ void PageEditor::slotRequestForRenamePage(QString pageName)
 
 void PageEditor::slotPageNameChangedOutside(const QString & name)
 {
+    Q_UNUSED(name);
     CuteReport::PageInterface * page = qobject_cast<CuteReport::PageInterface*>(sender());
     Q_ASSERT(page);
     int index = m_pages.indexOf(page);
@@ -406,6 +513,60 @@ void PageEditor::slotDeletePage()
 }
 
 
+void PageEditor::slotPageMoveFront()
+{
+    if (!m_currentReport)
+        return;
+    QList<CuteReport::PageInterface *> pages = m_currentReport->pages();
+    if (pages.size() < 1)
+        return;
+    qSort(pages.begin(), pages.end(), pageOrderLessThan);
+    int curIndex = pages.indexOf(m_currentPage);
+    if (curIndex == 0)
+        return;
+    CuteReport::PageInterface * otherPage = pages.at(curIndex-1);
+    m_blockPageOrders = true;
+    int otherPageOrder = otherPage->order();
+    otherPage->setOrder(m_currentPage->order());
+    m_currentPage->setOrder(otherPageOrder);
+
+    pages.swap(otherPageOrder, curIndex);
+    ui->removeAllTabs();
+    foreach (CuteReport::PageInterface * page, pages)
+        ui->addTab(page->createView(), page->icon(), page->objectName());
+    ui->setCurrentTab(m_currentPage->objectName());
+
+    m_blockPageOrders = false;
+}
+
+
+void PageEditor::slotPageMoveBack()
+{
+    if (!m_currentReport)
+        return;
+    QList<CuteReport::PageInterface *> pages = m_currentReport->pages();
+    if (pages.size() < 1)
+        return;
+    qSort(pages.begin(), pages.end(), pageOrderLessThan);
+    int curIndex = pages.indexOf(m_currentPage);
+    if (curIndex == pages.size()-1)
+        return;
+    CuteReport::PageInterface * otherPage = pages.at(pages.size()-1);
+    m_blockPageOrders = true;
+    int otherPageOrder = otherPage->order();
+    otherPage->setOrder(m_currentPage->order());
+    m_currentPage->setOrder(otherPageOrder);
+
+    pages.swap(otherPageOrder, curIndex);
+    ui->removeAllTabs();
+    foreach (CuteReport::PageInterface * page, pages)
+        ui->addTab(page->createView(), page->icon(), page->objectName());
+    ui->setCurrentTab(m_currentPage->objectName());
+
+    m_blockPageOrders = false;
+}
+
+
 //void PageEditor::slotReportCreated(CuteReport::ReportInterface * report)
 //{
 //    connect(report, SIGNAL(pageAdded(CuteReport::PageInterface*)), this
@@ -416,11 +577,17 @@ void PageEditor::_processNewPage(CuteReport::PageInterface *page)
 {
     if (!page)
         return;
-
     m_pages.append(page);
     m_pageNames.append(page->objectName());
     ui->addTab(page->createView(), page->icon(), page->objectName());
     connect(page, SIGNAL(objectNameChanged(QString)), this, SLOT(slotPageNameChangedOutside(QString)));
+}
+
+
+void PageEditor::setStdActions(Core::StdActions actions)
+{
+    m_stdActions = actions;
+    stdActionsChanged(m_stdActions);
 }
 
 
@@ -443,6 +610,7 @@ void PageEditor::slotChangeCurrentPage(CuteReport::PageInterface* page)
     }
 
     connect(m_currentPage, SIGNAL(activeObjectChanged(QObject*)), this, SLOT(slotActiveObjectChanged(QObject*)));
+    connect(m_currentPage, SIGNAL(afterItemRemoved(CuteReport::BaseItemInterface*, QString, bool)), this, SLOT(slotUpdateObjectInspector()));
 
     /// manage manipulator
     CuteReport::PageManipulatorInterface * oldManipulator = m_currentManipulator;
@@ -473,6 +641,68 @@ void PageEditor::slotChangeCurrentPage(CuteReport::PageInterface* page)
     }
 
     slotActiveObjectChanged(m_currentPage->currentItem() ? (QObject*)m_currentPage->currentItem() : (QObject*)m_currentPage);
+}
+
+
+void PageEditor::updateStdEditors()
+{
+    CuteReport::StdEditorPropertyList list;
+    //QObject * object = (m_currentPage && m_currentPage->currentItem()) ? (QObject*)m_currentPage->currentItem() : (QObject*)m_currentPage;
+    if (CuteReport::BaseItemInterface * bItem = qobject_cast<CuteReport::BaseItemInterface*>(m_activeObject))
+        list = bItem->stdEditorList();
+    else if (CuteReport::PageInterface * page = qobject_cast<CuteReport::PageInterface*>(m_activeObject))
+        list = page->stdEditorList();
+
+    bool fontEditor = false;
+    bool alignmentEditor = false;
+    bool frameEditor = false;
+
+    foreach (const CuteReport::StdEditorProperty & ed, list) {
+        switch (ed.first) {
+            case CuteReport::EDFont: ui->fontEditor()->setFontPropertyName(ed.second); fontEditor = true; break;
+            case CuteReport::EDFontColor: ui->fontEditor()->setColorPropertyName(ed.second); fontEditor = true; break;
+            case CuteReport::EDTextAlignment: ui->alignmentEditor()->setAlignPropertyName(ed.second); alignmentEditor = true; break;
+            case CuteReport::EDFrame: ui->frameEditor()->setFramePropertyName(ed.second); frameEditor = true; break;
+        }
+    }
+
+    QObjectList selection;
+
+    if (m_currentPage && (fontEditor || alignmentEditor || frameEditor) ) {
+        foreach (CuteReport::BaseItemInterface * item, m_currentPage->selectedItems()) {
+            selection << static_cast<QObject*>(item);
+        }
+    }
+
+    if (fontEditor) {
+        if (!m_currentPage || selection.size() < 2)
+            ui->fontEditor()->setObject(m_activeObject);
+        else
+            ui->fontEditor()->setObjectList(selection);
+        ui->fontEditor()->update();
+    } else {
+        ui->fontEditor()->clear();
+    }
+    ui->fontEditor()->setEnabled(fontEditor);
+
+    if (alignmentEditor) {
+        if (!m_currentPage || selection.size() < 2)
+            ui->alignmentEditor()->setObject(m_activeObject);
+        else
+            ui->alignmentEditor()->setObjectList(selection);
+        ui->alignmentEditor()->update();
+    } else {
+        ui->alignmentEditor()->clear();
+    }
+    ui->alignmentEditor()->setEnabled(alignmentEditor);
+
+    if (frameEditor) {
+        ui->frameEditor()->setObject(m_activeObject);
+        ui->frameEditor()->update();
+    } else {
+        ui->frameEditor()->clear();
+    }
+    ui->frameEditor()->setEnabled(frameEditor);
 }
 
 

@@ -31,11 +31,16 @@
 #define SQL_H
 
 #include "storageinterface.h"
-#include "globals.h"
+#include "cutereport_globals.h"
 
-static const QString ModuleName("SQL");
+static const QString MODULENAME("SQL");
 
 class QSqlDatabase;
+
+class ReportPath {
+public:
+    ReportPath(const QString &path);
+};
 
 class StorageSql : public CuteReport::StorageInterface
 {
@@ -47,7 +52,6 @@ class StorageSql : public CuteReport::StorageInterface
 
     Q_PROPERTY(QString tableName READ tableName WRITE setTableName NOTIFY tableNameChanged)
     Q_PROPERTY(QString columnId READ columnId WRITE setColumnId NOTIFY columnIdChanged)
-    Q_PROPERTY(QString columnName READ columnName WRITE setColumnName NOTIFY columnNameChanged)
     Q_PROPERTY(QString columnData READ columnData WRITE setColumnData NOTIFY columnDataChanged)
     Q_PROPERTY(QString driver READ driver WRITE setDriver NOTIFY driverChanged)
     Q_PROPERTY(QString host READ host WRITE setHost NOTIFY hostChanged)
@@ -67,6 +71,7 @@ public:
     virtual int moduleVersion() const;
     virtual QString moduleShortName() const;
     virtual QString suitName() const;
+    virtual QString objectNameHint() const {return QString("sql");}
 
     // StorageInterface interface
 public:
@@ -74,8 +79,8 @@ public:
     virtual CuteReport::StorageHelperInterface *helper();
     virtual QString urlScheme() const;
     virtual QString localCachedFileName(const QString &url);
-    virtual bool saveObject(const QString &url, const QVariant &objectData);
-    virtual QVariant loadObject(const QString &url);
+    virtual bool saveObject(const QString &url, const QByteArray &objectData);
+    virtual QByteArray loadObject(const QString &url);
     virtual bool objectExists(const QString &url);
     virtual QString lastError() const;
     virtual QList<CuteReport::StorageObjectInfo> objectsList(const QString & url, bool * ok = 0);
@@ -87,9 +92,6 @@ public:
 
     QString columnId() const;
     void setColumnId(const QString &columnId);
-
-    QString columnName() const;
-    void setColumnName(const QString &columnName);
 
     QString columnData() const;
     void setColumnData(const QString &columnData);
@@ -121,7 +123,6 @@ public:
 signals:
     void tableNameChanged(QString);
     void columnIdChanged(QString);
-    void columnNameChanged(QString);
     void columnDataChanged(QString);
     void driverChanged(QString);
     void hostChanged(QString);
@@ -141,8 +142,6 @@ private:
 
     QString m_tableName;
     QString m_columnId;
-    QString m_columnName;
-    QString m_columnParent;
     QString m_columnData;
 
     QString m_driver;
@@ -159,9 +158,8 @@ private:
 
     QSqlDatabase getConnection();
 
-    bool parseUrl(const QString &url, QString &dataField, QString &name);
-    QString idInName(const QString &name);
-    QString clearName(const QString &name);
+    //bool parseUrl(const QString &url, QString &dataField, QString &name);
+    bool isCurrentPath(const QString &filepath, const QString &url);
 };
 
 #endif // SQL_H

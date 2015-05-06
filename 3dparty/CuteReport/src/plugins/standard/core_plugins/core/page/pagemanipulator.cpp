@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -30,6 +30,8 @@
 #include "pagemanipulator.h"
 #include "pagegui.h"
 #include "magnets.h"
+#include "iteminterface.h"
+#include "bandinterface.h"
 
 #include <QApplication>
 #include <QDesktopWidget>
@@ -59,6 +61,7 @@ PageManipulator::~PageManipulator()
 void PageManipulator::setActivePage(PageInterface * page)
 {
     if (!page) {
+        disconnect(m_activePage, 0, this, 0);
         m_activePage = 0;
         return;
     }
@@ -66,6 +69,8 @@ void PageManipulator::setActivePage(PageInterface * page)
     if (page->pageManupilatorID() == MANIPULATOR_ID) {
         m_activePage = qobject_cast<Page*>(page);
         setMagnetButtonsState();
+        activeObjectChanged(m_activePage->currentItem());
+        connect(m_activePage, SIGNAL(activeObjectChanged(QObject*)), SLOT(activeObjectChanged(QObject*)));
     }
 }
 
@@ -270,6 +275,21 @@ void PageManipulator::slotBringForward()
 void PageManipulator::slotBringBackward()
 {
     m_activePage->bringCurrentItemBackward();
+}
+
+
+void PageManipulator::activeObjectChanged(QObject *object)
+{
+    bool isItem = qobject_cast<CuteReport::ItemInterface*>(object);
+    bool isBand = qobject_cast<CuteReport::BandInterface*>(object);
+    foreach (CuteReport::PageAction* pAction, m_actions) {
+        switch((ActionType)pAction->action->data().toInt()) {
+            case AnyType: pAction->action->setEnabled(true); break;
+            case BandOrItemType: pAction->action->setEnabled(isItem || isBand); break;
+            case ItemType: pAction->action->setEnabled(isItem); break;
+            case BandType: pAction->action->setEnabled(isBand); break;
+        }
+    }
 }
 
 SUIT_END_NAMESPACE

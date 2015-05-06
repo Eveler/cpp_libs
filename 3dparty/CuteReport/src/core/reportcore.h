@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -32,8 +32,8 @@
 
 #include <QObject>
 #include <QMap>
-#include "globals.h"
-#include <types.h>
+#include "cutereport_globals.h"
+#include "cutereport_types.h"
 
 //#define gCore CuteReport::ReportCore::instance()
 
@@ -75,6 +75,8 @@ struct QueueReport {
     ReportInterface * report;
     QString url;
     RenderingDestination destination;
+    QString rendererName;
+    QString destinationName;
     bool success;
 };
 
@@ -86,23 +88,25 @@ struct QueueReportExport: public QueueReport {
 };
 
 
-struct QueueReportPrint: public QueueReport {
-};
-
-
 class CUTEREPORT_EXPORTS ReportCore : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit ReportCore(QObject *parent = 0, QSettings *settings = 0, bool interactive = false, bool initLogSytem = true);
-    explicit ReportCore(QSettings *settings, bool interactive = false);
+    explicit ReportCore(QObject *parent = 0, QSettings *settings = 0, bool interactive = true, bool initLogSytem = true);
+    explicit ReportCore(QSettings *settings, bool interactive = true);
     ~ReportCore();
 
     int versionMajor() const;
     int versionMinor() const;
 
-    /** shows can report be changed or no */
+    /*! determine if report objects can be changed or no
+     * If it is set to true usually it means plugins will show theirs dialogs
+     * internal reports signal will be connected to look for any property changes, etc.
+     * This property is set to true by default
+     * You can set it to false to slighly resource economy if you do report processing in background
+     * without any report template changing in runtime and without any user action
+     */
     bool interactive() const;
 
     /*! syncing all storages and other data with remote or local systems
@@ -112,16 +116,34 @@ public:
     */
     void finish();
 
-    /** reportCore takes ownership of defaultStorage */
-    void setDefaultStorage(const QString &storageName);
-    bool setDefaultStorageByScheme(const QString & scheme);
-    CuteReport::StorageInterface * defaultStorage() const;
+    /*! restoreState method reads settings and restores all configured objects.
+     * If removeCurrentState is "true" then all current objects will be removed
+     * and only objects defined in Settings will be added. Otherwize all objects defined
+     * in the setting will be updated and objects not defined will be left as is.
+     * This method is called automatically if "AutoRestore" setting value is "true".
+     * When "AutoRestore" is defined it read value of "CleanRestore" that define value
+     * of "cleanRestore" parameter.
+     * "CleanRestore" is true by default.
+     *  storeState method saves setting of all objects and default names.
+     * This method is called automatically if "AutoStore" setting value is "true".
+     * Default for "AutoStore" if not defined is "false"
+     * Default for "AutoRestore" if not definded is "true".
+     **/
+    void restoreState(bool cleanRestore = true);
+    void storeState();
 
-    void setDefaultPrinter(const QString moduleName);
-    CuteReport::PrinterInterface * defaultPrinter() const;
+    /*! Method set the name of default storage for storage requests where url scheme is not present.
+     * storageName should be one of the Core's storages
+     * Returns QString::null if storage is not defined
+    */
+    bool setDefaultStorage(const QString &objectName);
+    QString defaultStorageName() const;
 
-    void setDefaultRenderer(const QString &moduleName);
-    CuteReport::RendererInterface * defaultRenderer() const;
+    bool setDefaultPrinter(const QString objectName);
+    QString defaultPrinterName() const;
+
+    bool setDefaultRenderer(const QString &objectName);
+    QString defaultRendererName() const;
 
     /** Root widget where all dialogs will be centered on
      *  usually it's a main window
@@ -129,38 +151,71 @@ public:
     void setRootWidget(QWidget * widget);
     QWidget * rootWidget();
 
-    QStringList moduleNames(ModuleType moduleType) const;
-    const ReportPluginInterface *module(ModuleType moduleType, const QString &moduleName) const;
+    /*! These methods return a list of appropriate plugins.
+     * These methods are not designed to change any default plugins and used only to get service information
+     * like plugin name, version, etc.
+     * It is primary used in designing tools
+     **/
+//    const QList<ReportPluginInterface *> &               itemModules() const;
+//    const QList<ReportPluginInterface *> &               pageModules() const;
+//    const QList<ReportPluginInterface *> &               datasetModules() const;
+//    const QList<ReportPluginInterface *> &               storageModules() const;
+//    const QList<ReportPluginInterface *> &               rendererModules() const;
+//    const QList<ReportPluginInterface *> &               printerModules() const;
+//    const QList<ReportPluginInterface *> &               formModules() const;
+//    const QList<ReportPluginInterface *> &               importModules() const;
+//    const QList<ReportPluginInterface *> &               exportModules() const;
+//    const QList<ReportPluginInterface *> &               scriptExtensionModules() const;
 
-    QStringList moduleOptions(ReportPluginInterface * module);
-    void setModuleOptions(ReportPluginInterface * module, const QStringList & options);
-    QString moduleOptionsStr(ReportPluginInterface * module, const QString & delimiter = ",");
-    void setModuleOptionsStr(ReportPluginInterface * module, const QString & options, const QString & delimiter = ",");
+    const QList<ReportPluginInterface *> &               modules(ModuleType moduleType) const;
 
-    const QList<BaseItemInterface *> &                   itemModules() const;
-    const QList<CuteReport::PageInterface*> &            pageModules() const;
-    const QList<CuteReport::DatasetInterface*> &         datasetModules() const;
-    const QList<CuteReport::StorageInterface*> &         storageModules() const;
-    const QList<CuteReport::RendererInterface*> &        rendererModules() const;
-    const QList<CuteReport::PrinterInterface*> &         printerModules() const;
-    const QList<CuteReport::FormInterface*> &            formModules() const;
-    const QList<CuteReport::ImportInterface*> &          importModules() const;
-    const QList<CuteReport::ExportInterface*> &          exportModules() const;
-    const QList<CuteReport::ScriptExtensionInterface*> & scriptExtensionModules() const;
+    /*! returns module by module name.
+     * If name is not specified, first appropriate module is returned
+     **/
+    const ReportPluginInterface * module(ModuleType moduleType, const QString &moduleName) const;
 
-    QList<StorageInterface *> storageObjectList(CuteReport::ReportInterface * report = 0) const;
+    /*! returns a list of module names for appropriate module type */
+    QStringList moduleNames(ModuleType moduleType, bool shortName = false) const;
 
-    const BaseItemInterface*                itemModule(const QString & moduleName  = QString()) const;
-    const CuteReport::PageInterface*        pageModule(const QString & moduleName  = QString()) const;
-    const CuteReport::DatasetInterface*     datasetModule(const QString & moduleName  = QString()) const;
-    CuteReport::SerializerInterface*        serializerModule(const QString & moduleName  = QString()) const;
-    CuteReport::StorageInterface*           storageModule(const QString & moduleName = QString()) const;
-    CuteReport::StorageInterface*           storageModuleByScheme(const QString & scheme) const;
-    CuteReport::RendererInterface*          rendererModule(const QString & moduleName = QString()) const; //default if empty
-    CuteReport::PrinterInterface*           printerModule(const QString & moduleName = QString()) const; //default if empty
-    CuteReport::FormInterface*              formModule(const QString & moduleName = QString()) const;
-    const CuteReport::ImportInterface*      importModule(const QString & moduleName = QString()) const;
-    CuteReport::ExportInterface*            exportModule(const QString & moduleName = QString()) const;
+    /*! converts module type to/from string */
+    QString moduleTypeToString(ModuleType type) const;
+    ModuleType moduleTypeFromString(const QString & type) const;
+
+    /*! moduleOptions returns module object's property list.
+     * Each string is in format propertyName=propertyValue
+     * The list can include object name if "includeObjectName" set to true
+     * setModuleOptions restores module object properties from string list
+     * moduleOptionsStr and setModuleOptionsStr do the same work but using string instead of string list where eacg row is joined using
+     * defined delimiter.Delimiter can not be defined space.
+     * Delimiter contains 1 character and it is saved on the first position of the result string.
+     * By default delimiter is "," (comma)
+     **/
+    QStringList moduleOptions(ReportPluginInterface * module, bool includeObjectName = true);
+    void setModuleOptions(ReportPluginInterface * module, const QStringList & options, bool setObjectNameIfDefined = true);
+    QString moduleOptionsStr(ReportPluginInterface * module, bool includeObjectName = true, const QString & delimiter = QString());
+    void setModuleOptionsStr(ReportPluginInterface * module, const QString & options, bool setObjectNameIfDefined = true);
+
+    /*! setStorage will replace current one with the same objectName if exisit
+     */
+    QList<StorageInterface *>       storageList(ReportInterface * report = 0) const;
+    QStringList                     storageNameList(ReportInterface * report = 0) const;
+    StorageInterface *              storage(const QString & objectName, ReportInterface * report = 0) const;
+    StorageInterface *              storageByUrl(const QString & urlString, ReportInterface * report = 0) const;
+    void                            setStorage(StorageInterface * storage);
+    void                            deleteStorage(const QString & objectName);
+
+    QList<RendererInterface *>      rendererList(ReportInterface * report = 0) const;
+    QStringList                     rendererNameList(ReportInterface * report = 0) const;
+    RendererInterface *             renderer(const QString &objectName) const;
+    RendererInterface *             renderer(ReportInterface * report, const QString &objectName = QString()) const;
+    void                            setRenderer(RendererInterface * renderer);
+    void                            deleteRenderer(const QString & objectName);
+
+    QList<PrinterInterface *>       printerList(ReportInterface * report = 0) const;
+    QStringList                     printerNameList(ReportInterface * report = 0) const;
+    PrinterInterface *              printer(const QString & objectName, ReportInterface * report = 0) const;
+    void                            setPrinter(PrinterInterface * printer);
+    void                            deletePrinter(const QString & objectName);
 
     PageInterface *     pageByName(const QString & pageName, CuteReport::ReportInterface * report) const;
     BaseItemInterface * itemByName(const QString & itemName, CuteReport::PageInterface * page = 0) const; //if page is 0, look at all pages
@@ -172,21 +227,23 @@ public:
     CuteReport::ReportInterface *   createReport();
     void                            deleteReport(CuteReport::ReportInterface * report);
 
-    CuteReport::PageInterface *     createPageObject(CuteReport::ReportInterface *report, const QString & moduleName = QString());
-    CuteReport::DatasetInterface *  createDatasetObject(CuteReport::ReportInterface *report, const QString & moduleName = QString());
-    BaseItemInterface *             createItemObject(CuteReport::ReportInterface *report, const QString & moduleName, QObject * parent = 0);
-    CuteReport::PrinterInterface *  createPrinterObject(CuteReport::ReportInterface *report, const QString & moduleName = QString());
-    CuteReport::StorageInterface *  createStorageObject(CuteReport::ReportInterface *report, const QString & moduleName = QString());
-    CuteReport::RendererInterface * createRendererObject(CuteReport::ReportInterface *report, const QString & moduleName = QString());
-    CuteReport::FormInterface *     createFormObject(CuteReport::ReportInterface *report, const QString & moduleName = QString());
-    CuteReport::ExportInterface *   createExportObject(CuteReport::ReportInterface *report, const QString & moduleName = QString());
+    /*! Below methods create new object of specified module name.
+     * if moduleName is empty they will create object of the first accessible module.
+     * It does NOT join object to report.
+     **/
+
+    CuteReport::PageInterface *     createPageObject(const QString & moduleName, CuteReport::ReportInterface *report = 0);
+    CuteReport::DatasetInterface *  createDatasetObject(const QString & moduleName, CuteReport::ReportInterface *report = 0);
+    BaseItemInterface *             createItemObject(const QString & moduleName, CuteReport::ReportInterface *report = 0, QObject * parent = 0);
+    CuteReport::PrinterInterface *  createPrinterObject(const QString & moduleName, CuteReport::ReportInterface *report = 0);
+    CuteReport::StorageInterface *  createStorageObject(const QString & moduleName, CuteReport::ReportInterface *report = 0);
+    CuteReport::RendererInterface * createRendererObject(const QString & moduleName, CuteReport::ReportInterface *report = 0);
+    CuteReport::FormInterface *     createFormObject(const QString & moduleName, CuteReport::ReportInterface *report = 0);
+    CuteReport::ExportInterface *   createExportObject(const QString & moduleName, CuteReport::ReportInterface *report = 0);
 
     QByteArray  serialize(const QObject * object, bool *ok = 0, QString * error = 0, const QString & moduleName = QString());
     QObject *   deserialize(const QByteArray &data, bool *ok = 0, QString * error = 0, const QString & moduleName = QString());
 
-    /*! Storage methods */
-    CuteReport::StorageInterface * getStorageByUrl(const QString & urlString, CuteReport::ReportInterface * report) const;
-    CuteReport::StorageInterface * getStorageByName(const QString & storageName, CuteReport::ReportInterface * report) const;
 
     bool saveReport(const QString & urlString, CuteReport::ReportInterface * report, QString * errorText = 0);
 
@@ -195,19 +252,19 @@ public:
 
     bool        saveObject(const QString & urlString,
                             CuteReport::ReportInterface * report,
-                            const QVariant & objectData,
+                            const QByteArray &objectData,
                             QString * errorText = 0);
 
-    QVariant    loadObject(const QString & urlString,
+    QByteArray    loadObject(const QString & urlString,
                               CuteReport::ReportInterface * report,
                               QString * errorText = 0);
 
     QString localCachedFileName(const QString & url, CuteReport::ReportInterface * report);
 
     /*! Renderer methods */
-    const QList<QString> renderers();
-    bool render(ReportInterface* report);
-    bool render(const QString & reportUrl);
+//    const QList<QString> renderers();
+    bool render(ReportInterface* report, const QString &rendererName = QString());
+    bool render(const QString & reportUrl, const QString &rendererName = QString());
     void stopRendering(ReportInterface *report);
     int rendererTotalPages(ReportInterface *report) const;
     RenderedPageInterface * rendererGetPage(ReportInterface *report, int number) const;
@@ -215,8 +272,8 @@ public:
     void renderDataclearAll();
 
     /*! Printer methods */
-    void print(ReportInterface* report);
-    void print(const QString url);
+    void print(ReportInterface* report, const QString & printerName = QString());
+    void print(const QString url, const QString & printerName = QString());
 
     /*! Import methods */
     QStringList importExtensions() const;
@@ -234,17 +291,14 @@ public:
     static void log(LogLevel level, const QString & sender, const QString & shortMessage, const QString & fullMessage);
 
     static bool isNameUnique(QObject *object, const QString &name, QObject * rootObject);
+    static QString uniqueName(QObject * object, const QString &proposedName, QObject *rootObject);
 
     int maxRenderingThreads() const;
     void setMaxRenderingThreads(int maxRenderingThreads);
 
-    //deleting of the interface object is designer's responcibility
+    //deleting of the interface object is designer's responsibility
     void registerDesignerInterface(CuteReport::DesignerItemInterface * _interface);
     CuteReport::DesignerItemInterface * designerInterface() const;
-
-
-    CuteReport::StorageInterface * getStorageModule(const QString & moduleName, QString * errorText = 0) const;
-    CuteReport::RendererInterface * getRenderer(const ReportInterface *report) const;
 
     QSettings * settings();
 
@@ -253,7 +307,6 @@ public:
     QString imagesPath() const;
     QString pluginsPath() const;
 
-    static QString uniqueName(QObject * object, const QString &proposedName, QObject *rootObject);
 
 public slots:
     void sendMetric(CuteReport::MetricType type, const QVariant &value);
@@ -289,6 +342,17 @@ private slots:
 
 private:
     static bool loadPlugins(QSettings *settings);
+    static void processModuleList(QList<ReportPluginInterface *> &list);
+    ReportPluginInterface * getOriginalModuleByName(const QString & moduleName, const QList<ReportPluginInterface *> &list) const;
+    ReportPluginInterface * getExtendedModuleByName(const QString & origModuleName, const QList<ReportPluginInterface *> &list) const;
+    void saveObjectsOptions(const QString & prefix, const QList<ReportPluginInterface*> & objects, bool clearPrefix = true);
+    void loadObjectsOptions(const QString & prefix, QList<ReportPluginInterface*> & objects, const QList<ReportPluginInterface*> * plugins);
+    bool removeObject(const QString &  objectName, QList<ReportPluginInterface*> & objects);
+    bool replaceObject(ReportPluginInterface* object, QList<ReportPluginInterface*> & objects, QPointer<ReportPluginInterface> defaultObject);
+    QStringList objectNames(const QList<ReportPluginInterface *> &objects) const;
+    ReportPluginInterface * getObjectByName(const QString & objectName, const QList<ReportPluginInterface *> &list) const;
+    void createLocalObjects(QList<ReportPluginInterface*> & objects, const QList<ReportPluginInterface*> * plugins);
+    ReportPluginInterface * findDefaultObject(const QString &type, const QString & fullModuleName, QList<ReportPluginInterface*> & objects);
 
     void init(QSettings * settings, bool initLogSystem);
     inline bool checkReportPointer(CuteReport::ReportInterface * report, QString * errorText = 0) const;
@@ -302,32 +366,29 @@ private:
 private:
     static int m_refCount;
 
-    // TODO: v2 - change  each list to work with CuteReport::ReportPluginInterface *
-    // and make methods simplier
-    static QList<BaseItemInterface*> * m_itemPlugins;
-    static QList<PageInterface*> * m_pagePlugins;
-    static QList<DatasetInterface*> * m_datasetPlugins;
-    static QList<StorageInterface*> * m_storagePlugins;
-    static QList<SerializerInterface*> * m_serializePlugins;
-    static QList<RendererInterface*> * m_rendererPlugins;
-    static QList<PrinterInterface*> * m_printerPlugins;
-    static QList<FormInterface*> * m_formPlugins;
-    static QList<ImportInterface*> * m_importPlugins;
-    static QList<ExportInterface*> * m_exportPlugins;
-    static QList<ScriptExtensionInterface*> * m_scriptExtensionPlugins;
+    static QList<ReportPluginInterface*> * m_itemPlugins;
+    static QList<ReportPluginInterface*> * m_pagePlugins;
+    static QList<ReportPluginInterface*> * m_datasetPlugins;
+    static QList<ReportPluginInterface*> * m_storagePlugins;
+    static QList<ReportPluginInterface*> * m_serializePlugins;
+    static QList<ReportPluginInterface*> * m_rendererPlugins;
+    static QList<ReportPluginInterface*> * m_printerPlugins;
+    static QList<ReportPluginInterface*> * m_formPlugins;
+    static QList<ReportPluginInterface*> * m_importPlugins;
+    static QList<ReportPluginInterface*> * m_exportPlugins;
+    static QList<ReportPluginInterface*> * m_scriptExtensionPlugins;
 
-    SerializerInterface*    m_defaultSerializer;
-    StorageInterface*       m_defaultStorage;
-    PrinterInterface*       m_defaultPrinter;
-    RendererInterface*      m_defaultRenderer;
+    QPointer<ReportPluginInterface>   m_defaultStorage;
+    QPointer<ReportPluginInterface>   m_defaultRenderer;
+    QPointer<ReportPluginInterface>   m_defaultPrinter;
+    QPointer<ReportPluginInterface>   m_defaultSerializer;
 
     QWidget* m_rootWidget;
-
-    QList<SerializerInterface*> m_serializers;
-    QList<StorageInterface*>    m_storages;
-    QList<PrinterInterface*>    m_printers;
-    QList<RendererInterface*>   m_renderers;
-    QList<ExportInterface*>     m_exporters;
+    QList<ReportPluginInterface*> m_storages;
+    QList<ReportPluginInterface*> m_renderers;
+    QList<ReportPluginInterface*> m_printers;
+    QList<ReportPluginInterface*> m_serializers;
+    QList<ReportPluginInterface*> m_exporters;
 
     QSettings * m_settings;
     bool m_interactive;

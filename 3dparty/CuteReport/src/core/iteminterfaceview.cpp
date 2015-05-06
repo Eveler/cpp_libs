@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -30,6 +30,7 @@
 #include "iteminterfaceview.h"
 #include "iteminterface.h"
 #include "pageinterface.h"
+#include "baseiteminterface_p.h"
 #include <QtCore>
 #include <QtGui>
 
@@ -93,6 +94,19 @@ void ItemInterfaceView::paint(QPainter * painter, const QStyleOptionGraphicsItem
 {
     BaseItemInterface::paintBegin(painter, option, data ? data : coreItem()->d_ptr, boundingRect(), RenderingTemplate);
     BaseItemInterface::paintEnd(painter, option, data ? data : coreItem()->d_ptr, boundingRect(), RenderingTemplate);
+}
+
+
+QRectF ItemInterfaceView::boundingRect() const
+{
+    QRectF rect = this->rect().toRect();
+    int penWidth = coreItem()->d_ptr->borderPen.widthF()/72*coreItem()->d_ptr->dpi;
+//    if (penWidth&1)
+//        rect = rect.adjusted( -penWidth, -penWidth, +penWidth+1, +penWidth+1 );
+//    else
+        rect = rect.adjusted( -penWidth, -penWidth, +penWidth, +penWidth );
+    //rect = rect.adjusted( -penwidth, -penwidth, +penwidth, +penwidth );
+    return rect;
 }
 
 

@@ -32,6 +32,7 @@
 #define PROPERTYEDITORPROPERTYEDITOR_H
 
 #include "globals.h"
+
 #include <QWidget>
 #include <QVariant>
 #include <QModelIndex>
@@ -83,8 +84,8 @@ private:
     void init();
     PropertyModel *model();
 
-    PluginManager * m_pluginManager;
     Ui::propertyeditor *ui;
+    PluginManager * m_pluginManager;
 	QObject *m_object;
 	PropertyModel* m_model;
 	PropertyDelegate* m_delegate;

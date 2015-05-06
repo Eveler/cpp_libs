@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -217,4 +217,16 @@ void RenderedItemInterface::setDpi(int dpi, bool withChildren)
             }
         }
     }
+}
+
+
+QRectF RenderedItemInterface::boundingRect() const
+{
+    QRectF rect = this->rect().toRect();
+    int penWidth = d_ptr->borderPen.widthF()/72*d_ptr->dpi;
+    if (penWidth&1)
+        rect = rect.adjusted( -penWidth, -penWidth, +penWidth+1, +penWidth+1 );
+    else
+        rect = rect.adjusted( -penWidth, -penWidth, +penWidth, +penWidth );
+    return rect;
 }
