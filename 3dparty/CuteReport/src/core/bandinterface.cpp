@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -76,10 +76,10 @@ int BandInterface::layoutPriority() const
 }
 
 
-BandInterface::AccomodationType BandInterface::accommodationType() const
-{
-    return AccomodationOnce;
-}
+//BandInterface::AccomodationType BandInterface::accommodationType() const
+//{
+//    return AccomodationOnce;
+//}
 
 
 void BandInterface::setGeometry(const QRectF & rect, Unit unit)
@@ -226,7 +226,7 @@ void BandInterface::setShowStretchability(bool value)
 
 QSizeF BandInterface::stretchOriginalSize() const
 {
-    Q_D( const BandInterface);
+    Q_D(const BandInterface);
     return d->stretchOriginalSize;
 }
 
@@ -237,6 +237,24 @@ void BandInterface::setStretchOriginalSize(const QSizeF &size)
     if (d->stretchOriginalSize == size)
         return;
     d->stretchOriginalSize = size;
+}
+
+
+QFont BandInterface::font() const
+{
+    Q_D(const BandInterface);
+    return d->font;
+}
+
+
+void BandInterface::setFont(const QFont &font)
+{
+    Q_D(BandInterface);
+    if (d->font == font)
+        return;
+    d->font = font;
+    emit fontChanged(d->font);
+    emit changed();
 }
 
 

@@ -2,6 +2,8 @@
  *   This file is part of the CuteReport project                           *
  *   Copyright (C) 2014 by Ivan Volkov                                     *
  *   wulff007@gmail.com                                                    *
+ *   Copyright (C) 2015 by Alexander Mikhalov                              *
+ *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
  *                                                                         *
@@ -29,9 +31,8 @@
  ***************************************************************************/
 #include "modeldataset.h"
 #include "modeldatasethelper.h"
-#include "testmodel.h"
-#include "proxymodel.h"
-#include "clonemodel.h"
+#include "models/testmodel.h"
+#include "models/clonemodel.h"
 
 #include <QIcon>
 
@@ -40,9 +41,10 @@ ModelDataset::ModelDataset(QObject *parent) :
     m_helper(0),
     m_sourceModel(0),
     m_testModel(new TestModel(this)),    
-    m_sourceModelName(QString("model1")),
     m_currentRow(0),
-    m_isPopulated(false)
+    m_isPopulated(false),
+    m_isInited(false),
+    m_externalModelAddress(0)
 {    
 }
 
@@ -51,16 +53,13 @@ ModelDataset::ModelDataset(const ModelDataset &dd, QObject *parent) :
     m_helper(0),
     m_sourceModel(0),
     m_testModel(new TestModel(this)),
-    m_currentRow(0),
-    m_isPopulated(false)
+    m_currentRow(dd.m_currentRow),
+    m_isPopulated(false),
+    m_isInited(false),
+    m_externalModelAddress(dd.m_externalModelAddress),
+    m_addressVariableName(dd.m_addressVariableName),
+    m_testModelData(dd.m_testModelData)
 {
-    m_sourceModelName = dd.m_sourceModelName;
-    m_testModelData = dd.m_testModelData;
-
-    if (dd.m_isPopulated) {
-        populate();
-        setCurrentRow(dd.m_currentRow);
-    }
 }
 
 
@@ -68,14 +67,43 @@ ModelDataset::~ModelDataset()
 {
 }
 
-void ModelDataset::setSourceModelName(QString name)
+void ModelDataset::init()
 {
-    m_sourceModelName = name;
+    DatasetInterface::init();
+    m_isInited = true;
 }
 
-QString ModelDataset::sourceModelName() const
+void ModelDataset::setAddressVariable(QString name)
 {
-    return m_sourceModelName;
+    if (name == m_addressVariableName)
+        return;
+
+    m_addressVariableName = name.trimmed();
+
+    emit changed();
+    emit addressVariableChanged(m_addressVariableName);
+    emit variablesChanged();
+}
+
+QString ModelDataset::addressVariable() const
+{
+    return m_addressVariableName;
+}
+
+void ModelDataset::setModelAddress(quint64 address)
+{
+    if (!m_isInited)    // do not restore address from serializer, it is not actual
+        return;
+
+    m_externalModelAddress = address;
+
+    emit changed();
+    emit modelAddressChanged(m_externalModelAddress);
+}
+
+quint64 ModelDataset::modelAddress() const
+{
+    return m_externalModelAddress;
 }
 
 QByteArray ModelDataset::testModelData() const
@@ -85,27 +113,32 @@ QByteArray ModelDataset::testModelData() const
 
 void ModelDataset::setTestModelData(QByteArray data)
 {
+    if (data == m_testModelData)
+        return;
+
     m_testModelData = data;
+
+    emit changed();
+    emit testModelDataChanged(m_testModelData);
 }
 
 QAbstractItemModel *ModelDataset::model()
 {
-    return sourceModel();
-}
-
-QAbstractItemModel *ModelDataset::sourceModel() const
-{
     return !m_sourceModel ? m_testModel : m_sourceModel;
 }
 
-void ModelDataset::setSourceModel(QAbstractItemModel *model)
-{
-    m_sourceModel = model;
-}
 
 TestModel *ModelDataset::testModel() const
 {
     return m_testModel;
+}
+
+QSet<QString> ModelDataset::variables() const
+{
+    QSet<QString> vars;
+    if (!m_addressVariableName.isEmpty())
+        vars << m_addressVariableName;
+    return vars;
 }
 
 CuteReport::DatasetInterface *ModelDataset::objectClone() const
@@ -132,34 +165,34 @@ QIcon ModelDataset::icon()
     return QIcon(":/images/model.png");
 }
 
-bool ModelDataset::firstRow()
+bool ModelDataset::setFirstRow()
 {
     emit(beforeFirst());
     m_currentRow = 0;
-    bool ret = rows();
+    bool ret = getRowCount();
     emit(afterFirst());
     return ret;
 }
 
-bool ModelDataset::lastRow()
+bool ModelDataset::setLastRow()
 {
     emit(beforeLast());
-    m_currentRow = sourceModel()->rowCount();
-    bool ret = m_currentRow < sourceModel()->rowCount() ? true:false;
+    m_currentRow = model()->rowCount();
+    bool ret = m_currentRow < model()->rowCount() ? true:false;
     emit(afterLast());
     return ret;
 }
 
-bool ModelDataset::nextRow()
+bool ModelDataset::setNextRow()
 {
     emit(beforeNext());
     m_currentRow++;
-    bool ret = m_currentRow < rows();
+    bool ret = m_currentRow < getRowCount();
     emit(afterNext());
     return ret;
 }
 
-bool ModelDataset::previousRow()
+bool ModelDataset::setPreviousRow()
 {
     emit(beforePrevious());
     m_currentRow--;
@@ -170,33 +203,42 @@ bool ModelDataset::previousRow()
 
 bool ModelDataset::populate()
 {
+    if (!m_isInited)
+        return false;
+
     emit beforePopulate();
 
     CuteReport::ReportInterface * report = dynamic_cast<CuteReport::ReportInterface*>(parent());
 
-    if (report->variables().contains(sourceModelName())) {
-        QVariant var = report->variables().value(sourceModelName());
+    QAbstractItemModel *model = 0;
+    delete m_sourceModel;
+    m_sourceModel = 0;
 
-        if (var.type() == QVariant::LongLong) {
+    if (!m_addressVariableName.isEmpty() && report->variables().contains(addressVariable())) {
+        QVariant var = report->variables().value(addressVariable());
+        if (var.type() == QVariant::ULongLong)
+            model = (QAbstractItemModel*)(var.toULongLong());
+    } else if (m_externalModelAddress != 0) {
+        model = (QAbstractItemModel*)(m_externalModelAddress);
+    }
 
-            QAbstractItemModel *model = (QAbstractItemModel*)(var.toLongLong());
-            if (model) {
-                m_cloneModel = new CloneModel(this);
-                m_cloneModel->populate(model);
+    if (model) {
+        CloneModel * cloneModel = new CloneModel(this);
+        cloneModel->populate(model);
 
-                m_sourceModel = m_cloneModel;
-            } else {
-                qWarning() << "Variable '" << sourceModelName() << "contains, type long, but can't cast to QAbstractItemModel";
-            }
-        }
+        m_sourceModel = cloneModel;
+    } else {
+        // TODO: use CuteReport log instead
+        qWarning() << "Variable '" << addressVariable() << "contains, type long, but can't cast to QAbstractItemModel";
     }
 
     if (!m_sourceModel) {
         m_testModel->load(testModelData());
-    }
+        m_currentRow = m_testModel->rowCount() > 0 ? 0 : -1;
+    } else
+        m_currentRow = m_sourceModel->rowCount() > 0 ? 0 : -1;
 
     m_isPopulated = true;
-    m_currentRow = -1;
 
     emit afterPopulate();
     return true;
@@ -224,23 +266,24 @@ void ModelDataset::resetCursor()
     m_currentRow = -1;
 }
 
-int ModelDataset::currentRow()
+int ModelDataset::getCurrentRowNumber()
 {
     return m_currentRow;
 }
 
-bool ModelDataset::setCurrentRow(int index)
+bool ModelDataset::setCurrentRowNumber(int index)
 {
     emit(beforeSeek(index));
     m_currentRow = index;
-    bool ret = (m_currentRow >=0 && m_currentRow < sourceModel()->rowCount() ? true:false);
+    bool ret = (m_currentRow >=0 && m_currentRow < model()->rowCount() ? true:false);
     emit(afterSeek(index));
     return ret;
 }
 
-int ModelDataset::rows()
+int ModelDataset::getRowCount()
 {
-    return sourceModel()->rowCount();
+    if (!m_isPopulated) populate();
+    return model()->rowCount();
 }
 
 CuteReport::DatasetInterface *ModelDataset::createInstance(QObject *parent) const
@@ -249,12 +292,38 @@ CuteReport::DatasetInterface *ModelDataset::createInstance(QObject *parent) cons
 }
 
 
-int ModelDataset::columnIndexByName(QString name) const
+int ModelDataset::columnIndexByName(QString name)
+{
+    if (name.isEmpty()) {
+        qWarning() << "column name is empty";
+        return -1;
+    }
+
+    for (int i = 0; i < model()->columnCount(); i++) {
+//        qDebug() << sourceModel()->headerData(i, Qt::Horizontal, Qt::DisplayRole).toString();
+        if (model()->headerData(i, Qt::Horizontal, Qt::DisplayRole).toString() == name) {
+            return i;
+        }
+    }
+
+    int col = columnIndexIn(name, "field");
+
+    if (col == -1) {
+        col = columnIndexIn(name, "col");
+    }
+
+    if (col == -1) {
+        qWarning() << name << "is not defined in source or test model";
+    }
+    return col;
+}
+
+int ModelDataset::columnIndexIn(const QString &name, const QString &templateName) const
 {
     int col = -1;
     QString tmp = name;
-    if (tmp.contains("field", Qt::CaseInsensitive)) {
-        tmp.remove("field", Qt::CaseInsensitive);
+    if (tmp.contains(templateName, Qt::CaseInsensitive)) {
+        tmp.remove(templateName, Qt::CaseInsensitive);
 
         bool ok = false;
         col = tmp.toInt(&ok);
@@ -262,75 +331,88 @@ int ModelDataset::columnIndexByName(QString name) const
         if (!ok) {
             col = -1;
             qWarning() << name << "is incorrect field name";
+        } else {
+            return col - 1;
         }
     }
-    return col - 1;
+
+    return col;
 }
 
-QString ModelDataset::lastError()
+QString ModelDataset::getLastError()
 {
     return QString();
 }
 
-int ModelDataset::columns()
+int ModelDataset::getColumnCount()
 {
-    return sourceModel()->columnCount();
+    if (!m_isPopulated) populate();
+    return model()->columnCount();
 }
 
-QVariant ModelDataset::value(int index) const
+QVariant ModelDataset::getValue(int index)
 {
+    if (!m_isPopulated) populate();
     if (m_currentRow == -1) {
         return QVariant(QVariant::Invalid);
     }
 
-    if (index == -1 || index > sourceModel()->columnCount() - 1) {
+    if (index == -1 || index > model()->columnCount() - 1) {
         return QVariant(QVariant::Invalid);
     }
 
-    return sourceModel()->index(m_currentRow, index).data(Qt::DisplayRole);
+    return model()->index(m_currentRow, index).data(Qt::DisplayRole);
 }
 
-QVariant ModelDataset::value(const QString &field) const
+QVariant ModelDataset::getValue(const QString &field)
 {
     int col = columnIndexByName(field);
     if (col == -1) {
         return QVariant::Invalid;
     }
 
-    return value(col);
+    return getValue(col);
 }
 
-QVariant ModelDataset::lookaheadValue(int index) const
+QVariant ModelDataset::getNextRowValue(int index)
 {
-    return m_currentRow + 1 < sourceModel()->rowCount() && index < sourceModel()->columnCount()
-            ? sourceModel()->index(m_currentRow + 1, index).data()
+    if (!m_isPopulated) {
+        populate();
+    }
+
+    return m_currentRow <= model()->rowCount() && index < model()->columnCount()
+            ? model()->index(m_currentRow + 1, index).data()
             : QVariant(QVariant::Invalid);
 }
 
-QVariant ModelDataset::lookaheadValue(const QString &field) const
+QVariant ModelDataset::getNextRowValue(const QString &field)
 {
-    return lookaheadValue(columnIndexByName(field));
+    return getNextRowValue(columnIndexByName(field));
 }
 
-QVariant ModelDataset::lookbackValue(int index) const
+QVariant ModelDataset::getPreviousRowValue(int index)
 {
-    return m_currentRow-1 >= 0 && index < sourceModel()->columnCount()
-            ? sourceModel()->index(m_currentRow, index).data(Qt::DisplayRole)
+    if (!m_isPopulated)  {
+        populate();
+    }
+
+    return m_currentRow-1 >= 0 && index < model()->columnCount()
+            ? model()->index(m_currentRow, index).data(Qt::DisplayRole)
             : QVariant(QVariant::Invalid);
 }
 
-QVariant ModelDataset::lookbackValue(const QString &field) const
+QVariant ModelDataset::getPreviousRowValue(const QString &field)
 {
-    return lookbackValue(columnIndexByName(field));
+    return getPreviousRowValue(columnIndexByName(field));
 }
 
-QString ModelDataset::fieldName(int column)
+QString ModelDataset::getFieldName(int column)
 {
     Q_UNUSED(column)
     return QString();
 }
 
-QVariant::Type ModelDataset::fieldType(int column)
+QVariant::Type ModelDataset::getFieldType(int column)
 {
     Q_UNUSED(column)
     return QVariant::String;

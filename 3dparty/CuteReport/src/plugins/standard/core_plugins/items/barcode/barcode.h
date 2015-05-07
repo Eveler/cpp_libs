@@ -50,7 +50,7 @@
 #include <iteminterface.h>
 #include "iteminterfaceview.h"
 #include "renderediteminterface.h"
-#include "globals.h"
+#include "cutereport_globals.h"
 
 using namespace CuteReport;
 
@@ -83,11 +83,11 @@ class BarcodeItem : public CuteReport::ItemInterface
     Q_PROPERTY(QString script READ script WRITE setScript NOTIFY scriptChanged)
     Q_PROPERTY(QString testText READ testText WRITE setTestText NOTIFY testTextChanged)
 
-    Q_PROPERTY(PaintTypes paintType READ paintType WRITE setPaintType NOTIFY paintTypeChanged)
-    Q_PROPERTY(FrameTypes frameType READ frameType WRITE setFrameType NOTIFY frameTypeChanged)
-    Q_PROPERTY(BarcodeTypes barcodeType READ barcodeType WRITE setBarcodeType NOTIFY barcodeTypeChanged)
-    Q_PROPERTY(MsiPlessey msiPlessey READ msiPlessey WRITE setMsiPlessey NOTIFY msiPlesseyChanged)
-    Q_PROPERTY(DrawTextTypes drawTextType READ drawTextType WRITE setDrawTextType NOTIFY drawTextTypeChanged)
+    Q_PROPERTY(PaintTypes paintType READ paintType WRITE setPaintType NOTIFY paintTypeChanged DESIGNABLE false)
+    Q_PROPERTY(FrameTypes frameType READ frameType WRITE setFrameType NOTIFY frameTypeChanged DESIGNABLE false)
+    Q_PROPERTY(BarcodeTypes barcodeType READ barcodeType WRITE setBarcodeType NOTIFY barcodeTypeChanged DESIGNABLE false)
+    Q_PROPERTY(MsiPlessey msiPlessey READ msiPlessey WRITE setMsiPlessey NOTIFY msiPlesseyChanged DESIGNABLE false)
+    Q_PROPERTY(DrawTextTypes drawTextType READ drawTextType WRITE setDrawTextType NOTIFY drawTextTypeChanged DESIGNABLE false)
 
     Q_PROPERTY(QStringList _paintType_variants READ _paintType_variants DESIGNABLE false)
     Q_PROPERTY(QStringList _frameType_variants READ _frameType_variants DESIGNABLE false)

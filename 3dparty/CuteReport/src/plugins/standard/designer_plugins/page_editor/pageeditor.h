@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -49,6 +49,15 @@ class PageEditor : public CuteDesigner::ModuleInterface
 #endif
     Q_INTERFACES(CuteDesigner::ModuleInterface)
 public:
+
+    struct CopyPasteStruct {
+        QString page;
+        QString item;
+        bool cut;
+        QByteArray data;
+    };
+
+
     explicit PageEditor(QObject *parent = 0);
     ~PageEditor();
 
@@ -65,6 +74,9 @@ public:
     virtual qint16 priority() { return 200;}
 
     virtual QList<CuteDesigner::DesignerMenu*> mainMenu();
+    virtual CuteDesigner::Core::StdActions stdActions();
+
+    virtual void stdActionTriggered(CuteDesigner::Core::StdAction actionType, QAction * action);
 
 private slots:
     void slotActiveObjectChanged(QObject * object);
@@ -83,10 +95,15 @@ private slots:
     void slotPageNameChangedOutside(const QString &newName);
     void slotNewPage();
     void slotDeletePage();
+    void slotPageMoveFront();
+    void slotPageMoveBack();
+
+    void updateStdEditors();
 //    void slotReportCreated(CuteReport::ReportInterface*report);
 
 private:
     void _processNewPage(CuteReport::PageInterface* page);
+    void setStdActions(CuteDesigner::Core::StdActions actions);
 
     QPointer<PageEditorContainer> ui;
     PropertyEditor::EditorWidget *m_propertyEditor;
@@ -100,6 +117,11 @@ private:
     QHash<int,CuteReport::PageManipulatorInterface *> m_pageManipulators;
     QPointer<CuteReport::ReportInterface> m_currentReport;
     bool m_isActive;
+    bool m_blockPageOrders;
+    CuteDesigner::Core::StdActions m_stdActions;
+    CopyPasteStruct * m_copyPaste;
+
+    friend class PageEditorContainer;
 };
 
 #endif // PAGEEDITOR_H

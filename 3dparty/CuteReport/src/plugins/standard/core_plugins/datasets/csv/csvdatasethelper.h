@@ -50,8 +50,11 @@ public:
 
 protected:
     virtual void changeEvent(QEvent *e);
+
 private slots:
     void on_bBrowse_clicked();
+    void slotKeepDataInternalChanged(bool checked);
+    void loadFile(const QString & fileURL);
 
 private:
     Ui::CsvDatasetHelper *m_ui;

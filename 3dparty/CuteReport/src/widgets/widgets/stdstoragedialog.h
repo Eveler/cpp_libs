@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -31,11 +31,10 @@
 #define STDSTORAGEDIALOG_H
 
 #include "widgets_export.h"
-#include "cutereport.h"
+
 #include <QDialog>
 #include <QPointer>
 #include <QTreeWidgetItem>
-
 
 namespace Ui {
 class StdStorageDialog;
@@ -58,7 +57,7 @@ public:
     enum ViewOption {
         ShowNothing             = 0x00,
         ShowStorageSelect       = 0x01,
-        ShowAll             = 0xff
+        ShowAll                 = 0xff
     };
     Q_DECLARE_FLAGS(ViewOptions, ViewOption)
 
@@ -66,36 +65,37 @@ public:
     explicit StdStorageDialog(ReportCore * reportCore, ReportInterface * report, QWidget *parent = 0, const QString &windowTitle = QString());
     ~StdStorageDialog();
 
+    void setUrl(const QString & url);
+
     void setViewOptions(ViewOptions f);
     void setExtensionAutocomplete(bool b);
 
     void setCurrentStorage(const QString & storageName, bool exclusive = false);
-//    void setCurrentStorageByName(const QString & storageScheme, bool exclusive = false);
     QString currentStorageName();
 
     /** set default path(s) if it found */
-    void setUrlHint(const QString & urlHint);
-    void setUrlHints(const QStringList & urlHints); // first has more priority
+//    void setUrlHint(const QString & urlHint);
+//    void setUrlHints(const QStringList & urlHints); // first has more priority
 
     /** highlights this file if found */
-    void setObjectHint(const QString & objectHint);
+//    void setObjectHint(const QString & objectHint);
 
     void setNameFilters(const QStringList & nameFilters, bool addAllFilesOption = true);
     QString currentNameFilter() const;
 
     void setRootDir(const QString & dir, bool canGoOutRoot = false);
     QString rootDir() const;
-//    void setDirFilters(QDir::Filters filters);
-//    QDir::Filters dirFilters() const;
+
     QString currentFolderUrl() const;
     QString currentObjectUrl() const;
+
     bool currentObjectExists() const;
 
-    void populate(const QString &_url, const QString &urlIfEmpyTryThis = QString());
+    bool populate();
 
 private slots:
     void currentStoragetIndexChanged(int index);
-    void currentFultertIndexChanged(int index);
+    void currentFiltertIndexChanged(int index);
     void currentItemChanged ( QTreeWidgetItem * current, QTreeWidgetItem * previous );
     void itemDoubleClicked ( QTreeWidgetItem * current, int);
     void itemActivated ( QTreeWidgetItem * item, int column );
@@ -113,12 +113,14 @@ private:
     CuteReport::ReportCore * m_reportCore;
     QPointer<StorageInterface> m_storage;
     QPointer<ReportInterface> m_report;
-    QStringList m_urlHints;
-    QString m_objectHint;
+//    QStringList m_urlHints;
+//    QString m_objectHint;
     QString m_rootDir;
     bool m_canGoOutRoot;
-    QString m_currentUrl;
-    QString m_previousUrl;
+    QString m_currentPath;
+    QString m_proposedFileName;
+    QStringList m_urlBackward;
+//    QString m_previousUrl;
     typedef QMap<const QTreeWidgetItem *, QPixmap> FormPixmapCache;
     FormPixmapCache m_formPixmapCache;
     bool m_useAllFilesFilter;

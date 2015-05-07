@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -33,8 +33,8 @@
 
 #include <QObject>
 #include <QtCore>
-#include "types.h"
-#include "globals.h"
+#include "cutereport_types.h"
+#include "cutereport_globals.h"
 
 namespace CuteReport {
 
@@ -70,8 +70,8 @@ public:
 
     static void createInstance(QSettings * settings);
     static Log * instance();
-    static void refCounterInc();
-    static void refCounterDec();
+    static void refCounterInc(QObject * object);
+    static void refCounterDec(QObject * object);
 
     void push(LogLevel logLevel, const QString &sender, const QString &message);
     void push(LogLevel logLevel, const QString &sender, const QString &shortMessage, const QString &fullMessage);
@@ -116,6 +116,7 @@ private:
 private:
     static Log * m_log;
     static int m_refCounter;
+    static QObjectList m_objects;
 
     bool m_isInited;
 

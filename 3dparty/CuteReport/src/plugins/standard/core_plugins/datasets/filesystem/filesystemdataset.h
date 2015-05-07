@@ -31,11 +31,10 @@
 #define FILESYSTEMDATASET_H
 
 #include <datasetinterface.h>
-#include <QtSql>
-#include <QSortFilterProxyModel>
 #include <reportinterface.h>
-#include "globals.h"
+#include "cutereport_globals.h"
 
+#include <QSortFilterProxyModel>
 
 class FSModel;
 
@@ -83,29 +82,29 @@ public:
     virtual CuteReport::DatasetHelperInterface * helper();
     virtual QAbstractItemModel * model();
 
-    virtual QString lastError();
+    virtual QString getLastError();
 
     virtual bool populate();
     virtual bool isPopulated();
     virtual void setPopulated(bool b);
     virtual void reset();
     virtual void resetCursor();
-    virtual bool firstRow();
-    virtual bool lastRow();
-    virtual bool nextRow();
-    virtual bool previousRow();
-    virtual int  currentRow();
-    virtual bool setCurrentRow(int index);
-    virtual int rows();
-    virtual int columns();
-    virtual QVariant value(int index) const;
-    virtual QVariant value(const QString & field) const;
-    virtual QVariant lookaheadValue(int index) const;
-    virtual QVariant lookaheadValue(const QString & field) const;
-    virtual QVariant lookbackValue(int index) const;
-    virtual QVariant lookbackValue(const QString & field) const;
-    virtual QString fieldName(int column );
-    virtual QVariant::Type fieldType(int column);
+    virtual bool setFirstRow();
+    virtual bool setLastRow();
+    virtual bool setNextRow();
+    virtual bool setPreviousRow();
+    virtual int  getCurrentRowNumber();
+    virtual bool setCurrentRowNumber(int index);
+    virtual int getRowCount();
+    virtual int getColumnCount();
+    virtual QVariant getValue(int index);
+    virtual QVariant getValue(const QString & field);
+    virtual QVariant getNextRowValue(int index);
+    virtual QVariant getNextRowValue(const QString & field);
+    virtual QVariant getPreviousRowValue(int index);
+    virtual QVariant getPreviousRowValue(const QString & field);
+    virtual QString getFieldName(int column );
+    virtual QVariant::Type getFieldType(int column);
 
     virtual QString moduleShortName() const;
     virtual QString suitName() const { return "Standard"; }
@@ -120,10 +119,10 @@ public:
     void setRecursionLevel(int recursionLevel);
 
     int maxNumber() const;
-    void setMaxNumber(int value);
+    void setMaxNumber(int getValue);
 
     PathAppearance pathAppearance() const;
-    void setPathAppearance(const PathAppearance &value);
+    void setPathAppearance(const PathAppearance &getValue);
 
     QStringList nameFilters() const;
     void setNameFilters(const QStringList &filters);

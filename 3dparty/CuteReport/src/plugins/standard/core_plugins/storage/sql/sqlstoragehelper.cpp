@@ -53,7 +53,6 @@ SqlStorageHelper::SqlStorageHelper(StorageSql * storage, VisibleOptions visibleO
     connect(ui->edDatabase, SIGNAL(editingFinished()), this, SLOT(save()));
     connect(ui->edTable, SIGNAL(editingFinished()), this, SLOT(save()));
     connect(ui->edColId, SIGNAL(editingFinished()), this, SLOT(save()));
-    connect(ui->edColName, SIGNAL(editingFinished()), this, SLOT(save()));
     connect(ui->edColData, SIGNAL(editingFinished()), this, SLOT(save()));
     connect(ui->ckUseDefault, SIGNAL(toggled(bool)), this, SLOT(save()));
     connect(ui->edConnection, SIGNAL(editingFinished()), this, SLOT(save()));
@@ -86,8 +85,6 @@ void SqlStorageHelper::load()
         ui->edTable->setText(m_storage->tableName());
     if (ui->edColId->text() != m_storage->columnId())
         ui->edColId->setText(m_storage->columnId());
-    if (ui->edColName->text() != m_storage->columnName())
-        ui->edColName->setText(m_storage->columnName());
     if (ui->edColData->text() != m_storage->columnData())
         ui->edColData->setText(m_storage->columnData());
     if (ui->ckUseDefault->isChecked() != m_storage->useAsDefaultConnection())
@@ -117,8 +114,6 @@ void SqlStorageHelper::save()
         m_storage->setTableName(ui->edTable->text());
     if (ui->edColId->text() != m_storage->columnId())
         m_storage->setColumnId(ui->edColId->text());
-    if (ui->edColName->text() != m_storage->columnName())
-        m_storage->setColumnName(ui->edColName->text());
     if (ui->edColData->text() != m_storage->columnData())
         m_storage->setColumnData(ui->edColData->text());
     if (ui->ckUseDefault->isChecked() != m_storage->useAsDefaultConnection())

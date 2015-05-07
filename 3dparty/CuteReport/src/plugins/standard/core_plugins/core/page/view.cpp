@@ -1,7 +1,7 @@
 #include "view.h"
 #include "pagegui.h"
-#include "types.h"
-#include "functions.h"
+#include "cutereport_types.h"
+#include "cutereport_functions.h"
 #include "reportcore.h"
 #include "baseiteminterface.h"
 
@@ -27,7 +27,7 @@ void View::dragMoveEvent ( QDragMoveEvent * event )
     if (event->mimeData()->hasFormat("text/plain")) {
         QPointF pagePos = convertUnit( m_pageGui->m_pageItem->mapFromScene(mapToScene(event->pos())), Pixel, m_page->unit(), m_page->dpi());
 
-        const BaseItemInterface * item = m_page->reportCore()->itemModule(moduleName);
+        const BaseItemInterface * item = static_cast<const BaseItemInterface *>(m_page->reportCore()->module(ItemModule, moduleName));
         if (m_page->canContainAt(item, pagePos)) {
             event->acceptProposedAction();
         } else {

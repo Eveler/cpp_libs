@@ -1,0 +1,17 @@
+INPUT(
+./combobox.o
+./objectpreview.o
+./reportpreview.o
+./stdstoragedialog.o
+./emptydialog.o
+./exportdialog.o
+./functions_gui.o
+./qrc_reportpreview.o
+./qrc_stdstoragedialog.o
+./moc_combobox.o
+./moc_objectpreview.o
+./moc_reportpreview.o
+./moc_stdstoragedialog.o
+./moc_emptydialog.o
+./moc_exportdialog.o
+);

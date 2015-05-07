@@ -30,18 +30,19 @@
 #include "modeldatasethelper.h"
 #include "ui_modeldatasethelper.h"
 #include "modeldataset.h"
-#include "columntypemodel.h"
-#include "testmodel.h"
-#include "proxymodel.h"
+#include "models/columntypemodel.h"
+#include "models/testmodel.h"
 
 #include <QStringListModel>
 #include <QShortcut>
+#include <QInputDialog>
+#include <QMenu>
 
 ModelDatasetHelper::ModelDatasetHelper(ModelDataset *dataset) :
     CuteReport::DatasetHelperInterface(),
     ui(new Ui::ModelDatasetHelper),
     m_dataset(dataset),
-    m_proxyModel(new ProxyModel(this))
+    m_activatedSection(-1)
 {
     ui->setupUi(this);
 
@@ -52,8 +53,11 @@ ModelDatasetHelper::ModelDatasetHelper(ModelDataset *dataset) :
     ui->labType->setVisible(false);
     ui->cmbCoulmnType->setVisible(false);
 
-    m_proxyModel->setSourceModel(m_dataset->sourceModel());
-    ui->tableView->setModel(m_proxyModel);
+    ui->tableView->setModel(m_dataset->testModel());
+    ui->tableView->horizontalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
+
+    m_acRename = new QAction(tr("Rename column"), this);
+    connect(m_acRename, SIGNAL(triggered()), SLOT(slotRenameActivatedColumn()));
 
     load();
 
@@ -62,6 +66,10 @@ ModelDatasetHelper::ModelDatasetHelper(ModelDataset *dataset) :
     connect(ui->btnDeleteRow, SIGNAL(clicked()), SLOT(removeRow()));
     connect(ui->btnAddColumn, SIGNAL(clicked()), SLOT(addColumn()));
     connect(ui->btnDeleteColumn, SIGNAL(clicked()), SLOT(removeColumn()));
+    connect(ui->tableView->horizontalHeader(), SIGNAL(sectionDoubleClicked(int)), SLOT(slotRenameColumn(int)));
+    connect(m_dataset->testModel(), SIGNAL(changed()), m_dataset, SIGNAL(changed()));
+    connect(ui->edModelName, SIGNAL(textChanged(QString)), m_dataset, SIGNAL(changed()));
+    connect(ui->tableView->horizontalHeader(), SIGNAL(customContextMenuRequested(QPoint)), SLOT(showContextHorizontalHeaderMenu(QPoint)));
 
     QShortcut *scRemove = new QShortcut(this);
     scRemove->setKey(QKeySequence::Delete);
@@ -75,13 +83,13 @@ ModelDatasetHelper::~ModelDatasetHelper()
 
 void ModelDatasetHelper::save()
 {
-    m_dataset->setSourceModelName(ui->edModelName->text());
+    m_dataset->setAddressVariable(ui->edModelName->text());
     m_dataset->setTestModelData(m_dataset->testModel()->save());
 }
 
 void ModelDatasetHelper::load()
 {
-    ui->edModelName->setText(m_dataset->sourceModelName());
+    ui->edModelName->setText(m_dataset->addressVariable());
     m_dataset->testModel()->load(m_dataset->testModelData());
 }
 
@@ -152,6 +160,33 @@ void ModelDatasetHelper::scRemove()
             ui->tableView->model()->setData(index, QString());
         }
     }
+}
+
+void ModelDatasetHelper::slotRenameColumn(int column)
+{
+    QInputDialog dlg;
+    dlg.setWindowTitle(tr("Rename column"));
+    dlg.setInputMode(QInputDialog::TextInput);
+    dlg.setTextValue(ui->tableView->model()->headerData(column, Qt::Horizontal, Qt::DisplayRole).toString());
+
+    if (dlg.exec() == QDialog::Accepted) {
+        model()->setHeaderData(column, Qt::Horizontal, dlg.textValue(), Qt::DisplayRole);
+    }
+}
+
+void ModelDatasetHelper::slotRenameActivatedColumn()
+{
+    slotRenameColumn(m_activatedSection);
+}
+
+void ModelDatasetHelper::showContextHorizontalHeaderMenu(QPoint p)
+{
+    m_activatedSection = ui->tableView->horizontalHeader()->logicalIndexAt(p);
+
+    QMenu menu;
+    menu.addAction(m_acRename);
+
+    menu.exec(QCursor::pos());
 }
 
 QVariant::Type ModelDatasetHelper::currentColumnType() const

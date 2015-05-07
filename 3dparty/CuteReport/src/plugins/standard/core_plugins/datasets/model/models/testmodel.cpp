@@ -54,7 +54,7 @@ void TestModel::load(const QByteArray data)
         QDomElement domElement= domDoc.documentElement();
         traverseNode(domElement);
     } else {
-        qDebug() << "Error while QDomDocument::setContent :" << error << "line: " << errLine;
+//        qDebug() << "Error while QDomDocument::setContent :" << error << "line: " << errLine;
     }
 }
 
@@ -64,11 +64,22 @@ QByteArray TestModel::save()
     QDomProcessingInstruction pi = doc.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"utf8\"");
     doc.appendChild(pi);
 
+    QDomElement modelEl = doc.createElement("model");
+    doc.appendChild(modelEl);
+
     QDomElement  cellsEl = doc.createElement("cells");
     cellsEl.setAttribute("rows", rowCount());
     cellsEl.setAttribute("cols", columnCount());
-    doc.appendChild(cellsEl);
+    modelEl.appendChild(cellsEl);
 
+    QDomElement titlesEl = doc.createElement("titles");
+    for (int i = 0; i < columnCount(); i++) {
+        QDomElement col = doc.createElement(QString("col%1").arg(i));
+        QDomText text = doc.createTextNode(headerData(i, Qt::Horizontal, Qt::DisplayRole).toString());
+        col.appendChild(text);
+        titlesEl.appendChild(col);
+    }
+    modelEl.appendChild(titlesEl);
 
     for (int row = 0; row < rowCount(); row++) {
         QDomElement itemRow = doc.createElement(QString("row%1").arg(row));
@@ -103,7 +114,7 @@ QByteArray TestModel::save()
 
 void TestModel::traverseNode(const QDomNode &node)
 {
-    QDomElement cells = node.toElement();
+    QDomElement cells = node.toElement().firstChildElement("cells");
     int rows = cells.attribute("rows").toInt();
     int cols = cells.attribute("cols").toInt();
 
@@ -123,8 +134,7 @@ void TestModel::traverseNode(const QDomNode &node)
             int col = colNode.nodeName().remove(0, 3).toInt();
 
             QDomElement colEl = colNode.toElement();
-            setColumnType(col, QVariant::nameToType(colEl.attribute("type").toAscii()));
-
+            setColumnType(col, QVariant::nameToType(colEl.attribute("type").toLatin1()));
             setItem(row, col, new QStandardItem(colEl.text()));
 
             colNode = colNode.nextSibling();
@@ -143,6 +153,16 @@ void TestModel::traverseNode(const QDomNode &node)
             }
         }
     }
+
+    QDomElement titles = node.toElement().firstChildElement("titles");
+    QDomNode colNode = titles.firstChild();
+    while (!colNode.isNull()) {
+        int col = colNode.nodeName().remove(0, 3).toInt();
+        setHeaderData(col, Qt::Horizontal, colNode.toElement().text());
+
+        colNode = colNode.nextSibling();
+    }
+
 }
 
 void TestModel::setColumnType(const int col, const QVariant::Type type)
@@ -153,6 +173,75 @@ void TestModel::setColumnType(const int col, const QVariant::Type type)
 QVariant::Type TestModel::columnType(int col)
 {
     return m_typeByColumn.value(col, QVariant::String);
+}
+
+bool TestModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    if (QStandardItemModel::setData(index, value, role)) {
+        emit changed();
+        return true;
+    }
+
+    return false;
+}
+
+bool TestModel::removeColumns(int column, int count, const QModelIndex &parent)
+{
+    if (QStandardItemModel::removeColumns(column, count, parent)) {
+        emit changed();
+        return true;
+    }
+
+    return false;
+}
+
+bool TestModel::removeRows(int row, int count, const QModelIndex &parent)
+{
+    if (QStandardItemModel::removeRows(row, count, parent)) {
+        emit changed();
+        return true;
+    }
+
+    return false;
+}
+
+bool TestModel::insertColumns(int column, int count, const QModelIndex &parent)
+{
+    if (QStandardItemModel::insertColumns(column, count, parent)) {
+        emit changed();
+        return true;
+    }
+
+    return false;
+}
+
+bool TestModel::insertRows(int row, int count, const QModelIndex &parent)
+{
+    if (QStandardItemModel::insertRows(row, count, parent)) {
+        emit changed();
+        return true;
+    }
+
+    return false;
+}
+
+QVariant TestModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
+        return m_titleByColumn.value(section, QString("field%1").arg(section + 1));
+    }
+
+    return QStandardItemModel::headerData(section, orientation, role);
+}
+
+bool TestModel::setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role)
+{
+    if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
+        m_titleByColumn.insert(section, value.toString());
+        changed();
+    }
+
+    return true;
 }
 
 

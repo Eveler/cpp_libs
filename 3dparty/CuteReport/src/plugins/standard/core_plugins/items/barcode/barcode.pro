@@ -18,62 +18,68 @@ win32-msvc* {
     QMAKE_CXXFLAGS += /TP /wd4018 /wd4244 /wd4305
 }
 
-INCLUDEPATH += zint zint/backend zint/backend_qt4
+INCLUDEPATH += \
+    ../../../../../thirdparty/ \
+    ../../../../../thirdparty/zint \
+    ../../../../../thirdparty/zint/backend \
+    ../../../../../thirdparty/zint/backend_qt4
+
+DEPENDPATH  += $$INCLUDEPATH
 
 HEADERS += \
-    zint/backend_qt4/qzint.h \
-    zint/backend/zint.h \
-    zint/backend/sjis.h \
-    zint/backend/rss.h \
-    zint/backend/reedsol.h \
-    zint/backend/qr.h \
-    zint/backend/pdf417.h \
-    zint/backend/ms_stdint.h \
-    zint/backend/maxipng.h \
-    zint/backend/maxicode.h \
-    zint/backend/large.h \
-    zint/backend/gs1.h \
-    zint/backend/gridmtx.h \
-    zint/backend/gb2312.h \
-    zint/backend/font.h \
-    zint/backend/dmatrix.h \
-    zint/backend/composite.h \
-    zint/backend/common.h \
-    zint/backend/code49.h \
-    zint/backend/code1.h \
-    zint/backend/aztec.h \
+    $$PWD/../../../../../thirdparty/zint/backend_qt4/qzint.h \
+    $$PWD/../../../../../thirdparty/zint/backend/zint.h \
+    $$PWD/../../../../../thirdparty/zint/backend/sjis.h \
+    $$PWD/../../../../../thirdparty/zint/backend/rss.h \
+    $$PWD/../../../../../thirdparty/zint/backend/reedsol.h \
+    $$PWD/../../../../../thirdparty/zint/backend/qr.h \
+    $$PWD/../../../../../thirdparty/zint/backend/pdf417.h \
+    $$PWD/../../../../../thirdparty/zint/backend/ms_stdint.h \
+    $$PWD/../../../../../thirdparty/zint/backend/maxipng.h \
+    $$PWD/../../../../../thirdparty/zint/backend/maxicode.h \
+    $$PWD/../../../../../thirdparty/zint/backend/large.h \
+    $$PWD/../../../../../thirdparty/zint/backend/gs1.h \
+    $$PWD/../../../../../thirdparty/zint/backend/gridmtx.h \
+    $$PWD/../../../../../thirdparty/zint/backend/gb2312.h \
+    $$PWD/../../../../../thirdparty/zint/backend/font.h \
+    $$PWD/../../../../../thirdparty/zint/backend/dmatrix.h \
+    $$PWD/../../../../../thirdparty/zint/backend/composite.h \
+    $$PWD/../../../../../thirdparty/zint/backend/common.h \
+    $$PWD/../../../../../thirdparty/zint/backend/code49.h \
+    $$PWD/../../../../../thirdparty/zint/backend/code1.h \
+    $$PWD/../../../../../thirdparty/zint/backend/aztec.h \
 
 SOURCES += \
-    zint/backend_qt4/qzint.cpp \
-    zint/backend/library.c \
-    zint/backend/upcean.c \
-    zint/backend/telepen.c \
-    zint/backend/svg.c \
-    zint/backend/rss.c \
-    zint/backend/render.c \
-    zint/backend/reedsol.c \
-    zint/backend/qr.c \
-    zint/backend/ps.c \
-    zint/backend/postal.c \
-    zint/backend/png.c \
-    zint/backend/plessey.c \
-    zint/backend/pdf417.c \
-    zint/backend/medical.c \
-    zint/backend/maxicode.c \
-    zint/backend/large.c \
-    zint/backend/imail.c \
-    zint/backend/gs1.c \
-    zint/backend/gridmtx.c \
-    zint/backend/dmatrix.c \
-    zint/backend/dllversion.c \
-    zint/backend/composite.c \
-    zint/backend/common.c \
-    zint/backend/code128.c \
-    zint/backend/code49.c \
-    zint/backend/code16k.c \
-    zint/backend/code1.c \
-    zint/backend/code.c \
-    zint/backend/aztec.c \
-    zint/backend/auspost.c \
-    zint/backend/2of5.c
+    $$PWD/../../../../../thirdparty/zint/backend_qt4/qzint.cpp \
+    $$PWD/../../../../../thirdparty/zint/backend/library.c \
+    $$PWD/../../../../../thirdparty/zint/backend/upcean.c \
+    $$PWD/../../../../../thirdparty/zint/backend/telepen.c \
+    $$PWD/../../../../../thirdparty/zint/backend/svg.c \
+    $$PWD/../../../../../thirdparty/zint/backend/rss.c \
+    $$PWD/../../../../../thirdparty/zint/backend/render.c \
+    $$PWD/../../../../../thirdparty/zint/backend/reedsol.c \
+    $$PWD/../../../../../thirdparty/zint/backend/qr.c \
+    $$PWD/../../../../../thirdparty/zint/backend/ps.c \
+    $$PWD/../../../../../thirdparty/zint/backend/postal.c \
+    $$PWD/../../../../../thirdparty/zint/backend/png.c \
+    $$PWD/../../../../../thirdparty/zint/backend/plessey.c \
+    $$PWD/../../../../../thirdparty/zint/backend/pdf417.c \
+    $$PWD/../../../../../thirdparty/zint/backend/medical.c \
+    $$PWD/../../../../../thirdparty/zint/backend/maxicode.c \
+    $$PWD/../../../../../thirdparty/zint/backend/large.c \
+    $$PWD/../../../../../thirdparty/zint/backend/imail.c \
+    $$PWD/../../../../../thirdparty/zint/backend/gs1.c \
+    $$PWD/../../../../../thirdparty/zint/backend/gridmtx.c \
+    $$PWD/../../../../../thirdparty/zint/backend/dmatrix.c \
+    $$PWD/../../../../../thirdparty/zint/backend/dllversion.c \
+    $$PWD/../../../../../thirdparty/zint/backend/composite.c \
+    $$PWD/../../../../../thirdparty/zint/backend/common.c \
+    $$PWD/../../../../../thirdparty/zint/backend/code128.c \
+    $$PWD/../../../../../thirdparty/zint/backend/code49.c \
+    $$PWD/../../../../../thirdparty/zint/backend/code16k.c \
+    $$PWD/../../../../../thirdparty/zint/backend/code1.c \
+    $$PWD/../../../../../thirdparty/zint/backend/code.c \
+    $$PWD/../../../../../thirdparty/zint/backend/aztec.c \
+    $$PWD/../../../../../thirdparty/zint/backend/auspost.c \
+    $$PWD/../../../../../thirdparty/zint/backend/2of5.c
 

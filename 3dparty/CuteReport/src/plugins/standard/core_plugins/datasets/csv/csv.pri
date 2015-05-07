@@ -10,3 +10,5 @@ FORMS += csvdatasethelper.ui
 
 RESOURCES += \
     csvdataset.qrc
+
+#INSTALL_HEADERS.files = csvdataset.h

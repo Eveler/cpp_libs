@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -32,7 +32,7 @@
 
 #include <QObject>
 #include "baseiteminterface.h"
-#include "globals.h"
+#include "cutereport_globals.h"
 
 namespace CuteReport
 {
@@ -70,6 +70,8 @@ public:
 
     static ShiftMode shiftModeFromString(const QString & mode);
     static QString shiftModeToString(ShiftMode mode);
+
+    virtual StdEditorPropertyList stdEditorList() const;
 
 signals:
     void shiftModeChanged(ShiftMode shiftMode);

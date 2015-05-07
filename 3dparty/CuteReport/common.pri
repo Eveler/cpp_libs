@@ -3,12 +3,13 @@ REPORT_VERSION=$$VERSION
 
 #DEFINES += SYSTEMINSTALL
 #DEFINES += STATICBUILD
-DEFINES += DEMO
+#DEFINES += DEMO
+#DEFINES += PROBUILD
 
 BUILD_DIR = build
 # path for variables in home dir
 REPORT_VARS_PATH = "temp/cutereport/"
-#local path for devoping version installation
+#local path for developing version installation
 USER_INSTALL_PATH = "/home/alex/temp/install/cutereport/"
 
 
@@ -100,8 +101,8 @@ exists(src/plugins/extended/extended.pro) {
 }
 
 contains(DEFINES, STATICBUILD) {
-    DEFINES += STATIC_PROPERTYEDITOR
-    DEFINES += STATICPLUGINS_PROPERTYEDITOR
+    #DEFINES += STATIC_PROPERTYEDITOR
+    #DEFINES += STATICPLUGINS_PROPERTYEDITOR
     DEFINES += STATIC_DESIGNER
     DEFINES += STATICPLUGINS_DESIGNER
     DEFINES += STATIC_CORE

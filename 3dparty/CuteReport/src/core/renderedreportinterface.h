@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -21,7 +21,6 @@
 #ifndef RENDEREDREPORTINTERFACE_H
 #define RENDEREDREPORTINTERFACE_H
 
-#include <QObject>
 #include "pageinterface.h"
 
 namespace CuteReport
@@ -29,11 +28,10 @@ namespace CuteReport
 
 class RendererInterface;
 
-class CUTEREPORT_EXPORTS RenderedReportInterface : public QObject
+class CUTEREPORT_EXPORTS RenderedReportInterface
 {
-    Q_OBJECT
 public:
-    explicit RenderedReportInterface(QObject *parent = 0);
+    explicit RenderedReportInterface(){}
     virtual ~RenderedReportInterface(){}
 
     virtual int pageCount() const = 0;

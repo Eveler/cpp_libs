@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -31,12 +31,12 @@
 #define RENDERERINTERFACE_H
 
 #include "reportplugininterface.h"
+//#include <qscriptengine.h>
+
 #include <QObject>
 #include <QGraphicsItem>
-#include <QtScript>
 #include <QtCore>
-
-#include <qscriptengine.h>
+#include <QWidget>
 
 namespace CuteReport
 {
@@ -44,7 +44,7 @@ namespace CuteReport
 class ReportInterface;
 class RenderedPageInterface;
 class RenderedReportInterface;
-class RenderedReportInterface;
+class RendererHelperInterface;
 
 class CUTEREPORT_EXPORTS RendererInterface : public ReportPluginInterface
 {
@@ -62,8 +62,9 @@ public:
 
     virtual RendererInterface * createInstance(QObject * parent = 0) const = 0;
     virtual RendererInterface * clone() const = 0;
+    virtual CuteReport::RendererHelperInterface * helper() {return 0;}
 
-    virtual void run(ReportInterface* report) = 0;
+    virtual void run(ReportInterface* report, ThreadingLevel threading = ThreadNo) = 0;
     virtual void stop() = 0;
     virtual bool isRunning() = 0;
 
@@ -78,8 +79,8 @@ public:
     virtual int _currentProperty() { return m_currentProperty; }
     virtual QString _current_property_description() const;
 
-    virtual QAbstractItemModel * functionsModel() {return 0;}
-    virtual QAbstractItemModel * variablesModel() {return 0;}
+    virtual QAbstractItemModel * createFunctionsModel() {return 0;}
+    virtual QAbstractItemModel * createVariablesModel() {return 0;}
 
 signals:
     void started();
@@ -96,34 +97,22 @@ protected:
     int m_currentProperty;
 };
 
+
+class CUTEREPORT_EXPORTS RendererHelperInterface: public QWidget
+{
+    Q_OBJECT
+public:
+    enum VisibleOptions{ReportsOptions, ObjectsOptions, AllOptions};
+    RendererHelperInterface(RendererInterface *, VisibleOptions = AllOptions){}
+    virtual void load() = 0;
+    virtual void save() = 0;
+};
+
+
+
 } //namespace
 
 Q_DECLARE_INTERFACE(CuteReport::RendererInterface, "CuteReport.RendererInterface/1.0")
-
-/// ------------------  template for additional metatypes
-template <typename Tp>
-QScriptValue qScriptValueFromQObject(QScriptEngine *engine, Tp const &qobject)
-{
-    return engine->newQObject(qobject);
-}
-
-template <typename Tp>
-void qScriptValueToQObject(const QScriptValue &value, Tp &qobject)
-{
-    qobject = qobject_cast<Tp>(value.toQObject());
-}
-
-template <typename Tp>
-int qScriptRegisterQObjectMetaType( QScriptEngine *engine, const QScriptValue &prototype = QScriptValue()
-#ifndef qdoc
-    , Tp * /* dummy */ = 0
-#endif
-    )
-{
-    return qScriptRegisterMetaType<Tp>(engine, qScriptValueFromQObject,
-                                       qScriptValueToQObject, prototype);
-}
-/// --------------------------
 
 
 

@@ -39,8 +39,10 @@ using namespace CuteReport;
 const QString __connectName = "cutereport_designer";
 
 StorageSql::StorageSql(QObject *parent) :
-    StorageInterface(parent),
-    m_helper(0)
+    StorageInterface(parent)
+  , m_helper(0)
+  , m_port(-1)
+  , m_useAsDefaultConnection(false)
 {
 }
 
@@ -59,7 +61,7 @@ int StorageSql::moduleVersion() const
 
 QString StorageSql::moduleShortName() const
 {
-    return ModuleName;
+    return MODULENAME;
 }
 
 
@@ -95,66 +97,28 @@ QString StorageSql::localCachedFileName(const QString &url)
 }
 
 
-bool StorageSql::saveObject(const QString &url, const QVariant &objectData)
+bool StorageSql::saveObject(const QString &url, const QByteArray &objectData)
 {
-    QString dataField;
-    QString name;
-    if (!parseUrl(url, dataField, name)) {
-        return false;
-    }
-
-    if (m_columnName == m_columnId) {
-        m_columnName.clear();
-    }
-
-
-    QString id = idInName(name);
-
     QSqlDatabase db = getConnection();
     QSqlQuery sql(db);
 
     if (objectExists(url)) {
-        if (id.isEmpty()) {
-            m_lastError = tr("id is not set! ");
-            return false;
-        }
-
-        sql.prepare(QString("UPDATE %1 SET %2 = :data %4 WHERE %3 = :id")
+        sql.prepare(QString("UPDATE %1 SET %2 = :data WHERE %3 = :id")
                     .arg(m_tableName)
-                    .arg(dataField)
-                    .arg(m_columnId)
-                    .arg(!m_columnName.isEmpty() ? QString(",%1 = :name").arg(m_columnName) : QString()));
-
-        sql.bindValue(":id", id);
+                    .arg(m_columnData)
+                    .arg(m_columnId));
     } else {
-        sql.prepare(QString("INSERT INTO %1(%2 %3 %4) VALUES (%6 :data %5)")
+        sql.prepare(QString("INSERT INTO %1(%2, %3) VALUES (:id, :data)")
                     .arg(m_tableName)
-                    .arg(!id.isEmpty() ? m_columnId + ',' : QString())
-                    .arg(dataField)
-                    .arg(!m_columnName.isEmpty() ? ',' + m_columnName : QString())
-                    .arg(!m_columnName.isEmpty() ? ",:name" : QString())
-                    .arg(!id.isEmpty() ? ":id," : QString()));
-
-        if (!id.isEmpty()) {
-            sql.bindValue(":id", id);
-        }
+                    .arg(m_columnId)
+                    .arg(m_columnData));
     }
 
+    sql.bindValue(":id", cleanupUrl(url));
+    sql.bindValue(":data", QString(objectData));
 
 
-    if (!m_columnName.isEmpty()) {
-        sql.bindValue(":name", clearName(name));
-    }
-
-    sql.bindValue(":data", objectData.canConvert(QVariant::String)
-                  ? objectData.toString()
-                  : objectData.toByteArray());
-
-
-
-    //qDebug() << sql.
     if (!sql.exec()) {
-        qDebug() << sql.lastQuery();
         m_lastError = sql.lastError().text();
         qCritical() << m_lastError;
         return false;
@@ -164,72 +128,47 @@ bool StorageSql::saveObject(const QString &url, const QVariant &objectData)
 }
 
 
-QVariant StorageSql::loadObject(const QString &url)
+QByteArray StorageSql::loadObject(const QString &url)
 {
-    QString dataField;
-    QString name;
-
-    if (!parseUrl(url, dataField, name)) {
-        return QVariant();
+    if (m_tableName.isEmpty() || m_columnId.isEmpty() || m_columnData.isEmpty()) {
+        m_lastError = tr("Setting of report table is empty!");
+        return QByteArray();
     }
 
-    QString id = idInName(name);
-    if (id.isEmpty()) {
-        QString title = clearName(name);
-        if (!title.isEmpty()) {
-            id = title;
-        } else {
-            m_lastError = tr("Report id is not correct!");
-            return QVariant();
-        }
-    }
+    QString curl = cleanupUrl(url);
 
     QSqlDatabase db = getConnection();
     QSqlQuery sql(db);
-    sql.prepare(QString("SELECT %1 FROM %2 WHERE %3 = :id")
-             .arg(dataField)
-             .arg(m_tableName)
-             .arg(m_columnId));
+    sql.exec(QString("SELECT %1 FROM %2 WHERE %3 = '%4'")
+                .arg(m_columnData)
+                .arg(m_tableName)
+                .arg(m_columnId)
+                .arg(curl));
 
-    sql.bindValue(":id", id);
-
-    if (!sql.exec()) {
+    if (sql.lastError().isValid()) {
         m_lastError = sql.lastError().text();
         qCritical() << sql.lastError();
-        return QVariant();
+        return QByteArray();
     }
 
     if (!sql.next()) {
-        m_lastError = tr("Object(id:\"%1\") not found").arg(id);
+        m_lastError = tr("Object(id:\"%1\") not found").arg(curl);
         qCritical() << m_lastError;
-        return QVariant();
+        return QByteArray();
     }
 
-    return sql.value(0);
+    return sql.value(0).toByteArray();
 }
 
 
 bool StorageSql::objectExists(const QString &url)
 {
-    QString name;
-    QString data;
-    if (!parseUrl(url, data, name)) {
-        return false;
-    }
-
-    QString id = idInName(name);
-
-    if (id.isEmpty()) {
-        id = clearName(name);
-    }
-
     QSqlDatabase db = getConnection();
     QSqlQuery sql(db);
-    sql.prepare(QString("SELECT COUNT(*) FROM %1 WHERE %2 = :id")
-             .arg(m_tableName)
-             .arg(m_columnId));
-
-    sql.bindValue(":id",id);
+    sql.prepare(QString("SELECT COUNT(*) FROM %1 WHERE %2 = '%3'")
+                .arg(m_tableName)
+                .arg(m_columnId)
+                .arg(cleanupUrl(url)));
 
     if (!sql.exec()) {
         qCritical() << sql.lastError();
@@ -238,6 +177,7 @@ bool StorageSql::objectExists(const QString &url)
     }
 
     sql.next();
+
     return sql.value(0).toInt() > 0;
 }
 
@@ -250,30 +190,50 @@ QString StorageSql::lastError() const
 
 QList<CuteReport::StorageObjectInfo> StorageSql::objectsList(const QString &url, bool *ok)
 {
-    Q_UNUSED(url)
     QList<StorageObjectInfo> list;
 
     QSqlDatabase db = getConnection();
     QSqlQuery sql(db);
 
-    sql.exec(QString("SELECT %1, %2 FROM %3 ORDER BY %1")
+    sql.exec(QString("SELECT %1 FROM %2 ORDER BY %1")
                      .arg(m_columnId)
-                     .arg(!m_columnName.isEmpty() ? m_columnName : m_columnId)
                      .arg(m_tableName));
 
     if (sql.lastError().isValid()) {
-        ok = false;
+        *ok = false;
         m_lastError = sql.lastError().text();
         qCritical() << sql.lastError();
         return list;
     }
 
-    while (sql.next()) {
-        StorageObjectInfo objectInfo;
-        objectInfo.url = urlScheme() + ":<" + sql.value(0).toString() + "> " + sql.value(1).toString();
-        objectInfo.type = FileReport;
+    QString curl = cleanupUrl(url);
+    QStringList existDirs;
 
-        list.append(objectInfo);
+
+    while (sql.next()) {
+        QString name = sql.value(0).toString();
+
+        if (!isCurrentPath(name, curl)) {
+            continue;
+        }
+
+        QStringList dirs = name.remove(QRegExp(QString("^%1/").arg(curl))).split("/");
+
+        StorageObjectInfo info;
+        info.type = dirs.count() > 1 ? FileDir : FileReport;
+
+        if (info.type == FileReport) {
+
+            info.url =  urlScheme() + ":" + name;
+            list.append(info);
+
+        } else if (!existDirs.contains(dirs.first())) {
+
+            info.url = urlScheme() + ":" + curl + "/" + dirs.first();
+            existDirs.append(dirs.first());
+            list.append(info);
+        }
+
     }
 
     return list;
@@ -435,22 +395,6 @@ void StorageSql::setColumnData(const QString &columnData)
     emit changed();
 }
 
-
-QString StorageSql::columnName() const
-{
-    return m_columnName;
-}
-
-
-void StorageSql::setColumnName(const QString &columnName)
-{
-    if (columnName == m_columnName) return;
-    m_columnName = columnName;
-    emit columnNameChanged(m_columnName);
-    emit changed();
-}
-
-
 QString StorageSql::columnId() const
 {
     return m_columnId;
@@ -488,6 +432,7 @@ QString StorageSql::cleanupUrl(const QString &url)
     path.replace(QRegExp("/+"), "/");
     if (path[0] == '/')
         path.remove(0,1);
+
     return path;
 }
 
@@ -525,50 +470,17 @@ QSqlDatabase StorageSql::getConnection()
     return db;
 }
 
-
-bool StorageSql::parseUrl(const QString &url, QString &dataField, QString &name)
+bool StorageSql::isCurrentPath(const QString &filepath, const QString &url)
 {
-    QString nUrl = cleanupUrl(url);
-    QStringList params = nUrl.split('/');
-
-    if (params.count() == 0) {
-        m_lastError = tr("url not valid \"%1\"").arg(url);
-        qCritical() << m_lastError;
-        return false;
+    QString f = filepath;
+    if (f[0] == '/') {
+        f.remove(0,1);
     }
 
-    dataField = m_columnData;
-    if (params.count() > 1) {
-        dataField = params.first();
-        name = params.at(1);
-    } else {
-        name = params.first();
-    }
+    QRegExp rx(QString("(%1).+").arg(url));
 
-    return true;
-}
-
-
-QString StorageSql::idInName(const QString &name)
-{
-    QRegExp rx("<.+>");
-    int pos = rx.indexIn(name);
-    if (pos > -1) {
-        QString tmp = name.mid(pos, rx.matchedLength());
-        tmp.remove('<');
-        tmp.remove('>');
-
-        return tmp;
-    }
-
-    return QString();
-}
-
-
-QString StorageSql::clearName(const QString &name)
-{
-    QString tmp = name;
-    return tmp.remove(QRegExp("<.+>"));
+    int pos = rx.indexIn(f);
+    return pos == 0;
 }
 
 #if QT_VERSION < 0x050000

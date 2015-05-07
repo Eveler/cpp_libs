@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -32,7 +32,7 @@
 #include "chart_p.h"
 #include "datasetinterface.h"
 #include "reportinterface.h"
-#include "functions.h"
+#include "cutereport_functions.h"
 
 #define RADIANS_TO_DEGREES 57.2957795
 
@@ -227,7 +227,7 @@ void ChartHistogram::prepareData(ChartItemPrivate * d, CuteReport::ReportInterfa
     if (!dataset->isPopulated())
         dataset->populate();
 
-    dataset->firstRow();
+    dataset->setFirstRow();
 
     /** currently: dataset line per xValue **/
     /** TODO: dataset line per zValue **/
@@ -240,7 +240,7 @@ void ChartHistogram::prepareData(ChartItemPrivate * d, CuteReport::ReportInterfa
 
 //        if (zIndex == 0) {
             QVariant value = d->xField;
-            d->xValues.append((value.type() == QVariant::Int) ? dataset->value(value.toInt()).toString() : dataset->value(value.toString()).toString());
+            d->xValues.append((value.type() == QVariant::Int) ? dataset->getValue(value.toInt()).toString() : dataset->getValue(value.toString()).toString());
 
             int length = fontMetrix.width(d->xValues.last());
             if (length > biggestXLength) {
@@ -251,7 +251,7 @@ void ChartHistogram::prepareData(ChartItemPrivate * d, CuteReport::ReportInterfa
 
         for (int i = 0; i<d->zFields.count(); ++i) {
             QVariant value = d->zFields[i];
-            d->yValues.append((value.type() == QVariant::Int) ? dataset->value(value.toInt()).toReal() : dataset->value(value.toString()).toReal());
+            d->yValues.append((value.type() == QVariant::Int) ? dataset->getValue(value.toInt()).toReal() : dataset->getValue(value.toString()).toReal());
 
             if (d->zColors.size() < d->zFields.size()) {
                 d->zColors.append( ChartItem::randomColor() );
@@ -266,7 +266,7 @@ void ChartHistogram::prepareData(ChartItemPrivate * d, CuteReport::ReportInterfa
 
         }
 
-    } while (dataset->nextRow());
+    } while (dataset->setNextRow());
 
     r->xArrayCount = d->xValues.size();
 
@@ -359,7 +359,7 @@ void ChartHistogram::prepareData(ChartItemPrivate * d, CuteReport::ReportInterfa
 
     if (d->xField.isEmpty()) {
         r->error = true;
-        r->errorText = "Uncorrect zField value";
+        r->errorText = "Uncorrect xField value";
     }
 
     if (d->zFields.isEmpty()) {

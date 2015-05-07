@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -28,8 +28,7 @@
  *   GNU General Public License for more details.                          *
  ***************************************************************************/
 #include "renderer.h"
-#include <QtCore>
-#include "types.h"
+#include "cutereport_types.h"
 #include "datasetinterface.h"
 #include "pageinterface.h"
 #include "bandinterface.h"
@@ -41,38 +40,51 @@
 #include "objectfactory.h"
 #include "renderedreport.h"
 
+#include <QtCore>
+
 using namespace CuteReport;
+
+USING_SUIT_NAMESPACE
+
+SUIT_BEGIN_NAMESPACE
 
 static const QString MODULENAME = "Renderer";
 
-Renderer::Renderer(QObject *parent) :
-    RendererInterface(parent),
-    m_data(0),
-    m_antialiasing(false),
-    m_textAntialiasing(false),
-    m_smoothPixmapTransform(false),
-    m_dpi(0),
-    m_delay(0),
-    m_resultReady(false)
+Renderer::Renderer(QObject *parent)
+    :RendererInterface(parent)
+    ,m_antialiasing(false)
+    ,m_textAntialiasing(false)
+    ,m_smoothPixmapTransform(false)
+    ,m_dpi(0)
+    ,m_delay(0)
+    ,m_processor(0)
+    ,m_renderedReport(0)
+    ,m_renderingThread(0)
+    ,m_report(0)
 {
 }
 
 
 Renderer::~Renderer()
 {
-    delete m_data;
+    delete m_renderedReport;
+    delete m_processor;
+    if (m_renderingThread)
+        m_renderingThread->deleteLater();
 }
 
 
 Renderer::Renderer(const Renderer &dd, QObject * parent)
-    :RendererInterface(dd, parent),
-      m_data(0),
-      m_antialiasing(dd.antialiasing()),
-      m_textAntialiasing(dd.textAntialiasing()),
-      m_smoothPixmapTransform(dd.smoothPixmapTransform()),
-      m_dpi(dd.dpi()),
-      m_delay(dd.delay()),
-      m_resultReady(dd.m_resultReady)
+    :RendererInterface(dd, parent)
+    ,m_antialiasing(dd.antialiasing())
+    ,m_textAntialiasing(dd.textAntialiasing())
+    ,m_smoothPixmapTransform(dd.smoothPixmapTransform())
+    ,m_dpi(dd.dpi())
+    ,m_delay(dd.delay())
+    ,m_processor(0)
+    ,m_renderedReport(0)
+    ,m_renderingThread(0)
+    ,m_report(dd.m_report)
 {
 }
 
@@ -95,37 +107,29 @@ QString Renderer::moduleShortName() const
 }
 
 
-void Renderer::run(ReportInterface *report)
+void Renderer::run(ReportInterface *report, ThreadingLevel threading)
 {
-    if (isRunning()) {
+    if (m_processor) {
         ReportCore::log(LogInfo, MODULENAME, "Renderer can not be started, because previous task is not completed yet");
         return;
     } else
         ReportCore::log(LogInfo, MODULENAME, "started");
-    RendererData * data;
-    m_resultReady = false;
 
-    // remove previous processor if still running
-    if (m_data != 0) {
-        data = m_data;
-        if (m_data && m_data->processor)
-            m_data->processor->terminate();
-        data->clear();
-    } else {
-        data = new RendererData();
-        m_data = data;
-    }
+    delete m_renderedReport;
+    delete m_processor;
+    m_report = report;
 
-    data->renderer = this;
-    data->origReport = report;
+    m_processor = new SUIT_NAMESPACE::RendererProcessor(this, report);
+    connect(m_processor, SIGNAL(processingPage(int,int)), this, SIGNAL(processingPage(int,int))/*, Qt::QueuedConnection*/);
+    connect(m_processor, SIGNAL(started()), this, SIGNAL(started())/*, Qt::QueuedConnection*/);
+    connect(m_processor, SIGNAL(done(bool,CuteReport::RenderedReport*)), this , SLOT(slotProcessorDone(bool,CuteReport::RenderedReport*))/*, Qt::QueuedConnection*/);
+    connect(m_processor, SIGNAL(log(CuteReport::LogLevel,QString,QString)), this, SLOT(slotLog(CuteReport::LogLevel,QString,QString))/*, Qt::QueuedConnection*/);
 
-    RendererProcessor * renderer = new RendererProcessor(data);
-    connect(renderer, SIGNAL(processingPage(int,int)), this, SIGNAL(processingPage(int,int)), Qt::QueuedConnection);
-    connect(renderer, SIGNAL(started()), this, SIGNAL(started()), Qt::QueuedConnection);
-    connect(renderer, SIGNAL(done(bool)), this , SLOT(slotProcessorDone(bool)), Qt::QueuedConnection);
-    connect(renderer, SIGNAL(log(CuteReport::LogLevel,QString,QString)), this, SLOT(slotLog(CuteReport::LogLevel,QString,QString)), Qt::QueuedConnection);
-
-    renderer->start();
+//    if (threading == ThreadNo)
+//        renderer->start();
+//    else {
+//    }
+    m_processor->start();
 }
 
 
@@ -138,56 +142,46 @@ void Renderer::slotLog(CuteReport::LogLevel level, const QString & shortMessage,
 void Renderer::stop()
 {
     ReportCore::log(LogInfo, MODULENAME, "cancelled");
-    if (m_data && m_data->processor)
-        m_data->processor->terminate();
+    if (m_processor)
+        m_processor->terminate();
 }
 
 
 bool Renderer::isRunning()
 {
-    return m_data && m_data->processor;
+    return m_processor;
 }
 
 
 CuteReport::RenderedReportInterface * Renderer::takeRenderedReport()
 {
-    if (!m_resultReady)
-        return 0;
-
-    RenderedReport * renReport = new RenderedReport();
-    renReport->setRenderedPages(m_data->pages);
-    renReport->setDpi(m_data->dpi);
-    m_data->pages.clear();
-
-    return renReport;
+    CuteReport::RenderedReportInterface * rReport = m_renderedReport;
+    m_renderedReport = 0;
+    return rReport;
 }
 
 
 ReportInterface * Renderer::report()
 {
-    return m_data ? m_data->origReport : 0;
+    return m_report;
 }
 
 
-void Renderer::slotProcessorDone(bool successfull)
+void Renderer::slotProcessorDone(bool successfull, RenderedReport * renderedReport)
 {
-    m_resultReady = true;
+    m_renderedReport = renderedReport;
     ReportCore::log(LogDebug, MODULENAME, "slotProcessorDone");
-    ReportCore::log(LogInfo, MODULENAME, "done");
+
+    m_processor->deleteLater();
+    m_processor = 0;
+
     emit done(successfull);
 }
 
 
 void Renderer::slotReportDestroyed(QObject * object)
 {
-    ReportInterface * report = reinterpret_cast<CuteReport::ReportInterface *>(object);
-    if (m_data && m_data->processor)
-        m_data->processor->terminate();
-    disconnect(report, SIGNAL(destroyed(QObject*)), this, SLOT(slotReportDestroyed(QObject*)));
-    if(m_data) {
-        delete m_data;
-        m_data = 0;
-    }
+    stop();
 }
 
 
@@ -304,6 +298,8 @@ QString Renderer::_current_property_description() const
 }
 
 
+SUIT_END_NAMESPACE
+
 #if QT_VERSION < 0x050000
-Q_EXPORT_PLUGIN2(Renderer, Renderer)
+Q_EXPORT_PLUGIN2(Renderer, SUIT_NAMESPACE::Renderer)
 #endif

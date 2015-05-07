@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -37,7 +37,9 @@ namespace Ui {
     class MemoHelper;
 }
 
-class Highlighter;
+//class Highlighter;
+class QTextEdit;
+class QTabWidget;
 
 SUIT_BEGIN_NAMESPACE
 class MemoItem;
@@ -77,7 +79,11 @@ private:
     MemoItem * m_item;
     QWidget * m_currentToolWidget;
     State m_currentState;
-    Highlighter *m_highlighter;
+    QTextEdit *m_edFormatedText;
+    QTextEdit *m_edSourceText;
+    QTabWidget *m_tabs;
+
+//    Highlighter *m_highlighter;
 };
 
 SUIT_END_NAMESPACE

@@ -55,6 +55,7 @@ public:
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
 
 private:
@@ -62,6 +63,7 @@ private:
     bool m_populated;
 
     QList< QList <QVariant> > m_items;
+    QMap<int, QString> m_titleByColumn;
 };
 
 #endif // CLONEMODEL_H

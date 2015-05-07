@@ -15,14 +15,23 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
-    <property name="margin">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
      <number>0</number>
     </property>
     <property name="spacing">
      <number>0</number>
     </property>
     <item row="0" column="0">
-     <widget class="CuteReport::PreviewContainer" name="view" native="true"/>
+     <widget class="CuteReport::ReportPreview" name="view" native="true"/>
     </item>
    </layout>
   </widget>
@@ -59,9 +68,9 @@
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>CuteReport::PreviewContainer</class>
+   <class>CuteReport::ReportPreview</class>
    <extends>QWidget</extends>
-   <header>previewcontainer.h</header>
+   <header>reportpreview.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

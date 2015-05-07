@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2013 by Alexander Mikhalov                              *
+ *   Copyright (C) 2013-2014 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -30,11 +30,11 @@
 #ifndef CSVDATASET_H
 #define CSVDATASET_H
 
-#include <datasetinterface.h>
-#include <QtSql>
+#include "datasetinterface.h"
+#include "reportinterface.h"
+#include "cutereport_globals.h"
+
 #include <QSortFilterProxyModel>
-#include <reportinterface.h>
-#include "globals.h"
 
 class Model;
 
@@ -46,11 +46,10 @@ class CsvDataset : public CuteReport::DatasetInterface
 #endif
     Q_INTERFACES(CuteReport::DatasetInterface)
 
-    Q_PROPERTY(QString fileName READ fileName WRITE setFileName NOTIFY fileNameChanged)
-    Q_PROPERTY(QString delimeter READ delimeter WRITE setDelimeter NOTIFY delimiterChanged)
-    Q_PROPERTY(bool keepDataInternal READ keepData WRITE setKeepData NOTIFY keepDataInternalChanged)
-    Q_PROPERTY(bool firstRowIsHeader READ firstRowIsHeader WRITE setFirstRowIsHeader NOTIFY firstRowIsHeaderChanged)
-    Q_PROPERTY(QStringList internalData READ list WRITE setList DESIGNABLE false)
+    Q_PROPERTY(QString fileName READ getFileName WRITE setFileName NOTIFY fileNameChanged)
+    Q_PROPERTY(QString delimeter READ getDelimeter WRITE setDelimeter NOTIFY delimiterChanged)
+    Q_PROPERTY(bool firstRowIsHeader READ getFirstRowIsHeader WRITE setFirstRowIsHeader NOTIFY firstRowIsHeaderChanged)
+    Q_PROPERTY(bool fixFileIssues READ getFixFileIssues WRITE setFixFileIssues NOTIFY fixFileIssuesChanged)
 
 public:
     explicit CsvDataset(QObject *parent = 0);
@@ -62,40 +61,38 @@ public:
     virtual CuteReport::DatasetHelperInterface * helper();
     virtual QAbstractItemModel * model();
 
-    virtual QString lastError();
+    virtual QString getLastError();
 
     virtual bool populate();
     virtual bool isPopulated();
     virtual void setPopulated(bool b);
     virtual void reset();
     virtual void resetCursor();
-    virtual bool firstRow();
-    virtual bool lastRow();
-    virtual bool nextRow();
-    virtual bool previousRow();
-    virtual int  currentRow();
-    virtual bool setCurrentRow(int index);
-    virtual int rows();
-    virtual int columns();
-    virtual QVariant value(int index) const;
-    virtual QVariant value(const QString & field) const;
-    virtual QVariant lookaheadValue(int index) const;
-    virtual QVariant lookaheadValue(const QString & field) const;
-    virtual QVariant lookbackValue(int index) const;
-    virtual QVariant lookbackValue(const QString & field) const;
-    virtual QString fieldName(int column );
-    virtual QVariant::Type fieldType(int column );
+    virtual bool setFirstRow();
+    virtual bool setLastRow();
+    virtual bool setNextRow();
+    virtual bool setPreviousRow();
+    virtual int  getCurrentRowNumber();
+    virtual bool setCurrentRowNumber(int index);
+    virtual int getRowCount();
+    virtual int getColumnCount();
+    virtual QVariant getValue(int column);
+    virtual QVariant getValue(const QString & fieldName);
+    virtual QVariant getNextRowValue(int column);
+    virtual QVariant getNextRowValue(const QString & fieldName);
+    virtual QVariant getPreviousRowValue(int column);
+    virtual QVariant getPreviousRowValue(const QString & fieldName);
+    virtual QString getFieldName(int column );
+    virtual QVariant::Type getFieldType(int column);
 
-    QString	fileName() const;
+    QString	getFileName() const;
     void setFileName(const QString &str);
-    QStringList	list() const;
-    void setList(const QStringList &list);
-    QString delimeter () const;
+    QString getDelimeter () const;
     void setDelimeter (const QString &str);
-    bool keepData() const;
-    void setKeepData(bool value);
-    bool firstRowIsHeader();
-    void setFirstRowIsHeader(bool value);
+    bool getFirstRowIsHeader();
+    void setFirstRowIsHeader(bool getValue);
+    bool getFixFileIssues();
+    void setFixFileIssues(bool value);
 
     virtual QString moduleShortName() const;
     virtual QString suitName() const { return "Standard"; }
@@ -107,91 +104,26 @@ signals:
     void delimiterChanged(QString);
     void keepDataInternalChanged(bool);
     void firstRowIsHeaderChanged(bool);
+    void fixFileIssuesChanged(bool);
 
 private:
     explicit CsvDataset(const CsvDataset &dd, QObject * parent);
     virtual DatasetInterface * objectClone() const;
+    inline void populateIfNotPopulated() {if (!m_isPopulated) populate();}
+    QByteArray fixIssues(const QByteArray & ba);
 
     bool m_firstRowIsHeader;
     int m_currentRow;
     bool m_isPopulated;
     QString m_fileName;
-    QStringList m_list;
     QString m_delimeter;
-    bool m_keepData;
+    bool m_fixFileIssues;
     Model * m_model;
     QSortFilterProxyModel * m_fmodel;
     QPointer<CuteReport::DatasetHelperInterface> m_helper;
+    QHash<QString, int> m_fields;
 
     QString m_lastError;
 };
 
 #endif
-
-
-
-
-/*
-#ifndef CSVDATASET_H
-#define CSVDATASET_H
-
-#include <dataset.h>
-#include <dataseteditor.h>
-#include "csvdatasetmodel.h"
-#include <QSortFilterProxyModel>
-
-class CsvDataset : public Report::DataSet
-{
-	Q_OBJECT
-	Q_INTERFACES(Report::DataSet);
-	Q_PROPERTY(QString fileName READ fileName WRITE setFileName)
-	Q_PROPERTY(QStringList list READ list WRITE setList DESIGNABLE false)
-	Q_PROPERTY(QString delimeter READ delimeter WRITE setDelimeter)
-
-public:
-	CsvDataset(QObject *parent = 0);
-	~CsvDataset();
-
-	DataSet * createInstance(QObject* parent = 0);
-	DataSetEditor * createEditor();
-	QAbstractItemModel * model();
-	QString name();
-	QString lastError();
-
-	bool first();
-	bool last();
-	bool next();
-	bool previous();
-	bool populate();
-	bool isPopulated();
-	bool seek(int index);
-	int size();
-	QVariant value(int index) const;
-	QVariant value(const QString & field) const;
-	QVariant lookaheadValue(int index) const;
-	QVariant lookaheadValue(const QString & field) const;
-	QVariant lookbackValue(int index) const;
-	QVariant lookbackValue(const QString & field) const;
-	QString fieldName(int column );
-
-	QString	    fileName();
-	void	    setFileName(QString str);
-	QStringList	    list();
-	void	    setList(QStringList list);
-	QString delimeter ();
-	void setDelimeter (QString str);
-
-private:
-	int m_currentRow;
-	bool m_isPopulated;
-	QString m_fileName;
-	QStringList m_list;
-	QString m_delimeter;
-	QString m_error;
-	Model * m_model;
-	QSortFilterProxyModel * m_fmodel;
-	DataSetEditor ed;
-};
-*/
-
-//#endif

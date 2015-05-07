@@ -53,6 +53,10 @@ void CloneModel::populate(QAbstractItemModel *sourceModel)
         m_items.append(cols);
     }
 
+    for (int i = 0; i < sourceModel->columnCount(); i++) {
+        m_titleByColumn.insert(i, sourceModel->headerData(i, Qt::Horizontal, Qt::DisplayRole).toString());
+    }
+
     m_populated = true;
     emit endResetModel();
 }
@@ -61,7 +65,12 @@ void CloneModel::populate(QAbstractItemModel *sourceModel)
 QModelIndex CloneModel::index(int row, int column, const QModelIndex &parent) const
 {
     Q_UNUSED(parent)
-    return createIndex(row, column);
+
+    if (row >= 0 && row < m_items.count() - 1 && column >= 0 && column <= m_columnCount) {
+        return createIndex(row, column);
+    } else {
+        return QModelIndex();
+    }
 }
 
 QModelIndex CloneModel::parent(const QModelIndex &child) const
@@ -93,4 +102,13 @@ QVariant CloneModel::data(const QModelIndex &index, int role) const
     }
 
     return QVariant();
+}
+
+QVariant CloneModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
+        m_titleByColumn.value(section, QString("field%1").arg(section + 1));
+    }
+
+    return QAbstractItemModel::headerData(section, orientation, role);
 }

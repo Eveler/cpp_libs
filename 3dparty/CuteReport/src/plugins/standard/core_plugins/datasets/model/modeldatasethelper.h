@@ -64,6 +64,11 @@ private slots:
     void onCmbTypeChanged();
     void scRemove();
 
+    void slotRenameColumn(int column);
+    void slotRenameActivatedColumn();
+
+    void showContextHorizontalHeaderMenu(QPoint p);
+
 private:
     Ui::ModelDatasetHelper *ui;
     ModelDataset *m_dataset;
@@ -71,6 +76,9 @@ private:
     ProxyModel *m_proxyModel;
 
     ColumnTypeModel *m_typeModel;
+    QAction *m_acRename;
+
+    int m_activatedSection;
 
 private:
     QVariant::Type currentColumnType() const;

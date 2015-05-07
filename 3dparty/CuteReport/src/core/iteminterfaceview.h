@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -31,7 +31,7 @@
 #define ITEMINTERFACEVIEW_H
 
 #include <QGraphicsObject>
-#include "globals.h"
+#include "cutereport_globals.h"
 
 //static int ItemInterfaceViewType = QGraphicsItem::UserType + 345680;
 
@@ -52,6 +52,7 @@ public:
     BaseItemInterface * coreItem() const;
 
     void paint(QPainter * painter, const QStyleOptionGraphicsItem *option, BaseItemInterfacePrivate *data = 0);
+    virtual QRectF boundingRect() const;
 
     int type() const { return Type; }
 

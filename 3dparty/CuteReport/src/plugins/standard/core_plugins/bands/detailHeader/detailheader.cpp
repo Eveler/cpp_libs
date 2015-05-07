@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -296,7 +296,7 @@ bool DetailHeader::renderPrepare()
         if (d->lastConditionResult != condition) {
             if (d->startNewPage && !d->lastConditionResult.isEmpty() &&
                     d->lastPageNumber == m_renderer->currentPageNumber()) {
-                m_renderer->createNewPage();
+                m_renderer->newPage();
                 needRendering = true;
             } else
                 needRendering = true;
@@ -306,12 +306,12 @@ bool DetailHeader::renderPrepare()
         needRendering = true;
 
     if (needRendering && d->resetDetailNumber && !doNotResetNumber)
-        m_renderer->setValue("_line", 1);
+        m_renderer->setValue("LINE", 1);
 
     orig_d->lastPageNumber = m_renderer->currentPageNumber();
 
     emit printDataAfter();
-    return needRendering;
+    return needRendering && d->enabled;
 }
 
 

@@ -45,6 +45,10 @@ void ScriptEditor::init(CuteDesigner::Core *core)
 //	QSplitter *splitter = new QSplitter(Qt::Vertical, this);
 
     textEdit = new QScriptEdit( m_gui );
+    textEdit->setTabStopWidth(20);
+    QFont font("Monospace");
+    font.setStyleHint(QFont::Monospace);
+    textEdit->setFont(font);
     QToolBar * tb = new QToolBar(m_gui);
 //	varsWidget = new QTableWidget();
 //	varsWidget->setColumnCount(2);

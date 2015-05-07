@@ -7,17 +7,13 @@ TEMPLATE =  lib
 
 lessThan(QT_MAJOR_VERSION, 5) {
     CONFIG += designer
+    QT += webkit
 } else {
     QT += designer
 }
 
 INCLUDEPATH = ../../core
 DEPENDPATH = $$INCLUDEPATH
-
-win32 {
-    DEFINES += CUTEREPORT_WIDGET_EXPORTS
-    TARGET_EXT = .dll
-}
 
 LIBS += -L../../../$$BUILD_DIR -lCuteReport
 
@@ -28,12 +24,17 @@ include (stdstoragedialog.pri)
 include (emptydialog.pri)
 include (exportdialog.pri)
 
+WIDGETS_HEADERS.files += widgets_export.h
+INSTALLS += WIDGETS_HEADERS
+
 contains(DEFINES, SYSTEMINSTALL) {
     DESTDIR = ../../../$$BUILD_DIR
     target.path += $$REPORT_LIBS_PATH
     INSTALLS += target
+    WIDGETS_HEADERS.path = $$REPORT_HEADERS_PATH
 } else {
     DESTDIR = ../../../$$BUILD_DIR/$$REPORT_LIBS_PATH
+    WIDGETS_HEADERS.path = $$OUT_PWD/../../$$BUILD_DIR/$$REPORT_HEADERS_PATH
 }
 
 HEADERS += \
@@ -45,4 +46,10 @@ SOURCES += \
 contains(DEFINES, STATIC_WIDGETS) {
     CONFIG += static
     CONFIG += uitools
+} else {
+    win32 : TARGET_EXT = .dll
+}
+
+win32 {
+    DEFINES += CUTEREPORT_WIDGET_EXPORTS
 }

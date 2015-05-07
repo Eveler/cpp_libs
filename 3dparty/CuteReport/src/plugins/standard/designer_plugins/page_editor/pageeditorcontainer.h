@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -34,9 +34,13 @@ class PageEditorContainer;
 namespace CuteReport {
 class PageAction;
 class PageInterface;
+class ReportPluginInterface;
 }
 
 class PageEditor;
+class FontEditor;
+class AlignmentEditor;
+class FrameEditor;
 
 class PageEditorContainer : public QWidget
 {
@@ -54,7 +58,7 @@ public:
     void setCurrentTab(const QString &pageName);
     void setNewPageName(const QString &pageName, const QString &newName);
 
-    void addPagePlugins(QList<CuteReport::PageInterface*> pages);
+    void addPagePlugins(QList<CuteReport::ReportPluginInterface *> pages);
     void addPropertyEditor(QWidget * widget);
     void addObjectInspector(QWidget * widget);
 
@@ -63,6 +67,12 @@ public:
 
     void reloadSettings();
     void saveSettings();
+
+    void updateButtonsStatus();
+
+    FontEditor * fontEditor();
+    AlignmentEditor * alignmentEditor();
+    FrameEditor * frameEditor();
 
 public slots:
 //    void slotNewPageActions(QList<CuteReport::PageAction*> actions);
@@ -84,6 +94,7 @@ private slots:
 private:
     Ui::PageEditorContainer *ui;
     PageEditor * m_pageEditor;
+    QString m_pageeModuleName;
 };
 
 #endif // PAGEEDITORCONTAINER_H

@@ -3,7 +3,6 @@ SOURCES += \
     modeldatasethelper.cpp \
     models/testmodel.cpp \
     models/columntypemodel.cpp \
-    models/proxymodel.cpp \
     models/clonemodel.cpp
 
 HEADERS += \ 
@@ -11,7 +10,6 @@ HEADERS += \
     modeldatasethelper.h \
     models/testmodel.h \
     models/columntypemodel.h \
-    models/proxymodel.h \
     models/clonemodel.h
 	
 FORMS += \ 
@@ -19,3 +17,5 @@ FORMS += \
 
 RESOURCES += \
     modeldataset.qrc
+
+#INSTALL_HEADERS.files = modeldataset.h

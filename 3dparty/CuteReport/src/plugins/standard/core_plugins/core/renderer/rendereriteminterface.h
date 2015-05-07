@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -32,64 +32,77 @@
 #define RENDERERITEMINTERFACE_H
 
 #include "rendererpublicinterface.h"
+#include "plugins_common.h"
 
 namespace CuteReport {
 class BandInterface;
 class DatasetInterface;
 }
 
-
+SUIT_BEGIN_NAMESPACE
 class RendererProcessor;
+class RendererItemInterface;
+SUIT_END_NAMESPACE
 
+USING_SUIT_NAMESPACE
+
+SUIT_BEGIN_NAMESPACE
 class RendererItemInterface : public CuteReport::RendererPublicInterface
 {
     Q_OBJECT
 public:
-    explicit RendererItemInterface(RendererProcessor *parent = 0);
+    explicit RendererItemInterface(SUIT_NAMESPACE::RendererProcessor *parent = 0);
     
-    Q_INVOKABLE virtual void setValue(const QString & valueName, const QVariant &value);
-    Q_INVOKABLE virtual QVariant getValue(const QString & valueName);
+    virtual void setValue(const QString & valueName, const QVariant &value);
+    virtual QVariant getValue(const QString & valueName);
 
-    Q_INVOKABLE virtual QString processString(const QString & string, const QString & delimiterBegin, const QString & delimiterEnd, const CuteReport::BaseItemInterface * item);
-    Q_INVOKABLE virtual QString processString(const QString & string, const CuteReport::BaseItemInterface *item);
+    virtual QString processString(const QString & string, const QString & delimiterBegin, const QString & delimiterEnd, const CuteReport::BaseItemInterface * item);
+    virtual QString processString(const QString & string, const CuteReport::BaseItemInterface *item);
 
-    Q_INVOKABLE virtual int currentPageNumber();
-    Q_INVOKABLE virtual PageDrawState currentState();
+    virtual int currentPageNumber();
+    virtual PageDrawState currentState();
 
-    Q_INVOKABLE virtual QRectF pageFreeSpace();
-    Q_INVOKABLE virtual QPointF currentBandDelta();
+    virtual QRectF pageFreeSpace();
+    virtual void setPageFreeSpace(const QRectF &rect);
+    virtual QPointF currentBandDelta();
+    virtual void setCurrentBandDelta(const QPointF &point); // mm
 
-    Q_INVOKABLE virtual void registerBandToDatasetIteration(const QString &datasetName, const QString & objectName);
-    Q_INVOKABLE virtual void registerBandToDatasetIteration(const QString & datasetName, CuteReport::BandInterface * band);
-    Q_INVOKABLE virtual void unregisterBandFromDatasetIteration(const QString & datasetName, const QString & objectName);
-    Q_INVOKABLE virtual void unregisterBandFromDatasetIteration(const QString &datasetName, CuteReport::BandInterface * band);
-    Q_INVOKABLE virtual CuteReport::BandsList bandRegisteredToDataset(const QString & datasetName);
+    virtual void registerBandToDatasetIteration(const QString &datasetName, const QString & objectName);
+    virtual void registerBandToDatasetIteration(const QString & datasetName, CuteReport::BandInterface * band);
+    virtual void unregisterBandFromDatasetIteration(const QString & datasetName, const QString & objectName);
+    virtual void unregisterBandFromDatasetIteration(const QString &datasetName, CuteReport::BandInterface * band);
+    virtual CuteReport::BandsList bandRegisteredToDataset(const QString & datasetName);
 
-    Q_INVOKABLE virtual void registerEvaluationString(const QString & string, const QString & delimiterBegin, const QString & delimiterEnd, CuteReport::BaseItemInterface *item);
-    Q_INVOKABLE virtual void registerEvaluationString(const QString & string, CuteReport::BaseItemInterface *item);
-    Q_INVOKABLE void resetAggregateFunctions(CuteReport::BandInterface * band);
+    virtual void registerEvaluationString(const QString & string, const QString & delimiterBegin, const QString & delimiterEnd, CuteReport::BaseItemInterface *item);
+    virtual void registerEvaluationString(const QString & string, CuteReport::BaseItemInterface *item);
+    void resetAggregateFunctions(CuteReport::BandInterface * band);
 
-    Q_INVOKABLE virtual CuteReport::DatasetInterface * dataset(const QString &datasetname);
-    Q_INVOKABLE virtual void iterateDataset(CuteReport::DatasetInterface * dtst);
-    Q_INVOKABLE virtual void iterateDataset(const QString & objectName);
-    Q_INVOKABLE virtual void processBand(CuteReport::BandInterface * band);
-    Q_INVOKABLE virtual void processBand(const QString & objectName);
-    Q_INVOKABLE virtual void createNewPage();
+    virtual CuteReport::DatasetInterface * dataset(const QString &datasetname);
+    virtual void iterateDataset(CuteReport::DatasetInterface * dtst);
+    virtual void iterateDataset(const QString & objectName);
+    virtual void processBand(CuteReport::BandInterface * band);
+    virtual void processBand(const QString & objectName);
+    virtual void newPage();
+    virtual void newColumnOrPage();
 
-    Q_INVOKABLE virtual QVariant getStorageObject(const QString & objectUrl);
+    virtual QVariant getStorageObject(const QString & objectUrl);
 
-    Q_INVOKABLE virtual CuteReport::BandInterface * lastProcessedBand();
-    Q_INVOKABLE virtual CuteReport::BandInterface * currentProcessingBand();
-    Q_INVOKABLE virtual void prepareCurrentPage();
-    Q_INVOKABLE virtual void postprocessCurrentPage();
-    Q_INVOKABLE virtual quint32 lastProcessedItemId(const QString & itemName);
-    Q_INVOKABLE virtual CuteReport::RenderedItemInterface * lastProcessedItemPointer(const QString & itemName);
+    virtual CuteReport::BandInterface * lastProcessedBand();
+    virtual CuteReport::BandInterface * currentProcessingBand();
+    virtual void prepareCurrentPage();
+    virtual void postprocessCurrentPage();
+    virtual quint32 lastProcessedItemId(const QString & itemName);
+    virtual CuteReport::RenderedItemInterface * lastProcessedItemPointer(const QString & itemName);
 
-    Q_INVOKABLE virtual void error(const QString & /*sender*/, const QString & /*errorMessage*/){}
+    virtual int passNumber();
+    virtual int passTotal();
+    virtual void setPassTotal(int value);
 
-    Q_INVOKABLE QString moduleName();
+    virtual void error(const QString & /*sender*/, const QString & /*errorMessage*/){}
 
-    Q_INVOKABLE void run();
+    QString name();
+
+    void run();
 
 signals:
     
@@ -105,4 +118,5 @@ private:
     friend class RendererProcessor;
 };
 
-#endif // RENDERERITEMINTERFACE_H
+SUIT_END_NAMESPACE
+#endif // SUIT_NAMESPACE_RENDERERITEMINTERFACE_H

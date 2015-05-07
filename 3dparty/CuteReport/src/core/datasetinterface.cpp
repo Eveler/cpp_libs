@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -49,7 +49,7 @@ DatasetInterface *DatasetInterface::clone() const
 }
 
 
-QString	DatasetInterface::parentDataset()
+QString	DatasetInterface::getParentDataset()
 {
     return m_parentDataset;
 }
@@ -67,13 +67,13 @@ void DatasetInterface::setFilterCondition(QString list)
 }
 
 
-QString DatasetInterface::filterCondition()
+QString DatasetInterface::getFilterCondition()
 {
     return m_filterCondition;
 }
 
 
-int DatasetInterface::filterColumn()
+int DatasetInterface::getFilterColumn()
 {
     return m_filterColumn;
 }
@@ -85,15 +85,15 @@ void DatasetInterface::setFilterColumn(int col)
 }
 
 
-QVariant DatasetInterface::value(int /*index*/) const{return QVariant();}
-QVariant DatasetInterface::value(const QString & /*field*/) const{return QVariant();}
-QVariant DatasetInterface::lookaheadValue(int /*index*/) const{return QVariant();}
-QVariant DatasetInterface::lookaheadValue(const QString & /*field*/) const{return QVariant();}
-QVariant DatasetInterface::lookbackValue(int /*index*/) const{return QVariant();}
-QVariant DatasetInterface::lookbackValue(const QString & /*field*/) const{return QVariant();}
+QVariant DatasetInterface::getValue(int /*index*/) {return QVariant();}
+QVariant DatasetInterface::getValue(const QString & /*field*/) {return QVariant();}
+QVariant DatasetInterface::getNextRowValue(int /*index*/) {return QVariant();}
+QVariant DatasetInterface::getNextRowValue(const QString & /*field*/) {return QVariant();}
+QVariant DatasetInterface::getPreviousRowValue(int /*index*/) {return QVariant();}
+QVariant DatasetInterface::getPreviousRowValue(const QString & /*field*/) {return QVariant();}
 QAbstractItemModel * DatasetInterface::model() {return 0;}
-QString DatasetInterface::lastError() {return QString();}
-QString DatasetInterface::fieldName(int /*column*/ ) {return tr("Unknown");}
+QString DatasetInterface::getLastError() {return QString();}
+QString DatasetInterface::getFieldName(int /*column*/ ) {return tr("Unknown");}
 
 
 void DatasetInterface::setFilter ( const int col, const QString & str, Qt::CaseSensitivity cs)

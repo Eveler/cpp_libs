@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -32,7 +32,7 @@
 #include <QtCore>
 #include <QtGui>
 #include "baseiteminterface.h"
-#include "globals.h"
+#include "cutereport_globals.h"
 
 namespace CuteReport
 {
@@ -41,7 +41,7 @@ class CUTEREPORT_EXPORTS  RenderingStruct
 {
 public:
     explicit RenderingStruct(){}
-    explicit RenderingStruct(const RenderingStruct & p) {}
+    explicit RenderingStruct(const RenderingStruct & p) {Q_UNUSED(p);}
 
 //    virtual qint8 type() const = 0;
 
@@ -61,12 +61,14 @@ public:
         unit(Millimeter),
         selfRendering(false),
         childrenSelfRendering(false),
-        minRectSize(1,1),
+        minRectSize(0,0),
         renderingType(RenderingTemplate),
+        borderType(BaseItemInterface::Middle),
         r(0)
     {
         frame = BaseItemInterface::DrawLeft | BaseItemInterface::DrawRight | BaseItemInterface::DrawTop | BaseItemInterface::DrawBottom;
-        borderPen.setWidth(0);
+        borderPen.setWidth(1);
+        borderPen.setJoinStyle(Qt::MiterJoin);
     }
 
     BaseItemInterfacePrivate(const BaseItemInterfacePrivate & p):
@@ -85,6 +87,7 @@ public:
         minRectSize(p.minRectSize),
         resizeFlags(p.resizeFlags),
         renderingType(p.renderingType),
+        borderType(p.borderType),
         r(0)
     {}
 
@@ -110,6 +113,7 @@ public:
     QSizeF minRectSize;
     int resizeFlags;
     RenderingType renderingType;
+    BaseItemInterface::BorderType borderType;
     RenderingStruct * r;
 };
 

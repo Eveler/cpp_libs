@@ -27,12 +27,14 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
  *   GNU General Public License for more details.                          *
  ***************************************************************************/
-#include "QtCore"
 #include "filesystemdataset.h"
 #include "filesystemdatasethelper.h"
 #include "filesystemdatasetmodel.h"
 #include "reportcore.h"
-#include "functions.h"
+#include "cutereport_functions.h"
+
+#include "QtCore"
+#include <QIcon>
 
 #define DATASET_NAME "FileSystem"
 
@@ -67,7 +69,7 @@ FileSystemDataset::FileSystemDataset(const FileSystemDataset &dd, QObject * pare
     m_fmodel->setSourceModel(m_model);
     if (dd.m_isPopulated) {
         populate();
-        setCurrentRow(dd.m_currentRow);
+        setCurrentRowNumber(dd.m_currentRow);
     }
 }
 
@@ -111,7 +113,7 @@ QString FileSystemDataset::moduleShortName() const
 }
 
 
-QString FileSystemDataset::lastError()
+QString FileSystemDataset::getLastError()
 {
     return m_lastError;
 }
@@ -165,13 +167,13 @@ void FileSystemDataset::setFilters(FileSystemDataset::Filters filters)
 }
 
 
-QString FileSystemDataset::fieldName(int column )
+QString FileSystemDataset::getFieldName(int column )
 {
     return m_model->headerData ( column, Qt::Horizontal).toString();
 }
 
 
-QVariant::Type FileSystemDataset::fieldType(int column)
+QVariant::Type FileSystemDataset::getFieldType(int column)
 {
     return QVariant::String;
 }
@@ -303,7 +305,7 @@ bool FileSystemDataset::populate()
     m_model->populate();
 
     m_isPopulated = true;
-    m_currentRow = -1;
+    m_currentRow = m_fmodel->rowCount() > 0 ? 0 : -1;
 
     emit afterPopulate();
     return true;
@@ -337,17 +339,17 @@ void FileSystemDataset::resetCursor()
 }
 
 
-bool FileSystemDataset::firstRow()
+bool FileSystemDataset::setFirstRow()
 {
     emit(beforeFirst());
     m_currentRow = 0;
-    bool ret = rows();
+    bool ret = getRowCount();
     emit(afterFirst());
     return ret;
 }
 
 
-bool FileSystemDataset::lastRow()
+bool FileSystemDataset::setLastRow()
 {
     emit(beforeLast());
     m_currentRow = m_fmodel->rowCount();
@@ -357,17 +359,17 @@ bool FileSystemDataset::lastRow()
 }
 
 
-bool FileSystemDataset::nextRow()
+bool FileSystemDataset::setNextRow()
 {
     emit(beforeNext());
     m_currentRow++;
-    bool ret = m_currentRow < rows();
+    bool ret = m_currentRow < getRowCount();
     emit(afterNext());
     return ret;
 }
 
 
-bool FileSystemDataset::previousRow()
+bool FileSystemDataset::setPreviousRow()
 {
     emit(beforePrevious());
     m_currentRow--;
@@ -377,13 +379,13 @@ bool FileSystemDataset::previousRow()
 }
 
 
-int FileSystemDataset::currentRow()
+int FileSystemDataset::getCurrentRowNumber()
 {
     return m_currentRow;
 }
 
 
-bool FileSystemDataset::setCurrentRow(int index)
+bool FileSystemDataset::setCurrentRowNumber(int index)
 {
     emit(beforeSeek(index));
     m_currentRow = index;
@@ -393,58 +395,65 @@ bool FileSystemDataset::setCurrentRow(int index)
 }
 
 
-int FileSystemDataset::rows()
+int FileSystemDataset::getRowCount()
 {
+    if (!m_isPopulated) populate();
     return m_fmodel->rowCount();
 }
 
 
-int FileSystemDataset::columns()
+int FileSystemDataset::getColumnCount()
 {
-    if (!m_isPopulated)
-        populate();
+    if (!m_isPopulated) populate();
     return m_fmodel->columnCount();
 }
 
 
-QVariant FileSystemDataset::value(int index) const
+QVariant FileSystemDataset::getValue(int index)
 {
+    if (!m_isPopulated) populate();
     return m_fmodel->data( m_fmodel->index(m_currentRow,index) );
 }
 
 
-QVariant FileSystemDataset::value(const QString & field) const
+QVariant FileSystemDataset::getValue(const QString & field)
 {
+    if (!m_isPopulated) populate();
     return m_fmodel->data( m_fmodel->index(m_currentRow, m_model->fieldIndex(field) ) );
 }
 
 
-QVariant FileSystemDataset::lookaheadValue(int index) const
+QVariant FileSystemDataset::getNextRowValue(int index)
 {
+    if (!m_isPopulated) populate();
     return m_currentRow+1 < m_fmodel->rowCount() && index < m_fmodel->columnCount()
             ? m_fmodel->data( m_fmodel->index(m_currentRow + 1, index ) )
             : QVariant(QVariant::Invalid);
 }
 
 
-QVariant FileSystemDataset::lookaheadValue(const QString & field) const
+QVariant FileSystemDataset::getNextRowValue(const QString & field)
 {
-    return lookaheadValue(m_model->fieldIndex(field));
+    if (!m_isPopulated) populate();
+    return getNextRowValue(m_model->fieldIndex(field));
 }
 
 
-QVariant FileSystemDataset::lookbackValue(int index) const
+QVariant FileSystemDataset::getPreviousRowValue(int index)
 {
+    if (!m_isPopulated) populate();
     return m_currentRow-1 >= 0 && index < m_fmodel->columnCount()
             ? m_fmodel->data( m_fmodel->index(m_currentRow - 1, index ) )
             : QVariant(QVariant::Invalid);
 }
 
 
-QVariant FileSystemDataset::lookbackValue(const QString & field) const
+QVariant FileSystemDataset::getPreviousRowValue(const QString & field)
 {
-    return lookbackValue(m_model->fieldIndex(field));
+    if (!m_isPopulated) populate();
+    return getPreviousRowValue(m_model->fieldIndex(field));
 }
+
 
 #if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(DatasetFileSystem, FileSystemDataset)

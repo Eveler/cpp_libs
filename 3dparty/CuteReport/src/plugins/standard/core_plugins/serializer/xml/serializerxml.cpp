@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -202,13 +202,7 @@ QObject * SerializerXML::objectFromDom( QObject * parent, const QDomElement & do
 
     if (!obj) {
 
-        if (dom.attribute("moduleName").isEmpty()) {
-            /** old method */
-            obj = createObject(report, dom.tagName(), parent );
-        } else {
-            /** new method */
-            obj = createObject(dom, parent, report );
-        }
+        obj = createObject(dom, parent, report );
 
         if (obj){
             setObjectPropertiesFromDom(obj, dom);
@@ -936,110 +930,6 @@ QDomElement SerializerXML::propertyToDom(QDomDocument *doc, const QObject *objec
 }
 
 
-QObject * SerializerXML::createObject(CuteReport::ReportInterface *report, const QString & classname, QObject * parent) const
-{
-    const ReportPluginInterface * object = 0;
-    if ((object = itemPluginByClassName(classname)))
-        return reportCore()->createItemObject(report, object->moduleFullName(), parent ? parent : report);
-    if (!object && (object = pagePluginByClassName(classname)))
-        return reportCore()->createPageObject(report, object->moduleFullName());
-    if (!object && (object = datasetPluginByClassName(classname)))
-        return reportCore()->createDatasetObject(report, object->moduleFullName());
-    if (!object && (object = printerPluginByClassName(classname)))
-        return reportCore()->createPrinterObject(report, object->moduleFullName());
-    if (!object && (object = rendererPluginByClassName(classname)))
-        return reportCore()->createRendererObject(report, object->moduleFullName());
-    if (!object && (object = storagePluginByClassName(classname)))
-        return reportCore()->createStorageObject(report, object->moduleFullName());
-    if (!object && (object = formPluginByClassName(classname)))
-        reportCore()->createFormObject(report, object->moduleFullName());
-    return 0;
-}
-
-
-
-const QObject * SerializerXML::pluginByClassName(const QString &name) const
-{
-    const QObject * object = itemPluginByClassName(name);
-    if (!object)
-        object = pagePluginByClassName(name);
-    if (!object)
-        object = datasetPluginByClassName(name);
-    if (!object)
-        object = printerPluginByClassName(name);
-    if (!object)
-        object = rendererPluginByClassName(name);
-    if (!object)
-        object = storagePluginByClassName(name);
-    if (!object)
-        object = storagePluginByClassName(name);
-    return object;
-}
-
-
-const CuteReport::BaseItemInterface* SerializerXML::itemPluginByClassName(const QString & name) const
-{
-    foreach(const CuteReport::BaseItemInterface* item, reportCore()->itemModules())
-        if (item->metaObject()->className() == name)
-            return item;
-    return 0;
-}
-
-
-const CuteReport::PageInterface* SerializerXML::pagePluginByClassName(const QString & name) const
-{
-    foreach(CuteReport::PageInterface* item, reportCore()->pageModules())
-        if (item->metaObject()->className() == name)
-            return item;
-    return 0;
-}
-
-
-const CuteReport::DatasetInterface* SerializerXML::datasetPluginByClassName(const QString & name) const
-{
-    foreach(CuteReport::DatasetInterface* item, reportCore()->datasetModules())
-        if (item->metaObject()->className() == name)
-            return item;
-    return 0;
-}
-
-
-const CuteReport::PrinterInterface* SerializerXML::printerPluginByClassName(const QString &name) const
-{
-    foreach(CuteReport::PrinterInterface* item, reportCore()->printerModules())
-        if (item->metaObject()->className() == name)
-            return item;
-    return 0;
-}
-
-
-const CuteReport::RendererInterface* SerializerXML::rendererPluginByClassName(const QString &name) const
-{
-    foreach(CuteReport::RendererInterface* item, reportCore()->rendererModules())
-        if (item->metaObject()->className() == name)
-            return item;
-    return 0;
-}
-
-
-const CuteReport::StorageInterface* SerializerXML::storagePluginByClassName(const QString &name) const
-{
-    foreach(CuteReport::StorageInterface* item, reportCore()->storageModules())
-        if (item->metaObject()->className() == name)
-            return item;
-    return 0;
-}
-
-
-const CuteReport::FormInterface *SerializerXML::formPluginByClassName(const QString &name) const
-{
-    foreach(CuteReport::FormInterface* item, reportCore()->formModules())
-        if (item->metaObject()->className() == name)
-            return item;
-    return 0;
-}
-
-
 QObject * SerializerXML::createObject( const QDomElement & dom, QObject * parent, CuteReport::ReportInterface *report) const
 {
     QObject * object = 0;
@@ -1052,7 +942,7 @@ QObject * SerializerXML::createObject( const QDomElement & dom, QObject * parent
 
     // we dont need to process "Report" object here
     if (tagName == "Band") {
-        BandInterface * band = dynamic_cast<CuteReport::BandInterface*>(reportCore()->createItemObject(report, moduleName, parent ? parent : report));
+        BandInterface * band = dynamic_cast<CuteReport::BandInterface*>(reportCore()->createItemObject( moduleName, report, parent ? parent : report));
         if (!band) {
             QString layoutType = dom.attribute("layoutType");
             QString layoutPriority = dom.attribute("layoutPriority");
@@ -1072,10 +962,10 @@ QObject * SerializerXML::createObject( const QDomElement & dom, QObject * parent
     }
 
     if (tagName == "Item") {
-        object = reportCore()->createItemObject(report, moduleName, parent ? parent : report);
+        object = reportCore()->createItemObject(moduleName, report, parent ? parent : report);
         if (!object && !dom.attribute("extends").isEmpty()) {
             foreach (const QString & baseModule, dom.attribute("extends").split(",", QString::SkipEmptyParts)) {
-                object = reportCore()->createItemObject(report, baseModule);
+                object = reportCore()->createItemObject(baseModule, report);
                 if (object)
                     break;
             }
@@ -1094,28 +984,28 @@ QObject * SerializerXML::createObject( const QDomElement & dom, QObject * parent
         // FIXME: compatibility
         if (moduleName == "Standard::Standard")
             moduleName = "Standard::Page";
-        object = reportCore()->createPageObject(report, moduleName);
+        object = reportCore()->createPageObject(moduleName, report);
         if (!object && !dom.attribute("extends").isEmpty()) {
             foreach (const QString & baseModule, dom.attribute("extends").split(",", QString::SkipEmptyParts)) {
-                object = reportCore()->createPageObject(report, baseModule);
+                object = reportCore()->createPageObject(baseModule, report);
                 if (object)
                     return object;
             }
         }
     } else if (tagName == "Dataset") {
-        object = reportCore()->createDatasetObject(report, moduleName);
+        object = reportCore()->createDatasetObject(moduleName, report);
         if (!object && !dom.attribute("extends").isEmpty()) {
             foreach (const QString & baseModule, dom.attribute("extends").split(",", QString::SkipEmptyParts)) {
-                object = reportCore()->createDatasetObject(report, baseModule);
+                object = reportCore()->createDatasetObject(baseModule,report);
                 if (object)
                     return object;
             }
         }
     } else if (tagName == "Storage") {
-        object = reportCore()->createStorageObject(report, moduleName);
+        object = reportCore()->createStorageObject(moduleName, report);
         if (!object && !dom.attribute("extends").isEmpty()) {
             foreach (const QString & baseModule, dom.attribute("extends").split(",", QString::SkipEmptyParts)) {
-                object = reportCore()->createStorageObject(report, baseModule);
+                object = reportCore()->createStorageObject(baseModule, report);
                 if (object)
                     return object;
             }
@@ -1124,10 +1014,10 @@ QObject * SerializerXML::createObject( const QDomElement & dom, QObject * parent
         // FIXME: compatibility
         if (moduleName == "Standard::Standard")
             moduleName = "Standard::Renderer";
-        object = reportCore()->createRendererObject(report, moduleName);
+        object = reportCore()->createRendererObject(moduleName, report);
         if (!object && !dom.attribute("extends").isEmpty()) {
             foreach (const QString & baseModule, dom.attribute("extends").split(",", QString::SkipEmptyParts)) {
-                object = reportCore()->createRendererObject(report, baseModule);
+                object = reportCore()->createRendererObject(baseModule, report);
                 if (object)
                     return object;
             }
@@ -1136,19 +1026,19 @@ QObject * SerializerXML::createObject( const QDomElement & dom, QObject * parent
         // FIXME: compatibility
         if (moduleName == "Standard::Standard")
             moduleName = "Standard::Printer";
-        object = reportCore()->createPrinterObject(report, moduleName);
+        object = reportCore()->createPrinterObject(moduleName, report);
         if (!object && !dom.attribute("extends").isEmpty()) {
             foreach (const QString & baseModule, dom.attribute("extends").split(",", QString::SkipEmptyParts)) {
-                object = reportCore()->createPrinterObject(report, baseModule);
+                object = reportCore()->createPrinterObject(baseModule, report);
                 if (object)
                     return object;
             }
         }
     } else if (tagName == "Form") {
-        object = reportCore()->createFormObject(report, moduleName);
+        object = reportCore()->createFormObject(moduleName, report);
         if (!object && !dom.attribute("extends").isEmpty()) {
             foreach (const QString & baseModule, dom.attribute("extends").split(",", QString::SkipEmptyParts)) {
-                object = reportCore()->createFormObject(report, baseModule);
+                object = reportCore()->createFormObject(baseModule, report);
                 if (object)
                     return object;
             }

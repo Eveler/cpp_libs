@@ -29,6 +29,6 @@
  ***************************************************************************/
 
 #include "reportcore.h"
-#include "types.h"
+#include "cutereport_types.h"
 
 #include "summary.h"

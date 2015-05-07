@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -38,6 +38,8 @@ class RendererInterface;
 class PrinterInterface;
 class StorageInterface;
 class StorageHelperInterface;
+class RendererHelperInterface;
+class PrinterHelperInterface;
 }
 
 class QTreeWidgetItem;
@@ -66,35 +68,66 @@ public slots:
 //    void syncData();
 
 signals:
-    void requestForNewRenderer( const CuteReport::RendererInterface*);
-    void requestForNewPrinter( const CuteReport::PrinterInterface*);
     void requestForNewStorage( const CuteReport::StorageInterface*);
     void requestForDeleteStorage( const QString & name );
     void requestForDefaultStorage( const QString & name );
-    void requestForDeletePrinter();
-    void requestForDeleteRenderer();
+    void requestForNewStorageName( const QString & name );
+//    void requestForDeletePrinter();
+//    void requestForDeleteRenderer();
+    void requestForNewRenderer( const CuteReport::RendererInterface*);
+    void requestForDeleteRenderer( const QString & name );
+    void requestForDefaultRenderer( const QString & name );
+    void requestForNewRendererName( const QString & name );
+    void requestForNewPrinter( const CuteReport::PrinterInterface*);
+    void requestForDeletePrinter( const QString & name );
+    void requestForDefaultPrinter( const QString & name );
+    void requestForNewPrinterName( const QString & name );
 
 private slots:
     void setGUIReportFilePath(const QString & url);
     void setGUIReportName(const QString & reportName);
     void setGUIReportAuthor(const QString & reportAuthor);
     void setGUIReportDescription(const QString & reportDescription);
-    void setGUIReportPrinter(CuteReport::PrinterInterface* printer);
-    void setGUIReportRenderer(CuteReport::RendererInterface* renderer);
+//    void setGUIReportPrinter(CuteReport::PrinterInterface* printer);
+//    void setGUIReportRenderer(CuteReport::RendererInterface* renderer);
     void addGUIReportStorage(CuteReport::StorageInterface* storage);
     void removeGUIReportStorage(CuteReport::StorageInterface* storage);
     void setGUIDefaultStorage(const QString & storageName);
+    void addGUIReportRenderer(CuteReport::RendererInterface * object);
+    void removeGUIReportRenderer(CuteReport::RendererInterface* object);
+    void setGUIDefaultRenderer(const QString & objectName);
+    void addGUIReportPrinter(CuteReport::PrinterInterface * object);
+    void removeGUIReportPrinter(CuteReport::PrinterInterface* object);
+    void setGUIDefaultPrinter(const QString & objectName);
+
     void updateGUIvariables();
 
-    void setNewRendererModule();
-    void setNewPrinterModule();
     void setNewStorageModule();
     void deleteCurrentStorage();
     void setDefaultStorage();
     void clearDefaultStorage();
+    void renameStorage();
+
+    void setNewRendererModule();
+    void deleteCurrentRenderer();
+    void setDefaultRenderer();
+    void clearDefaultRenderer();
+    void renameRenderer();
+
+    void setNewPrinterModule();
+    void deleteCurrentPrinter();
+    void setDefaultPrinter();
+    void clearDefaultPrinter();
+    void renamePrinter();
 
     void storagesListIndexChanged(QTreeWidgetItem* current,QTreeWidgetItem*previous);
+    void rendererListIndexChanged(QTreeWidgetItem* current,QTreeWidgetItem*previous);
+    void printerListIndexChanged(QTreeWidgetItem* current,QTreeWidgetItem*previous);
     void variableItemChanged(QTableWidgetItem*item);
+
+    void slotStorageNameChanged(QString name);
+    void slotRendererNameChanged(QString name);
+    void slotPrinterNameChanged(QString name);
 
 private:
     void updateLayout();
@@ -103,6 +136,8 @@ private:
     CuteDesigner::Core * m_core;
     QPointer<CuteReport::ReportInterface> m_report;
     QPointer<CuteReport::StorageHelperInterface> m_currentStorageHelper;
+    QPointer<QWidget> m_currentRendererHelper;
+    QPointer<QWidget> m_currentPrinterHelper;
     QPointer<EditorWidget> m_rendererPropertyEditor;
     QPointer<EditorWidget> m_printerPropertyEditor;
 };

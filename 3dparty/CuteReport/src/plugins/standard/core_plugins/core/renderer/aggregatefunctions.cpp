@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -31,9 +31,13 @@
 #include "aggregatefunctions.h"
 #include "bandinterface.h"
 #include "datasetinterface.h"
+#include "scriptengine.h"
+#include "reportinterface.h"
 
-const QString regExp1("(sum|min|max|avg)\\s*\\(\\s*(\\w+)\\.value\\(\\\"(\\w+)\\\"\\s*\\)\\s*(,\\s*(\\d))?\\s*\\)");
-const QString regExp2("(count)\\s*\\(\\s*(\\w+)\\s*\\)");
+SUIT_BEGIN_NAMESPACE
+
+const QString regExp1("\\b(sum|min|max|avg)\\s*\\(\\s*(\\w+)\\.getValue\\(\\\"(\\w+)\\\"\\s*\\)\\s*(,\\s*(\\w*))?\\s*\\)");
+const QString regExp2("(count)\\s*\\(\\s*(\\w+)\\s*()(,\\s*(\\w*))?\\s*\\)");
 
 AggregateFunctions::AggregateFunctions()
 {
@@ -98,43 +102,15 @@ qreal AggregateFunctions::getValue(const QString &bandName, const QString &datas
 }
 
 
-void AggregateFunctions::findAndRegisterAggregateFunctions(const QString &strIn, const CuteReport::BandInterface* band)
+bool AggregateFunctions::initialItemScriptPreprocess(QString &script, const QString &carrierBandName, CuteReport::ReportInterface *report, QStringList * errors)
 {
-    if (!band)
-        return;
+    return _scriptPreprocess(script, carrierBandName, report, false, true, errors);
+}
 
-    QString strOut = strIn;
 
-    QRegExp reField(regExp1, Qt::CaseInsensitive);
-    reField.setMinimal(false);
-    int pos = 0;
-
-    while ((pos = reField.indexIn(strOut, pos)) != -1) {
-        int length = reField.matchedLength();
-
-        QString funcName = reField.cap(1);
-        QString datasetName = reField.cap(2);
-        QString fieldName = reField.cap(3);
-
-        addFunction(band->objectName(), datasetName, fieldName, funcName);
-
-        pos += length;
-    }
-
-    reField.setPattern(regExp2);
-    pos = 0;
-    while ((pos = reField.indexIn(strOut, pos)) != -1) {
-        int length = reField.matchedLength();
-
-        QString funcName = reField.cap(1);
-        QString datasetName = reField.cap(2);
-        QString fieldName = reField.cap(3);
-
-        addFunction(band->objectName(), datasetName, fieldName, funcName);
-
-        pos += length;
-    }
-
+bool AggregateFunctions::itemScriptPreprocess(QString &script, const QString &carrierBandName, CuteReport::ReportInterface *report, QStringList *errors)
+{
+    return _scriptPreprocess(script, carrierBandName, report, true, false, errors);
 }
 
 
@@ -154,76 +130,12 @@ void AggregateFunctions::processDatasetIteration(CuteReport::DatasetInterface *d
                 FieldFunctionsIterator funcIt;
                 for (funcIt = fIt.value().begin(); funcIt != fIt.value().end(); funcIt++) {
                     FunctionStruct & s = funcIt.value();
-                    accumulataValue(funcIt.key(), s, dataset->value(fIt.key()).toReal());
+                    accumulataValue(funcIt.key(), s, dataset->getValue(fIt.key()).toReal());
                 }
             }
             break;
         }
     }
-}
-
-/// looking for aggregate functions and replace it with real value
-/// name of aggregate function may be the same with other standard javascript function
-/// so checking carefully with exact format func(datasetName.value("fieldName")
-
-QString AggregateFunctions::replaceWithRealValues(const QString &strIn, const CuteReport::BandInterface* band)
-{
-    if (!band)
-        return strIn;
-
-    QString strOut = strIn;
-
-    QRegExp reField(regExp1, Qt::CaseInsensitive);
-    reField.setMinimal(false);
-    int pos = 0;
-
-    while ((pos = reField.indexIn(strOut, pos)) != -1) {
-        int length = reField.matchedLength();
-
-        QString funcName = reField.cap(1);
-        QString datasetName = reField.cap(2);
-        QString fieldName = reField.cap(3);
-        QString precision = reField.cap(5);
-
-        bool ok = true;
-        qreal num = getValue(band->objectName(), datasetName, fieldName, funcName, &ok);
-        if (ok) {
-            QString result;
-            if (precision.isEmpty())
-                result = QString::number(num);
-            else {
-                int prec = precision.toInt();
-                result = QString::number(num, 'f', prec);
-            }
-            strOut.replace(pos, length, result);
-            pos += result.length() ;
-        } else {
-            pos += length;
-        }
-    }
-
-    reField.setPattern(regExp2);
-    pos = 0;
-    while ((pos = reField.indexIn(strOut, pos)) != -1) {
-        int length = reField.matchedLength();
-
-        QString funcName = reField.cap(1);
-        QString datasetName = reField.cap(2);
-        QString fieldName = reField.cap(3);
-
-        bool ok = true;
-        qreal num = getValue(band->objectName(), datasetName, fieldName, funcName, &ok);
-        if (ok) {
-            QString result = QString::number(num);
-            strOut.replace(pos, length, result);
-            pos += result.length() ;
-        } else {
-            pos += length;
-        }
-
-    }
-
-    return strOut;
 }
 
 
@@ -276,6 +188,132 @@ void AggregateFunctions::resetValuesForBand(const QString &bandName, bool delaye
 }
 
 
+void AggregateFunctions::registerScriptObjects(ScriptEngine *scriptEngine)
+{
+    scriptEngine->globalObject().setProperty("sum", scriptEngine->newFunction(sum));
+    scriptEngine->globalObject().setProperty("min", scriptEngine->newFunction(min));
+    scriptEngine->globalObject().setProperty("max", scriptEngine->newFunction(max));
+    scriptEngine->globalObject().setProperty("avg", scriptEngine->newFunction(avg));
+    scriptEngine->globalObject().setProperty("count", scriptEngine->newFunction(count));
+}
+
+
+bool AggregateFunctions::mainScriptPreprocess(QString &script, CuteReport::ReportInterface *report, QStringList * errors)
+{
+    return _scriptPreprocess(script, "", report, true, true, errors);
+}
+
+
+bool AggregateFunctions::_scriptPreprocess(QString &script, const QString &parentBandName, CuteReport::ReportInterface *report, bool replace, bool addNewFunctions, QStringList * errors)
+{
+//    qDebug() << script;
+    if (errors)
+        (*errors).clear();
+
+    bool result = true;
+
+    QStringList regExpTemplates;
+    regExpTemplates << regExp1 << regExp2;
+
+    QRegExp reField;
+    reField.setCaseSensitivity(Qt::CaseSensitive);
+    reField.setMinimal(false);
+    int pos;
+
+    foreach (const QString& str, regExpTemplates) {
+        reField.setPattern(str);
+        pos = 0;
+        while ((pos = reField.indexIn(script, pos)) != -1) {
+            int length = reField.matchedLength();
+
+            QString funcName = reField.cap(1);
+            QString datasetName = reField.cap(2);
+            QString fieldName = reField.cap(3);
+            QString bandName = reField.cap(5);
+
+            QString correctBandName = bandName.isEmpty() ? parentBandName : bandName;
+
+            if (!parentBandName.isEmpty() && !report->dataset(datasetName) && errors) {
+                result = false;
+                *errors << QString("There is no such dataset '%1' in '%2' aggregate function agument").arg(datasetName).arg(funcName);
+            }
+            if (!parentBandName.isEmpty() && !report->item(correctBandName) && errors) {
+                result = false;
+                *errors << QString("There is no such band '%1' in '%2' aggregate function agument").arg(bandName).arg(funcName);
+            }
+
+            if (addNewFunctions && !correctBandName.isEmpty())
+                addFunction(correctBandName, datasetName, fieldName, funcName);
+
+            if (replace && !isCommentOrString(script, pos, length)) {
+                QString replacingStr = QString("%1(\'%2\'%3)")
+                                       .arg(funcName)
+                                       .arg(datasetName + (fieldName.isEmpty() ? "" : "."+fieldName))
+                                       .arg(bandName.isEmpty() ? "" : ", \'"+bandName+"\'");
+                script.replace(pos, length, replacingStr);
+                pos += replacingStr.length();
+            } else {
+                pos += length;
+            }
+        }
+    }
+
+//    qDebug() << script;
+
+    return result;
+}
+
+
+QScriptValue AggregateFunctions::sum(QScriptContext *context, QScriptEngine *engine)
+{
+    return _scriptableFunction(context, engine, "sum");
+}
+
+
+QScriptValue AggregateFunctions::avg(QScriptContext *context, QScriptEngine *engine)
+{
+    return _scriptableFunction(context, engine, "avg");
+}
+
+
+QScriptValue AggregateFunctions::min(QScriptContext *context, QScriptEngine *engine)
+{
+    return _scriptableFunction(context, engine, "min");
+}
+
+
+QScriptValue AggregateFunctions::max(QScriptContext *context, QScriptEngine *engine)
+{
+    return _scriptableFunction(context, engine, "max");
+}
+
+
+QScriptValue AggregateFunctions::count(QScriptContext *context, QScriptEngine *engine)
+{
+    return _scriptableFunction(context, engine, "count");
+}
+
+
+QScriptValue AggregateFunctions::_scriptableFunction(QScriptContext *context, QScriptEngine *engine, const QString &funcName)
+{
+    ScriptEngine* scriptEngine = dynamic_cast<ScriptEngine*>(engine);
+    if (!scriptEngine)
+        return scriptEngine->undefinedValue();
+    QScriptValue arg1 = context->argument(0);
+    QScriptValue arg2 = context->argument(1);
+//    qDebug() << arg1.toString() << arg2.toString();
+//    qDebug() << arg1.isString() << arg2.isString() << arg2.isUndefined();
+    if (arg1.isString() && (arg2.isUndefined() || arg2.isString())) {
+        CuteReport::BandInterface * band = scriptEngine->processor()->rendererItemInterface()->currentProcessingBand();
+        QString datasetName = arg1.toString().section(".", 0,0);
+        QString fieldName = arg1.toString().section(".", 1,1);
+        QString bandName  = arg2.isUndefined() ? (band ? band->objectName() : "") : arg2.toString();
+        return scriptEngine->processor()->aggregateFunctions()->getValue(bandName, datasetName, fieldName, funcName);
+    }
+    return scriptEngine->undefinedValue();
+}
+
+
 qreal AggregateFunctions::getValue(const QString & funcName, FunctionStruct & funcStruct)
 {
     if (funcName == "sum") {
@@ -313,3 +351,22 @@ void AggregateFunctions::accumulataValue(const QString & funcName, FunctionStruc
 
     funcStruct.iterationNumber++;
 }
+
+
+bool AggregateFunctions::isCommentOrString(const QString &str, int pos, int length)
+{
+    int singleQuoteCount = 0;
+    int doubleQuoteCount = 0;
+    int max = qMin(pos, str.length());
+    for (int i = 0; i < max; ++i) {
+        if (str[i] == '\'') singleQuoteCount++;
+        else if (str[i] == '\"') doubleQuoteCount++;
+    }
+
+    if (singleQuoteCount % 2 != 0) return true;
+    else if (doubleQuoteCount % 2 != 0) return true;
+
+    return false;
+}
+
+SUIT_END_NAMESPACE

@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -34,8 +34,8 @@ inline void initMyResource() { Q_INIT_RESOURCE(dataset_editor); }
 
 DatasetEditor::DatasetEditor(QObject *parent) :
     ModuleInterface(parent),
-    m_currentDataset(0),
-    ui(0)
+    ui(0),
+    m_currentDataset(0)
 {
 }
 
@@ -52,9 +52,12 @@ void DatasetEditor::init(Core *core)
     initMyResource();
     ModuleInterface::init(core);
 
+    if (core->getSettingValue("DatasetEditor/tabMode").isNull())
+        core->setSettingValue("DatasetEditor/tabMode", 2);
+
     ui = new DatasetContainer(this);
     ui->setEnabled(false);
-    ui->addDatasetPlugins(core->reportCore()->datasetModules());
+    ui->addDatasetPlugins(core->reportCore()->modules(CuteReport::DatasetModule));
     ui->setEnabled(core->currentReport());
 
     m_propertyEditor = core->createPropertyEditor(ui);
@@ -126,7 +129,7 @@ void DatasetEditor::slotRequestForCreateDataset(QString name)
 {
     sync();
     core()->reportCore()->log(CuteReport::LogDebug, "DatasetEditor", "slotCreateDataset:" + name);
-    CuteReport::DatasetInterface * dataset = core()->reportCore()->createDatasetObject(core()->currentReport(), name);
+    CuteReport::DatasetInterface * dataset = core()->reportCore()->createDatasetObject(name, core()->currentReport());
     if (dataset) {
         m_currentDataset = dataset;
         m_datasets.insert(m_currentDataset, m_currentDataset->objectName());
@@ -198,7 +201,7 @@ void DatasetEditor::slotRequestForPopulatedataset()
     m_currentDataset->helper()->save();
     m_currentDataset->populate();
     ui->setModel(m_currentDataset->model());
-    ui->setError(m_currentDataset->lastError());
+    ui->setError(m_currentDataset->getLastError());
 }
 
 

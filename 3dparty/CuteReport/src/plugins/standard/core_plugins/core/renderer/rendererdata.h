@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -31,30 +31,32 @@
 #ifndef RENDERERDATA_H
 #define RENDERERDATA_H
 #include "rendererinterface.h"
+#include "scriptengine.h"
+
 #include <QMutexLocker>
-#include <QScriptEngine>
 #include <QPointer>
-
-class RendererProcessor;
-class Renderer;
-class Thread;
-
 
 namespace CuteReport {
 class FormInterface;
 }
 
+SUIT_BEGIN_NAMESPACE
+class Thread;
+class Renderer;
+class RendererProcessor;
+SUIT_END_NAMESPACE
+
+USING_SUIT_NAMESPACE
+
+SUIT_BEGIN_NAMESPACE
 class RendererData
 {
 public:
     explicit RendererData();
     ~RendererData();
 
-//    void setRunning(bool b = true);
     void clear();
-//    void appendForm(CuteReport::FormInterface * form);
-//    int formCounter();
-//    CuteReport::FormInterface * form(int num);
+    void reset();
 
     void appendPage(CuteReport::RenderedPageInterface * page);
     CuteReport::RenderedPageInterface* getPage(int number);
@@ -64,18 +66,16 @@ public:
 
     CuteReport::ReportInterface * origReport;
     QPointer<CuteReport::ReportInterface> workingReportCopy;
-    Renderer * renderer;
-    QPointer<QScriptEngine> scriptEngine;
+    SUIT_NAMESPACE::Renderer * renderer;
+    QPointer<ScriptEngine> scriptEngine;
     QPointer<RendererProcessor> processor;
-    Thread * processorThread;
     int dpi;
 
     QList<CuteReport::RenderedPageInterface* > pages;
 private:
     QStringList m_errors;
-    QMutex mutex;
-//    QList<QPointer<CuteReport::FormInterface> > forms;
 };
 
+SUIT_END_NAMESPACE
 
 #endif // RENDERERDATA_H

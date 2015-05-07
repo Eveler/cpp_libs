@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -225,8 +225,13 @@ QString StorageGit::convertToLocal(const QString & url) const
 {
     if (url.isEmpty())
         return absolutePath();
+
+    QString u = url;
+    //remove "/" after : if exisits
+    u.replace(":/",":");
+
     QUrl remoteUrl(m_remoteUrl);
-    QUrl fileUrl(url);
+    QUrl fileUrl(u);
     QFileInfo fileInfo(fileUrl.path());
 
     QString absoluteFilePath;
@@ -236,7 +241,7 @@ QString StorageGit::convertToLocal(const QString & url) const
     } else if (!fileInfo.isAbsolute()) {
         absoluteFilePath = absolutePath(fileUrl.path());
     } else {
-
+        absoluteFilePath = absolutePath();
     }
 
     absoluteFilePath.replace(QRegExp("/+"), "/");
@@ -268,12 +273,12 @@ QString StorageGit::localCachedFileName(const QString & url)
 }
 
 
-bool StorageGit::saveObject(const QString & url, const QVariant & objectData)
+bool StorageGit::saveObject(const QString & url, const QByteArray & objectData)
 {
     QFile file(convertToLocal(url));
 
     if (file.open(QIODevice::WriteOnly)){
-        file.write(objectData.toByteArray());
+        file.write(objectData);
         file.close();
         return true;
     } else {
@@ -283,7 +288,7 @@ bool StorageGit::saveObject(const QString & url, const QVariant & objectData)
 }
 
 
-QVariant StorageGit::loadObject(const QString & url)
+QByteArray StorageGit::loadObject(const QString & url)
 {
     QFile file(convertToLocal(url));
 

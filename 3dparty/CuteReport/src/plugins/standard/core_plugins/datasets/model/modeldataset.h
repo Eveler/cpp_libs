@@ -2,6 +2,8 @@
  *   This file is part of the CuteReport project                           *
  *   Copyright (C) 2014 by Ivan Volkov                                     *
  *   wulff007@gmail.com                                                    *
+ *   Copyright (C) 2015 by Alexander Mikhalov                              *
+ *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
  *                                                                         *
@@ -33,11 +35,10 @@
 #include <datasetinterface.h>
 #include <reportinterface.h>
 
-#include "globals.h"
+#include "cutereport_globals.h"
 
 class ModelDatasetHelper;
 class TestModel;
-class ProxyModel;
 class QAbstractItemModel;
 class CloneModel;
 
@@ -50,29 +51,35 @@ class ModelDataset : public CuteReport::DatasetInterface
 #endif
     Q_INTERFACES(CuteReport::DatasetInterface)
 
-    Q_PROPERTY(QString sourceModelName READ sourceModelName WRITE setSourceModelName NOTIFY sourceModelNameChanged)
+    Q_PROPERTY(QString addressVariable READ addressVariable WRITE setAddressVariable NOTIFY addressVariableChanged)
+    Q_PROPERTY(quint64 modelAddress READ modelAddress WRITE setModelAddress NOTIFY modelAddressChanged)
     Q_PROPERTY(QByteArray testModelData READ testModelData WRITE setTestModelData NOTIFY testModelDataChanged)
 
 public:
     explicit ModelDataset(QObject *parent = 0);
     ~ModelDataset();
 
-    void setSourceModelName(QString name);
-    QString sourceModelName() const;
+    virtual void init();
+
+    void setAddressVariable(QString name);
+    QString addressVariable() const;
+
+    void setModelAddress(quint64 address);
+    quint64 modelAddress() const;
 
     QByteArray testModelData() const;
     void setTestModelData(QByteArray data);
 
+
+    virtual QSet<QString> variables() const;
+
     virtual QAbstractItemModel *model();
-
-    QAbstractItemModel *sourceModel() const;
-    void setSourceModel(QAbstractItemModel *model);
-
     TestModel *testModel() const;
 
 signals:
-    void sourceModelNameChanged(QString);
-    void testModelDataChanged(QString);
+    void addressVariableChanged(QString);
+    void modelAddressChanged(quint64);
+    void testModelDataChanged(QByteArray);
 
 private slots:
 
@@ -84,29 +91,29 @@ public:
 
     CuteReport::DatasetHelperInterface *helper();
     QIcon icon();
-    bool firstRow();
-    bool lastRow();
-    bool nextRow();
-    bool previousRow();
+    bool setFirstRow();
+    bool setLastRow();
+    bool setNextRow();
+    bool setPreviousRow();
     bool populate();
     bool isPopulated();
     void setPopulated(bool b);
     void reset();
     void resetCursor();
-    int currentRow();
-    bool setCurrentRow(int index);
-    int rows();
+    int getCurrentRowNumber();
+    bool setCurrentRowNumber(int index);
+    int getRowCount();
 
-    QString lastError();
-    int columns();
-    QVariant value(int index) const;
-    QVariant value(const QString &field) const;
-    QVariant lookaheadValue(int index) const;
-    QVariant lookaheadValue(const QString &field) const;
-    QVariant lookbackValue(int index) const;
-    QVariant lookbackValue(const QString &field) const;
-    QString fieldName(int column);
-    QVariant::Type fieldType(int column);
+    QString getLastError();
+    int getColumnCount();
+    QVariant getValue(int index);
+    QVariant getValue(const QString &field);
+    QVariant getNextRowValue(int index);
+    QVariant getNextRowValue(const QString &field);
+    QVariant getPreviousRowValue(int index);
+    QVariant getPreviousRowValue(const QString &field);
+    QString getFieldName(int column);
+    QVariant::Type getFieldType(int column);
 
 protected:
     CuteReport::DatasetInterface *createInstance(QObject *parent) const;
@@ -116,21 +123,22 @@ private:
     ModelDatasetHelper *m_helper;
     QAbstractItemModel *m_sourceModel;
     TestModel *m_testModel;
-    CloneModel *m_cloneModel;
+//    CloneModel *m_cloneModel;
 
-    QString m_sourceModelName;
+    QString m_addressVariableName;
     QByteArray m_testModelData;
 
     int m_currentRow;
     bool m_isPopulated;
-    qlonglong m_longPtr;
+    quint64 m_externalModelAddress;
+    bool m_isInited;
 
-
-    //CuteReport::ReportInterface * m_report;
 private:
     ModelDataset(const ModelDataset &dd, QObject * parent);
 
-    int columnIndexByName(QString name) const;    
+    int columnIndexByName(QString name);
+    int columnIndexIn(const QString &name, const QString &templateName) const;
+
 };
 
 #endif // MODELDATASET_H

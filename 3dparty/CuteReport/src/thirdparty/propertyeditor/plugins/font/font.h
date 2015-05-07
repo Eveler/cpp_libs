@@ -40,7 +40,10 @@ using namespace PropertyEditor;
 class Font : public PropertyInterface
 {
 	Q_OBJECT
-	Q_INTERFACES(PropertyEditor::PropertyInterface);
+#if QT_VERSION >= 0x050000
+    Q_PLUGIN_METADATA(IID "eu.licentia.PropertyEditor.PropetyInterface/1.0")
+#endif
+    Q_INTERFACES(PropertyEditor::PropertyInterface)
 
 public:
 	Font(QObject* parent = 0, QObject* object = 0, int property = -1, const PropertyModel * propertyModel = 0);

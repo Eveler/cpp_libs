@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -37,8 +37,9 @@
 #include "printerinterface.h"
 #include "storageinterface.h"
 #include "log/log.h"
-#include "globals.h"
+#include "cutereport_globals.h"
 #include "renderedreportinterface.h"
+#include "reportcore.h"
 
 using namespace CuteReport;
 
@@ -51,7 +52,7 @@ ReportInterface::ReportInterface(QObject *parent)
       m_isValid(true),
       m_renderedReport(0)
 {
-    Log::refCounterInc();
+    Log::refCounterInc(this);
 }
 
 
@@ -71,21 +72,22 @@ ReportInterface::ReportInterface(const ReportInterface & dd, QObject * parent)
       m_isValid(dd.m_isValid),
       m_renderedReport(0)
 {
-    Log::refCounterInc();
+    Log::refCounterInc(this);
     setFlags(dd.m_flags);
 }
 
 
 ReportInterface::~ReportInterface()
 {
-    Log::refCounterDec();
+    delete m_renderedReport;
+    Log::refCounterDec(this);
 }
 
 
 void ReportInterface::init()
 {
     QList<CuteReport::ReportPluginInterface*> modules = this->findChildren<CuteReport::ReportPluginInterface*>();
-    qDebug() << modules.count();
+    //qDebug() << modules.count();
     QList<CuteReport::PageInterface*> pages = this->findChildren<CuteReport::PageInterface*>();
     foreach(CuteReport::PageInterface* page, pages) {
         page->init();
@@ -217,9 +219,16 @@ void ReportInterface::setAuthor(const QString & author)
 }
 
 
-QList<BaseItemInterface *> ReportInterface::items()
+QList<BaseItemInterface *> ReportInterface::items(const QString &pageObjectName)
 {
-    return this->findChildren<CuteReport::BaseItemInterface*>();
+    if (pageObjectName.isEmpty())
+        return this->findChildren<CuteReport::BaseItemInterface*>();
+
+    const PageInterface * p = page(pageObjectName);
+    if (!p)
+        return QList<BaseItemInterface *>();
+
+    return p->items();
 }
 
 
@@ -241,6 +250,15 @@ QList<PageInterface *> ReportInterface::pages()
 }
 
 
+QStringList ReportInterface::pageNames()
+{
+    QStringList list;
+    foreach (PageInterface * page, pages())
+        list << page->objectName();
+    return list;
+}
+
+
 PageInterface *ReportInterface::page(const QString &pageName)
 {
     if (pageName.isEmpty())
@@ -252,12 +270,16 @@ PageInterface *ReportInterface::page(const QString &pageName)
 void ReportInterface::addPage (PageInterface * page)
 {
     page->setParent(this);
+    setUniqueName(page);
 
     connect(page, SIGNAL(destroyed(QObject*)), this, SLOT(childDestroyed(QObject*)));
-    connect(page, SIGNAL(afterNewItemAdded(CuteReport::BaseItemInterface*,QPointF)),
-            this, SLOT(slotItemAdded(CuteReport::BaseItemInterface*,QPointF)));
-    connect(page, SIGNAL(afterItemRemoved(CuteReport::BaseItemInterface*)),
-            this, SLOT(slotItemRemoved(CuteReport::BaseItemInterface*)));
+    connect(page, SIGNAL(afterNewItemAdded(CuteReport::BaseItemInterface*)),
+            this, SLOT(slotItemAdded(CuteReport::BaseItemInterface*)));
+    connect(page, SIGNAL(afterItemRemoved(CuteReport::BaseItemInterface*,QString,bool)),
+            this, SLOT(slotItemRemoved(CuteReport::BaseItemInterface*, QString, bool)));
+
+    if (m_flags.testFlag(DirtynessAutoUpdate))
+        connect(page, SIGNAL(changed()), this, SLOT(setDirty()));
 
     emit pageAdded(page);
     emit changed();
@@ -266,6 +288,9 @@ void ReportInterface::addPage (PageInterface * page)
 
 void ReportInterface::deletePage(PageInterface * page)
 {
+    if (!page || page->parent() != this)
+        return;
+
     /** disconnect for prevent triggering destroyed object postprocessing */
     disconnect(page, 0, this, 0);
     page->deleteLater();
@@ -277,28 +302,22 @@ void ReportInterface::deletePage(PageInterface * page)
 
 void ReportInterface::deletePage(const QString &pageName)
 {
-    QList<CuteReport::PageInterface*> pages = findChildren<CuteReport::PageInterface*>();
-    CuteReport::PageInterface* existentPage = 0;
-    foreach(CuteReport::PageInterface* page, pages)
-        if (pageName == page->objectName()) {
-            existentPage = page;
-            break;
-        }
-
-    if (!existentPage)
-        return;
-
-    disconnect(existentPage, 0, this, 0);
-    existentPage->deleteLater();
-
-    emit pageDeleted(existentPage);
-    emit changed();
+    deletePage(page(pageName));
 }
 
 
 QList<DatasetInterface *> ReportInterface::datasets()
 {
     return this->findChildren<CuteReport::DatasetInterface*>();
+}
+
+
+QStringList ReportInterface::datasetNames()
+{
+    QStringList list;
+    foreach (DatasetInterface * ds, datasets())
+        list << ds->objectName();
+    return list;
 }
 
 
@@ -313,13 +332,7 @@ DatasetInterface * ReportInterface::dataset(const QString & datasetName)
 void ReportInterface::addDatasets(QList<DatasetInterface *> datasets)
 {
     foreach (DatasetInterface * dataset, datasets) {
-        dataset->setParent(this);
-        connect(dataset, SIGNAL(destroyed(QObject*)), this, SLOT(childDestroyed(QObject*)));
-        if (m_flags.testFlag(VariablesAutoUpdate))
-            connect(dataset, SIGNAL(variablesChanged()), this, SLOT(slotObjectVariablesChanged()), Qt::UniqueConnection);
-
-        emit datasetAdded(dataset);
-        emit changed();
+        addDataset(dataset);
     }
 }
 
@@ -327,9 +340,13 @@ void ReportInterface::addDatasets(QList<DatasetInterface *> datasets)
 void ReportInterface::addDataset(DatasetInterface* dataset)
 {
     dataset->setParent(this);
+    setUniqueName(dataset);
+
     connect(dataset, SIGNAL(destroyed(QObject*)), this, SLOT(childDestroyed(QObject*)));
     if (m_flags.testFlag(VariablesAutoUpdate))
         connect(dataset, SIGNAL(variablesChanged()), this, SLOT(slotObjectVariablesChanged()), Qt::UniqueConnection);
+    if (m_flags.testFlag(DirtynessAutoUpdate))
+        connect(dataset, SIGNAL(changed()), this, SLOT(setDirty()));
 
     emit datasetAdded(dataset);
     emit changed();
@@ -338,11 +355,24 @@ void ReportInterface::addDataset(DatasetInterface* dataset)
 
 void ReportInterface::deleteDataset(DatasetInterface* dataset)
 {
+    if (!dataset)
+        return;
+
     /** disconnect for prevent triggering destroyed object postprocessing */
     disconnect(dataset, 0, this, 0);
+
+    QString name = dataset->objectName();
     delete dataset;
+
     emit datasetDeleted(dataset);
+    emit datasetDeleted(name);
     emit changed();
+}
+
+
+void ReportInterface::deleteDataset(const QString &datasetName)
+{
+    deleteDataset(dataset(datasetName));
 }
 
 
@@ -382,46 +412,158 @@ void ReportInterface::deleteForm(FormInterface * form )
 }
 
 
-CuteReport::RendererInterface *ReportInterface::renderer() const
+QList<RendererInterface *> ReportInterface::renderers()
 {
-    CuteReport::RendererInterface * r = findChild<CuteReport::RendererInterface*>();
-    return r;
+    return this->findChildren<CuteReport::RendererInterface*>();
 }
 
 
-void ReportInterface::setRenderer(CuteReport::RendererInterface * renderer)
+QStringList ReportInterface::rendererNames()
 {
-    CuteReport::RendererInterface* currentRenderer = findChild<CuteReport::RendererInterface*>();
-    if (currentRenderer == renderer)
-        return;
+    QStringList list;
+    foreach (RendererInterface * rend, renderers())
+        list << rend->objectName();
+    return list;
+}
 
-    delete currentRenderer;
-    if (renderer)
-        renderer->setParent(this);
 
-    emit rendererChanged(renderer);
+RendererInterface * ReportInterface::renderer(const QString & rendererName)
+{
+    QString name = rendererName.isEmpty() ? m_defaultRendererName : rendererName;
+    return findChild<CuteReport::RendererInterface*>(name);
+}
+
+
+void ReportInterface::addRenderer(CuteReport::RendererInterface * renderer)
+{
+    renderer->setParent(this);
+    setUniqueName(renderer);
+
+    connect(renderer, SIGNAL(destroyed(QObject*)), this, SLOT(childDestroyed(QObject*)));
+    if (m_flags.testFlag(DirtynessAutoUpdate))
+        connect(renderer, SIGNAL(changed()), this, SLOT(setDirty()));
+
+    emit rendererAdded(renderer);
     emit changed();
 }
 
 
-PrinterInterface * ReportInterface::printer() const
+void ReportInterface::deleteRenderer(RendererInterface *renderer)
 {
-    return findChild<CuteReport::PrinterInterface*>();
+    if (!renderer || renderer->parent() != this)
+        return;
+
+    /** disconnect for prevent triggering destroyed object postprocessing */
+    disconnect(renderer, 0, this, 0);
+
+    QString name = renderer->objectName();
+    delete renderer;
+
+    emit rendererDeleted(renderer);
+    emit rendererDeleted(name);
+    emit changed();
 }
 
 
-void ReportInterface::setPrinter(PrinterInterface *printer)
+void ReportInterface::deleteRenderer(const QString &rendererName)
 {
-    CuteReport::PrinterInterface* currentPrinter = findChild<CuteReport::PrinterInterface*>();
-    if (currentPrinter == printer)
+    deleteRenderer(renderer(rendererName));
+}
+
+
+QString ReportInterface::defaultRendererName() const
+{
+    return m_defaultRendererName;
+}
+
+
+void ReportInterface::setDefaultRendererName(const QString &name)
+{
+    if (m_defaultRendererName == name)
         return;
 
-    delete currentPrinter;
-    if (printer)
-        printer->setParent(this);
+    m_defaultRendererName = name;
 
-    emit printerChanged(printer);
+    emit defaultRendererChanged(m_defaultRendererName);
     emit changed();
+    emit propertyChanged();
+}
+
+
+QList<PrinterInterface *> ReportInterface::printers()
+{
+    return this->findChildren<CuteReport::PrinterInterface*>();
+}
+
+
+QStringList ReportInterface::printerNames()
+{
+    QStringList list;
+    foreach (PrinterInterface * printer, printers())
+        list << printer->objectName();
+    return list;
+}
+
+
+PrinterInterface * ReportInterface::printer(const QString & printerName)
+{
+    return findChild<CuteReport::PrinterInterface*>(printerName);
+}
+
+
+void ReportInterface::addPrinter(PrinterInterface *printer)
+{
+    printer->setParent(this);
+    setUniqueName(printer);
+
+    connect(printer, SIGNAL(destroyed(QObject*)), this, SLOT(childDestroyed(QObject*)));
+    if (m_flags.testFlag(DirtynessAutoUpdate))
+        connect(printer, SIGNAL(changed()), this, SLOT(setDirty()));
+
+    emit printerAdded(printer);
+    emit changed();
+}
+
+
+void ReportInterface::deletePrinter(PrinterInterface *printer)
+{
+    if (!printer || printer->parent() != this)
+        return;
+
+    /** disconnect for prevent triggering destroyed object postprocessing */
+    disconnect(printer, 0, this, 0);
+
+    QString name = printer->objectName();
+    delete printer;
+
+    emit printerDeleted(printer);
+    emit printerDeleted(name);
+    emit changed();
+}
+
+
+void ReportInterface::deletePrinter(const QString &printerName)
+{
+    deletePrinter(printer(printerName));
+}
+
+
+QString ReportInterface::defaultPrinterName() const
+{
+    return m_defaultPrinterName;
+}
+
+
+void ReportInterface::setDefaultPrinterName(const QString &name)
+{
+    if (m_defaultPrinterName == name)
+        return;
+
+    m_defaultPrinterName = name;
+
+    emit defaultPrinterChanged(m_defaultPrinterName);
+    emit changed();
+    emit propertyChanged();
 }
 
 
@@ -474,7 +616,7 @@ QList<StorageInterface *> ReportInterface::storages() const
 }
 
 
-QStringList ReportInterface::storagesName() const
+QStringList ReportInterface::storageNames() const
 {
     QStringList list;
     foreach (StorageInterface * storage, storages())
@@ -498,24 +640,7 @@ void ReportInterface::addStorage(StorageInterface *storage)
 
 void ReportInterface::deleteStorage(const QString & storageName)
 {
-    QList<CuteReport::StorageInterface*> storages = findChildren<CuteReport::StorageInterface*>();
-    CuteReport::StorageInterface* existentStorage = 0;
-    foreach(CuteReport::StorageInterface* st, storages)
-        if (storageName == st->objectName()) {
-            existentStorage = st;
-            break;
-        }
-
-    if (!existentStorage)
-        return;
-
-    if (defaultStorageName() == existentStorage->objectName())
-        setDefaultStorageName(QString());
-
-    existentStorage->deleteLater();
-
-    emit storageDeleted(existentStorage);
-    emit changed();
+    deleteStorage(storage(storageName));
 }
 
 
@@ -524,12 +649,14 @@ void ReportInterface::deleteStorage(StorageInterface * storage)
     if (!storage || storage->parent() != this)
         return;
 
-    if (defaultStorageName() == storage->objectName())
-        setDefaultStorageName(QString());
+//    if (defaultStorageName() == storage->objectName())
+//        setDefaultStorageName(QString());
 
-    storage->deleteLater();
+    QString name = storage->objectName();
+    delete storage;
 
     emit storageDeleted(storage);
+    emit storageDeleted(name);
     emit changed();
 }
 
@@ -561,26 +688,11 @@ void ReportInterface::setDefaultStorageName(const QString & name)
 
     m_defaultStorageName = name;
 
-    emit defaultStorageNameChanged(m_defaultStorageName);
+    emit defaultStorageChanged(m_defaultStorageName);
     emit changed();
     emit propertyChanged();
 }
 
-
-StorageInterface * ReportInterface::defaultStorage() const
-{
-    StorageInterface * defaultStorage = 0;
-
-    if (!m_defaultStorageName.isEmpty()) {
-        foreach (CuteReport::StorageInterface * storage, storages())
-            if (storage->objectName() == m_defaultStorageName) {
-                defaultStorage = storage;
-                break;
-            }
-    }
-
-    return defaultStorage;
-}
 
 
 // FIXMI: not imlemented report file version checking
@@ -621,7 +733,7 @@ void ReportInterface::setDescription(const QString & description)
 }
 
 
-QString ReportInterface::filePath()
+QString ReportInterface::fileUrl()
 {
     return m_filePath;
 }
@@ -634,7 +746,7 @@ void ReportInterface::setFilePath(const QString & filePath)
 
     m_filePath = filePath;
 
-    emit filePathChanged(m_filePath);
+    emit fileUrlChanged(m_filePath);
     emit changed();
     emit propertyChanged();
 }
@@ -816,6 +928,14 @@ void ReportInterface::precessFlags(ReportFlags previousFlags)
 }
 
 
+void ReportInterface::setUniqueName(QObject *object)
+{
+    if (ReportCore::isNameUnique(object, object->objectName(), this))
+        return;
+    object->setObjectName(ReportCore::uniqueName(object, object->objectName(), this));
+}
+
+
 void ReportInterface::slotScriptStringsChanged()
 {
     updateVariables();
@@ -897,8 +1017,6 @@ void ReportInterface::setRenderedReport(RenderedReportInterface *renderedReport)
 {
     delete m_renderedReport;
     m_renderedReport = renderedReport;
-    if (m_renderedReport)
-        m_renderedReport->setParent(this);
 }
 
 

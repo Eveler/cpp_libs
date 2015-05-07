@@ -41,7 +41,7 @@ QZint::QZint()
 	m_input_mode = UNICODE_MODE;
 	m_scale = 1.0;
 	m_option_3 = 0;
-	m_hidetext = FALSE;
+    m_hidetext = false;
 }
 
 QZint::~QZint()
@@ -76,7 +76,7 @@ void QZint::encode()
 		m_zintSymbol->option_3 = m_option_3;
 	}
 	QByteArray bstr=m_text.toUtf8();
-	QByteArray pstr=m_primaryMessage.left(99).toAscii();
+    QByteArray pstr=m_primaryMessage.left(99).toLatin1();
 	strcpy(m_zintSymbol->primary,pstr.data());
 	int error = ZBarcode_Encode(m_zintSymbol, (unsigned char*)bstr.data(), bstr.length());
 	if (error > WARN_INVALID_OPTION)
@@ -273,12 +273,12 @@ bool QZint::save_to_file(QString filename)
 	}
 	m_zintSymbol->scale=m_scale;
 	QByteArray bstr=m_text.toUtf8();
-	QByteArray pstr=m_primaryMessage.left(99).toAscii();
-	QByteArray fstr=filename.left(255).toAscii();
+    QByteArray pstr=m_primaryMessage.left(99).toLatin1();
+    QByteArray fstr=filename.left(255).toLatin1();
 	strcpy(m_zintSymbol->primary,pstr.data());
 	strcpy(m_zintSymbol->outfile,fstr.data());
-	QByteArray fgcol=fg_colour_hash.right(6).toAscii();
-	QByteArray bgcol=bg_colour_hash.right(6).toAscii();
+    QByteArray fgcol=fg_colour_hash.right(6).toLatin1();
+    QByteArray bgcol=bg_colour_hash.right(6).toLatin1();
 	strcpy(m_zintSymbol->fgcolour,fgcol.data());
 	strcpy(m_zintSymbol->bgcolour,bgcol.data());
 	int error = ZBarcode_Encode(m_zintSymbol, (unsigned char*)bstr.data(), bstr.length());

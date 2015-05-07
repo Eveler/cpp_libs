@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -30,7 +30,7 @@
 #ifndef DATASETINTERFACE_H
 #define DATASETINTERFACE_H
 
-#include "globals.h"
+#include "cutereport_globals.h"
 #include "reportplugininterface.h"
 #include <QWidget>
 #include <QAbstractTableModel>
@@ -50,9 +50,9 @@ class CUTEREPORT_EXPORTS DatasetInterface : public ReportPluginInterface
     Q_OBJECT
     Q_INTERFACES(CuteReport::ReportPluginInterface)
 
-    Q_PROPERTY(QString parentDataset READ parentDataset WRITE setParentDataset)
-    Q_PROPERTY(QString filterCondition READ filterCondition WRITE setFilterCondition)
-    Q_PROPERTY(int filterColumn READ filterColumn WRITE setFilterColumn)
+    Q_PROPERTY(QString parentDataset READ getParentDataset WRITE setParentDataset)
+    Q_PROPERTY(QString filterCondition READ getFilterCondition WRITE setFilterCondition)
+    Q_PROPERTY(int filterColumn READ getFilterColumn WRITE setFilterColumn)
 
 public:
     DatasetInterface(QObject *parent = 0);
@@ -64,36 +64,36 @@ public:
     Q_INVOKABLE virtual QAbstractItemModel * model();
 
     virtual QIcon icon() = 0;
-    Q_INVOKABLE virtual QString lastError();
+    Q_INVOKABLE virtual QString getLastError();
 
-    Q_INVOKABLE virtual bool firstRow() = 0;
-    Q_INVOKABLE virtual bool lastRow() = 0;
-    Q_INVOKABLE virtual bool nextRow() = 0;
-    Q_INVOKABLE virtual bool previousRow() = 0;
     Q_INVOKABLE virtual bool populate() = 0;
     Q_INVOKABLE virtual bool isPopulated() = 0;
-    Q_INVOKABLE virtual void setPopulated(bool b) = 0;
     Q_INVOKABLE virtual void reset() = 0;
     Q_INVOKABLE virtual void resetCursor() = 0;
-    Q_INVOKABLE virtual int currentRow() = 0;
-    Q_INVOKABLE virtual bool setCurrentRow(int index) = 0;
-    Q_INVOKABLE virtual int rows() = 0;
-    Q_INVOKABLE virtual int columns() = 0;
-    Q_INVOKABLE virtual QVariant value(int index) const;
-    Q_INVOKABLE virtual QVariant value(const QString & field) const;
-    Q_INVOKABLE virtual QVariant lookaheadValue(int index) const;
-    Q_INVOKABLE virtual QVariant lookaheadValue(const QString & field) const;
-    Q_INVOKABLE virtual QVariant lookbackValue(int index) const;
-    Q_INVOKABLE virtual QVariant lookbackValue(const QString & field) const;
-    Q_INVOKABLE virtual QString fieldName(int column );
-    Q_INVOKABLE virtual QVariant::Type fieldType(int column ) = 0;
+    Q_INVOKABLE virtual bool setFirstRow() = 0;
+    Q_INVOKABLE virtual bool setLastRow() = 0;
+    Q_INVOKABLE virtual bool setNextRow() = 0;
+    Q_INVOKABLE virtual bool setPreviousRow() = 0;
+    Q_INVOKABLE virtual void setPopulated(bool b) = 0;
+    Q_INVOKABLE virtual int getCurrentRowNumber() = 0;
+    Q_INVOKABLE virtual bool setCurrentRowNumber(int index) = 0;
+    Q_INVOKABLE virtual int getRowCount() = 0;
+    Q_INVOKABLE virtual int getColumnCount() = 0;
+    Q_INVOKABLE virtual QVariant getValue(int index);
+    Q_INVOKABLE virtual QVariant getValue(const QString & field);
+    Q_INVOKABLE virtual QVariant getNextRowValue(int index);
+    Q_INVOKABLE virtual QVariant getNextRowValue(const QString & field);
+    Q_INVOKABLE virtual QVariant getPreviousRowValue(int index);
+    Q_INVOKABLE virtual QVariant getPreviousRowValue(const QString & field);
+    Q_INVOKABLE virtual QString getFieldName(int column);
+    Q_INVOKABLE virtual QVariant::Type getFieldType(int column ) = 0;
     Q_INVOKABLE virtual void setFilter ( const int col, const QString & str, Qt::CaseSensitivity cs = Qt::CaseSensitive );
 
-    Q_INVOKABLE QString	parentDataset();
+    Q_INVOKABLE QString	getParentDataset();
     Q_INVOKABLE void	setParentDataset(QString pDataset);
-    Q_INVOKABLE QString	filterCondition();
+    Q_INVOKABLE QString	getFilterCondition();
     Q_INVOKABLE void	setFilterCondition(QString str);
-    Q_INVOKABLE int		filterColumn();
+    Q_INVOKABLE int		getFilterColumn();
     Q_INVOKABLE void	setFilterColumn(int col);
 
     virtual QSet<QString> variables() const {return QSet<QString>();}

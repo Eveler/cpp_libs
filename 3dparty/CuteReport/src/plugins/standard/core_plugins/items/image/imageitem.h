@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -33,7 +33,7 @@
 #include "iteminterface.h"
 #include "iteminterfaceview.h"
 #include "renderediteminterface.h"
-#include "globals.h"
+#include "cutereport_globals.h"
 
 class ImageItemPrivate;
 
@@ -47,7 +47,7 @@ class ImageItem : public CuteReport::ItemInterface
 
     Q_ENUMS(SourceType ScaleType TextPosition )
 
-    Q_PROPERTY(QString sourceType READ sourceTypeStr WRITE setSourceTypeStr NOTIFY sourceTypeChanged())
+    Q_PROPERTY(QString sourceType READ sourceTypeStr WRITE setSourceTypeStr NOTIFY sourceTypeChanged)
     Q_PROPERTY(QString source READ source WRITE setSource NOTIFY sourceChanged)
     Q_PROPERTY(QImage image READ image WRITE setImage NOTIFY imageChanged)
     Q_PROPERTY(bool keepAspectRatio READ keepAspectRatio WRITE setKeepAspectRatio NOTIFY keepAspectRatioChanged)
@@ -55,7 +55,7 @@ class ImageItem : public CuteReport::ItemInterface
     Q_PROPERTY(bool center READ center WRITE setCenter NOTIFY centerChanged)
 
     Q_PROPERTY(ScaleType scaleType READ scaleType WRITE setScaleType NOTIFY scaleTypeChanged DESIGNABLE false)
-    Q_PROPERTY(SourceType sourceType READ sourceType WRITE setSourceType NOTIFY sourceTypeChanged() DESIGNABLE false)
+    Q_PROPERTY(SourceType sourceType READ sourceType WRITE setSourceType NOTIFY sourceTypeChanged DESIGNABLE false)
 
     Q_PROPERTY(QStringList _sourceType_variants READ _sourceType_variants DESIGNABLE false)
     Q_PROPERTY(QStringList _scaleType_variants READ _scaleType_variants DESIGNABLE false)
@@ -89,6 +89,7 @@ public:
     virtual ~ImageItem();
 
     virtual void moduleInit();
+    virtual void init();
 
     virtual void init_gui();
 //    virtual void update_gui();
@@ -138,6 +139,7 @@ public:
     static QString scaleTypeToString(ScaleType value);
     static ScaleType scaleTypeFromString(const QString & value, bool * ok = 0);
 
+
     virtual QStringList scriptingStrings();
     virtual void initScript(QScriptEngine * scriptEngine);
 
@@ -166,6 +168,7 @@ private:
     Q_DECLARE_PRIVATE(ImageItem)
     explicit ImageItem(ImageItemPrivate *dd, QObject * parent);
     virtual BaseItemInterface * itemClone() const;
+    void tryToLoadDynamicImage();
 
     CuteReport::RendererPublicInterface * m_renderer;
     QImage img;

@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -39,7 +39,7 @@ ReportPluginInterface::ReportPluginInterface(QObject *parent) :
     QObject(parent)
     ,m_reportCore(0)
 {
-    Log::refCounterInc();
+    Log::refCounterInc(this);
 }
 
 
@@ -48,18 +48,19 @@ ReportPluginInterface::ReportPluginInterface(const ReportPluginInterface & dd, Q
     ,m_reportCore(dd.m_reportCore)
 {
     setObjectName(dd.objectName());
-    Log::refCounterInc();
+    Log::refCounterInc(this);
 }
 
 
 ReportPluginInterface::~ReportPluginInterface()
 {
-    Log::refCounterDec();
+    Log::refCounterDec(this);
 }
 
 
 ReportCore * ReportPluginInterface::reportCore() const
 {
+
     return m_reportCore;
 }
 
@@ -78,13 +79,13 @@ int ReportPluginInterface::moduleVersion() const
 }
 
 
-#if QT_VERSION <= 0x050000
+//#if QT_VERSION <= 0x050000
 void ReportPluginInterface::setObjectName(const QString &name)
 {
     QObject::setObjectName(name);
     emit objectNameChanged(name);
     emit changed();
 }
-#endif
+//#endif
 
 } //namespace

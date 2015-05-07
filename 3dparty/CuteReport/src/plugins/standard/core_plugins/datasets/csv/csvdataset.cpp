@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2013 by Alexander Mikhalov                              *
+ *   Copyright (C) 2013-2014 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -27,12 +27,14 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
  *   GNU General Public License for more details.                          *
  ***************************************************************************/
-#include "QtCore"
 #include "csvdataset.h"
 #include "csvdatasethelper.h"
 #include "csvdatasetmodel.h"
 #include "reportcore.h"
-#include "functions.h"
+#include "cutereport_functions.h"
+
+#include <QtCore>
+#include <QIcon>
 
 #define DATASET_NAME "CSV"
 
@@ -44,7 +46,7 @@ CsvDataset::CsvDataset(QObject *parent)
       m_currentRow(0),
       m_isPopulated(false),
       m_delimeter(","),
-      m_keepData(false)
+      m_fixFileIssues(false)
 {
     m_model = new Model (this);
     m_fmodel = new QSortFilterProxyModel(this);
@@ -58,14 +60,14 @@ CsvDataset::CsvDataset(const CsvDataset &dd, QObject * parent)
       m_currentRow(0),
       m_isPopulated(false),
       m_delimeter(dd.m_delimeter),
-      m_keepData(dd.m_keepData)
+      m_fixFileIssues(dd.m_fixFileIssues)
 {
     m_model = new Model (this);
     m_fmodel = new QSortFilterProxyModel(this);
     m_fmodel->setSourceModel(m_model);
     if (dd.m_isPopulated) {
         populate();
-        setCurrentRow(dd.m_currentRow);
+        setCurrentRowNumber(dd.m_currentRow);
     }
 }
 
@@ -119,13 +121,13 @@ QSet<QString> CsvDataset::variables() const
 }
 
 
-QString CsvDataset::lastError()
+QString CsvDataset::getLastError()
 {
     return m_lastError;
 }
 
 
-QString	CsvDataset::fileName() const
+QString	CsvDataset::getFileName() const
 {
     return m_fileName;
 }
@@ -143,19 +145,7 @@ void CsvDataset::setFileName(const QString &str)
 }
 
 
-QStringList CsvDataset::list() const
-{
-    return m_list;
-}
-
-
-void  CsvDataset::setList(const QStringList & list)
-{
-    m_list = list;
-}
-
-
-QString CsvDataset::delimeter () const
+QString CsvDataset::getDelimeter () const
 {
     return m_delimeter;
 }
@@ -173,25 +163,7 @@ void CsvDataset::setDelimeter (const QString &str)
 }
 
 
-bool CsvDataset::keepData() const
-{
-    return m_keepData;
-}
-
-
-void CsvDataset::setKeepData(bool value)
-{
-    if (m_keepData == value)
-        return;
-
-    m_keepData = value;
-
-    emit keepDataInternalChanged(m_keepData);
-    emit changed();
-}
-
-
-bool CsvDataset::firstRowIsHeader()
+bool CsvDataset::getFirstRowIsHeader()
 {
     return m_firstRowIsHeader;
 }
@@ -209,14 +181,40 @@ void CsvDataset::setFirstRowIsHeader(bool value)
 }
 
 
-QString CsvDataset::fieldName(int column )
+bool CsvDataset::getFixFileIssues()
+{
+    return m_fixFileIssues;
+}
+
+
+void CsvDataset::setFixFileIssues(bool value)
+{
+    if (m_fixFileIssues == value)
+        return;
+    m_fixFileIssues = value;
+
+    emit fixFileIssuesChanged(m_fixFileIssues);
+    emit changed();
+}
+
+
+QByteArray CsvDataset::fixIssues(const QByteArray &ba)
+{
+    QString str(ba);
+    str.replace(QRegExp("\r\n|\n|\r"),"\n");
+    return str.toUtf8();
+}
+
+
+QString CsvDataset::getFieldName(int column )
 {
     return m_model->headerData ( column, Qt::Horizontal).toString();
 }
 
 
-QVariant::Type CsvDataset::fieldType(int column)
+QVariant::Type CsvDataset::getFieldType(int column)
 {
+    Q_UNUSED(column);
     return QVariant::String;
 }
 
@@ -232,40 +230,37 @@ bool CsvDataset::populate()
     emit beforePopulate();
 
     QStringList list;
-    if (m_keepData) {
-        list = m_list;
-    } else {
-        if (m_fileName.isEmpty()) {
-            m_lastError = tr("filename is empty. Please enter filename first");
-            return false;
-        }
 
-        CuteReport::ReportInterface * report = static_cast<CuteReport::ReportInterface*> (parent());
-
-        QStringList missedVariables;
-        if (!isStringValued(m_fileName, report->variables(), &missedVariables)) {
-            m_lastError = QString("Variable is not defined in \'directory\' property: %1").arg(missedVariables.join(", "));
-            return false;
-        }
-
-        QString fileName = report ? setVariablesValue(m_fileName, report->variables()) : m_fileName;
-        fileName = reportCore()->localCachedFileName(fileName, report);
-
-        QFile data(fileName);
-        if (data.open(QFile::ReadOnly | QFile::Text)) {
-            QTextStream in(&data);
-            do {
-                list.append(in.readLine());
-            } while (!in.atEnd() );
-        } else {
-            m_lastError = tr("Can't open filename %1").arg(fileName);
-            return false;
-        }
+    if (m_fileName.isEmpty()) {
+        m_lastError = tr("Filename is empty. Please enter a filename first");
+        return false;
     }
 
-    Array array;
+    CuteReport::ReportInterface * report = static_cast<CuteReport::ReportInterface*> (parent());
 
-    m_model->setHeader((m_firstRowIsHeader && list.size()) ? list[0].split(m_delimeter) : QStringList());
+    QStringList missedVariables;
+    if (!isStringValued(m_fileName, report->variables(), &missedVariables)) {
+        m_lastError = QString("Variable is not defined in the \'File\' field: %1").arg(missedVariables.join(", "));
+        return false;
+    }
+
+    QString fileURL = report ? setVariablesValue(m_fileName, report->variables()) : m_fileName;
+
+    QByteArray fileData = reportCore()->loadObject(fileURL, report);
+    if (m_fixFileIssues)
+        fileData = fixIssues(fileData);
+
+    QTextStream stream(fileData, QIODevice::Text| QIODevice::ReadOnly | QIODevice::Unbuffered);
+    stream.setAutoDetectUnicode(true);
+
+    QString line;
+    do {
+        line = stream.readLine();
+        list << line;
+    } while (!line.isNull());
+
+    Array array;
+    m_model->setHeader((m_firstRowIsHeader && !list.isEmpty()) ? list[0].split(m_delimeter) : QStringList());
 
     for (int i = (m_firstRowIsHeader ? 1:0); i<list.count(); i++) {
         array.append(list.at(i).split(m_delimeter));
@@ -273,7 +268,7 @@ bool CsvDataset::populate()
     m_model->setArray(array);
 
     m_isPopulated = true;
-    m_currentRow = -1;
+    m_currentRow = array.size() > 0 ? 0 : -1;
 
     emit afterPopulate();
     return true;
@@ -303,22 +298,24 @@ void CsvDataset::reset()
 
 void CsvDataset::resetCursor()
 {
-     m_currentRow = -1;
+    m_currentRow = -1;
 }
 
 
-bool CsvDataset::firstRow()
+bool CsvDataset::setFirstRow()
 {
+    populateIfNotPopulated();
     emit(beforeFirst());
     m_currentRow = 0;
-    bool ret = rows();
+    bool ret = getRowCount();
     emit(afterFirst());
     return ret;
 }
 
 
-bool CsvDataset::lastRow()
+bool CsvDataset::setLastRow()
 {
+    populateIfNotPopulated();
     emit(beforeLast());
     m_currentRow = m_fmodel->rowCount();
     bool ret = m_currentRow < m_fmodel->rowCount() ? true:false;
@@ -327,18 +324,20 @@ bool CsvDataset::lastRow()
 }
 
 
-bool CsvDataset::nextRow()
+bool CsvDataset::setNextRow()
 {
+    populateIfNotPopulated();
     emit(beforeNext());
     m_currentRow++;
-    bool ret = m_currentRow < rows();
+    bool ret = m_currentRow < getRowCount();
     emit(afterNext());
     return ret;
 }
 
 
-bool CsvDataset::previousRow()
+bool CsvDataset::setPreviousRow()
 {
+    populateIfNotPopulated();
     emit(beforePrevious());
     m_currentRow--;
     bool ret = m_currentRow >= 0;
@@ -347,14 +346,15 @@ bool CsvDataset::previousRow()
 }
 
 
-int CsvDataset::currentRow()
+int CsvDataset::getCurrentRowNumber()
 {
     return m_currentRow;
 }
 
 
-bool CsvDataset::setCurrentRow(int index)
+bool CsvDataset::setCurrentRowNumber(int index)
 {
+    populateIfNotPopulated();
     emit(beforeSeek(index));
     m_currentRow = index;
     bool ret = (m_currentRow >=0 && m_currentRow < m_fmodel->rowCount() ? true:false);
@@ -363,59 +363,60 @@ bool CsvDataset::setCurrentRow(int index)
 }
 
 
-int CsvDataset::rows()
+int CsvDataset::getRowCount()
 {
+    populateIfNotPopulated();
     return m_fmodel->rowCount();
 }
 
 
-int CsvDataset::columns()
+int CsvDataset::getColumnCount()
 {
-    if (!m_isPopulated)
-        populate();
+    populateIfNotPopulated();
     return m_fmodel->columnCount();
 }
 
 
-QVariant CsvDataset::value(int index) const
-{
-    return m_fmodel->data( m_fmodel->index(m_currentRow,index) );
+QVariant CsvDataset::getValue(int column)
+{    populateIfNotPopulated();
+     return m_fmodel->data( m_fmodel->index(m_currentRow,column) );
 }
 
 
-QVariant CsvDataset::value(const QString & /*field*/) const
+QVariant CsvDataset::getValue(const QString & fieldName)
 {
-    return QVariant();
-    //    return m_model.record(m_currentRow).value(field);
+    populateIfNotPopulated();
+    return getValue(m_model->fieldIndex(fieldName));
 }
 
 
-QVariant CsvDataset::lookaheadValue(int /*index*/) const
+QVariant CsvDataset::getNextRowValue(int column)
 {
-    return QVariant();
-    //    return m_currentRow+1 < m_model.rowCount() && index < m_model.columnCount() ?  m_model.record(m_currentRow + 1).value(index) : QVariant::Invalid;
+    populateIfNotPopulated();
+    return m_model->data(m_model->index(m_currentRow+1, column));
 }
 
 
-QVariant CsvDataset::lookaheadValue(const QString & /*field*/) const
+QVariant CsvDataset::getNextRowValue(const QString & fieldName)
 {
-    return QVariant();
-    //    return m_currentRow+1 < m_model.rowCount() ?  m_model.record(m_currentRow + 1).value(field) : QVariant::Invalid;
+    populateIfNotPopulated();
+    return getNextRowValue(m_model->fieldIndex(fieldName));
 }
 
 
-QVariant CsvDataset::lookbackValue(int /*index*/) const
+QVariant CsvDataset::getPreviousRowValue(int column)
 {
-    return QVariant();
-    //    return m_currentRow-1 < 0 && index < m_model.columnCount() ?  m_model.record(m_currentRow + 1).value(index) : QVariant::Invalid;
+    populateIfNotPopulated();
+    return m_model->data(m_model->index(m_currentRow+1, column));
 }
 
 
-QVariant CsvDataset::lookbackValue(const QString & /*field*/) const
+QVariant CsvDataset::getPreviousRowValue(const QString & fieldName)
 {
-    return QVariant();
-    //    return m_currentRow-1 < 0  ?  m_model.record(m_currentRow + 1).value(field) : QVariant::Invalid;
+    populateIfNotPopulated();
+    return getPreviousRowValue(m_model->fieldIndex(fieldName));
 }
+
 
 #if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(DatasetCSV, CsvDataset)

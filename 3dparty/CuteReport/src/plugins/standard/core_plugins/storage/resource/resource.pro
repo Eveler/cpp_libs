@@ -18,3 +18,5 @@ FORMS += \
 
 RESOURCES += \
     resource_storage.qrc
+
+#INSTALL_HEADERS.files = resource.h

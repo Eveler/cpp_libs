@@ -1,10 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "cutereport.h"
-#include "reportpreview.h"
-#include "stdstoragedialog.h"
-#include "reportinterface.h"
-
+#include <CuteReport>
 #include <QtGui>
 #include <QSettings>
 
@@ -17,9 +13,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     m_settings = new QSettings(QSettings::IniFormat, QSettings::UserScope, "CuteReport", "Cute Report");
-    m_report = new CuteReport::Report(this);
+    m_reportCore = new CuteReport::ReportCore(this);
 
-    ui->view->setReportCore(m_report->core());
+    ui->view->setReportCore(m_reportCore);
     ui->view->setShowFlags(CuteReport::ReportPreview::ShowAllTools | CuteReport::ReportPreview::ShowBorderless
                            /*| CuteReport::PreviewContainer::ShowFitted*/ );
 
@@ -40,11 +36,11 @@ void MainWindow::loadReport()
     /** deleting previous report instance if exists */
     delete m_reportTemplate;
 
-    CuteReport::StdStorageDialog d(m_report->core(), this, "Open Report");
+    CuteReport::StdStorageDialog d(m_reportCore, this, "Open Report");
     if (d.exec() == QDialog::Accepted) {
 
         /** creating new report instance */
-        CuteReport::ReportInterface * m_reportTemplate = m_report->loadReport(d.currentObjectUrl());
+        CuteReport::ReportInterface * m_reportTemplate = m_reportCore->loadReport(d.currentObjectUrl());
         if (!m_reportTemplate)
             return;
 
@@ -64,11 +60,11 @@ void MainWindow::loadAndRunReport()
     /** deleting previous report instance if exists */
     delete m_reportTemplate;
 
-    CuteReport::StdStorageDialog d(m_report->core(), this, "Open Report");
+    CuteReport::StdStorageDialog d(m_reportCore, this, "Open Report");
     if (d.exec() == QDialog::Accepted) {
 
         /** creating new report instance */
-        CuteReport::ReportInterface * m_reportTemplate = m_report->loadReport(d.currentObjectUrl());
+        CuteReport::ReportInterface * m_reportTemplate = m_reportCore->loadReport(d.currentObjectUrl());
 
         if (!m_reportTemplate)
             return;
@@ -80,6 +76,6 @@ void MainWindow::loadAndRunReport()
             or by calling m_report->process(m_reportTemplate);
         */
         ui->view->connectReport(m_reportTemplate);
-        m_report->process(m_reportTemplate);
+        m_reportCore->render(m_reportTemplate);
     }
 }

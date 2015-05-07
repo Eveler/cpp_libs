@@ -7,15 +7,27 @@ TARGET = PageEditor
 SOURCES += \
     pageeditorcontainer.cpp \
     pageeditor.cpp \
-    itemstoolwidget.cpp
+    itemstoolwidget.cpp \
+    fonteditor/fonteditor.cpp \
+    alignmenteditor/alignmenteditor.cpp \
+    frameeditor/frameeditor.cpp
 
 HEADERS +=  \
     pageeditorcontainer.h \
     pageeditor.h \
     itemstoolwidget.h \
+    fonteditor/fonteditor.h \
+    alignmenteditor/alignmenteditor.h \
+    frameeditor/frameeditor.h
 
 FORMS += pageeditorcontainer.ui \
+    fonteditor/fonteditor.ui \
+    alignmenteditor/alignmenteditor.ui \
+    frameeditor/frameeditor.ui
 
 RESOURCES += \
     page_editor.qrc
 
+INCLUDEPATH += fonteditor/ \
+    alignmenteditor/ \
+    frameeditor/

@@ -8,12 +8,14 @@ SUBDIRS = \
         core \
         widgets \
         plugins \
-        apps \
+        appsCore \
+	apps \
 
-!contains(DEFINES, STATICBUILD) {
+#!contains(DEFINES, STATICBUILD) {
     widgets.depends = core
-    plugins.depends = core widgets apps thirdparty
-    apps.depends = core thirdparty widgets
-}
+    plugins.depends = core widgets appsCore thirdparty
+    appsCore.depends = core widgets
+    apps.depends = core thirdparty widgets appsCore plugins
+#}
 
 

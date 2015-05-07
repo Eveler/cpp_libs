@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -33,8 +33,8 @@
 #include <QObject>
 #include <QStringList>
 
-#include "globals.h"
-#include "types.h"
+#include "cutereport_globals.h"
+#include "cutereport_types.h"
 
 namespace CuteReport
 {
@@ -60,11 +60,17 @@ class CUTEREPORT_EXPORTS ReportPluginInterface : public QObject
 #endif
 
 public:
+    enum ThreadingLevel {ThreadNo, ThreadNR, ThreadOk};
+    enum ModuleFlag {Unremovable = 0x01};
+    Q_DECLARE_FLAGS(ModuleFlags, ModuleFlag)
+
     explicit ReportPluginInterface(QObject *parent = 0);
     virtual ~ReportPluginInterface();
 
     /** uses report core only for sending logs. It shall not set m_reportCore variable */
     virtual void moduleInit(){}
+
+    ModuleFlags moduleFlags() const {return ModuleFlags(0);}
 
     ReportCore * reportCore() const;
     void setReportCore(ReportCore *reportCore);
@@ -73,6 +79,11 @@ public:
     virtual QString moduleShortName() const = 0;
     virtual QString suitName() const = 0;
     QString moduleFullName() const { return suitName() + "::" + moduleShortName();}
+
+    virtual QString objectNameHint() const {return QString();}
+
+    virtual QString description() {return QString();}
+    virtual void setDescription(const QString & text) {Q_UNUSED(text);}
 
     // replaces modules in this with extended functionality without removing it from list
     virtual QStringList extendsModules() const {return QStringList();}
@@ -83,9 +94,13 @@ public:
     // defines mudule's dependencies including name maxVersion, MinVersion, type, etc.
     virtual QList<ModuleInfo> dependencies() const { return QList<ModuleInfo>();}
 
-#if QT_VERSION <= 0x050000
+    virtual ThreadingLevel threading() { return ThreadNo; }
+
+    virtual ReportPluginInterface * createInstance(QObject * parent = 0) const = 0;
+
+//#if QT_VERSION <= 0x050000
     void setObjectName(const QString &name);
-#endif
+//#endif
 
 signals:
     void changed();
@@ -101,4 +116,5 @@ private:
 } //namespace
 
 Q_DECLARE_INTERFACE(CuteReport::ReportPluginInterface, "CuteReport.ReportPluginInterface/1.0")
+Q_DECLARE_OPERATORS_FOR_FLAGS(CuteReport::ReportPluginInterface::ModuleFlags)
 #endif // REPORTPLUGININTERFACE_H

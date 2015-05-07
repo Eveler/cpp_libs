@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -31,7 +31,7 @@
 #define STORAGEFILESYSTEM_H
 
 #include "storageinterface.h"
-#include "globals.h"
+#include "cutereport_globals.h"
 
 static const QString ModuleName("FileSystem");
 
@@ -62,8 +62,8 @@ public:
 
     virtual QString localCachedFileName(const QString & url);
 
-    virtual bool saveObject(const QString &url, const QVariant &objectData);
-    virtual QVariant loadObject(const QString & url);
+    virtual bool saveObject(const QString &url, const QByteArray &objectData);
+    virtual QByteArray loadObject(const QString & url);
     virtual QList<CuteReport::StorageObjectInfo> objectsList(const QString & url, bool * ok = 0);
     virtual QList<CuteReport::StorageObjectInfo> objectsList(const QString & url, const QStringList & nameFilters,
                                                  QDir::Filters filters, QDir::SortFlags sort, bool * ok = 0);
@@ -75,6 +75,7 @@ public:
     virtual int moduleVersion() const {return 1;}
     virtual QString moduleShortName() const {return ModuleName; }
     virtual QString suitName() const { return "Standard"; }
+    virtual QString objectNameHint() const {return QString("file");}
 
     // storage must care of deleting helper
     virtual CuteReport::StorageHelperInterface * helper();

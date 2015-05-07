@@ -9,7 +9,8 @@ SUBDIRS += numbers \
  date \
  time \
  dateTime \
- metricfont \
+ font \
+ #metricfont \
  color \
  enums \
  flags \

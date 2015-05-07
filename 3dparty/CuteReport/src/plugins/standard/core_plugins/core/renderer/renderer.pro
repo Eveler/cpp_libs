@@ -9,11 +9,15 @@ HEADERS += \
     rendereriteminterface.h \
     rendererprocessor.h \
     rendererdata.h \
-    aggregatefunctions.h
+    aggregatefunctions.h \
+    scriptengine.h \
+    preparser.h \
 
 SOURCES += \
     renderer.cpp \
     rendereriteminterface.cpp \
     rendererprocessor.cpp \
     rendererdata.cpp \
-    aggregatefunctions.cpp
+    aggregatefunctions.cpp \
+    scriptengine.cpp \
+    preparser.cpp  \

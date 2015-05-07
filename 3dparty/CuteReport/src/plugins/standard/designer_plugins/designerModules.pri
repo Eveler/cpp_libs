@@ -9,9 +9,10 @@ INCLUDEPATH += ../../../../core \
                ../../../../widgets/widgets \
                ../../../../thirdparty/propertyeditor/lib \
                ../../../../apps/designer \
-               ../../../../apps/designerCore \
-               ../../../../apps/designerCore/widgets/ \
-               ../../../../apps/designerCore/widgets/objectinspector/ \
+               ../../../../appsCore/designerCore \
+               ../../../../appsCore/designerCore/widgets/ \
+               ../../../../appsCore/designerCore/widgets/objectinspector/ \
+               ../../../../appsCore/designerCore/widgets/fonteditor/ \
 
 DEPENDPATH += $$INCLUDEPATH
 

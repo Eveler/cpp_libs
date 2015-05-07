@@ -29,7 +29,7 @@
    <item row="0" column="0">
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="pageDataset">
       <layout class="QGridLayout" name="gridLayout">
@@ -77,44 +77,27 @@
             <enum>QFrame::Raised</enum>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout">
+            <property name="spacing">
+             <number>0</number>
+            </property>
             <property name="leftMargin">
-             <number>4</number>
+             <number>0</number>
             </property>
             <property name="topMargin">
              <number>0</number>
             </property>
             <property name="rightMargin">
-             <number>4</number>
+             <number>0</number>
             </property>
             <property name="bottomMargin">
              <number>0</number>
             </property>
             <item>
-             <widget class="QLabel" name="label">
-              <property name="text">
-               <string>Add:</string>
+             <layout class="QHBoxLayout" name="datasetButtonsLayout">
+              <property name="spacing">
+               <number>0</number>
               </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QComboBox" name="cbDatasets">
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>24</height>
-               </size>
-              </property>
-              <item>
-               <property name="text">
-                <string>SQL</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>CSV</string>
-               </property>
-              </item>
-             </widget>
+             </layout>
             </item>
             <item>
              <widget class="Line" name="line">
@@ -124,13 +107,22 @@
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pbDelete">
+             <widget class="QToolButton" name="pbDelete">
               <property name="toolTip">
                <string>Delete dataset</string>
               </property>
               <property name="icon">
                <iconset resource="dataset_editor.qrc">
                 <normaloff>:/images/trash-empty.png</normaloff>:/images/trash-empty.png</iconset>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>22</width>
+                <height>22</height>
+               </size>
+              </property>
+              <property name="autoRaise">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -142,7 +134,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="bTest">
+             <widget class="QToolButton" name="bTest">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -150,11 +142,23 @@
                </size>
               </property>
               <property name="text">
-               <string>Test it</string>
+               <string>Test</string>
               </property>
               <property name="icon">
                <iconset resource="../script_editor/script_editor.qrc">
                 <normaloff>:/images/validate.png</normaloff>:/images/validate.png</iconset>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>22</width>
+                <height>22</height>
+               </size>
+              </property>
+              <property name="toolButtonStyle">
+               <enum>Qt::ToolButtonTextBesideIcon</enum>
+              </property>
+              <property name="autoRaise">
+               <bool>true</bool>
               </property>
              </widget>
             </item>

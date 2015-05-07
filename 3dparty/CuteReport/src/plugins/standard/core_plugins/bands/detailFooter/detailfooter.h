@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -31,7 +31,7 @@
 #define DETAILFOOTER_H
 
 #include <bandinterface.h>
-#include "globals.h"
+#include "cutereport_globals.h"
 
 class DetailFooterPrivate;
 class DetailFooterView;
@@ -64,7 +64,7 @@ public:
     virtual CuteReport::RenderedItemInterface * renderView();
 
     int layoutPriority() const { return 50;}
-    BandInterface::AccomodationType accommodationType() const {return AccomodationEveryPage;}
+    //BandInterface::AccomodationType accommodationType() const {return AccomodationEveryPage;}
 
     virtual QIcon itemIcon() const;
     virtual QString moduleShortName() const;

@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -191,9 +191,7 @@ bool Detail::renderPrepare()
     emit printDataBefore();
 
     if (d->forceNewPage)
-        m_renderer->createNewPage();
-
-    bool result = true;
+        m_renderer->newPage();
 
     if (d->alternateRow) {
         if (d->alternateBrush == QBrush())
@@ -207,7 +205,7 @@ bool Detail::renderPrepare()
 
     emit printDataAfter();
 
-    return result;
+    return d->enabled;;
 }
 
 

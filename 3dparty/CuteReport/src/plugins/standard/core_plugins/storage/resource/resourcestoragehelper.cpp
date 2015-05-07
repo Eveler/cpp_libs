@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -49,7 +49,7 @@ ResourceStorageHelper::ResourceStorageHelper(StorageResource *storage, VisibleOp
     CuteReport::ReportInterface * report = dynamic_cast<CuteReport::ReportInterface*>(m_storage->parent());
 
     QMenu *menu = new QMenu();
-    foreach (StorageInterface * storage, m_storage->reportCore()->storageObjectList(report)) {
+    foreach (StorageInterface * storage, m_storage->reportCore()->storageList(report)) {
         if (storage->objectName() == m_storage->objectName() && storage->parent() == m_storage->parent())
             continue;
         QAction *action = new QAction(QString("%1 (%2)").arg(storage->objectName(), storage->moduleFullName()), this);
@@ -59,7 +59,7 @@ ResourceStorageHelper::ResourceStorageHelper(StorageResource *storage, VisibleOp
     }
 
     QMenu *menu2 = new QMenu();
-    foreach (StorageInterface * storage, m_storage->reportCore()->storageObjectList(report)) {
+    foreach (StorageInterface * storage, m_storage->reportCore()->storageList(report)) {
         if (storage->objectName() == m_storage->objectName() && storage->parent() == m_storage->parent())
             continue;
         QAction *action = new QAction(QString("%1 (%2)").arg(storage->objectName(), storage->moduleFullName()), this);
@@ -256,7 +256,7 @@ void ResourceStorageHelper::addObject()
 
     CuteReport::StdStorageDialog d(core, report, parentWidget, "Load Object");
     d.setCurrentStorage(action->data().toString());
-    d.setUrlHint("objects");
+//    d.setUrlHint("objects");
 
     if (!d.exec())
         return;
@@ -265,8 +265,8 @@ void ResourceStorageHelper::addObject()
     if (selectedObjectUrl.isEmpty())
         return;
 
-    QVariant object = m_storage->reportCore()->loadObject(selectedObjectUrl, report);
-    if (object.isNull())
+    QByteArray objectData = m_storage->reportCore()->loadObject(selectedObjectUrl, report);
+    if (objectData.isNull())
         return;
 
     QString objectPath;
@@ -276,7 +276,7 @@ void ResourceStorageHelper::addObject()
         objectPath += item->text() + "/";
     objectPath += fileInfo.fileName();
 
-    m_storage->saveObject(objectPath, object);
+    m_storage->saveObject(objectPath, objectData);
     if (ui->objectPrefixList->count() <= 0)          /// add default prefix is none exists
         fillPrefixes();
     fillObjects(fileInfo.fileName());
@@ -309,7 +309,7 @@ void ResourceStorageHelper::addReport()
 
     QWidget * parentWidget = m_storage->reportCore()->rootWidget();
     CuteReport::StdStorageDialog d(m_storage->reportCore(), parentWidget, "Load Report");
-    d.setUrlHint("reports");
+//    d.setUrlHint("reports");
     if (!d.exec())
         return;
 
@@ -417,8 +417,8 @@ void ResourceStorageHelper::currentPrefixChanged (QListWidgetItem* item)
     foreach (const QString & path, list) {
         QString objectName = path.section("/",-1);
 
-        QVariant value = m_storage->objects().take(path);
-        m_storage->saveObject(prefix + "/" + objectName, value);
+        QByteArray data = m_storage->objects().take(path).toByteArray();
+        m_storage->saveObject(prefix + "/" + objectName, data);
     }
 
     m_currentObjectPrefix = item->text();

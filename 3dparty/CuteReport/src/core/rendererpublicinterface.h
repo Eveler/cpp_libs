@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -32,8 +32,8 @@
 
 #include <QObject>
 #include <QRectF>
-#include "globals.h"
-#include "types.h"
+#include "cutereport_globals.h"
+#include "cutereport_types.h"
 
 namespace CuteReport
 {
@@ -65,7 +65,9 @@ public:
     Q_INVOKABLE virtual PageDrawState currentState() = 0;
 
     Q_INVOKABLE virtual QRectF pageFreeSpace() = 0;
+    Q_INVOKABLE virtual void setPageFreeSpace(const QRectF &rect) = 0;
     Q_INVOKABLE virtual QPointF currentBandDelta() = 0; // mm
+    Q_INVOKABLE virtual void setCurrentBandDelta(const QPointF & point) = 0; // mm
 
     /** manage bands that will be processed by renderer for each dataset iteration */
     Q_INVOKABLE virtual void registerBandToDatasetIteration(const QString &datasetName, const QString & objectName) = 0;
@@ -92,7 +94,8 @@ public:
     Q_INVOKABLE virtual void processBand(CuteReport::BandInterface * band) = 0;
     Q_INVOKABLE virtual void processBand(const QString & objectName) = 0;
 
-    Q_INVOKABLE virtual void createNewPage() = 0;
+    Q_INVOKABLE virtual void newPage() = 0;
+    Q_INVOKABLE virtual void newColumnOrPage() = 0;
 
     Q_INVOKABLE virtual QVariant getStorageObject(const QString & objectUrl) = 0;
 
@@ -103,9 +106,13 @@ public:
     Q_INVOKABLE virtual quint32 lastProcessedItemId(const QString & itemName) = 0;
     Q_INVOKABLE virtual CuteReport::RenderedItemInterface * lastProcessedItemPointer(const QString & itemName) = 0;
 
+    Q_INVOKABLE virtual int passNumber() = 0;
+    Q_INVOKABLE virtual int passTotal() = 0;
+    Q_INVOKABLE virtual void setPassTotal(int value) = 0;
+
     Q_INVOKABLE virtual void error(const QString & sender, const QString & errorMessage) = 0;
 
-    Q_INVOKABLE virtual QString moduleName() = 0;
+    Q_INVOKABLE virtual QString name() = 0;
 
     Q_INVOKABLE virtual void run() = 0;
 
@@ -122,9 +129,12 @@ signals:
     void datasetIteration(CuteReport::DatasetInterface * dataset);
     void pageBefore(CuteReport::RenderedPageInterface * page);
     void pageAfter(CuteReport::RenderedPageInterface * page);
+    void pagePrepared(CuteReport::RenderedPageInterface * page);
     void formBefore(CuteReport::FormInterface * dataset);
     void formAfter(CuteReport::FormInterface * dataset);
     void reportDone();
+    void requestIteration(CuteReport::BandInterface * band, bool * allow);
+    void requestNewPage(bool * allow);
 };
 
 }

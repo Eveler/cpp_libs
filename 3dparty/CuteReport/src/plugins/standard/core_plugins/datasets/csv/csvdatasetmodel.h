@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the eXaro project                                *
- *   Copyright (C) 2012-2014 by Mikhalov Alexander                         *
+ *   Copyright (C) 2012-2015 by Mikhalov Alexander                         *
  *   alexander.mikhalov@gmail.com                                          *
  **                   GNU General Public License Usage                    **
  *                                                                         *
@@ -45,6 +45,7 @@ public:
     void setArray(Array array);
     void setHeader(QStringList header);
     void clear();
+    int fieldIndex(const QString & fieldName);
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
@@ -54,7 +55,8 @@ public:
 
 private:
     Array m_array;
-    QStringList m_header;
+    QHash<QString, int> m_fields;
+    QHash<int, QString> m_header;
     int m_rows;
     int m_columns;
 };

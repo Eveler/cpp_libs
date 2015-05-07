@@ -48,12 +48,23 @@ public:
     void setColumnType(const int col, const QVariant::Type type);
     QVariant::Type columnType(int col);
 
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+    bool removeColumns(int column, int count, const QModelIndex &parent = QModelIndex());
+    bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
+    bool insertColumns(int column, int count, const QModelIndex &parent = QModelIndex());
+    bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex());
+
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+    bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role = Qt::DisplayRole);
+
 signals:
+    void changed();
 
 public slots:
 
 private:
     QHash<int, QVariant::Type> m_typeByColumn;
+    QMap<int, QString> m_titleByColumn;
 
 };
 

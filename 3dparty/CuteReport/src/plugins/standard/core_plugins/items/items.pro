@@ -8,5 +8,5 @@ SUBDIRS = image \
 	chord \
 	pie \
         barcode \
-	chart \
+        chart \
 

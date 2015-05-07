@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -30,8 +30,9 @@
 
 #include "log.h"
 #include "reportcore.h"
+#include "reportplugininterface.h"
 #include "logprocessor.h"
-#include "types.h"
+#include "cutereport_types.h"
 #include "logmousehandler.h"
 
 #include <iostream>
@@ -46,6 +47,7 @@ QHash<LogLevel, QString> Log::LogLevelNames;
 
 Log * Log::m_log = 0;
 int Log::m_refCounter = 0;
+QObjectList Log::m_objects;
 
 
 void Log::createInstance(QSettings * settings)
@@ -62,15 +64,30 @@ Log *Log::instance()
 }
 
 
-void Log::refCounterInc()
+void Log::refCounterInc(QObject * object)
 {
     ++m_refCounter;
+    m_objects << object;
 }
 
 
-void Log::refCounterDec()
+void Log::refCounterDec(QObject * object)
 {
     --m_refCounter;
+    m_objects.removeOne(object);
+    //qDebug() << m_refCounter;
+    if (dynamic_cast<ReportCore*>(object)) {
+        QStringList list;
+        foreach (QObject * object, m_objects) {
+            CuteReport::ReportPluginInterface * module = dynamic_cast<ReportPluginInterface *>(object);
+            if (module)
+                list << module->moduleFullName();
+            else
+                list << object->metaObject()->className();
+        }
+//        if (!list.isEmpty())
+//            Log::instance()->logMessage(LogError, "Log", QString("Memory leak"), QString("Memory leaks: %1").arg(list.join(", ")));
+    }
     if (!m_refCounter)
         delete Log::instance();
 }
@@ -118,10 +135,10 @@ void Log::initMe()
 {
     setDefaultConfig();
 
-    m_interceptMouseEvents = m_settings ? m_settings->value("Log/mouseEvents", false).toBool() : false;
-    m_interceptQtMessages = m_settings ? m_settings->value("Log/messagesQt", true).toBool() : false;
-    m_logRotateCounter = m_settings ? m_settings->value("Log/logRotateCounter", 5).toLongLong() : 5;
-    QString logRotateFileSize = m_settings ? m_settings->value("Log/logRotateFileSize", "50mb").toString() : "50mb";
+    m_interceptMouseEvents = m_settings ? m_settings->value("CuteReportLog/mouseEvents", false).toBool() : false;
+    m_interceptQtMessages = m_settings ? m_settings->value("CuteReportLog/messagesQt", true).toBool() : false;
+    m_logRotateCounter = m_settings ? m_settings->value("CuteReportLog/logRotateCounter", 5).toLongLong() : 5;
+    QString logRotateFileSize = m_settings ? m_settings->value("CuteReportLog/logRotateFileSize", "50mb").toString() : "50mb";
     if (logRotateFileSize.contains("kb", Qt::CaseInsensitive))
         m_logRotateFileSize = logRotateFileSize.remove("kb", Qt::CaseInsensitive).toInt() * 1024;
     else if (logRotateFileSize.contains("mb", Qt::CaseInsensitive))
@@ -129,8 +146,8 @@ void Log::initMe()
     else
         m_logRotateFileSize = logRotateFileSize.toInt();
 
-    m_sync = m_settings ? m_settings->value("Log/synchronously", true).toBool() : true;
-    m_enabled = m_settings ? m_settings->value("Log/enabled", true).toBool() : true;
+    m_sync = m_settings ? m_settings->value("CuteReportLog/synchronously", true).toBool() : true;
+    m_enabled = m_settings ? m_settings->value("CuteReportLog/enabled", true).toBool() : true;
 
     m_isInited = true;
 
@@ -149,7 +166,7 @@ void Log::initMe()
         startCustomHandler();
 
     if (m_enabled) {
-        QString context_size = m_settings ? m_settings->value("Log/contextMaxSize", "1kb").toString() : "1kb";
+        QString context_size = m_settings ? m_settings->value("CuteReportLog/contextMaxSize", "1kb").toString() : "1kb";
         int s = 0;
         if (context_size.contains("kb", Qt::CaseInsensitive))
             s = context_size.remove("kb", Qt::CaseInsensitive).toInt() * 1024;
@@ -160,7 +177,7 @@ void Log::initMe()
 
         m_logProcessor = new LogProcessor();
         m_logProcessor->setContextSize(s);
-        m_logProcessor->setMouseEventFile(m_settings ? m_settings->value("Log/mouseLogFilename", "").toString() : "");
+        m_logProcessor->setMouseEventFile(m_settings ? m_settings->value("CuteReportLog/mouseLogFilename", "").toString() : "");
         m_logProcessor->setFilters(this->getFilters());
         m_logProcessor->setGeneralMatrix( this->getGeneralLevelsSettings());
         m_logProcessor->setModulesMatrix( this->getModulesLevelsSettings());
@@ -228,20 +245,20 @@ void Log::setDefaultConfig()
     if (!m_settings)
         return;
 
-    if (m_settings->value("Log/logFileTimestampFor").toString().isEmpty())
-        m_settings->setValue("Log/logFileTimestampFor","debug|warning|error|critical|info|metric");
+    if (m_settings->value("CuteReportLog/logFileTimestampFor").toString().isEmpty())
+        m_settings->setValue("CuteReportLog/logFileTimestampFor","debug|warning|error|critical|info|metric");
 
-    if (m_settings->value("Log/debugTo").toString().isEmpty())
-        m_settings->setValue("Log/debugTo","console|file");
+    if (m_settings->value("CuteReportLog/debugTo").toString().isEmpty())
+        m_settings->setValue("CuteReportLog/debugTo","console|file");
 
-    if (m_settings->value("Log/warningTo").toString().isEmpty())
-        m_settings->setValue("Log/warningTo","console|file");
+    if (m_settings->value("CuteReportLog/warningTo").toString().isEmpty())
+        m_settings->setValue("CuteReportLog/warningTo","console|file");
 
-    if (m_settings->value("Log/errorTo").toString().isEmpty())
-        m_settings->setValue("Log/errorTo","console|file");
+    if (m_settings->value("CuteReportLog/errorTo").toString().isEmpty())
+        m_settings->setValue("CuteReportLog/errorTo","console|file");
 
-    if (m_settings->value("Log/criticalTo").toString().isEmpty())
-        m_settings->setValue("Log/criticalTo","console|file");
+    if (m_settings->value("CuteReportLog/criticalTo").toString().isEmpty())
+        m_settings->setValue("CuteReportLog/criticalTo","console|file");
 }
 
 
@@ -253,8 +270,8 @@ Log::Destination Log::settingLineToDestination(QString level, QString line, bool
         QString valueStr = m_settings->value(line).toString();
         QStringList values = valueStr.split("|", QString::SkipEmptyParts);
 
-        dest.needContext = m_settings->value("Log/contextFor").toString().contains(level, Qt::CaseInsensitive) ? true : false;
-        dest.needLogfileTimestamp = m_settings->value("Log/logFileTimestampFor").toString().contains(level, Qt::CaseInsensitive) ? true : false;
+        dest.needContext = m_settings->value("CuteReportLog/contextFor").toString().contains(level, Qt::CaseInsensitive) ? true : false;
+        dest.needLogfileTimestamp = m_settings->value("CuteReportLog/logFileTimestampFor").toString().contains(level, Qt::CaseInsensitive) ? true : false;
 
         foreach (QString value, values) {
             QString str = value.trimmed();
@@ -286,7 +303,7 @@ Log::Module Log::getGeneralLevelsSettings()
     Log::Module module;
     for (int i = 1; i<LOGLEVELMAXVALUE; ++i) {
 
-        QString param = QString("Log/%1To").arg(LogLevelNames.value(LogLevel(i)));
+        QString param = QString("CuteReportLog/%1To").arg(LogLevelNames.value(LogLevel(i)));
         QString value = m_settings ? m_settings->value(param).toString() : "console";
 
         Destination dest = settingLineToDestination(LogLevelNames.value(LogLevel(i)), param);
@@ -377,7 +394,7 @@ QHash<QString, Log::Module> Log::getModulesLevelsSettings()
         QStringList allowedDestinations;
         bool listExists = keys.contains(QString("moduleDest_%1").arg(moduleName));
         if (listExists) {
-            allowedDestinations = m_settings->value(QString("Log/moduleDest_%1")
+            allowedDestinations = m_settings->value(QString("CuteReportLog/moduleDest_%1")
                                                       .arg(moduleName)).toString()
                                                       .split("|", QString::SkipEmptyParts);
         }
@@ -385,7 +402,7 @@ QHash<QString, Log::Module> Log::getModulesLevelsSettings()
         /// parsing levels information
         if (keys.contains(QString("moduleLevels_%1").arg(moduleName))) {
 //            module.levelsDefined = true;
-            QStringList moduleLevels = m_settings->value(QString("Log/moduleLevels_%1")
+            QStringList moduleLevels = m_settings->value(QString("CuteReportLog/moduleLevels_%1")
                                                           .arg(moduleName)).toString()
                                                           .split("|", QString::SkipEmptyParts);
             foreach (QString level, moduleLevels) {
@@ -409,12 +426,12 @@ QHash<QString, Log::Module> Log::getModulesLevelsSettings()
             QString levelKey = QString("moduleDest_%1_%2").arg(LogLevelNames.value(LogLevel(i))).arg(moduleName);
 
             if (keys.contains(levelKey)) {
-                QString destForCurrentLevel = QString("Log/"+levelKey);
+                QString destForCurrentLevel = QString("CuteReportLog/"+levelKey);
                 Destination dest = settingLineToDestination(LogLevelNames.value(LogLevel(i)), destForCurrentLevel, listExists, allowedDestinations);
                 module.destinations.insert(i, dest);
             } else {
                 /// not defined - use general
-                QString param = QString("Log/%1To").arg(LogLevelNames.value(LogLevel(i)));
+                QString param = QString("CuteReportLog/%1To").arg(LogLevelNames.value(LogLevel(i)));
                 Destination dest = settingLineToDestination(LogLevelNames.value(LogLevel(i)), param, listExists, allowedDestinations);
                 module.destinations.insert(i, dest);
             }
@@ -441,13 +458,13 @@ QHash<QString, Log::Module> Log::getModulesLevelsSettings()
         QStringList allowedDestinations;
         bool listExists = keys.contains(QString("moduleDest_%1").arg(moduleName));
         if (listExists) {
-            allowedDestinations = m_settings->value(QString("Log/moduleDest_%1")
+            allowedDestinations = m_settings->value(QString("CuteReportLog/moduleDest_%1")
                                                       .arg(moduleName)).toString()
                     .split("|", QString::SkipEmptyParts);
         } else {
             listExists = keys.contains(QString("moduleDest_%1").arg(parentModuleName));
             if (listExists) {
-                allowedDestinations = m_settings->value(QString("Log/moduleDest_%1")
+                allowedDestinations = m_settings->value(QString("CuteReportLog/moduleDest_%1")
                                                           .arg(parentModuleName)).toString()
                         .split("|", QString::SkipEmptyParts);
             }
@@ -455,7 +472,7 @@ QHash<QString, Log::Module> Log::getModulesLevelsSettings()
 
         /// parsing levels information
         if (keys.contains(QString("moduleLevels_%1").arg(moduleName))) {
-            QStringList moduleLevels = m_settings->value(QString("Log/moduleLevels_%1")
+            QStringList moduleLevels = m_settings->value(QString("CuteReportLog/moduleLevels_%1")
                                                           .arg(moduleName)).toString()
                                                           .split("|", QString::SkipEmptyParts);
             foreach (QString level, moduleLevels) {
@@ -483,7 +500,7 @@ QHash<QString, Log::Module> Log::getModulesLevelsSettings()
             QString levelKey = QString("moduleDest_%1_%2").arg(LogLevelNames.value(LogLevel(i))).arg(moduleName);
 
             if (keys.contains(levelKey)) {
-                QString destForCurrentLevel = QString("Log/"+levelKey);
+                QString destForCurrentLevel = QString("CuteReportLog/"+levelKey);
                 Destination dest = settingLineToDestination(LogLevelNames.value(LogLevel(i)), destForCurrentLevel, listExists, allowedDestinations);
                 module.destinations.insert(i, dest);
             } else {
@@ -492,7 +509,7 @@ QHash<QString, Log::Module> Log::getModulesLevelsSettings()
                     module.destinations.insert(i, modules.value(parentModuleName).destinations.value(i));
                 } else {
                     // then use general
-                    QString param = QString("Log/%1To").arg(LogLevelNames.value(LogLevel(i)));
+                    QString param = QString("CuteReportLog/%1To").arg(LogLevelNames.value(LogLevel(i)));
                     Destination dest = settingLineToDestination(LogLevelNames.value(LogLevel(i)), param, listExists, allowedDestinations);
                     module.destinations.insert(i, dest);
                 }
@@ -649,8 +666,8 @@ QList <Log::Filter> Log::getFilters()
             Filter f;
             QString filterName = key.midRef(13).toString();
             qDebug() << key;
-            QString regExp = m_settings->value("Log/"+key).toString();
-            QString replace = m_settings->value(QString("Log/filterAction_%1").arg(filterName)).toString();
+            QString regExp = m_settings->value("CuteReportLog/"+key).toString();
+            QString replace = m_settings->value(QString("CuteReportLog/filterAction_%1").arg(filterName)).toString();
             f.re = QRegExp(regExp);
             f.replace = replace;
             filters.append(f);

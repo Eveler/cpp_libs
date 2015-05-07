@@ -51,8 +51,10 @@ QVariant PointF::data(const QModelIndex & index)
 	{
 		case 0:
 			return object()->metaObject()->property(objectProperty()).name();
-		case 1:
-        return QString("[%1,%2]").arg(value().toPointF().x()).arg(value().toPointF().y());
+        case 1:{
+                int precision = propertyPrecision();
+                return QString("[%1,%2]").arg(value().toPointF().x(), 0, 'f', precision).arg(value().toPointF().y(), 0, 'f', precision);
+                }
 	}
 	return QVariant();
 }
@@ -93,12 +95,14 @@ void PointF::setX(qreal x)
 
 qreal PointF::y()
 {
-    return value().toPointF().x();
+    return value().toPointF().y();
 }
 
 void PointF::setY(qreal y)
 {
     QPointF s = value().toPointF();
+    if (s.y() == y)
+        return;
     s.setY(y);
 	setValue(s);
 }
@@ -111,6 +115,13 @@ Qt::ItemFlags PointF::flags(const QModelIndex &/*index*/)
 PropertyInterface* PointF::createInstance(QObject * object, int property, const PropertyModel * propertyModel) const
 {
     return new PointF(parent(), object, property, propertyModel);
+}
+
+
+int PointF::_current_property_precision()
+{
+    object()->setProperty("_current_property", objectProperty());
+    return object()->property("_current_property_precision").toInt();
 }
 
 #if QT_VERSION < 0x050000

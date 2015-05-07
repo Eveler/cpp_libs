@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -114,6 +114,7 @@ private slots:
     void slotBackgroundChanged(QColor color);
     void slotUnitChanged(CuteReport::Unit unit);
     void updateScene();
+    void slotItemClickedBySelector(CuteReport::BaseItemInterface *item, QGraphicsSceneMouseEvent *e);
 
 private:
     bool isItemSelected(CuteReport::BaseItemInterface * item);
@@ -121,6 +122,8 @@ private:
     void addToSelection(CuteReport::BaseItemInterface * item);
     void removeFromSelection(CuteReport::BaseItemInterface * item);
     void clearSelection();
+    void registerView(CuteReport::PageViewInterface * view);
+    void unregisterView(CuteReport::PageViewInterface * view);
 
 private:
     Page * m_page;
@@ -130,9 +133,12 @@ private:
     QList<CuteReport::BaseItemInterface *> m_selectedItems;
     Magnets * m_magnets;
     bool m_ignoreObjectSelection;
+    QList<QGraphicsItem*> m_columnItems;
 
     QPointer<QLabel> m_posLabel;
     QPointer<QLabel> m_geometryLabel;
+
+    QList<PageView*> m_registeredViews;
 
     friend class Magnets;
     friend class PageView;
@@ -164,6 +170,7 @@ class PageView: public CuteReport::PageViewInterface
     Q_INTERFACES(CuteReport::PageViewInterface)
 public:
     explicit PageView(Page * page, PageGUI * pageGui, QWidget * parent = 0, Qt::WindowFlags f = 0);
+    ~PageView();
     virtual void fit();
 
     View * graphicsView();

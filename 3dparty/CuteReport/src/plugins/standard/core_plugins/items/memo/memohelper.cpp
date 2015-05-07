@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -33,7 +33,11 @@
 #include "designeriteminterface.h"
 #include "reportcore.h"
 #include "textformattoolbar.h"
-#include "highlighter.h"
+
+#include <QTabWidget>
+#include <QLayout>
+#include <QTextEdit>
+//#include "highlighter.h"
 
 SUIT_BEGIN_NAMESPACE
 
@@ -41,17 +45,44 @@ MemoHelper::MemoHelper(MemoItem *item) :
     m_ui(new Ui::MemoHelper),
     m_item(item),
     m_currentToolWidget(0),
-    m_highlighter(0)
+    m_edFormatedText(0),
+    m_edSourceText(0),
+    m_tabs(0)
+//    m_highlighter(0)
 {
     m_ui->setupUi(this);
     this->setWindowTitle( tr("Memo Helper") );
 
+    m_edSourceText = new QTextEdit(this);
+    m_edSourceText->setPlainText(m_item->text());
+
+
     if (m_item->allowHTML()) {
+        m_edFormatedText = new QTextEdit(this);
+        m_edFormatedText->setText(m_item->text());
+
+        m_tabs = new QTabWidget(this);
+        QWidget *formatedWdg = new QWidget(this);
+        m_tabs->addTab(formatedWdg,tr("Formatted"));
+        m_tabs->addTab(m_edSourceText,tr("Source"));
+
+
+        QVBoxLayout *lay = new QVBoxLayout(formatedWdg);
+        lay->setMargin(4);
+        lay->addWidget(m_edFormatedText);
+
         TextFormatToolBar *tb = new TextFormatToolBar(this);
-        tb->setTextEdit(m_ui->edFormatedText);
+        tb->setTextEdit(m_edFormatedText);
         tb->setStyleSheet("QToolBar { border: 0px }");
-        m_ui->tabFormatedText->layout()->setMenuBar(tb);
+        lay->setMenuBar(tb);
+
+        m_ui->pageTextLayout->addWidget(m_tabs);
+
+        connect(m_tabs, SIGNAL(currentChanged(int)), SLOT(slotCurrentTextTabChange(int)));
+    } else {
+        m_ui->pageTextLayout->addWidget(m_edSourceText);
     }
+
 
     if  (m_item->reportCore()->designerInterface()) {
         m_ui->bExpression->setEnabled(m_item->reportCore()->designerInterface()->moduleExists("ExpressionEditor"));
@@ -72,19 +103,6 @@ MemoHelper::MemoHelper(MemoItem *item) :
         m_ui->bFormatting->setEnabled(false);
         m_ui->bWordWrap->setEnabled(false);
     }
-
-    m_highlighter = new Highlighter(m_ui->edSource->document());
-    m_ui->edSource->setPlainText(m_item->text());
-
-    if (m_item->allowHTML()) {
-        m_ui->edFormatedText->setText(m_item->text());
-        m_ui->tabs->setStyleSheet("");
-    } else {
-        m_ui->edFormatedText->setPlainText(m_item->text());
-        m_ui->tabs->setStyleSheet("QTabBar::tab { height: 0px; width: 100px; }");
-    }
-
-    connect(m_ui->tabs, SIGNAL(currentChanged(int)), SLOT(slotCurrentTextTabChange(int)));
 
     setState(Text);
 }
@@ -111,11 +129,11 @@ void MemoHelper::changeEvent(QEvent *e)
 
 void MemoHelper::sync()
 {
-    if (m_ui->tabs->currentIndex() == 1) {
-        m_ui->edFormatedText->setText(m_ui->edSource->toPlainText());
+    if (m_tabs && m_tabs->currentIndex() == 1) {
+        m_edFormatedText->setText(m_edSourceText->toPlainText());
     }
 
-    m_item->setText(m_item->allowHTML() ? m_ui->edFormatedText->toHtml() : m_ui->edFormatedText->toPlainText());
+    m_item->setText(m_item->allowHTML() ? m_edFormatedText->toHtml() : m_edSourceText->toPlainText());
 }
 
 
@@ -127,7 +145,7 @@ bool MemoHelper::screenBack(bool accept)
             if (accept)
                 if (!m_item->reportCore()->designerInterface())
                     return false;
-                m_ui->edFormatedText->insertPlainText(m_item->reportCore()->designerInterface()->getResult(m_currentToolWidget));
+                m_edFormatedText->insertPlainText(m_item->reportCore()->designerInterface()->getResult(m_currentToolWidget));
             return true;
     }
     return true;
@@ -154,9 +172,9 @@ void MemoHelper::slotFormattingClicked()
 void MemoHelper::slotCurrentTextTabChange(int index)
 {
     if (index == 0) {
-        m_ui->edFormatedText->setText(m_ui->edSource->toPlainText());
+        m_edFormatedText->setText(m_edSourceText->toPlainText());
     } else if (index == 1) {
-        m_ui->edSource->setPlainText(m_ui->edFormatedText->toHtml());
+        m_edSourceText->setPlainText(m_edFormatedText->toHtml());
     }
 }
 

@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -171,6 +171,7 @@ void ReportPreview::run()
 
     m_cancelled = false;
     m_reportCore->log(CuteReport::LogDebug, MODULENAME, "run");
+    m_reportCore->stopRendering(m_report);
     m_reportCore->render(m_report);
 }
 
@@ -542,11 +543,14 @@ void ReportPreview::slotExport()
     }
 
     QStringList filters;
-    foreach (ExportInterface * m, m_reportCore->exportModules()) {
-        filters << QString("%1 (*.%2)").arg(m->moduleFullName()).arg(m->format().toLower());
+    foreach (ReportPluginInterface * plugin, m_reportCore->modules(ExportModule)) {
+        ExportInterface * module = static_cast<ExportInterface *>(plugin);
+        filters << QString("%1 (*.%2)").arg(module->moduleFullName()).arg(module->format().toLower());
     }
 
     StdStorageDialog d(m_reportCore, m_report, m_reportCore->rootWidget(), "Export to file");
+    QString startURL = m_report->fileUrl();
+    d.setUrl(startURL);
     d.setNameFilters(filters, false);
 
     if( d.exec() != QDialog::Accepted)
@@ -559,9 +563,10 @@ void ReportPreview::slotExport()
         moduleName = rx.cap(1).trimmed();
 
     ExportInterface * exportModule = 0;
-    foreach (ExportInterface * m, m_reportCore->exportModules()) {
-        if (m->moduleFullName().toLower() == moduleName.toLower()) {
-            exportModule = m;
+    foreach (ReportPluginInterface * plugin, m_reportCore->modules(ExportModule)) {
+        ExportInterface * module = static_cast<ExportInterface *>(plugin);
+        if (module->moduleFullName().toLower() == moduleName.toLower()) {
+            exportModule = module;
             break;
         }
     }
@@ -592,6 +597,7 @@ void ReportPreview::showProgressDialog(const QString & labelText, const QString 
     hideProgressDialog();
     m_progressDialog = new QProgressDialog(labelText, cancelButtonText, 0, 100, m_reportCore->rootWidget() ? m_reportCore->rootWidget() : this);
     m_progressDialog->setWindowTitle("Rendering...");
+    m_progressDialog->setModal(true);
     m_progressDialog->show();
     connect(m_progressDialog, SIGNAL(canceled()), this, SLOT(slotDialogCancelled()));
 }
@@ -635,8 +641,10 @@ void ReportPreview::slotRendererDone(CuteReport::ReportInterface *report, bool)
         return;
 
     int pageCount = m_reportCore->rendererTotalPages(m_report);
-    m_origDpi = report->renderedReport()->dpi();
-    m_viewDpi = m_origDpi;
+    if (report->renderedReport()) {
+        m_origDpi = report->renderedReport()->dpi();
+        m_viewDpi = m_origDpi;
+    }
 
     if (pageCount)
         m_currentPageIndex = 0;

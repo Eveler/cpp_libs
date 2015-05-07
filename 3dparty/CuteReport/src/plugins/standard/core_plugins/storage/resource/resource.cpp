@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -119,22 +119,36 @@ QString StorageResource::absolutePath(const QString & filePath) const
 }
 
 
-QString StorageResource::convertToLocal(const QString & url) const
+QString StorageResource::convertToLocal(const QString & url)
 {
-    if (url.isEmpty())
-        return absolutePath();
-    QUrl fileUrl(url);
+    QByteArray data = loadObject(url);
+    if (data.isNull()) {
+        ReportCore::log(CuteReport::LogWarning, "Resource Storage", "Object not found", QString("Object url is \'%1\'").arg(url));
+        return QString();
+    }
 
-    QString absoluteFilePath = absolutePath(fileUrl.path());
+    QString filePath = QDir::cleanPath( QDir::tempPath() + "/cutereport/resources/" + cleanupUrl(url) );
+    QFileInfo fileInfo(filePath);
+//    qDebug() << fileInfo.absolutePath();
+    QDir dir;
+    dir.mkpath(fileInfo.absolutePath());
+//    if (!dir.mkpath(fileInfo.absolutePath()));
+//        return QString();
 
-    return absoluteFilePath;
+    QFile file(filePath);
+    if (!file.open(QIODevice::WriteOnly))
+        return QString();
+    file.write(data);
+    file.close();
+
+    return filePath;
 }
 
 
 QString StorageResource::cleanupUrl(const QString & url)
 {
     QString path = url;
-    path.remove(QRegExp("^res:"));
+    path.remove(QRegExp("^.*:"));
     path.replace(QRegExp("/+"), "/");
     if (path[0] == '/')
         path.remove(0,1);
@@ -148,7 +162,7 @@ QString StorageResource::localCachedFileName(const QString & url)
 }
 
 
-bool StorageResource::saveObject(const QString & url, const QVariant & objectData)
+bool StorageResource::saveObject(const QString & url, const QByteArray & objectData)
 {
     QString objectPath = cleanupUrl(url);
     m_objects.insert(objectPath, objectData);
@@ -156,19 +170,81 @@ bool StorageResource::saveObject(const QString & url, const QVariant & objectDat
 }
 
 
-QVariant StorageResource::loadObject(const QString & url)
+QByteArray StorageResource::loadObject(const QString & url)
 {
     QString objectPath = cleanupUrl(url);
-    return m_objects.value(objectPath);
+    return m_objects.value(objectPath).toByteArray();
 }
 
+
 QList<StorageObjectInfo> StorageResource::objectsList(const QString & url, const QStringList & nameFilters,
-                                             QDir::Filters filters, QDir::SortFlags sort, bool * ok)
+                                                      QDir::Filters filters, QDir::SortFlags sort, bool * ok)
 {
     Q_UNUSED(nameFilters);
-    Q_UNUSED(filters);
     Q_UNUSED(sort);
-    return objectsList(url, ok);
+    //    if (!filters.testFlag(QDir::Files))
+    //        return QList<StorageObjectInfo>();
+    QList<StorageObjectInfo> list;
+    QString prefix = cleanupUrl(url);
+
+    foreach (const QString & path, m_objects.keys()){
+//        QString filePathRoot = path.section("/",0,0);
+//        QString filePathRest = path.section("/",1);
+//        QString fileName = path.section("/",-1,-1);
+
+        if (filters.testFlag(QDir::Files)) {
+            QString fullPath = path.section("/",0,-2);
+            if (/*filePathRoot == fileName ||*/ fullPath == prefix) {// file localted in current prefix
+                StorageObjectInfo objectInfo;
+                objectInfo.url = urlScheme() + ":" + path;
+                objectInfo.type = FileUnknown;
+                list.append(objectInfo);
+            }
+        }
+        if (filters.testFlag(QDir::Dirs)) {
+            if (path.startsWith(prefix)) {
+                QString relativePath = prefix.isEmpty() ? path : path.mid(prefix.length()+1); // +"/"
+                if (relativePath.contains("/")) {
+                    QString filePathRoot = relativePath.section("/",0,0);
+                    StorageObjectInfo objectInfo;
+                    objectInfo.url = urlScheme() + ":" + prefix + "/" + filePathRoot;
+                    objectInfo.type =  FileDir;
+                    list.append(objectInfo);
+                }
+            }
+        }
+
+        //        if (prefix.isEmpty() || path.startsWith(prefix)) {
+        //            StorageObjectInfo objectInfo;
+        //            objectInfo.url = urlScheme() + ":" + path;
+        //            objectInfo.type = FileUnknown;
+        //            //            objectInfo.size = fileInfo.size();
+        //            //            objectInfo.type = fileInfo.isDir() ? FileDir : FileUnknown;
+
+        //            list.append(objectInfo);
+        //            //            QString str = path;
+        //            //            list.append(str.remove(0, prefix.size()));
+        //        }
+    }
+
+    //    if (list.isEmpty()) {
+    //        m_lastError = "Url path does not exist";
+    //        if (ok)
+    //            *ok = false;
+    //        return list;
+    //    }
+
+    return list;
+
+    //    QStringList list;
+    //    foreach (const QString & path, m_objects.keys()){
+    //        if (path.startsWith(prefix)) {
+    //            QString str = path;
+    //            list.append(str.remove(0, prefix.size()));
+    //        }
+    //    }
+
+    //    return list;
 }
 
 
@@ -181,12 +257,12 @@ QList<StorageObjectInfo> StorageResource::objectsList(const QString & url, bool 
         if (prefix.isEmpty() || path.startsWith(prefix)) {
             StorageObjectInfo objectInfo;
             objectInfo.url = urlScheme() + ":" + path;
-//            objectInfo.size = fileInfo.size();
-//            objectInfo.type = fileInfo.isDir() ? FileDir : FileUnknown;
+            //            objectInfo.size = fileInfo.size();
+            //            objectInfo.type = fileInfo.isDir() ? FileDir : FileUnknown;
 
             list.append(objectInfo);
-//            QString str = path;
-//            list.append(str.remove(0, prefix.size()));
+            //            QString str = path;
+            //            list.append(str.remove(0, prefix.size()));
         }
     }
 

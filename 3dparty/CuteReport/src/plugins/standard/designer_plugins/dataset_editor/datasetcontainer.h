@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -23,6 +23,7 @@
 
 #include <QWidget>
 #include <QPointer>
+#include <QHash>
 
 namespace Ui {
 class DatasetContainer;
@@ -30,6 +31,7 @@ class DatasetContainer;
 
 namespace CuteReport {
 class DatasetInterface;
+class ReportPluginInterface;
 }
 
 namespace CuteDesigner {
@@ -50,7 +52,7 @@ public:
     void reloadSettings();
     void saveSettings();
 
-    void addDatasetPlugins(QList<CuteReport::DatasetInterface*> datasets);
+    void addDatasetPlugins(QList<CuteReport::ReportPluginInterface *> datasets);
     void addTab(QWidget *const widget, const QIcon &icon, const QString &name);
     void deleteTab(QString name);
     void deleteAllTabs();
@@ -69,7 +71,7 @@ signals:
     void requestForPopulateDataset();
 
 private slots:
-    void slotNewDataset(int index);
+    void slotNewDatasetPressed();
     void slotCurrentDatasetChanged(int index);
     void slotTabDoubleClicked(int index);
     void slotPropertyButtonToggled(bool b);
@@ -81,6 +83,7 @@ private:
     Ui::DatasetContainer *ui;
     DatasetEditor * m_datasetEditor;
     QWidget * m_propertyEditor;
+    QHash<QWidget*, QString> m_buttonModules;
 };
 
 #endif // DATASETCONTAINER_H

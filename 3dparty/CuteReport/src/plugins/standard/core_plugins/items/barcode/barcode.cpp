@@ -173,14 +173,17 @@ void BarcodeItem::renderReset()
 
 bool BarcodeItem::renderPrepare()
 {
-    Q_D(BarcodeItem);
     emit printBefore();
     setRenderingPointer(new BarcodeItemPrivate(*(reinterpret_cast<BarcodeItemPrivate*>(d_ptr))));
+
+    Q_D(BarcodeItem);
     emit printDataBefore();
+
     d->script = m_renderer->processString(d->script, "[", "]", this);
     d->primaryMessage = m_renderer->processString(d->primaryMessage, "[", "]", this);
+
     emit printDataAfter();
-    return true;
+    return d->enabled;
 }
 
 

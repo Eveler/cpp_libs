@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -35,7 +35,7 @@
 #include "bandinterface_p.h"
 #include "iteminterfaceview.h"
 #include "renderediteminterface.h"
-#include "globals.h"
+#include "cutereport_globals.h"
 
 
 namespace CuteReport {

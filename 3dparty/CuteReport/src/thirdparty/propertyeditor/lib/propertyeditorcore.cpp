@@ -58,7 +58,7 @@ PluginManager::PluginManager(QObject *parent) :
     QObject(parent),
     m_counter(0)
 {
-    qDebug() << "PropertyEditorCore CTOR";
+//    qDebug() << "PropertyEditorCore CTOR";
     loadPlugins();
 }
 

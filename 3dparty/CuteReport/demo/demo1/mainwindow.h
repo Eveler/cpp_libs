@@ -8,7 +8,7 @@ class MainWindow;
 }
 
 namespace CuteReport {
-class Report;
+class ReportCore;
 class ReportInterface;
 }
 
@@ -29,7 +29,7 @@ public slots:
 private:
     Ui::MainWindow *ui;
     QSettings * m_settings;
-    CuteReport::Report * m_report;
+    CuteReport::ReportCore * m_reportCore;
     CuteReport::ReportInterface * m_reportTemplate;
 };
 

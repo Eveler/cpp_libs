@@ -96,6 +96,6 @@ PropertyInterface* Font::createInstance(QObject * object, int property, const Pr
 	return new Font(parent(), object, property, propertyModel);
 }
 
-#ifndef STATICTYPES
-Q_EXPORT_PLUGIN2(font, FontProperty);
+#if QT_VERSION < 0x050000
+Q_EXPORT_PLUGIN2(FontProperty, Font);
 #endif

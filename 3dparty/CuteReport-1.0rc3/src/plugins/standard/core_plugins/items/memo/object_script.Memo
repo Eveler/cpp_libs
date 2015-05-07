@@ -1,0 +1,13 @@
+INPUT(
+./memo.o
+./memohelper.o
+./renderedmemoitem.o
+./memoitemview.o
+./textformattoolbar.o
+./highlighter.o
+./qrc_memo.o
+./moc_memo.o
+./moc_memohelper.o
+./moc_textformattoolbar.o
+./moc_highlighter.o
+);

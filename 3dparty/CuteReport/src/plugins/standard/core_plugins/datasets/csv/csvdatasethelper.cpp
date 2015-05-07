@@ -40,24 +40,8 @@ CsvDatasetHelper::CsvDatasetHelper(CsvDataset * dataset) :
     m_ui->setupUi(this);
 
     load();
-
-    if (dataset->keepData()) {
-        CuteReport::ReportInterface * report = static_cast<CuteReport::ReportInterface*> (m_dataset->parent());
-        QString fileName =  m_dataset->reportCore()->localCachedFileName(m_dataset->fileName(), report);
-
-        QStringList list;
-        QFile data(fileName);
-        if (data.open(QFile::ReadOnly | QFile::Text)) {
-            QTextStream in(&data);
-            do {
-                list.append(in.readLine());
-            } while (!in.atEnd() );
-        }
-        m_ui->text->setPlainText(list.join("\n"));
-    } else {
-        m_ui->text->setPlainText(dataset->list().join("\n"));
-    }
-
+    loadFile(m_dataset->getFileName());
+    connect (m_ui->cbKeepData, SIGNAL(toggled(bool)), this, SLOT(slotKeepDataInternalChanged(bool)));
 }
 
 
@@ -81,11 +65,11 @@ void CsvDatasetHelper::changeEvent(QEvent *e)
 
 void CsvDatasetHelper::load()
 {
-    m_ui->leFileName->setText( m_dataset->fileName());
-    m_ui->leDelimeter->setText(m_dataset->delimeter());
-    m_ui->cbKeepData->setCheckState(m_dataset->keepData() ? Qt::Checked : Qt::Unchecked);
-    m_ui->leFileName->setText(m_dataset->fileName());
-    m_ui->cbFirstRowIsHeader->setCheckState(m_dataset->firstRowIsHeader() ? Qt::Checked : Qt::Unchecked);
+    m_ui->leFileName->setText( m_dataset->getFileName());
+    m_ui->leDelimeter->setText(m_dataset->getDelimeter());
+    m_ui->leFileName->setText(m_dataset->getFileName());
+    m_ui->cbFirstRowIsHeader->setCheckState(m_dataset->getFirstRowIsHeader() ? Qt::Checked : Qt::Unchecked);
+    m_ui->cbFixProblems->setChecked(m_dataset->getFixFileIssues() ? Qt::Checked : Qt::Unchecked);
 }
 
 
@@ -93,24 +77,39 @@ void CsvDatasetHelper::save()
 {
     m_dataset->setFileName(m_ui->leFileName->text());
     m_dataset->setDelimeter(m_ui->leDelimeter->text());
-    m_dataset->setKeepData((m_ui->cbKeepData->checkState() == Qt::Checked) ? true : false);
     m_dataset->setFirstRowIsHeader((m_ui->cbFirstRowIsHeader->checkState() == Qt::Checked) ? true : false);
-    m_dataset->setList( m_ui->text->toPlainText().split('\n') );
+    m_dataset->setFixFileIssues((m_ui->cbFixProblems->checkState() == Qt::Checked) ? true : false );
 }
 
 
 void CsvDatasetHelper::on_bBrowse_clicked()
 {
-    CuteReport::ReportInterface * report = static_cast<CuteReport::ReportInterface*> (m_dataset->parent());
     CuteReport::StdStorageDialog d(m_dataset->reportCore(), m_dataset->reportCore()->rootWidget(), "Load CSV file");
 
     if( d.exec() != QDialog::Accepted)
         return;
 
     QString fileURL = d.currentObjectUrl();
-    QString fileContent =  m_dataset->reportCore()->loadObject(fileURL, report).toString();
+    loadFile(fileURL);
+}
 
-    m_ui->leFileName->setText(fileURL);
+
+void CsvDatasetHelper::slotKeepDataInternalChanged(bool checked)
+{
+    m_ui->leFileName->setEnabled(!checked);
+}
+
+
+void CsvDatasetHelper::loadFile(const QString &fileURL)
+{
+    CuteReport::ReportInterface * report = static_cast<CuteReport::ReportInterface*> (m_dataset->parent());
+    QByteArray fileData =  m_dataset->reportCore()->loadObject(fileURL, report);
+    QTextStream stream(fileData);
+    stream.setAutoDetectUnicode(true);
+    QString fileContent = stream.readAll();
+
+    if (!m_ui->cbKeepData->isChecked())
+        m_ui->leFileName->setText(fileURL);
     m_ui->text->setPlainText(fileContent);
 }
 

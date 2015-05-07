@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -32,8 +32,7 @@
 #define BANDINTERFACE_H
 
 #include "baseiteminterface.h"
-#include "baseiteminterface_p.h"
-#include "globals.h"
+#include "cutereport_globals.h"
 
 #define BANDVIEWTYPE QGraphicsItem::UserType + 102
 
@@ -51,10 +50,11 @@ class CUTEREPORT_EXPORTS BandInterface : public BaseItemInterface
     Q_PROPERTY(bool stretchable READ stretchable WRITE setStretchable NOTIFY stretchableChanged)
     Q_PROPERTY(bool showStretchability READ showStretchability WRITE setShowStretchability NOTIFY showStretchabilityChanged)
     Q_PROPERTY(QSizeF stretchOriginalSize READ stretchOriginalSize WRITE setStretchOriginalSize DESIGNABLE false)
+    Q_PROPERTY(QFont font READ font WRITE setFont NOTIFY fontChanged)
 
 public:
     enum LayoutType { LayoutUndefined, LayoutTop, LayoutBottom, LayoutFree };
-    enum AccomodationType {AccomodationUndefined, AccomodationOnce, AccomodationFirstPage, AccomodationLastPage, AccomodationEveryPage};
+    //enum AccomodationType {AccomodationUndefined, AccomodationOnce, AccomodationFirstPage, AccomodationLastPage, AccomodationEveryPage};
 
 public:
     explicit BandInterface(QObject * parent);
@@ -64,11 +64,10 @@ public:
     virtual void init_gui();
     virtual bool renderPrepare() {return false;}
     virtual bool renderNewPage() {return false;}
-//    virtual CuteReport::RenderedItemInterface * renderView();
 
     virtual LayoutType layoutType() const;
     virtual int layoutPriority() const;
-    virtual AccomodationType accommodationType() const;
+    virtual bool respectPageColumns() {return false;}
 
     virtual void setGeometry(const QRectF & rect, CuteReport::Unit unit = CuteReport::UnitNotDefined);
     virtual void setHeight(qreal height, CuteReport::Unit unit = CuteReport::UnitNotDefined);
@@ -88,6 +87,9 @@ public:
     virtual QSizeF stretchOriginalSize() const;
     virtual void setStretchOriginalSize(const QSizeF &size);
 
+    virtual QFont font() const;
+    virtual void setFont(const QFont & font);
+
     virtual QByteArray serialize() const;
     virtual void deserialize(QByteArray &data);
 
@@ -96,6 +98,7 @@ signals:
     void groupChanged(QString);
     void stretchableChanged(bool);
     void showStretchabilityChanged(bool);
+    void fontChanged(QFont);
 
 private slots:
     void childGeometryChanged(QRectF geometry);

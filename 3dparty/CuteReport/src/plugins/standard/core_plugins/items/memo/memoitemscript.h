@@ -27,21 +27,17 @@
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
  *   GNU General Public License for more details.                          *
  ***************************************************************************/
-#ifndef MEMOSCRIPT_H
-#define MEMOSCRIPT_H
 
 #include <QScriptValue>
 #include <QScriptContext>
 #include <QScriptEngine>
 
 #include "reportcore.h"
-#include "types.h"
+#include "cutereport_types.h"
 #include "memo.h"
 #include "baseiteminterface.h"
 #include "iteminterface.h"
 using namespace CuteReport;
-
-SUIT_BEGIN_NAMESPACE
 
 static QScriptValue qtscript_Qt_throw_ambiguity_error_helper(
         QScriptContext *context, const char *functionName, const char *signatures)
@@ -71,22 +67,22 @@ static QScriptValue qtscript_create_enum_class_helper(
 }
 
 
-//static QScriptValue qtscript_create_flags_class_helper(
-//        QScriptEngine *engine,
-//        QScriptEngine::FunctionSignature construct,
-//        QScriptEngine::FunctionSignature valueOf,
-//        QScriptEngine::FunctionSignature toString,
-//        QScriptEngine::FunctionSignature equals)
-//{
-//    QScriptValue proto = engine->newObject();
-//    proto.setProperty(QString::fromLatin1("valueOf"),
-//                      engine->newFunction(valueOf), QScriptValue::SkipInEnumeration);
-//    proto.setProperty(QString::fromLatin1("toString"),
-//                      engine->newFunction(toString), QScriptValue::SkipInEnumeration);
-//    proto.setProperty(QString::fromLatin1("equals"),
-//                      engine->newFunction(equals), QScriptValue::SkipInEnumeration);
-//    return engine->newFunction(construct, proto);
-//}
+static QScriptValue qtscript_create_flags_class_helper(
+        QScriptEngine *engine,
+        QScriptEngine::FunctionSignature construct,
+        QScriptEngine::FunctionSignature valueOf,
+        QScriptEngine::FunctionSignature toString,
+        QScriptEngine::FunctionSignature equals)
+{
+    QScriptValue proto = engine->newObject();
+    proto.setProperty(QString::fromLatin1("valueOf"),
+                      engine->newFunction(valueOf), QScriptValue::SkipInEnumeration);
+    proto.setProperty(QString::fromLatin1("toString"),
+                      engine->newFunction(toString), QScriptValue::SkipInEnumeration);
+    proto.setProperty(QString::fromLatin1("equals"),
+                      engine->newFunction(equals), QScriptValue::SkipInEnumeration);
+    return engine->newFunction(construct, proto);
+}
 
 
 struct qtscript_Qt_metaObject_helper : private QObject
@@ -363,6 +359,133 @@ BaseItemInterface::ResizeFlags BaseItemInterface_ResizeFlags_fromString(const QS
 }
 
 
+/** ======================= BorderType =========================== */
+
+static const BaseItemInterface::BorderType qtscript_BaseItemInterface_BorderType_values[] = {
+    BaseItemInterface::Middle,
+    BaseItemInterface::Inner,
+    BaseItemInterface::Outer
+};
+
+static const char * const qtscript_BaseItemInterface_BorderType_keys[] = {
+    "Middle",
+    "Inner",
+    "Outer"
+};
+
+static int BaseItemInterface_BorderType_num = 3;
+
+
+static QString qtscript_BaseItemInterface_BorderType_toStringHelper(BaseItemInterface::BorderType value)
+{
+    const QMetaObject meta = BaseItemInterface::staticMetaObject;
+    int idx = meta.indexOfEnumerator("BorderType");
+    Q_ASSERT(idx != -1);
+    QMetaEnum menum = meta.enumerator(idx);
+    return QString::fromLatin1(menum.valueToKey(value));
+}
+
+
+static QScriptValue qtscript_BaseItemInterface_BorderType_toScriptValue(QScriptEngine *engine, const BaseItemInterface::BorderType &value)
+{
+    QScriptValue clazz = engine->globalObject().property(QString::fromLatin1("Memo"));
+    return clazz.property(qtscript_BaseItemInterface_BorderType_toStringHelper(value));
+}
+
+
+static void qtscript_BaseItemInterface_BorderType_fromScriptValue(const QScriptValue &value, BaseItemInterface::BorderType &out)
+{
+    out = qvariant_cast<BaseItemInterface::BorderType>(value.toVariant());
+}
+
+
+static QScriptValue qtscript_construct_BaseItemInterface_BorderType(QScriptContext *context, QScriptEngine *engine)
+{
+    int arg = context->argument(0).toInt32();
+    const QMetaObject *meta = qtscript_Qt_metaObject();
+    int idx = meta->indexOfEnumerator("BorderType");
+    Q_ASSERT(idx != -1);
+    QMetaEnum menum = meta->enumerator(idx);
+    if (menum.valueToKey(arg) != 0)
+        return qScriptValueFromValue(engine,  static_cast<BaseItemInterface::BorderType>(arg));
+    return context->throwError(QString::fromLatin1("BorderType(): invalid enum value (%0)").arg(arg));
+}
+
+
+static QScriptValue qtscript_BaseItemInterface_BorderType_valueOf(QScriptContext *context, QScriptEngine *engine)
+{
+    BaseItemInterface::BorderType value = qscriptvalue_cast<BaseItemInterface::BorderType>(context->thisObject());
+    return QScriptValue(engine, static_cast<int>(value));
+}
+
+
+static QScriptValue qtscript_BaseItemInterface_BorderType_toString(QScriptContext *context, QScriptEngine *engine)
+{
+    BaseItemInterface::BorderType value = qscriptvalue_cast<BaseItemInterface::BorderType>(context->thisObject());
+    return QScriptValue(engine, qtscript_BaseItemInterface_BorderType_toStringHelper(value));
+}
+
+
+static QScriptValue qtscript_create_BaseItemInterface_BorderType_class(QScriptEngine *engine, QScriptValue &clazz)
+{
+    QScriptValue ctor = qtscript_create_enum_class_helper(
+                            engine, qtscript_construct_BaseItemInterface_BorderType,
+                            qtscript_BaseItemInterface_BorderType_valueOf, qtscript_BaseItemInterface_BorderType_toString);
+
+    qScriptRegisterMetaType<BaseItemInterface::BorderType>(engine, qtscript_BaseItemInterface_BorderType_toScriptValue,
+                                                   qtscript_BaseItemInterface_BorderType_fromScriptValue, ctor.property(QString::fromLatin1("prototype")));
+
+    for (int i = 0; i < BaseItemInterface_BorderType_num; ++i) {
+        clazz.setProperty(QString::fromLatin1(qtscript_BaseItemInterface_BorderType_keys[i]),
+                          engine->newVariant(qVariantFromValue(qtscript_BaseItemInterface_BorderType_values[i])),
+                          QScriptValue::ReadOnly | QScriptValue::Undeletable);
+    }
+
+    return ctor;
+}
+
+
+QString BaseItemInterface_BorderType_toString(BaseItemInterface::BorderType value)
+{
+    int idx = -1;
+    for (int i = 0; i < BaseItemInterface_BorderType_num; ++i) {
+        if (qtscript_BaseItemInterface_BorderType_values[i] == value) {
+            idx = i;
+            break;
+        }
+    }
+
+    if (idx == -1) {
+        CuteReport::ReportCore::log(LogError, "BaseItemInterface", "BaseItemInterface_BorderType_toString", QString("Value \'%1\' is not within range").arg((int)value));
+        return QString();
+    }
+
+    return QString(qtscript_BaseItemInterface_BorderType_keys[idx]);
+}
+
+
+BaseItemInterface::BorderType BaseItemInterface_BorderType_fromString(const QString &value, bool *ok)
+{
+    QString strIn = value.toLower();
+    int idx = -1;
+    for (int i = 0; i < BaseItemInterface_BorderType_num; ++i) {
+        QString str(qtscript_BaseItemInterface_BorderType_keys[i]);
+        if (strIn == str.toLower()) {
+            idx = i;
+            break;
+        }
+    }
+
+    if (idx == -1) {
+        CuteReport::ReportCore::log(LogError, "BaseItemInterface", "BaseItemInterface_BorderType_fromString", QString("Value \'%1\' is not within range").arg(value));
+        if (ok)
+            *ok = false;
+    }
+
+    return BaseItemInterface::BorderType(qtscript_BaseItemInterface_BorderType_values[idx]);
+}
+
+
 /** ======================= ShiftMode =========================== */
 
 static const ItemInterface::ShiftMode qtscript_ItemInterface_ShiftMode_values[] = {
@@ -501,10 +624,6 @@ static const MemoItem::TextFlag qtscript_MemoItem_TextFlag_values[] = {
     MemoItem::AlignBottom,
     MemoItem::AlignVCenter,
     MemoItem::AlignCenter,
-    MemoItem::TextDontClip,
-    MemoItem::TextSingleLine,
-    MemoItem::TextExpandTabs,
-    MemoItem::TextShowMnemonic,
     MemoItem::TextWordWrap
 };
 
@@ -517,14 +636,10 @@ static const char * const qtscript_MemoItem_TextFlag_keys[] = {
     "AlignBottom",
     "AlignVCenter",
     "AlignCenter",
-    "TextDontClip",
-    "TextSingleLine",
-    "TextExpandTabs",
-    "TextShowMnemonic",
     "TextWordWrap"
 };
 
-static int MemoItem_TextFlag_num = 13;
+static int MemoItem_TextFlag_num = 9;
 
 
 static QString qtscript_MemoItem_TextFlag_toStringHelper(MemoItem::TextFlag value)
@@ -753,8 +868,6 @@ QString MemoItem_StretchMode_toString(MemoItem::StretchMode value)
 
 MemoItem::StretchMode MemoItem_StretchMode_fromString(const QString &value, bool *ok)
 {
-    if (ok)
-        *ok = true;
     QString strIn = value.toLower();
     int idx = -1;
     for (int i = 0; i < MemoItem_StretchMode_num; ++i) {
@@ -820,6 +933,7 @@ QScriptValue qtscript_create_MemoItem_class(QScriptEngine *engine)
     ctor.setProperty(QString::fromLatin1("StretchMode"), qtscript_create_MemoItem_StretchMode_class(engine, ctor));
     ctor.setProperty(QString::fromLatin1("Frame"), qtscript_create_BaseItemInterface_Frame_class(engine, ctor));
     ctor.setProperty(QString::fromLatin1("ResizeFlags"), qtscript_create_BaseItemInterface_ResizeFlags_class(engine, ctor));
+    ctor.setProperty(QString::fromLatin1("BorderType"), qtscript_create_BaseItemInterface_BorderType_class(engine, ctor));
     ctor.setProperty(QString::fromLatin1("ShiftMode"), qtscript_create_ItemInterface_ShiftMode_class(engine, ctor));
 
     return ctor;
@@ -832,6 +946,3 @@ void registerMemoItemScriptClass(QScriptEngine *engine)
     extensionObject.setProperty("Memo", qtscript_create_MemoItem_class(engine), QScriptValue::SkipInEnumeration);
 }
 
-SUIT_END_NAMESPACE
-
-#endif   // MEMOSCRIPT_H

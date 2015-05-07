@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -46,6 +46,8 @@ void PageEditorContainer::init()
     connect(ui->deletePageButton, SIGNAL(clicked()), this, SLOT(slotDeleteClicked()));
     connect(ui->addPageButton, SIGNAL(clicked()), this, SLOT(slotCreateClicked()));
     connect(ui->clonePageButton, SIGNAL(clicked()), this, SLOT(slotCloneClicked()));
+    connect(ui->pageMoveFront, SIGNAL(clicked()), m_pageEditor, SLOT(slotPageMoveFront()));
+    connect(ui->pageMoveBack, SIGNAL(clicked()), m_pageEditor, SLOT(slotPageMoveBack()));
     connect(ui->pageTabs, SIGNAL(CurrentChanged(int)), this, SLOT(slotCurrentTabChanged(int)));
     connect(ui->pageTabs, SIGNAL(tabDoubleClicked(int)), this, SLOT(slotTabDoubleClicked(int)));
 
@@ -58,6 +60,35 @@ void PageEditorContainer::saveSettings()
     m_pageEditor->core()->setSettingValue("PageEditor/splitterState", ui->splitter->saveState());
     m_pageEditor->core()->setSettingValue("PageEditor/splitter2State", ui->splitter2->saveState());
     m_pageEditor->core()->setSettingValue("PageEditor/tabMode", ui->pageTabs->mode());
+}
+
+
+void PageEditorContainer::updateButtonsStatus()
+{
+    ui->deletePageButton->setEnabled(ui->pageTabs->tabsCount());
+    ui->clonePageButton->setEnabled(ui->pageTabs->tabsCount());
+    ui->pageMoveFront->setEnabled(ui->pageTabs->tabsCount() > 1);
+    ui->pageMoveBack->setEnabled(ui->pageTabs->tabsCount() > 1);
+    ui->actions->setEnabled(ui->pageTabs->tabsCount());
+    ui->tools->setEnabled(ui->pageTabs->tabsCount());
+}
+
+
+FontEditor *PageEditorContainer::fontEditor()
+{
+    return ui->fontEditor;
+}
+
+
+AlignmentEditor *PageEditorContainer::alignmentEditor()
+{
+    return ui->alignmentEditor;
+}
+
+
+FrameEditor *PageEditorContainer::frameEditor()
+{
+    return ui->frameEditor;
 }
 
 
@@ -81,20 +112,24 @@ void PageEditorContainer::reloadSettings()
 
 void PageEditorContainer::addPropertyEditor(QWidget * widget)
 {
+    widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->PropertyEditorLayout->addWidget(widget);
 }
 
 
 void PageEditorContainer::addObjectInspector(QWidget * widget)
 {
+    widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->ObjectInspectorLayout->addWidget(widget);
 }
 
 
 void PageEditorContainer::addTab(QWidget * widget, QIcon icon, const QString &name)
 {
+    widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->pageTabs->AddTab(widget, icon, name);
     ui->pageTabs->updateState();
+    updateButtonsStatus();
 }
 
 
@@ -102,6 +137,7 @@ void PageEditorContainer::removeTab(const QString & name)
 {
     ui->pageTabs->deleteTab(name);
     ui->pageTabs->updateState();
+    updateButtonsStatus();
 }
 
 
@@ -109,6 +145,7 @@ void PageEditorContainer::removeAllTabs()
 {
     ui->pageTabs->deleteAllTabs();
     ui->pageTabs->updateState();
+    updateButtonsStatus();
 }
 
 
@@ -134,20 +171,22 @@ void PageEditorContainer::setNewPageName(const QString &pageName, const QString 
 }
 
 
-void PageEditorContainer::addPagePlugins(QList<CuteReport::PageInterface*> pages)
+void PageEditorContainer::addPagePlugins(QList<CuteReport::ReportPluginInterface*> pages)
 {
-    foreach(CuteReport::PageInterface * page, pages)
-        ui->addPageList->addItem(QString("%1 (%2)").arg(page->moduleShortName(), page->suitName()), page->moduleFullName());
-
-//    if (pages.count() > 1) {
-//        ui->addPageLabel->show();
-//        ui->addPageList->show();
-//        ui->addPageButton->hide();
-//    } else {
-//        ui->addPageLabel->hide();
-//        ui->addPageList->hide();
-//        ui->addPageButton->show();
-//    }
+    if (pages.count() > 1) {
+        delete ui->addPageButton->menu();
+        Menu * menu = new Menu( this );
+        foreach(CuteReport::ReportPluginInterface * plugin, pages) {
+            CuteReport::PageInterface * page = static_cast<CuteReport::PageInterface *>(plugin);
+            QString actionName = QString("%1 (%2)").arg(page->moduleShortName(), page->suitName());
+            QAction * newItem = new QAction(page->icon(), actionName, this );
+            newItem->setData(page->moduleFullName());
+            menu->addAction(newItem);
+        }
+        ui->addPageButton->setMenu(menu);
+    } else if (pages.count() == 1){
+        m_pageeModuleName = pages.at(0)->moduleFullName();
+    }
 }
 
 
@@ -162,7 +201,7 @@ void PageEditorContainer::slotDeleteClicked()
 
 void PageEditorContainer::slotCreateClicked()
 {
-    emit requestForCreatePage(ui->addPageList->itemData(ui->addPageList->currentIndex()).toString());
+    emit requestForCreatePage(m_pageeModuleName);
 }
 
 
@@ -185,6 +224,7 @@ void PageEditorContainer::slotTabDoubleClicked(int index)
 {
     emit requestForRenamePage(ui->pageTabs->tabText(index));
 }
+
 
 //void PageEditorContainer::slotNewPageActions(QList<CuteReport::PageAction*> actions)
 //{

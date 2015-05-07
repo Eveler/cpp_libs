@@ -49,7 +49,7 @@ QWidget* Numbers::createEditor(QWidget * parent, const QModelIndex & index)
 	Q_UNUSED(index);
 	if (value().type() == QVariant::Double)
 	{
-        qDebug() << objectPropertyName();
+//        qDebug() << objectPropertyName();
         int precision = propertyPrecision();
 		QDoubleSpinBox *dsb = new QDoubleSpinBox(parent);
 		dsb->setMaximum(1e10);

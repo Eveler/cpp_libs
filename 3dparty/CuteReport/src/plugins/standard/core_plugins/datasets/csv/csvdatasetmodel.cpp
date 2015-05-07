@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the eXaro project                                *
- *   Copyright (C) 2012-2014 by Mikhalov Alexander                         *
+ *   Copyright (C) 2012-2015 by Mikhalov Alexander                         *
  *   alexander.mikhalov@gmail.com                                          *
  **                   GNU General Public License Usage                    **
  *                                                                         *
@@ -55,17 +55,36 @@ void Model::setArray(Array array)
 
 void Model::setHeader(QStringList header)
 {
-    m_header = header;
+    m_fields.clear();
+    for (int i = 0; i< header.count(); ++i) {
+        m_fields.insert(header.at(i), i);
+        m_header.insert(i, header.at(i));
+    }
 }
+
 
 void Model::clear()
 {
+    beginResetModel();
+
     m_array.clear();
     m_rows = 0;
     m_columns = 0;
 
-    beginResetModel();
     endResetModel();
+}
+
+
+int Model::fieldIndex(const QString &fieldName)
+{
+    int index = m_fields.value(fieldName, -1);
+    if (index == -1) {
+        bool ok = false;
+        int i = fieldName.toInt(&ok);
+        if (ok && !headerData(i, Qt::Horizontal).isNull())
+            return i;
+    }
+    return m_fields.value(fieldName, -1);
 }
 
 
@@ -89,8 +108,12 @@ QVariant Model::data(const QModelIndex &index, int role) const
     if (role != Qt::DisplayRole)
         return QVariant();
 
-    if (index.column() < m_columns)
-        return m_array[index.row()][index.column()];
+    if (index.column() < m_columns) {
+        QStringList line = m_array[index.row()];
+        if (index.column() < line.size())
+            return m_array[index.row()][index.column()];
+        return QVariant();
+    }
     else
         return QVariant();
 }
@@ -108,12 +131,12 @@ Qt::ItemFlags Model::flags(const QModelIndex &index) const
 QVariant Model::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
-        if (section >= m_header.size())
-            return  QVariant(QString::number(section));
+        if (m_header.contains(section))
+            return m_header.value(section);
         else
-            return m_header[section];
+            return QString::number(section);
     }
 
-    return QVariant();
+    return QAbstractTableModel::headerData(section, orientation, role);
 }
 

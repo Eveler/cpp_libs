@@ -27,8 +27,8 @@
  *   GNU General Public License for more details.                          *
  ****************************************************************************/
 
-#ifndef PROPERTYEDITORSIZE_H
-#define PROPERTYEDITORSIZE_H
+#ifndef PROPERTYEDITORPOINTF_H
+#define PROPERTYEDITORPOINTF_H
 
 #include <propertyinterface.h>
 
@@ -42,8 +42,11 @@ class PointF : public PropertyInterface
 #endif
     Q_INTERFACES(PropertyEditor::PropertyInterface)
 
-    Q_PROPERTY(int x READ x WRITE setX USER true)
-    Q_PROPERTY(int y READ y WRITE setY USER true)
+    Q_PROPERTY(qreal x READ x WRITE setX USER true)
+    Q_PROPERTY(qreal y READ y WRITE setY USER true)
+
+    Q_PROPERTY(int _current_property READ _currentProperty WRITE _setCurrentProperty DESIGNABLE false)
+    Q_PROPERTY(int _current_property_precision READ _current_property_precision DESIGNABLE false)
 
 public:
     PointF(QObject* parent = 0, QObject* object = 0, int property = -1, const PropertyModel * propertyModel = 0);
@@ -66,6 +69,13 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index);
 
     PropertyInterface* createInstance(QObject * object, int property, const PropertyModel * propertyModel) const;
+
+    void _setCurrentProperty(int num) {m_currentProperty = num;}
+    int _currentProperty() { return m_currentProperty;}
+    int _current_property_precision();
+
+private:
+    int m_currentProperty;
 };
 
 

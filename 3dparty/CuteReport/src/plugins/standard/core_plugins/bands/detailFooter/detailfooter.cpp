@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -210,18 +210,24 @@ bool DetailFooter::renderPrepare()
     bool needRendering = false;
 
     if (!d->dataset.isEmpty()) {
-        QString currentCondition = d->lastConditionResult.isEmpty() ? m_renderer->processString(d->condition, this) : d->lastConditionResult;
-        CuteReport::DatasetInterface * dataset = m_renderer->dataset(d->dataset);
-        if (dataset)
-            dataset->nextRow();     // looking ahead
-        QString nextCondition = m_renderer->processString(d->condition, this);
-        if (dataset)
-            dataset->previousRow(); // setting row back
-        if (currentCondition != nextCondition) {
-            needRendering = true;
-            d_orig->lastConditionResult = "";
-        } else
-            d_orig->lastConditionResult = nextCondition;
+        if (!d->condition.isEmpty()) {
+            QString currentCondition = d->lastConditionResult.isEmpty() ? m_renderer->processString(d->condition, this) : d->lastConditionResult;
+            CuteReport::DatasetInterface * dataset = m_renderer->dataset(d->dataset);
+            if (dataset)
+                dataset->setNextRow();     // looking ahead
+            QString nextCondition = m_renderer->processString(d->condition, this);
+            if (dataset)
+                dataset->setPreviousRow(); // setting row back
+            if (currentCondition != nextCondition) {
+                needRendering = true;
+                d_orig->lastConditionResult = "";
+            } else
+                d_orig->lastConditionResult = nextCondition;
+        } else { // print after last row only
+            // TODO:
+//            m_renderer->currentPageNumber()
+//            needRendering = true;
+        }
     }
 
     if (needRendering)
@@ -229,7 +235,7 @@ bool DetailFooter::renderPrepare()
 
     emit printDataAfter();
 
-    return needRendering;
+    return needRendering && d->enabled;
 }
 
 

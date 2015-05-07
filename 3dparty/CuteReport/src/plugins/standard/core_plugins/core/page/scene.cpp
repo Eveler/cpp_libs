@@ -1,7 +1,7 @@
 #include "scene.h"
-#include "types.h"
+#include "cutereport_types.h"
 #include "pagegui.h"
-#include "functions.h"
+#include "cutereport_functions.h"
 #include "reportcore.h"
 #include "baseiteminterface.h"
 #include "magnets.h"
@@ -28,10 +28,10 @@ Scene::Scene(Page *page, PageGUI *parent) :
 bool Scene::event(QEvent *event)
 {
     if (event->type() == PageMouseBlock) {
-        qDebug() << "PageMouseBlock";
+//        qDebug() << "PageMouseBlock";
         m_ignoreMouse = true;
     } else if (event->type() == PageMouseUnblock) {
-        qDebug() << "PageMouseBlock";
+//        qDebug() << "PageMouseBlock";
         m_ignoreMouse = false;
     }
     return QGraphicsScene::event(event);
@@ -41,7 +41,7 @@ bool Scene::event(QEvent *event)
 void Scene::mousePressEvent (QGraphicsSceneMouseEvent *event)
 {
     QGraphicsScene::mousePressEvent(event);
-    qDebug() << "mousePressEvent" << event->isAccepted() << event->pos();
+//    qDebug() << "mousePressEvent" << event->isAccepted() << event->pos();
 
     if (!m_ignoreMouse && !event->isAccepted())
         emit mousePressed(event);
@@ -51,7 +51,7 @@ void Scene::mousePressEvent (QGraphicsSceneMouseEvent *event)
 void Scene::mouseReleaseEvent (QGraphicsSceneMouseEvent * event)
 {
     QGraphicsScene::mouseReleaseEvent(event);
-    qDebug() << "mouseReleaseEvent" << event->isAccepted() << event->pos();
+//    qDebug() << "mouseReleaseEvent" << event->isAccepted() << event->pos();
 
     m_pageGui->magnets()->clear();
 
@@ -64,7 +64,7 @@ void Scene::mouseReleaseEvent (QGraphicsSceneMouseEvent * event)
 void Scene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent * event)
 {
     QGraphicsScene::mouseDoubleClickEvent(event);
-    qDebug() << "mouseDoubleClickEvent" << event->isAccepted();
+//    qDebug() << "mouseDoubleClickEvent" << event->isAccepted();
 
     if (!m_ignoreMouse && !event->isAccepted())
         emit mouseDoubleClicked(event);

@@ -1,6 +1,6 @@
 /***************************************************************************
  *   This file is part of the CuteReport project                           *
- *   Copyright (C) 2012-2014 by Alexander Mikhalov                         *
+ *   Copyright (C) 2012-2015 by Alexander Mikhalov                         *
  *   alexander.mikhalov@gmail.com                                          *
  *                                                                         *
  **                   GNU General Public License Usage                    **
@@ -40,6 +40,7 @@ class PageManipulator : public CuteReport::PageManipulatorInterface
 {
     Q_OBJECT
 public:
+    enum ActionType {AnyType, BandOrItemType, ItemType, BandType};
     explicit PageManipulator(QObject *parent = 0);
     ~PageManipulator();
 
@@ -63,6 +64,8 @@ private slots:
 
     void slotBringForward();
     void slotBringBackward();
+
+    void activeObjectChanged(QObject * object);
 
 private:
     void initActions();
