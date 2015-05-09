@@ -23,6 +23,6 @@ LIBS += -lStringsProperty
 LIBS += -lStringListProperty
 #LIBS += -lUnitProperty
 
-SOURCES += $$PWD/lib/propertyinterface.cpp
-HEADERS += $$PWD/lib/propertyinterface.h
+SOURCES += propertyinterface.cpp
+HEADERS += propertyinterface.h
 
