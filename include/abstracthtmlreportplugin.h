@@ -8,6 +8,7 @@
 
 struct HumanInfo
 {
+  QString id;
   QString surname;
   QString firstname;
   QString lastname;

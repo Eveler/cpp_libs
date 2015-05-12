@@ -689,8 +689,8 @@ void ReportCore::init(QSettings *settings, bool initLogSystem)
         log(CuteReport::LogDebug, MODULENAME, "Plugins are already preloaded!");
 
     if (!pluginsResultOk) {
-        log(CuteReport::LogCritical, MODULENAME, "Application is exiting because of critial error in CuteReport!");
-        exit(1);
+//        log(CuteReport::LogCritical, MODULENAME, "Application is exiting because of critial error in CuteReport!");
+//        exit(1);
     }
 
     bool restoreState = m_settings->value("CuteReport/AutoRestore", true).toBool();
