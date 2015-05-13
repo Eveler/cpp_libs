@@ -1,0 +1,15 @@
+INPUT(
+./pageeditorcontainer.o
+./pageeditor.o
+./itemstoolwidget.o
+./fonteditor.o
+./alignmenteditor.o
+./frameeditor.o
+./qrc_page_editor.o
+./moc_pageeditorcontainer.o
+./moc_pageeditor.o
+./moc_itemstoolwidget.o
+./moc_fonteditor.o
+./moc_alignmenteditor.o
+./moc_frameeditor.o
+);

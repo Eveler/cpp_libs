@@ -1,0 +1,387 @@
+version 0.5:
+- several examples
+- screencast
+- new report wizard
+
+
+
+version 0.2
+- storage interface
+- format interface
+- some templates
+
+
+v0.7 roadmap
++ bug with righttab panel if choosen "icon" style
++ (отменено: в диалоге есть выбор плагина, обязательным он быть не может так как иногда его трубется исключить из поставки в целях блокировки чтения с диска)сделать дефолтовым плагинов в репорткоре всегда "file" и сделать его обязательным, так как он нужен другим объектам как stdstoragedialog
++ сообщение для ГУИ от рендерера и показ
++ разобраться с посылкой логов и сообщений. вазможно слать полную версию и сокращенную в одном методе. потом кнопка "подробнее" открывает полный лог
++ title и summary band
++ доделать гроуп футeр - reset agregate values
++ overlay
++ для FreeLayout сделать значение order <0 ниже основного слоя, >0 выше основного слоя.
++ переделать StdStorageDialog чтобы брал структуры из стораджа а не обращался к файловой системе
++ previewObject доделать предпросмотр отчетов и темплитов.
++ Report editor не загружает темплиты
++ операции со слоями элементов (поднять, опустить) (смена ордера кнопками)
++ в строке статуса координаты и геометрия элемента
++ bug: image can be placed out of band;
++ screencasts
++ утрясти лицензии на все части.
++ sqldataset can't connect to database if not file
++ при сохранении не делает расширение файла
++ add watermark example (www.cute-report.com)
++ упорядочить загрузку шаблонов в UIFormEditor  (краши)
++ исправить хелпер к ресурс стораджу (файловые диалоги к одному виду)
+
+
+v0.8 roadmap
++ расширить StdStorageDialog и добавить в нем выбор нужного стораджа (для использования в приложениях)
++ Storage если префикс отсутствует - то возвращать ошибку и исправить StdStorageDialog
++ add class CuteReport wrapper around ReportCore with public methods without deep access to internal structures;
++ PreviewContainer add borderless flag
++ Page background
++ разобраться как работает QSetting  и возможно ли удалить его как передачу параметра в ReportCore
++ Designer::Preview: add zoom 1:1
++ agregate functions
++ переименование объекта двойным кликом на табе
++ если отчет уже открыт и при попытке открыть его снова - сообщать и переключаться на него (анимация таба)
++ при сохранении подсвечивать имя файла из которого отчет взят если таковой имеется.
++ убрать using из всех заголовочных файлов
++ printer plugin all properties
++ (отменено: есть сигнал в ReportCore)придумать как выводить ошибки генерации отчета в кастомных приложениях (tray?)
++ Items:
+    + dummy item to use when appropriate item plugin not found with keeping all properties
+    + interface for get string that will be processed: QStringList ItemInterface::processingStrings()
++ ReportInterface: check all signals when object created and deleted
++ Core:
+    + solve issue with multiple instancies: if look for report using name - wrong report (from other instancie can be returned)
++ Memo: simple helper;
+
+
+v0.9
++ barcode data from dataset;
++ strech bands to fit all items;
++ implement HTMLscript in memo and drop HTMLscript out;
++ core list of ran renderers;
++ queue of rendering reports;
++ проверить наследование initMe;
++ add console cutereport application;
++ implement features for filesystem dataset;
++ multithreaded batch processing;
++ image from dataset;
++ Designer::DatasetEditor: sort Dataset names in tab when report loading;
++ Scripting improvements: script extension interface added, script extension module with some basic Qt types added;
++ filesystem dataset example;
++ ReportEditor property description added to Printer and Renderer modules;
++ compilation issues fixed;
++ extension autocomplete bug fixed (temporary disabled)
++ some crashes fixed;
+
+
+v1.0beta1
++ improve main menu functionality: export each module functions
++ if tab doesn't have object then hide the tab.
++ сохранять резервные проперти если (в том же элементе) есть в сериалайзере. На случай если текстовая информация изменится - резервная интежер поможет восстановить
++ добавить описание свойств всех итемов и бандов
++ export button in main menu doesn't work
++ Import Interface for importing from other formats
+
+v1.0beta2
++ script examples
+- Documentations and Examples:
+    + how to make simple report code;
+    - a couple of invoice examples;
+    - screencast how to use custom variables;
+- Printer module: "printerName" property do nothing. Maybe it should be local or remote printer path
+- dummy item keep original properties
+- console client help: -h -s NAME - add property description
++ (can't repro) сразу после загрузки отчета ошибки в виджете ошибок
+-? add signal propertyChanged(const QString & propertyName, const QVariant & value)
+- add method and signal for undo/redo
+- crash: start long working report, cancel it, quit -> crash
+
+
+v1.0
+- page cursor position (size of frame on status bar always changing while mouse moving). check it needed size > min size = set new minsize
++ setting for renderer (current, priorities, etc)
+- почистить вывод XML парсера при рендеренге отчета--- всеякие не найденные свойства
++ qt5 add/remove band artifacts (too wide line)
+- plugin dependencies struct (pluginType, pluginName, version)
+?- пересортировка бандов при добавлении работает неправильно
+?- report title: startNewPage  ? зачем если это делает detailHeader
+- при клацании на страницу должна показываться ее геометрия так же как для итемов в статусной строке
+- reordering bottom bands doesn't work: repro: add 2 bottom bands, try to change order on upper one to move it down.
+- на примере где водяной знак, если таскать оверлей то шрифт плавает. исправить
+- fix Pixel meassure in extended page;
+- implement option to hide rulers on reportPreview (when you choose report to load);
+
+
+v1.1 roadmap
+- add support of brush property for QPen. right now checnging pen.brush has no effect;
+?- не работает если нет подключения к БД (и не нужно)  timeout?
+- error XML Serializer not implemented types;
+- error: QMetaProperty::read: Unable to handle unregistered datatype 'ItemIndexMethod'
+- (отложено: оптимизация) упростить методы CoreReport pluginByClassName(имя, тип)
+- прилипание к магнитам только при зажатой кнопке модификаторе
+- (отложено: проектироать итемы чтобы реcурсы передавались строкой и через хелпер)PropertyEditor plugins should support storages
+- добавить поддержку безоконных плагинов
+- возможность плагинам добавлять кастомные QAction и QWidget на страницу (и в редактор)
+-? layouts +n(sort top), 0(free) ,-n(sort buttom)
+- экспорт Actions в главное меню со всех модулей дизайнера
+- chart from dataset
+- проверить clone метод, похоже не создается новый приват класс
+- compressor interface + ZIP compressor based on quazip
+- sendMetric оставить только для отправки метрик
+- дочерние итемы (неудаляемые), привязанные к родителю. как легенда на диаграмме
+- set StorageResource, and other storages dependent of "xml" serializer
+- когда программа прерывается деструктор ropertyeditorcore не срабатывает
+- bug: filesysyem storage can't find file if use ~ as path to home dir
+- pageFooter: printOnLastPage. Need to add logic to check last page. it's impossible right now
+- добавить стили как в ФР (набор параметров для общих свойств как цвет  текста, цвет фона, шрифт)
+- make QPen width property in points and recalculate real pixel width in runtime
+- page printIfEmpty, printOnPReviousPage, resetPageNumber, endLessHeight, endlessWidth, duplex(vertical, horizontal, None), columns
+- ItemInterface parentFont property (bool). if true use parent font instead of current one
+- footer hideIfSingleDataRecord property
+- кнопка запуска отчета должна также останавливать его
+- в линейке - габариты элемента
+- в линейке изменение границ страницы
+- переделать XML парсер
+- лимит на кол-во сообщений metric
+- изменение родителя работает плохо
+- при добавлении нового итема увеличивать order для него (для банда сделать тоже) при удалении итема делать перерасчет всех ордеров для текущего слоя
+- parentFont: bool property for iteminterface
+- memo: word wrap
+- memo: flowTo: the textobject that will be filled if text is not fit in current object
+- memo: showHint - show text when cursor over item
+- stretchmode: dontStrech, actualHeight, maxheight
+- iteminterface:: restrictions property: dont modify, dont move, dont size, don't delete, don't edit
+- iteminterface: stretched: determines if object can be stretched
+- iteminterface brush: add gradients
+- item handlers class (for complex shapes like stars)
+- возможность модулям блокировать переключение на другую вкладку и выводить какие-то сообщения
+- detail band: joining 2 bands, columns, datasetFilters, list of counter (for using in memo, some of them can be reset in new group)
+- пропертиедитор сделать чтобы при переключении итемов раскрытое свойство тоже было раскрытым treeModel signals: collapsed, expanded;
+- добавить кнопку для запуска отчета вниз левого тулбара
+- use qtransform for item mappings
+- тень для текста (смещение, цвет, размывание, прозрачность)
+- эффекты текста (изгиб, перспектива, ...)
+- тулбар с самыми часто используемыми редакторами свойств
+- IconLoader from  clementine for some different sizes of icons
+- механизм синхронизации стораджей. При запуске дизайнера если сторажд не синхронизирован - он пуст. Возможно спрашивать updateInterval или isSynced()
+
+
+Commercial:
+- protection against long working datasets (may be tested on filesystem)
+- show Helper when new page added and new item/band added;
+- хелперы для итемов
+- линейки на страницу
+- парсить скрипт на предмет on_objectName_signalName и автоматически соединять сигнал-слот
+- если меняешь имя формы из контекстного меню, то не обновляется
+- переименование формы в редакторе форм может сделать 2 формы с одинаковым именем.
+- Designer: FormEditor form rename on double click;
+- сделать мастер отчетов как безвиджетный плагин (для проработки интерфейса)
+- доделать Form и поточность (возможно убрать из комьюнити версии и добавить в коммерческую)
+- image painting optimization. Very slow scrolling on big pictures. Preview use view scaling. maybe using only dpi will help.
++ 2 проходные отчеты (doublepass) - автодетектить по scriptStrings(). если содержит _pages то два прохода. Возможно реализовать в один проход? присваивать значение после рендеринга?
+- functions (FR examples)
+- refactor StorageInterface for support both sync and async methods
+- QBrush add gradients
+- rotation (merge to opensource version soon)
+- Serializer: binary format(or encoded) for save preview and move between applications. with pages GUI effects. when print effects are hidden
+- implement powerfull printer dialog
+- Licenses: - OpenSource Edition - GPL
+            - Commercial Edition:
+                - Small Business Edition - per developer per platform: $149 + 1 year support and updates
+                                  platforms    1        2       3
+                       developers          1  149      268     402
+                                           2  268      428     643
+                                           3  402      643     1028
+                                           4  536      953     1430
+                                           5  670      1072    1608
+
+
+
+                - Corporate Edition : $1999 for all supported platforms and unlimites developers +1 year support and updates;
+                - Ultimate Edition: $3999 + sources + 1 year support and updates;
+- Items:
+    - anchor for corect resize when format has changed (look at Qt implementation of scene layouts)
+- Printer: printing dialog with good preview, centering, zooming, etc
+- ScriptEditor:
+   - powerfull editor with script debugger;
+- Datasets:
+    - Scrapper storage implement
+    - SqlDataset: графический построитель SQL запросов, direct access to tables
+- Storages:
+    - FTPStorage, HTTPStorage
+    - support of some storages of one type (use named URL like git_storageName, file_storageName).
+        Core will look for special name and if not found use any other storage the same type
+- Animation:
+    - еффекты анимации на превью (для использования в кастомных виджетах), свойства для превью в отдельном табе показывать
+- Page:
+    - each overlay to layer for better preview
+    - columns
+    - group oparations: mooving
+    - page shadow effect;
+    - undo/redo
+- Licensing:
+    - изучить опыт двойного лицензирования http://www.kdab.com/kdab-products/kd-reports/, http://www.kdab.com/kdab-products/prices/
+- Items:
+    - Chart: красивые чарты (вкладки в браузере содержат примеры), мультиязыковые отчеты
+    - HTML item: move logic to memo
+    - dynamic (cross) tables
+- Report Wizard
+- Designer:
+    - Preview: 2 page mode,
+    - Multilingual module with renderer support
+    - Preview editable
+    - undo/redo plugin
+    - script editor: functions, variables
+- Core:
+    - subreports
+    - export modules
+- plugin priority. если есть несколько плагинов для одного имени. оставлять с более высоким приоритетом. Дает возможность выпускать дополнения в пакетах, которые ставятся поверх уже установленного репорта не удаляя основные плагины
+
+
+
+- (отменено - сильно усложняет логику) разрешить итемы без банда прямо на страницу
++ cразу идет на печать - без превью
+- implement url scheme "module.file:" that returns cached file path. for example: git.file:, ftp.file:, res.file:
+void log(LogLevel level, const QString & moduleName, const QString & fullMessage) const;
+void log(LogLevel level, QString moduleName, QString shortMessage, QString fullMessage) const;
+void sendMetric(MessageType type, const QString & message);
++ не копируются иконки в установочную директорию для виндовса
+- загружать только одну версию либы с одинаковым именем (для виндовса)
++ designerPreview: page thumbnails
++ enum с типами модулей
++ пофиксить propertyeditor and objectinspector in windows;
+- ItemInterface::canBePlacedTo for special items
++ сторадж плагин для DB
++ designer::reports: добавление и удаление репортов
++ портировать другие итемы
+- reportRender (toFile(), toView(), toRaw())
+- (отложено оптимизация) похоже что тяжелые скрипты могут тормозить ГУИ. может пускать его уже в потоке?
+? изменение рендерера во вкладке "Reports" не применяются сразу
+- (отложено)designer::datasetEditor клонирование датасетов
+- размер шрифтов в редакторе свойств и редакторах скриптов и запросов
+- stratch and allow split items and bands
+- (отложено до портирование на qt5)preview на основе вебкит с раскрывающимися списками
++ портировать элементы
++ редактор форм - интегрировать designer во вкладку
+- сделать интерфейс для управления главным окном из внешних плагинов
++ (отменен)организовать опрос "сколько бы вы заплатили чтобы дальше развивать exaro?"
+- сделать водяной знак "Демо" через статическую переменную в каждом итеме
+- добавить свойство realSize(forcedSize) для случая когда нужно установить 0 высоту банда. или флаг (невидимый, но печатать)
+- вынести смещение в свойства
+- watermark layer
+
+
++ по умолчанию в script - report.run()
++ виджет предпросмотра отчетов
++ простой пример юзания библиотеки
++ StorageInterface возвращять объекты в виде QVariant, опрашивать тип и конвертировать
++ убрать submodule name  ввести соглашение слать имя модуля как module::submodule::subsubmodule
++ не сохранять в файл служебные свойства начинающиеся с _
++ MemStorage для хранения объектов прямо в отчете в байткоде: res:images/photo.jpg
++ добавить опции хранилища в Report Editor
++ поддержка нескольких хранилищ встроенных в отчет
++ для принтера рендерера и стораджа в отчете убрать пропертиедитор если плагин не подсоединен к отчету и выводить надпись "Uses global options"
++ копировать примеры отчетов из установщика в папку пользователя в Винде и Линуксе (сделано принудительной установкой путей в плагине из common.pri)
++ если выделить и потянуть банд = краш
++ исправить childAt childrenAt allChildrenAt в ItemInterface и PageInterface
++ Memo: обрезается буква y внизу.
++ при изменении масштаба Chart item перерисовывается неправильно
++ сторадж плагин для GIT
+??- редактироваение пути в filesystem dataset не сохраняется если редактировать и сразу сохранить
++ исправит ItemInterface::map... они не учитывают в каких единицах входные параметры
++ починить показ margins свойства
++ заменить кнопки с текстом на пиктограммы
++ propertyEditor: описания для property: _propertyname_description
++ редактор страницы: убрать контекстное меню для фанситаб со всего экрана кроме самого таба
++ заимплементить meassure и отвязать итемы от страницы
++ краш если нажать на кнопку принтера с неотрендеренным отчетом
++ растягивать итемы если меняется геометрия страницы
++ скрыть изменение meassure на итемах
++ добавление итемов в landscape неправильное.
++ property info in propertyeditor
++ магниты
++ сделать юзерские переменные: отложено. через скрипт делать
+
+
+FIXME:
+- при добавлении банда в самый верх, он не добавляется. надо зазор в 10-20 пикселей
+
+Commercial::
+PAGEGUI::updateItems animation
+
++ filesystem dataset
++ port cvs dataset
++ filesystem plugin усли путь не абсолютний - искать от домашнего каталога
++ для мемо опцию - растягивать шрифт по размеру
++ переделать методы сторадж и формы использовать только для возврата имени объекта, без загрузки его
++ сторадж интерфейс сделать универсальным для сетевого взаимодействия
++ вкладка Storage для Report (отменено)
++ краш усли отчет не удалось загрузить на старте
++ баг рендеринга
++ designer::PageEditor:  добавление, клонирование, удаление страниц
++ remove boost dependencie from tabwidget
++ доделать скриптовый движок в рендерере и скрипт редактор
++ сменить лицензию на дизайнер и его модули
++ при повторном запуске проверять запущен ли скрипт или нет и удалять предыдущий запуск(мультизапуск)
++ сделаль рендеринг через сериализацию модели страницы в рендерере, возможно сериализировать каждый отрендеренный айтем
++ краш если запустить отчет на рендеринг несколько раз (вероятно список страниц не очищается)
++ сохранять скрипт если репорт сохрняется на диск
++ при закрытии главного окна оно удаляет отрендеренные страницы и ядро крашится при их удалении
++ рендерер мемори лик;
++ UIs
++ UI loading from file
++ пофиксить краши при выходе
++ copyrights in Designer
++ designer::about
++ краш если отрендерить отчет и потом загрузить другой шаблон
++ zoom for fontConvert
++ при рендеринге и печати через ReportCore запускать дочерний объект из ReportInterface объекта
++ рендерер и принтер сделать объектами ибо иначе: нет механизма для нотификации смены свойств.
++ создание и удаление отчетов из модуля Reports
++ при запуске рендерера делать копию репорта и запускать с копии
++ доделать листание и масштабирование в Preview
++ печать отчетов
++ redrawing after zoom is not correct
++ сделать удаление итемов мышей и Del
++ селекшн должен двигаться при перемещении итема
++ change renderer interface for keep all rendered pages inside and push it on demand. It makes posible to cache pages on disk/etc/
++ void Page::slotItemDestroyed(QObject* object) should be imroved for correct rearrange bands
++ краш: отрендерить, перелистнуть на 2 страницу, отрендерить опять.
++ page::items and page::d->items - make it correct
++ page editor object navigator shoul
++
+d choose active object
++ пофиксить баги в имаджитем
++ make item clone
++ for designer modules need to implement activate/deactivate methods for connect/disconnect to public actions like copy/paste/zoom
++ item store/restore state needed for renderer
++ make corection for void SimpleRenderedItem::paint. it's wrong.
+
++ report version
++ вопрос о сохранении документа
++ разобраться с globals.h содержит части exaro
++ перевести все данные на DataSet
++ в редактор запросов - свойства и зависимости запросов
++ линейки
++ редактор свойств для объектов по ДБЛ клик
++ заголовки бандов вверху опционально
++ панель инструментов компактнее
++ функции в скрипт (есть встроенные в qtScript)
++ сегфолт при подключении не к той БД
++ колонки в банде
++ разделитель колонок в банде
++ поворот элементов
++ изменение размеров точками на контуре
++ перемещение элементов курсором по шагу сетки
++ действия над группой объектов
++ система вывода сообщений
++- разобраться с плагинами Page и pageinterface (чисто виртуальные интерфейсы лучше, потомучто при
+        нахождении ошибок в них не требуется полная перекомпиляция)
++ ошибка при вызове контекстног меню на Text
++ при ресайзе банда не обновляются следующие
+

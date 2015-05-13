@@ -1,0 +1,15 @@
+CREATE ..\..\..\..\..\..\build\cutereport\plugins\libDatasetModel.a
+ADDMOD modeldataset.o
+ADDMOD modeldatasethelper.o
+ADDMOD testmodel.o
+ADDMOD columntypemodel.o
+ADDMOD proxymodel.o
+ADDMOD clonemodel.o
+ADDMOD qrc_modeldataset.o
+ADDMOD moc_modeldataset.o
+ADDMOD moc_modeldatasethelper.o
+ADDMOD moc_testmodel.o
+ADDMOD moc_columntypemodel.o
+ADDMOD moc_proxymodel.o
+ADDMOD moc_clonemodel.o
+SAVE

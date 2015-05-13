@@ -1,0 +1,17 @@
+CREATE ..\..\..\build\libCuteReportWidgets.dll
+ADDMOD combobox.o
+ADDMOD objectpreview.o
+ADDMOD reportpreview.o
+ADDMOD stdstoragedialog.o
+ADDMOD emptydialog.o
+ADDMOD exportdialog.o
+ADDMOD functions_gui.o
+ADDMOD qrc_reportpreview.o
+ADDMOD qrc_stdstoragedialog.o
+ADDMOD moc_combobox.o
+ADDMOD moc_objectpreview.o
+ADDMOD moc_reportpreview.o
+ADDMOD moc_stdstoragedialog.o
+ADDMOD moc_emptydialog.o
+ADDMOD moc_exportdialog.o
+SAVE
