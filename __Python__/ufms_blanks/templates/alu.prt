@@ -1,0 +1,24 @@
+<report>
+ <font name="body" size="8" typeface="Arial" />
+ <layout bottommargin="43" leftmargin="71" pagesize="A4" rightmargin="43" topmargin="43">
+  <style bgcolor="#FFFFFF" color="#000000" font="body" />
+  <header>
+   <box height="20" />
+  </header>
+  <footer>
+   <box height="20" />
+  </footer>
+  <title>
+   <box height="20" />
+  </title>
+  <summary>
+   <box height="20" />
+  </summary>
+  <detail>
+   <box height="556" />
+   <image file="templates/ScanImage001.jpg" scale="fill" type="jpeg">
+    <box />
+   </image>
+  </detail>
+ </layout>
+</report>

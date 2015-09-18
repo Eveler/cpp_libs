@@ -1,0 +1,111 @@
+<?xml version="1.0"?>
+<template dpi="96">
+  <page size="A4" orientation="Portrait"/>
+<!--  <assign name="pix" value="QPixmap('D:/devel/python/ufms_blanks/templates/2015-02-16 blank/blank 003a.jpg')"/>-->
+<!--  <drawText params="0, 0, str(pix.width()*dpi/600)"/>
+  <assign name="dx" value="page_right_px-pix.width()*dpi/600-margin_right*mm*3"/>-->
+<!--  <assign name="dx" value="page_right_px-379.68-margin_right*mm*3"/>
+  <drawPixmap params="page_right_px, 0, pix.scaledToWidth(pix.width()*dpi/600)"/>
+  <drawPixmap params="0, 0, pix.scaledToWidth(pix.width()*dpi/600)"/>-->
+  <assign name="font" value="QFont('Times New Roman', 7)"/>
+  <setFont params="font"/>
+  <drawText params="123*mm, 10.4*mm, 'ФОРМА №6'"/>
+  <script>font.setPointSizeF(11)</script>
+  <script>font.setBold(True)</script>
+  <setFont params="font"/>
+  <drawText params="12.4*mm, 16*mm, 'ЗАЯВЛЕНИЕ О СНЯТИИ СРЕГИСТРАЦИОННОГО УЧЕТА ПО'"/>
+  <drawText params="51.6*mm, 20.2*mm, 'МЕСТУ ЖИТЕЛЬСТВА'"/>
+  <script>font.setBold(False)</script>
+  <script>font.setPointSizeF(11)</script>
+  <setFont params="font"/>
+  <assign name="pen" value="QPen()"/>
+  <script>pen.setWidth(1)</script>
+  <setPen params="pen"/>
+  <drawText params="27.3*mm, 29.4*mm, 'В орган регистрационного учета'"/>
+  <drawText params="15*mm, 26*mm, 124*mm, 10*mm, 0x0001 | 0x1000, ' '*66 + data.organ"/>
+  <drawLine params="82*mm, 30.2*mm, 140.2*mm, 30.2*mm"/>
+  <drawLine params="14*mm, 35.6*mm, 140.2*mm, 35.6*mm"/>
+  <drawText params="9*mm, 43.2*mm, 'от'"/>
+  <drawText params="15*mm, 39.8*mm, 124*mm, 5*mm, 0x0001 | 0x1000, data.surname + ' ' + data.middlename + ' ' +  data.lastname + ', '+ data.birthday.strftime('%d%m%Y')"/>
+  <script>font.setPointSizeF(8)</script>
+  <setFont params="font"/>
+  <drawText params="44*mm, 46.2*mm, '(фамилия, имя, отчество, дата рождения)'"/>
+  <script>font.setPointSizeF(10)</script>
+  <setFont params="font"/>
+  <drawLine params="14*mm, 44*mm, 140.2*mm, 44*mm"/>
+  <drawLine params="9*mm, 53.2*mm, 140.2*mm, 53.2*mm"/>
+  <drawText params="8*mm, 59.2*mm, 'Документ, удостоверяющий  личность: вид'"/>
+  <drawText params="74*mm, 56*mm, 25*mm, 5*mm, 0x0004 | 0x1000 | 0x2000, data.pasport_type"/>
+  <drawLine params="74*mm, 59.4*mm, 99*mm, 59.4*mm"/>
+  <drawText params="99.4*mm, 59.2*mm, 'серия'"/>
+  <drawText params="110*mm, 56*mm, 11*mm, 5*mm, 0x0004 | 0x1000 | 0x2000, data.passport_series"/>
+  <drawLine params="109*mm, 59.4*mm, 120.4*mm, 59.4*mm"/>
+  <drawText params="121.4*mm, 59.2*mm, '№'"/>
+  <drawText params="126*mm, 56*mm, 14*mm, 5*mm, 0x0004 | 0x1000 | 0x2000, data.passport_num"/>
+  <drawLine params="125*mm, 59.4*mm, 140.2*mm, 59.4*mm"/>
+  <drawText params="8*mm, 66.4*mm, 'выдан'"/>
+  <drawText params="18*mm, 63*mm, 91*mm, 5*mm, 0x0004 | 0x1000 | 0x2000, data.passport_organ"/>
+  <drawLine params="18*mm, 66.6*mm, 109.4*mm, 66.6*mm"/>
+  <script>font.setPointSizeF(8)</script>
+  <setFont params="font"/>
+  <drawText params="44*mm, 69*mm, '(наименование органа, учреждения)'"/>
+  <script>font.setPointSizeF(10)</script>
+  <setFont params="font"/>
+  <drawText params="110.4*mm, 66.4*mm, 'Код'"/>
+  <drawText params="118*mm, 63*mm, 21*mm, 5*mm, 0x0004 | 0x1000 | 0x2000, data.passport_organ_cod"/>
+  <drawLine params="117*mm, 66.6*mm, 140.2*mm, 66.6*mm"/>
+  <drawText params="8*mm, 73.4*mm, 'Дата выдачи'"/>
+  <drawText params="29*mm, 70.2*mm, 29*mm, 5*mm, 0x0004 | 0x1000 | 0x2000, data.data.passport_date.strftime('%d%m%Y г.')"/>
+  <drawLine params="27.6*mm, 74*mm, 59*mm, 74*mm"/>
+  <drawText params="8*mm, 81.4*mm, 'Законный представитель'"/>
+  <drawText params="45*mm, 78.2*mm, 55*mm, 5*mm, 0x0001 | 0x1000 | 0x2000, data.legal"/>
+  <drawLine params="44.6*mm, 82*mm, 140.2*mm, 82*mm"/>
+  <script>font.setPointSizeF(8)</script>
+  <setFont params="font"/>
+  <drawText params="60*mm, 84*mm, '(указать: отец, мать, опекун, попечитель, Ф.И.О.,'"/>
+  <drawLine params="8.6*mm, 89.6*mm, 140.2*mm, 89.6*mm"/>
+  <drawText params="60*mm, 92*mm, 'паспорные данные)'"/>
+  <script>font.setPointSizeF(10)</script>
+  <setFont params="font"/>
+  <drawText params="10.2*mm, 98.6*mm, 'В связи с регистрацией по новому месту жительства по адресу:'"/>
+  <drawText params="9*mm, 95.4*mm, 131*mm, 9*mm, 0x0001 | 0x1000, ' '*122 + (data.out_region + ', ' if len(data.out_region) > 0 else '') + (data.out_rayon + ', ' if len(data.out_rayon) > 0 else '') + (data.out_town + ', ' if len(data.out_town) > 0 else '') + (data.out_locality +', ' if len(data.out_locality) > 0 else '') + data.out_street +', ' + data.out_house + (', корп. ' + data.out_housing if len(data.out_housing) > 0 else '') + (', кв. ' + data.out_flat() if len(data.out_flat) > 0 else '')"/>
+  <drawLine params="104*mm, 98.8*mm, 140.2*mm, 98.8*mm"/>
+  <drawLine params="9*mm, 103*mm, 140.2*mm, 103*mm"/>
+  <script>font.setPointSizeF(8)</script>
+  <setFont params="font"/>
+  <drawText params="55*mm, 105.2*mm, '(указать точный адрес)'"/>
+  <script>font.setPointSizeF(10)</script>
+  <setFont params="font"/>
+  <drawText params="8*mm, 119.4*mm, 'Орган регистрационного учета'"/>
+  <drawLine params="56*mm, 119.6*mm, 140.2*mm, 119.6*mm"/>
+  <script>font.setPointSizeF(8)</script>
+  <setFont params="font"/>
+  <drawText params="95*mm, 121.8*mm, '(наименование органа)'"/>
+  <script>font.setPointSizeF(10)</script>
+  <setFont params="font"/>
+  <drawText params="8*mm, 130.4*mm, 'Прошу снять меня с регистрационного учета по прежнему месту жительства'"/>
+  <drawText params="8*mm, 135*mm, 'по адресу:'"/>
+  <drawLine params="25*mm, 135.2*mm, 140.2*mm, 135.2*mm"/>
+  <drawText params="9*mm, 131.6*mm, 131*mm, 9*mm, 0x0001 | 0x1000, ' '*22 + (data.from_region + ', ' if len(data.from_region) > 0 else '') + (data.from_rayon + ', ' if len(data.from_rayon) > 0 else '') + (data.from_town + ', ' if len(data.from_town) > 0 else '') + (data.from_locality +', ' if len(data.from_locality) > 0 else '') + data.from_street +', ' + data.from_house + (', корп. ' + data.from_housing if len(data.from_housing) > 0 else '') + (', кв. ' + data.from_flat if len(data.from_flat) > 0 else '')"/>
+  <drawLine params="8*mm, 139.2*mm, 140.2*mm, 139.2*mm"/>
+  <drawText params="10.2*mm, 152*mm, 'Подпись заявителя'"/>
+  <drawLine params="39*mm, 152.2*mm, 80*mm, 152.2*mm"/>
+  <drawText params="10.2*mm, 157*mm, 'законного представителя (ненужное зачеркнуть)'"/>
+  <drawLine params="84*mm, 157.2*mm, 99*mm, 157.2*mm"/>
+  <drawText params="100*mm, 157*mm, '\u0022'"/>
+  <drawLine params="102*mm, 157.2*mm, 110*mm, 157.2*mm"/>
+  <drawText params="110.4*mm, 157*mm, '\u0022'"/>
+  <drawLine params="112*mm, 157.2*mm, 135*mm, 157.2*mm"/>
+  <drawText params="136*mm, 157*mm, 'г.'"/>
+  <drawText params="12*mm, 166*mm, 'Подпись гр.'"/>
+  <drawLine params="30*mm, 166.2*mm, 72*mm, 166.2*mm"/>
+  <drawText params="73*mm, 166*mm, 'заверяю.'"/>
+  <drawText params="9*mm, 179*mm, 'М. П.'"/>
+  <drawText params="26*mm, 179*mm, 'Подпись и Ф.И.О. должностного лица'"/>
+  <drawLine params="82*mm, 179.2*mm, 99*mm, 179.2*mm"/>
+  <drawText params="100*mm, 179*mm, '\u0022'"/>
+  <drawLine params="102*mm, 179.2*mm, 110*mm, 179.2*mm"/>
+  <drawText params="110.4*mm, 179*mm, '\u0022'"/>
+  <drawLine params="112*mm, 179.2*mm, 135*mm, 179.2*mm"/>
+  <drawText params="136*mm, 179*mm, 'г.'"/>
+</template>

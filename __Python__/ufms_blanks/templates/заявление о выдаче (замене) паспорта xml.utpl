@@ -1,0 +1,391 @@
+<?xml version="1.0"?>
+<template dpi="96">
+  <page size="A4" orientation="Portrait"/>
+  <!--<assign name="pix" value="QPixmap('D:/devel/python/ufms_blanks/templates/2015-02-16 blank/blank 004.jpg')"/>
+  <drawPixmap params="0, 0, pix.scaledToWidth(pix.width()*dpi/(600+104))"/>-->
+  <assign name="pen" value="QPen()"/>
+  <script>pen.setWidth(1)</script>
+  <setPen params="pen"/>
+  <fillRect params="0, 0, 9, 11, 2"/>
+  <fillRect params="651, 0, 9, 11, 2"/>
+  <fillRect params="0, 458, 9, 11, 2"/>
+  <fillRect params="651, 458, 9, 11, 2"/>
+  <assign name="font" value="QFont('Arial', 6)"/>
+  <setFont params="font"/>
+  <drawText params="157.4*mm, 5*mm, 'Форма 1П'"/>
+  <script>font.setPointSizeF(5)</script>
+  <setFont params="font"/>
+  <drawText params="50*mm, 5*mm, 'Приложение № 1 к Административному регламенту ФМС России по выдаче, замене и учету паспортов гражданина РФ'"/>
+  <script>font.setPointSizeF(7)
+font.setBold(True)
+  </script>
+  <setFont params="font"/>
+  <rotate params="-90"/>
+  <drawText params="-87.4*mm, 2.4*mm, 'Заявление о выдаче (замене) паспорта'"/>
+  <rotate params="90"/>
+  <script>font.setBold(False)</script>
+  <setFont params="font"/>
+  <drawText params="9*mm, 9.4*mm, 'Код подразделения ФМС'"/>
+  <drawText params="46*mm, 9.4*mm, 'Паспорт'"/>
+  <drawText params="60.6*mm, 9.4*mm, 'серия'"/>
+  <drawText params="71*mm, 9.4*mm, 'номер'"/>
+  <drawText params="103.6*mm, 9.4*mm, 'дата'"/>
+  <drawText params="116*mm, 9.4*mm, 'месяц'"/>
+  <drawText params="127.2*mm, 9.4*mm, 'год'"/>
+  <for var="i" in="range(0, 6)">
+    <drawRect params="(9+5.8*i)*mm, 10.4*mm, 5.8*mm, 7*mm"/>
+  </for>
+  <for var="i" in="range(0, 4)">
+    <drawRect params="(46+5.8*i)*mm, 10.4*mm, 5.8*mm, 7*mm"/>
+  </for>
+  <for var="i" in="range(0, 6)">
+    <drawRect params="(70+5.4*i)*mm, 10.4*mm, 5.4*mm, 7*mm"/>
+  </for>
+  <for var="i" in="range(0, 2)">
+    <drawRect params="(103.6+5.4*i)*mm, 10.4*mm, 5.4*mm, 7*mm"/>
+  </for>
+  <for var="i" in="range(0, 2)">
+    <drawRect params="(116+5*i)*mm, 10.4*mm, 5*mm, 7*mm"/>
+  </for>
+  <for var="i" in="range(0, 4)">
+    <drawRect params="(127+5*i)*mm, 10.4*mm, 5*mm, 7*mm"/>
+  </for>
+  <drawText params="6.4*mm, 22.4*mm, '1.'"/>
+  <if cond="data.new_surname">
+    <drawText params="9*mm, 20*mm, 130*mm, 3*mm, 0x0001 | 0x1000, data.new_surname+' '+data.new_middlename+' '+data.new_lastname"/>
+  </if>
+  <if cond="not data.new_surname and data.surname">
+    <drawText params="9*mm, 20*mm, 130*mm, 3*mm, 0x0001 | 0x1000, data.surname+' '+data.middlename+' '+data.lastname"/>
+  </if>
+  <drawLine params="9*mm, 24*mm, 140*mm, 24*mm"/>
+  <script>font.setPointSizeF(6)</script>
+  <setFont params="font"/>
+  <drawText params="10.4*mm, 25.8*mm, 'Фамилия, имя, отчество'"/>
+  <drawRect params="142.2*mm, 22*mm, 31*mm, 39.6*mm"/>
+  <script>font.setPointSizeF(7)</script>
+  <setFont params="font"/>
+  <drawText params="6.4*mm, 29*mm, '2.'"/>
+  <drawText params="9*mm, 26.4*mm, 28*mm, 3*mm, 0x0001 | 0x1000, data.birthday.strftime('%d%m%Y')"/>
+  <drawLine params="9*mm, 31*mm, 38*mm, 31*mm"/>
+  <script>font.setPointSizeF(6)</script>
+  <setFont params="font"/>
+  <drawText params="9.4*mm, 33.2*mm, 'Число, месяц, год рождения'"/>
+  <script>font.setPointSizeF(7)</script>
+  <setFont params="font"/>
+  <drawText params="41*mm, 30*mm, '3. Пол'"/>
+  <drawRect params="50*mm, 28.2*mm, 3*mm, 3*mm"/>
+  <script>font.setPointSizeF(5)</script>
+  <setFont params="font"/>
+  <drawText params="53.8*mm, 30*mm, 'муж.'"/>
+  <if cond="data.male">
+    <drawLine params="50.4*mm, 28.2*mm, 51.4*mm, 31.2*mm"/>
+    <drawLine params="51.4*mm, 31.2*mm, 52.4*mm, 27*mm"/>
+  </if>
+  <drawRect params="60*mm, 28.2*mm, 3*mm, 3*mm"/>
+  <drawText params="63.6*mm, 30*mm, 'жен.'"/>
+  <if cond="not data.male">
+    <drawLine params="60.4*mm, 28.2*mm, 61.4*mm, 31.2*mm"/>
+    <drawLine params="61.4*mm, 31.2*mm, 62.4*mm, 27*mm"/>
+  </if>
+  <script>font.setPointSizeF(7)</script>
+  <setFont params="font"/>
+  <drawText params="71*mm, 30*mm, '4.'"/>
+  <drawText params="74*mm, 27.6*mm, 64*mm, 3*mm, 0x0001 | 0x1000, data.birth_locality + ' ' + data.birth_town + ' ' +data.birth_rayon"/>
+  <drawLine params="74*mm, 31.4*mm, 140*mm, 31.4*mm"/>
+  <script>font.setPointSizeF(6)</script>
+  <setFont params="font"/>
+  <drawText params="77*mm, 33.8*mm, 'Место рождения - село, поселок, город, район, область,'"/>
+  <script>font.setPointSizeF(7)</script>
+  <setFont params="font"/>
+  <drawText params="9*mm, 34.4*mm, 128*mm, 3*mm, 0x0001 | 0x1000 | 0x2000, data.birth_region+' '+data.birth_country()"/>
+  <drawLine params="9*mm, 38*mm, 140*mm, 38*mm"/>
+  <script>font.setPointSizeF(6)</script>
+  <setFont params="font"/>
+  <drawText params="40*mm, 40*mm, 'край, республика (по существующему административно-территориальном делению)'"/>
+  <script>font.setPointSizeF(7)</script>
+  <setFont params="font"/>
+  <drawText params="6.4*mm, 42.2*mm, '5.'"/>
+  <drawText params="9*mm, 40*mm, 129*mm, 3*mm, 0x0001 | 0x1000 | 0x2000, data.married"/>
+  <drawLine params="9*mm, 44*mm, 140*mm, 44*mm"/>
+  <script>font.setPointSizeF(6)</script>
+  <setFont params="font"/>
+  <drawText params="12.6*mm, 46.4*mm, 'Семейное положение (если состоит в браке, указаь фамилию, имя, отчество жены/мужа)'"/>
+  <drawLine params="9*mm, 50.8*mm, 140*mm, 50.8*mm"/>
+  <drawText params="12*mm, 52.8*mm, 'каким органом ЗАГСа и когда зарегистрирован брак'"/>
+  <script>font.setPointSizeF(7)</script>
+  <setFont params="font"/>
+  <drawText params="9*mm, 47.2*mm, 129*mm, 3*mm, 0x0001 | 0x1000 | 0x2000, data.zags+' '+data.married_date.strftime('%d%m%Y')"/>
+  <drawText params="6.4*mm, 55.6*mm, '6.'"/>
+  <drawText params="9*mm, 53.4*mm, 127*mm, 3*mm, 0x0001 | 0x1000 | 0x2000, 'Отец: '+data.father_surname+' '+data.father_middlename+' '+data.father_lastname"/>
+  <drawLine params="9*mm, 56.6*mm, 140*mm, 56.6*mm"/>
+  <script>font.setPointSizeF(6)</script>
+  <setFont params="font"/>
+  <drawText params="12*mm, 59.4*mm, 'Фамилия, имя, отчество отца и матери'"/>
+  <script>font.setPointSizeF(7)</script>
+  <setFont params="font"/>
+  <drawText params="9*mm, 59.4*mm, 127*mm, 3*mm, 0x0001 | 0x1000 | 0x2000, 'Мать: '+data.mather_surname+' '+data.mather_middlename+' '+data.mather_lastname"/>
+  <drawLine params="9*mm, 62.4*mm, 140*mm, 62.4*mm"/>
+  <drawText params="6.4*mm, 66.6*mm, '7. Место'"/>
+  <for var="i" in="range(0, 3)">
+    <drawEllipse params="18.8*mm, (64.2+i*4)*mm, 2.8*mm, 2.8*mm"/>
+  </for>
+  <drawText params="22.4*mm, 66.2*mm, 'жительства'"/>
+  <drawText params="22.4*mm, 70.2*mm, 'пребывания'"/>
+  <drawText params="22.4*mm, 74.2*mm, 'обращения'"/>
+  <if cond="data.live_town">
+    <script>
+path = QPainterPath()
+path.addEllipse(18.8*mm, 64.2*mm, 2.6*mm, 2.6*mm)
+painter.fillPath(path, QColor(0, 0, 0))
+painter.drawText(40*mm, 64.4*mm, 133*mm, 3*mm, 0x0001 | 0x1000 | 0x2000, data.live_region+', '+data.live_raion+', '+data.live_town+', '+data.live_locality)
+painter.drawText(40*mm, 70.8*mm, 133*mm, 3*mm, 0x0001 | 0x1000 | 0x2000, data.live_street+', '+data.live_house+', '+data.live_housing+', '+data.live_flat)
+    </script>
+  </if>
+  <if cond="not data.live_town and data.stay_town">
+    <script>
+path = QPainterPath()
+path.addEllipse(18.8*mm, 68*mm, 2.6*mm, 2.6*mm)
+painter.fillPath(path, QColor(0, 0, 0))
+painter.drawText(40*mm, 64.4*mm, 133*mm, 3*mm, 0x0001 | 0x1000 | 0x2000, data.stay_region+', '+data.stay_raion+', '+data.stay_town+', '+data.stay_locality)
+painter.drawText(40*mm, 70.8*mm, 133*mm, 3*mm, 0x0001 | 0x1000 | 0x2000, data.stay_street+', '+data.stay_house+', '+data.stay_housing+', '+data.stay_flat)
+    </script>
+  </if>
+  <if cond="not data.live_town and not data.stay_town and data.to_town">
+    <script>
+path = QPainterPath()
+path.addEllipse(18.8*mm, 72*mm, 2.6*mm, 2.6*mm)
+painter.fillPath(path, QColor(0, 0, 0))
+painter.drawText(40*mm, 64.4*mm, 133*mm, 3*mm, 0x0001 | 0x1000 | 0x2000, data.to_region+', '+data.to_raion+', '+data.to_town+', '+data.to_locality)
+painter.drawText(40*mm, 70.8*mm, 133*mm, 3*mm, 0x0001 | 0x1000 | 0x2000, data.to_street+', '+data.to_house+', '+data.to_housing+', '+data.to_flat)
+    </script>
+  </if>
+  <drawLine params="39.8*mm, 67.6*mm, 173*mm, 67.6*mm"/>
+  <drawLine params="39.8*mm, 74*mm, 173*mm, 74*mm"/>
+  <script>font.setPointSizeF(6)</script>
+  <setFont params="font"/>
+  <drawText params="40*mm, 70*mm, 'наименование области, города, поселка, села,'"/>
+  <drawText params="40*mm, 76*mm, 'название улицы, дом, корпус, квартира'"/>
+  <script>font.setPointSizeF(7)</script>
+  <setFont params="font"/>
+  <drawText params="6.4*mm, 78.2*mm, '8.'"/>
+  <if cond="data.citizenship">
+    <drawText params="9*mm, 76*mm, 164*mm, 3*mm, 0x0001 | 0x1000 | 0x2000, 'Состоял, '+data.citizenship"/>
+  </if>
+  <drawLine params="9*mm, 79.8*mm, 173*mm, 79.8*mm"/>
+  <script>font.setPointSizeF(6)</script>
+  <setFont params="font"/>
+  <drawText params="13*mm, 82*mm, 'Состоял ли ранее в иностранном гражданстве и когда принят в российское гражданство'"/>
+  <script>font.setPointSizeF(7)</script>
+  <setFont params="font"/>
+  <drawText params="6.4*mm, 87*mm, '9. Прошу выдать (заменить) паспорт'"/>
+  <drawText params="51*mm, 84.6*mm, 73*mm, 3*mm, 0x0001 | 0x1000 | 0x2000, data.cause"/>
+  <script>import datetime</script>
+  <drawText params="125.6*mm, 84.6*mm, 21*mm, 3*mm, 0x0004 | 0x1000 | 0x2000, datetime.date.today().strftime('%d.%m.%Y')"/>
+  <drawLine params="50.2*mm, 88.2*mm, 124*mm, 88.2*mm"/>
+  <drawLine params="125*mm, 88.2*mm, 146.2*mm, 88.2*mm"/>
+  <drawLine params="148*mm, 88.2*mm, 173*mm, 88.2*mm"/>
+  <script>font.setPointSizeF(6)</script>
+  <setFont params="font"/>
+  <drawText params="51*mm, 90.4*mm, 'указать причину выдачи/замены паспорта'"/>
+  <drawText params="135*mm, 90.2*mm, 'дата'"/>
+  <drawText params="155.4*mm, 90.2*mm, 'подпись'"/>
+  <script>font.setPointSizeF(7)</script>
+  <setFont params="font"/>
+  <drawText params="5.2*mm, 94.8*mm, '10. Подпись гр.'"/>
+  <if cond="data.new_surname">
+    <drawText params="24*mm, 92.4*mm, 110*mm, 3*mm, 0x0001 | 0x1000, data.new_surname+' '+data.new_middlename+' '+data.new_lastname"/>
+  </if>
+  <if cond="not data.new_surname and data.surname">
+    <drawText params="24*mm, 92.4*mm, 110*mm, 3*mm, 0x0001 | 0x1000, data.surname+' '+data.middlename+' '+data.lastname"/>
+  </if>
+  <drawLine params="23.6*mm, 95.4*mm, 133*mm, 95.4*mm"/>
+  <drawText params="135*mm, 94.8*mm, 'заверяю'"/>
+  <drawLine params="148.2*mm, 95.4*mm, 173*mm, 95.4*mm"/>
+  <script>font.setPointSizeF(6)</script>
+  <setFont params="font"/>
+  <drawText params="155.6*mm, 97.2*mm, 'подпись'"/>
+  <script>font.setPointSizeF(7)</script>
+  <setFont params="font"/>
+  <drawText params="5.2*mm, 98.8*mm, 25*mm, 6*mm, 0x0001 | 0x1000, '11. Паспорт выдать\n     на основании'"/>
+  <drawLine params="29*mm, 101.4*mm, 173*mm, 101.4*mm"/>
+  <script>font.setPointSizeF(6)</script>
+  <setFont params="font"/>
+  <drawText params="50*mm, 103.2*mm, 'наименование документа, серия, номер, когда и кем выдан'"/>
+  <script>font.setPointSizeF(7)</script>
+  <setFont params="font"/>
+  <drawText params="5.2*mm, 109.6*mm, 'Руководитель подразделения'"/>
+  <drawLine params="41.6*mm, 111.4*mm, 88*mm, 111.4*mm"/>
+  <drawText params="91.4*mm, 109.6*mm, 'Паспорт оформил'"/>
+  <drawLine params="113*mm, 111.4*mm, 173*mm, 111.4*mm"/>
+  <script>font.setPointSizeF(6)</script>
+  <setFont params="font"/>
+  <drawText params="56.2*mm, 113.6*mm, 'подпись'"/>
+  <drawText params="133.4*mm, 113.6*mm, 'подпись'"/>
+  <script>font.setPointSizeF(7)</script>
+  <setFont params="font"/>
+  <drawText params="5.2*mm, 116.8*mm, 'Паспорт получил'"/>
+  <drawLine params="26*mm, 119*mm, 123*mm, 119*mm"/>
+  <drawLine params="125*mm, 119*mm, 149*mm, 119*mm"/>
+  <drawLine params="151.6*mm, 119*mm, 173*mm, 119*mm"/>
+  <script>font.setPointSizeF(6)</script>
+  <setFont params="font"/>
+  <drawText params="56.2*mm, 120.8*mm, 'фамилия, имя, отчество'"/>
+  <drawText params="135*mm, 120.8*mm, 'дата'"/>
+  <drawText params="155.4*mm, 120.8*mm, 'подпись'"/>
+
+  <newPage margin_right="20" margin_left="15"/>
+  <!--<assign name="pix" value="QPixmap('./2015-02-16 blank/blank 005.jpg')"/>
+  <drawPixmap params="0, 0, pix.scaledToWidth(pix.width()*dpi/(600+104))"/>-->
+  <fillRect params="0, 0, 9, 11, 2"/>
+  <fillRect params="651, 0, 9, 11, 2"/>
+  <fillRect params="0, 458, 9, 11, 2"/>
+  <fillRect params="651, 458, 9, 11, 2"/>
+  <script>font.setPointSizeF(5)</script>
+  <setFont params="font"/>
+  <drawText params="33.4*mm, 3.6*mm, 'Приложение № 1 к Административному регламенту ФМС России по выдаче, замене и учету паспортов гражданина РФ'"/>
+  <script>font.setPointSizeF(8)
+font.setBold(True)
+  </script>
+  <setFont params="font"/>
+  <drawText params="33.4*mm, 7.2*mm, 'Заявление о выдаче (замене) паспорта. Форма № 1П (оборотная сторона)'"/>
+  <script>font.setPointSizeF(7)
+font.setBold(False)
+</script>
+  <setFont params="font"/>
+  <drawText params="2.2*mm, 16.2*mm, '12. Переменил(а) ФИО и другие анкетные данные с'"/>
+  <if cond="data.new_surname">
+    <drawText params="4*mm, 18.6*mm, 138*mm, 3*mm, 0x0001 | 0x1000, data.surname+' '+data.middlename+' '+data.lastname()"/>
+  </if>
+  <drawLine params="64*mm, 16.6*mm, 139*mm, 16.6*mm"/>
+  <drawText params="142*mm, 13.4*mm, 'Введено в АС'"/>
+  <drawRect params="141.6*mm, 14.2*mm, 33*mm, 12.5*mm"/>
+  <drawText params="142*mm, 16.6*mm, 'Дата:'"/>
+  <drawText params="142*mm, 19.8*mm, 'Номер:'"/>
+  <drawText params="142*mm, 25.4*mm, 'Подпись:'"/>
+  <drawLine params="2.4*mm, 21.7*mm, 139*mm, 21.7*mm"/>
+  <drawText params="2.2*mm, 27*mm, '13. Ранее имел паспорт гражданина Российской Федерации'"/>
+  <drawText params="2.7*mm, 31*mm, 'Код подразделения'"/>
+  <drawText params="39.6*mm, 31*mm, 'Паспорт'"/>
+  <drawText params="54*mm, 31*mm, 'серия'"/>
+  <drawText params="65*mm, 31*mm, 'номер'"/>
+  <drawText params="98*mm, 31*mm, 'дата'"/>
+  <drawText params="110.2*mm, 31*mm, 'месяц'"/>
+  <drawText params="121.5*mm, 31*mm, 'год'"/>
+  <for var="i" in="range(0, 6)">
+    <drawRect params="(3+5.8*i)*mm, 33*mm, 5.8*mm, 7*mm"/>
+  </for>
+  <for var="i" in="range(0, 4)">
+    <drawRect params="(39.6+5.8*i)*mm, 33*mm, 5.8*mm, 7*mm"/>
+  </for>
+  <for var="i" in="range(0, 6)">
+    <drawRect params="(63.6+5.4*i)*mm, 33*mm, 5.4*mm, 7*mm"/>
+  </for>
+  <for var="i" in="range(0, 2)">
+    <drawRect params="(97.4+5.4*i)*mm, 33*mm, 5.4*mm, 7*mm"/>
+  </for>
+  <for var="i" in="range(0, 2)">
+    <drawRect params="(109.4+5*i)*mm, 33*mm, 5*mm, 7*mm"/>
+  </for>
+  <for var="i" in="range(0, 4)">
+    <drawRect params="(120.6+5*i)*mm, 33*mm, 5*mm, 7*mm"/>
+  </for>
+  <drawText params="2.2*mm, 45*mm, '14. Выдан основной документ, удостоверяющий личность гражданина за пределами Российской Федерации'"/>
+  <drawText params="143.4*mm, 45*mm, 'Введено в АС'"/>
+  <drawRect params="143.2*mm, 45.8*mm, 31.3*mm, 12.5*mm"/>
+  <drawText params="144*mm, 48.2*mm, 'Дата:'"/>
+  <drawText params="144*mm, 51.4*mm, 'Номер:'"/>
+  <drawText params="144*mm, 57.4*mm, 'Подпись:'"/>
+  <drawText params="2.7*mm, 49.7*mm, 'Код подразделения'"/>
+  <drawText params="39.6*mm, 49.7*mm, 'Документ'"/>
+  <drawText params="54*mm, 49.7*mm, 'серия'"/>
+  <drawText params="65*mm, 49.7*mm, 'номер'"/>
+  <drawText params="98*mm, 49.7*mm, 'дата'"/>
+  <drawText params="110.2*mm, 49.7*mm, 'месяц'"/>
+  <drawText params="121.5*mm, 49.7*mm, 'год'"/>
+  <for var="i" in="range(0, 6)">
+    <drawRect params="(3+5.8*i)*mm, 51.2*mm, 5.8*mm, 7*mm"/>
+  </for>
+  <for var="i" in="range(0, 4)">
+    <drawRect params="(39.6+5.8*i)*mm, 51.2*mm, 5.8*mm, 7*mm"/>
+  </for>
+  <for var="i" in="range(0, 6)">
+    <drawRect params="(63.6+5.4*i)*mm, 51.2*mm, 5.4*mm, 7*mm"/>
+  </for>
+  <for var="i" in="range(0, 2)">
+    <drawRect params="(97.4+5.4*i)*mm, 51.2*mm, 5.4*mm, 7*mm"/>
+  </for>
+  <for var="i" in="range(0, 2)">
+    <drawRect params="(109.4+5*i)*mm, 51.2*mm, 5*mm, 7*mm"/>
+  </for>
+  <for var="i" in="range(0, 4)">
+    <drawRect params="(120.6+5*i)*mm, 51.2*mm, 5*mm, 7*mm"/>
+  </for>
+  <drawText params="2.2*mm, 64.6*mm, '15. Поступил запрос по форме № 25П из'"/>
+  <drawLine params="51.4*mm, 65*mm, 171*mm, 65*mm"/>
+  <script>font.setPointSizeF(6)</script>
+  <setFont params="font"/>
+  <drawText params="81*mm, 67*mm, 'наименование подразделения'"/>
+  <script>font.setPointSizeF(7)</script>
+  <setFont params="font"/>
+  <drawText params="6.4*mm, 71*mm, 'в связи с'"/>
+  <drawLine params="19.2*mm, 71.5*mm, 171*mm, 71.5*mm"/>
+  <script>font.setPointSizeF(6)</script>
+  <setFont params="font"/>
+  <drawText params="82*mm, 73.8*mm, 'указать причину'"/>
+  <script>font.setPointSizeF(7)</script>
+  <setFont params="font"/>
+  <drawText params="2.2*mm, 78*mm, '16. Поступило сообщение из'"/>
+  <drawLine params="39*mm, 78.6*mm, 171*mm, 78.6*mm"/>
+  <script>font.setPointSizeF(6)</script>
+  <setFont params="font"/>
+  <drawText params="82*mm, 80.6*mm, 'наименование органа ФМС России'"/>
+  <script>font.setPointSizeF(7)</script>
+  <setFont params="font"/>
+  <drawText params="6.2*mm, 84.2*mm, 'об уничтожении в связи с'"/>
+  <drawLine params="39*mm, 85.2*mm, 136*mm, 85.2*mm"/>
+  <script>font.setPointSizeF(6)</script>
+  <setFont params="font"/>
+  <drawText params="82*mm, 87*mm, 'указать причину'"/>
+  <script>font.setPointSizeF(7)</script>
+  <setFont params="font"/>
+  <drawText params="142*mm, 84.5*mm, 'Введено в АС'"/>
+  <drawRect params="141.6*mm, 85.2*mm, 33*mm, 12.5*mm"/>
+  <drawText params="142.2*mm, 87.9*mm, 'Дата:'"/>
+  <drawText params="142.2*mm, 91*mm, 'Номер:'"/>
+  <drawText params="142.2*mm, 96.6*mm, 'Подпись:'"/>
+  <drawText params="2.2*mm, 90.5*mm, '17. Паспорт уничтожен по акту'"/>
+  <drawLine params="39*mm, 91.4*mm, 136*mm, 91.4*mm"/>
+  <script>font.setPointSizeF(6)</script>
+  <setFont params="font"/>
+  <drawText params="73*mm, 93.2*mm, 'наименование подразделения, уничтожившего паспорт'"/>
+  <script>font.setPointSizeF(7)</script>
+  <setFont params="font"/>
+  <drawText params="2.7*mm, 97.3*mm, 'Код подразделения'"/>
+  <drawText params="39.6*mm, 97.3*mm, 'Акт номер'"/>
+  <drawText params="81.4*mm, 97.3*mm, 'дата'"/>
+  <drawText params="94*mm, 97.3*mm, 'месяц'"/>
+  <drawText params="105.2*mm, 97.3*mm, 'год'"/>
+  <for var="i" in="range(0, 6)">
+    <drawRect params="(3+5.8*i)*mm, 98.7*mm, 5.8*mm, 7*mm"/>
+  </for>
+  <for var="i" in="range(0, 7)">
+    <drawRect params="(39.6+5.5*i)*mm, 98.7*mm, 5.5*mm, 7*mm"/>
+  </for>
+  <for var="i" in="range(0, 2)">
+    <drawRect params="(81+5.4*i)*mm, 98.7*mm, 5.4*mm, 7*mm"/>
+  </for>
+  <for var="i" in="range(0, 2)">
+    <drawRect params="(93+5*i)*mm, 98.7*mm, 5*mm, 7*mm"/>
+  </for>
+  <for var="i" in="range(0, 4)">
+    <drawRect params="(104.2+5*i)*mm, 98.7*mm, 5*mm, 7*mm"/>
+  </for>
+  <drawText params="2.2*mm, 112*mm, '18. Другие сведения'"/>
+  <drawLine params="28*mm, 112.8*mm, 136*mm, 112.8*mm"/>
+  <drawLine params="5*mm, 117.4*mm, 136*mm, 117.4*mm"/>
+  <drawText params="142*mm, 107.7*mm, 'Введено в АС'"/>
+  <drawRect params="141.6*mm, 108.6*mm, 33*mm, 12.5*mm"/>
+  <drawText params="142.2*mm, 111.2*mm, 'Дата:'"/>
+  <drawText params="142.2*mm, 114*mm, 'Номер:'"/>
+  <drawText params="142.2*mm, 120*mm, 'Подпись:'"/>
+</template>

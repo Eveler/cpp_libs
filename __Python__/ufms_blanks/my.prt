@@ -1,0 +1,24 @@
+<report>
+ <font name="body" size="16" typeface="Arial" />
+ <layout bottommargin="43" leftmargin="71" pagesize="A4" rightmargin="43" topmargin="43">
+  <style bgcolor="#FFFFFF" color="#000000" font="body" />
+  <header>
+   <box height="20" />
+  </header>
+  <footer>
+   <box height="20" />
+  </footer>
+  <title>
+   <box height="20" />
+  </title>
+  <summary>
+   <box height="20" />
+  </summary>
+  <detail>
+   <box height="20" />
+   <field align="justified" expr="item">
+    <box halign="center" valign="center" />
+   </field>
+  </detail>
+ </layout>
+</report>

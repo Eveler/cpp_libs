@@ -1,0 +1,2 @@
+rem c:\Python34\Scripts\nuitka.bat --windows-disable-console --icon=1414939292_Online_writing.ico --remove-output --recurse-to=icons --recurse-to=db --recurse-to=config --recurse-to=addr_base.kladr --recurse-to=addr_base --recurse-to=addr_base.net --recurse-not-to=dbf.ver_33 ufms_blanks.py
+c:\Python34\Scripts\nuitka.bat --icon=1414939292_Online_writing.ico --remove-output --recurse-to=icons --recurse-to=db --recurse-to=config --recurse-to=addr_base.kladr --recurse-to=addr_base --recurse-to=addr_base.net --recurse-not-to=dbf.ver_33 ufms_blanks.py
